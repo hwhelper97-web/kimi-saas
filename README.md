@@ -17,7 +17,8 @@
    - `TWILIO_PHONE_NUMBER=...`
 3. Install: `npm install`
 4. `npx prisma migrate dev`
-5. `npm run dev`
+5. Seed demo businesses/users: `npm run prisma:seed`
+6. `npm run dev`
 
 ## Frontend Setup
 
@@ -53,3 +54,20 @@ Set webhook URL for number to:
 - gather callback: `POST /api/voice/gather`
 
 Supports business-specific conversational behavior via `businessType`.
+
+## Local Test Accounts (created by seed)
+
+Run `cd backend && npm run prisma:seed` to upsert:
+
+### Appointment businesses
+- **Kimi Dental Studio** (`APPOINTMENT`)
+  - Owner: `owner.appointment@kimi-saas.local` / `KimiApp!2026`
+  - Admin: `admin@kimi-saas.local` / `KimiAdmin!2026`
+- **Kimi Wellness Clinic** (`APPOINTMENT`)
+  - Owner: `owner.clinic@kimi-saas.local` / `KimiClinic!2026`
+
+### Order businesses
+- **Kimi Burger House** (`ORDER`)
+  - Owner: `owner.order@kimi-saas.local` / `KimiOrder!2026`
+- **Kimi Pizza Express** (`ORDER`)
+  - Owner: `owner.pizza@kimi-saas.local` / `KimiPizza!2026`
