@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  STAFF
+}
+
+enum BusinessType {
+  APPOINTMENT
+  ORDER
+}
+
+enum PlanType {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
+  COMPLETED
+}
+
+enum OrderType {
+  PICKUP
+  DELIVERY
+}
+
+enum OrderStatus {
+  NEW
+  CONFIRMED
+  PREPARING
+  READY
+  COMPLETED
+  CANCELED
+}
+
+enum CallChannel {
+  INBOUND
+  OUTBOUND
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  fullName     String
+  role         Role      @default(OWNER)
+  businessId   String
+  business     Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Business {
+  id                  String             @id @default(cuid())
+  name                String
+  slug                String             @unique
+  phone               String?
+  businessType        BusinessType
+  timezone            String             @default("UTC")
+  isActive            Boolean            @default(true)
+  planType            PlanType           @default(FREE)
+  subscriptionStatus  SubscriptionStatus @default(TRIAL)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  users               User[]
+  appointments        Appointment[]
+  availabilitySlots   TimeSlot[]
+  menus               Menu[]
+  orders              Order[]
+  callLogs            CallLog[]
+  aiSettings          AISettings?
+}
+
+model TimeSlot {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  dayOfWeek   Int
+  startTime   String
+  endTime     String
+  capacity    Int      @default(1)
+  isEnabled   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Appointment {
+  id            String            @id @default(cuid())
+  businessId    String
+  business      Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  startsAt      DateTime
+  endsAt        DateTime
+  notes         String?
+  status        AppointmentStatus @default(CONFIRMED)
+  source        String            @default("dashboard")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model Menu {
+  id          String      @id @default(cuid())
+  businessId  String
+  business    Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name        String
+  isActive    Boolean     @default(true)
+  items       MenuItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model MenuItem {
+  id          String      @id @default(cuid())
+  menuId      String
+  menu        Menu        @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  price       Decimal     @db.Decimal(10, 2)
+  isAvailable Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Order {
+  id               String      @id @default(cuid())
+  businessId       String
+  business         Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerName     String
+  customerPhone    String
+  orderType        OrderType
+  status           OrderStatus @default(NEW)
+  deliveryAddress  String?
+  specialInstructions String?
+  totalAmount      Decimal     @db.Decimal(10, 2)
+  itemsJson        Json
+  source           String      @default("dashboard")
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
+
+model CallLog {
+  id               String      @id @default(cuid())
+  businessId       String
+  business         Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  twilioCallSid    String      @unique
+  channel          CallChannel
+  phoneFrom        String
+  phoneTo          String
+  transcript       String?
+  summary          String?
+  bookingReference String?
+  orderReference   String?
+  createdAt        DateTime    @default(now())
+}
+
+model AISettings {
+  id               String      @id @default(cuid())
+  businessId       String      @unique
+  business         Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  greeting         String?
+  systemPrompt     String?
+  fallbackPhone    String?
+  voiceModel       String      @default("gpt-4o-mini")
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
