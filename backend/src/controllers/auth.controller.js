@@ -2,7 +2,8 @@ const authService = require("../services/auth.service");
 
 async function register(req, res, next) {
   try {
-    const data = await authService.register(req.validated.body);
+    const payload = req.validated?.body || req.body;
+    const data = await authService.register(payload);
     res.status(201).json(data);
   } catch (err) {
     next(err);
@@ -11,7 +12,9 @@ async function register(req, res, next) {
 
 async function login(req, res, next) {
   try {
-    const data = await authService.login(req.validated.body);
+    const payload = req.validated?.body || req.body;
+    console.log("[auth.controller] Login request received", { email: payload?.email });
+    const data = await authService.login(payload);
     res.json(data);
   } catch (err) {
     next(err);

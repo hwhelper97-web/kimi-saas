@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const prisma = require("../config/prisma");
-const { jwtSecret } = require("../config/env");
+const { getJwtSecret } = require("../config/env");
 const { HttpError } = require("../lib/httpError");
 
 async function register(input) {
@@ -32,24 +32,59 @@ async function register(input) {
 }
 
 async function login({ email, password }) {
-  const user = await prisma.user.findUnique({ where: { email }, include: { business: true } });
-  if (!user) throw new HttpError(401, "Invalid credentials");
+  try {
+    if (!email || !password) {
+      throw new HttpError(400, "Email and password are required");
+    }
 
-  const ok = await bcrypt.compare(password, user.passwordHash);
-  if (!ok) throw new HttpError(401, "Invalid credentials");
+    console.log(`[auth.service] Login attempt for email: ${email}`);
 
-  return buildAuthResponse(user, user.business);
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { business: true },
+    });
+
+    if (!user || !user.passwordHash) {
+      console.warn(`[auth.service] Login failed: user not found or missing passwordHash for ${email}`);
+      throw new HttpError(401, "Invalid credentials");
+    }
+
+    const ok = await bcrypt.compare(password, user.passwordHash);
+    if (!ok) {
+      console.warn(`[auth.service] Login failed: invalid password for ${email}`);
+      throw new HttpError(401, "Invalid credentials");
+    }
+
+    return buildAuthResponse(user, user.business);
+  } catch (error) {
+    if (error instanceof HttpError) throw error;
+
+    console.error("[auth.service] Unexpected login error", {
+      email,
+      message: error?.message,
+      stack: error?.stack,
+    });
+    throw new HttpError(500, "Unable to process login");
+  }
 }
 
 function buildAuthResponse(user, business) {
+  const safeBusiness = business || null;
+  const businessId = safeBusiness?.id || user.businessId || null;
+  const businessType = safeBusiness?.businessType || null;
+
+  if (!businessId) {
+    console.warn(`[auth.service] User ${user.id} has no business relation`);
+  }
+
   const token = jwt.sign(
     {
       userId: user.id,
-      businessId: business.id,
+      businessId,
       role: user.role,
-      businessType: business.businessType,
+      businessType,
     },
-    jwtSecret,
+    getJwtSecret(),
     { expiresIn: "7d" }
   );
 
@@ -60,8 +95,8 @@ function buildAuthResponse(user, business) {
       email: user.email,
       fullName: user.fullName,
       role: user.role,
-      businessId: business.id,
-      businessType: business.businessType,
+      businessId,
+      businessType,
     },
   };
 }

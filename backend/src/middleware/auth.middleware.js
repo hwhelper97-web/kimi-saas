@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { jwtSecret } = require("../config/env");
+const { getJwtSecret } = require("../config/env");
 const { HttpError } = require("../lib/httpError");
 
 function authRequired(req, _res, next) {
@@ -7,7 +7,7 @@ function authRequired(req, _res, next) {
   if (!token) return next(new HttpError(401, "Missing authorization token"));
 
   try {
-    req.auth = jwt.verify(token, jwtSecret);
+    req.auth = jwt.verify(token, getJwtSecret());
     return next();
   } catch {
     return next(new HttpError(401, "Invalid token"));
