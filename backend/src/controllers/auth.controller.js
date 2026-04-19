@@ -1,28 +1,17 @@
-const authService = require("../services/auth.service");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const prisma = require("../config/prisma");
 
-async function register(req, res, next) {
-  try {
-    const payload = req.validated?.body || req.body;
-    const data = await authService.register(payload);
-    res.status(201).json(data);
-  } catch (err) {
-    next(err);
-  }
+async function login(req, res) {
+  const { email, password } = req.body;
+  const admin = await prisma.adminUser.findUnique({ where: { email } });
+
+  if (!admin) return res.status(401).json({ message: "Invalid credentials" });
+  const valid = await bcrypt.compare(password, admin.passwordHash);
+  if (!valid) return res.status(401).json({ message: "Invalid credentials" });
+
+  const token = jwt.sign({ sub: admin.id, email: admin.email }, process.env.JWT_SECRET, { expiresIn: "12h" });
+  return res.json({ token });
 }
 
-async function login(req, res, next) {
-  try {
-    const payload = req.validated?.body || req.body;
-    console.log("[auth.controller] Login request received", { email: payload?.email });
-    const data = await authService.login(payload);
-    res.json(data);
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function me(req, res) {
-  res.json({ auth: req.auth });
-}
-
-module.exports = { register, login, me };
+module.exports = { login };

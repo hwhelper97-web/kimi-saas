@@ -1,13 +1,19 @@
+require("dotenv").config();
+const fs = require("fs");
+const path = require("path");
 const app = require("./app");
 const prisma = require("./config/prisma");
-const { port } = require("./config/env");
+
+const PORT = process.env.PORT || 5000;
+const uploadDir = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 async function main() {
   await prisma.$connect();
-  app.listen(port, () => console.log(`Backend running on http://localhost:${port}`));
+  app.listen(PORT, () => console.log(`ShahiPosh backend running on http://localhost:${PORT}`));
 }
 
-main().catch((err) => {
-  console.error(err);
+main().catch((error) => {
+  console.error(error);
   process.exit(1);
 });

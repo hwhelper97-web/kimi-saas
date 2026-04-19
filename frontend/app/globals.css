@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-brand-background text-brand-text antialiased;
+}
+
+.container-pad {
+  @apply mx-auto max-w-7xl px-4 md:px-8;
+}
+
+.glass-card {
+  @apply border border-brand-border bg-brand-card/70 backdrop-blur-sm;
+}

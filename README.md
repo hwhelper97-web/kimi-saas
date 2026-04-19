@@ -1,73 +1,96 @@
-# AI Voice SaaS (Appointment + Order)
+# ShahiPosh — Premium Clothing Brand Website
+
+A production-ready fashion e-commerce codebase featuring a luxury dark UI, Next.js App Router storefront, Express + Prisma backend, and admin dashboard workflows.
+
+## Tech Stack
+- **Frontend:** Next.js 14 (App Router), Tailwind CSS, Framer Motion
+- **Backend:** Node.js + Express REST API
+- **Database:** PostgreSQL with Prisma ORM
+- **Admin:** Authentication, product management, order management
+
+## Features
+- Animated premium hero section and micro-interactions
+- Responsive product grid with hover effects
+- Full pages: Home, Shop, Product Details, Cart & Checkout, About, Contact
+- Admin routes: login, products CRUD UI scaffold, orders dashboard
+- REST APIs for products and orders
+- Image upload support via Multer
+- Secure protected endpoints with JWT middleware
+- SEO metadata configured in layout
+- Environment-variable driven configuration
 
 ## Folder Structure
 
-- `backend/`: Express + Prisma + PostgreSQL + Twilio/OpenAI orchestration
-- `frontend/`: React + TypeScript + Zustand + Tailwind UI
+```bash
+.
+├── frontend/               # Next.js app for storefront + admin UI
+│   ├── app/
+│   ├── components/
+│   └── lib/
+├── backend/                # Express API + Prisma
+│   ├── prisma/
+│   └── src/
+└── README.md
+```
 
-## Backend Setup
+## Local Setup
 
-1. `cd backend`
-2. Copy env:
-   - `DATABASE_URL=postgresql://...`
-   - `JWT_SECRET=...`
-   - `OPENAI_API_KEY=...`
-   - `TWILIO_ACCOUNT_SID=...`
-   - `TWILIO_AUTH_TOKEN=...`
-   - `TWILIO_PHONE_NUMBER=...`
-3. Install: `npm install`
-4. `npx prisma migrate dev`
-5. Seed demo businesses/users: `npm run prisma:seed`
-6. `npm run dev`
+### 1) Install dependencies
+```bash
+npm install
+npm install --prefix frontend
+npm install --prefix backend
+```
 
-## Frontend Setup
+### 2) Configure environment variables
+```bash
+cp frontend/.env.example frontend/.env.local
+cp backend/.env.example backend/.env
+```
 
-1. `cd frontend`
-2. `npm install`
-3. `echo "VITE_API_URL=http://localhost:5000/api" > .env`
-4. `npm run dev`
+### 3) Prepare database
+```bash
+cd backend
+npx prisma generate
+npx prisma migrate dev --name init
+```
 
-## API Examples
+### 4) Run in development
+```bash
+npm run dev
+```
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:5000`
+
+## API Endpoints
 
 ### Auth
-
-- `POST /api/auth/register`
 - `POST /api/auth/login`
-- `GET /api/auth/me`
 
-### Appointment APIs
+### Products
+- `GET /api/products`
+- `GET /api/products/:id`
+- `POST /api/products` (protected + image upload)
+- `PUT /api/products/:id` (protected + image upload)
+- `DELETE /api/products/:id` (protected)
 
-- `POST /api/appointments`
-- `GET /api/appointments/availability`
-- `POST /api/appointments/slots`
+### Orders
+- `POST /api/orders`
+- `GET /api/orders` (protected)
+- `PATCH /api/orders/:id/status` (protected)
 
-### Order APIs
+## Deploy
 
-- `GET /api/order/menus`
-- `POST /api/order/menus`
-- `POST /api/order/orders`
+### Frontend (Vercel)
+- Import repo into Vercel
+- Set project root as `frontend`
+- Add `NEXT_PUBLIC_API_URL` env variable pointing to backend URL
 
-## Twilio Voice Webhooks
+### Backend
+- Deploy to Render/Railway/Fly.io
+- Set `DATABASE_URL`, `JWT_SECRET`, and `PORT`
+- Run `prisma migrate deploy`
 
-Set webhook URL for number to:
-- `POST /api/voice/inbound`
-- gather callback: `POST /api/voice/gather`
-
-Supports business-specific conversational behavior via `businessType`.
-
-## Local Test Accounts (created by seed)
-
-Run `cd backend && npm run prisma:seed` to upsert:
-
-### Appointment businesses
-- **Kimi Dental Studio** (`APPOINTMENT`)
-  - Owner: `owner.appointment@kimi-saas.local` / `KimiApp!2026`
-  - Admin: `admin@kimi-saas.local` / `KimiAdmin!2026`
-- **Kimi Wellness Clinic** (`APPOINTMENT`)
-  - Owner: `owner.clinic@kimi-saas.local` / `KimiClinic!2026`
-
-### Order businesses
-- **Kimi Burger House** (`ORDER`)
-  - Owner: `owner.order@kimi-saas.local` / `KimiOrder!2026`
-- **Kimi Pizza Express** (`ORDER`)
-  - Owner: `owner.pizza@kimi-saas.local` / `KimiPizza!2026`
+## Notes
+- For production image uploads, replace local disk storage with S3/Cloudinary.
+- Admin UI pages are included and connected structurally; wire login/session state for full workflow.
