@@ -1,0 +1,276 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Tenant {
+  id           String   @id @default(uuid())
+  name         String
+  stripeId     String?
+  plan         String   @default("starter")
+  monthlyLimit Int      @default(500)
+  usedMinutes  Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  users      User[]
+  businesses Business[]
+  appointments Appointment[]
+  orders     Order[]
+  calls      Call[]
+  
+  menuItems      MenuItem[]
+  menuSizes      MenuSize[]
+  menuAddons     MenuAddon[]
+  menuCategories MenuCategory[]
+  menuOptions    MenuOption[]
+  menuOptionGroups MenuOptionGroup[]
+  orderItems     OrderItem[]
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+
+  role        String   @default("OWNER")
+
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model Business {
+  id           String   @id @default(uuid())
+  name         String
+  type         String   @default("restaurant")
+
+  phoneNumber  String
+  address      String?
+  city         String?
+  country      String?
+
+  logoUrl      String?
+  theme        String?
+  language     String?
+  currency     String   @default("USD")
+  taxRate      Float    @default(0.0)
+  isMainBranch Boolean  @default(true)
+  timings      String?
+
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+
+  menuCategories MenuCategory[]
+  menuItems    MenuItem[]
+  calls        Call[]
+  orders       Order[]
+  appointments Appointment[]
+}
+
+model MenuCategory {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  imageUrl    String?
+  displayOrder Int     @default(0)
+  isActive    Boolean  @default(true)
+
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id])
+
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  items       MenuItem[]
+
+  createdAt   DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([businessId])
+}
+
+model MenuItem {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  price       Float?
+  imageUrl    String?
+  prepTime    Int     @default(15)
+  isAvailable Boolean @default(true)
+
+  // New fields for enhancements
+  isVeg       Boolean @default(false)
+  isVegan     Boolean @default(false)
+  isSpicy     Boolean @default(false)
+  isPopular   Boolean @default(false)
+  isNew       Boolean @default(false)
+  tags        String? // Comma-separated tags
+  displayOrder Int     @default(0)
+  availability String? // JSON for time/day-wise availability
+
+  categoryId  String?
+  category    MenuCategory? @relation(fields: [categoryId], references: [id])
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  sizes        MenuSize[]
+  addons       MenuAddon[]
+  optionGroups MenuOptionGroup[]
+  orderItems   OrderItem[]
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([businessId])
+}
+
+model MenuSize {
+  id    String @id @default(uuid())
+  name  String
+  price Float
+
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model MenuAddon {
+  id    String @id @default(uuid())
+  name  String
+  price Float
+
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model MenuOptionGroup {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  minSelect   Int      @default(0)
+  maxSelect   Int      @default(1)
+  isRequired  Boolean  @default(false)
+  displayOrder Int     @default(0)
+
+  menuItemId  String
+  menuItem    MenuItem @relation(fields: [menuItemId], references: [id])
+
+  options     MenuOption[]
+
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model MenuOption {
+  id    String @id @default(uuid())
+  name  String
+  price Float  @default(0.0)
+
+  optionGroupId String
+  optionGroup   MenuOptionGroup @relation(fields: [optionGroupId], references: [id])
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model Order {
+  id           String @id @default(uuid())
+  customerName String
+  total        Float
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  callId     String?
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+}
+
+model OrderItem {
+  id String @id @default(uuid())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  quantity Int
+
+  selectedSize   String?
+  selectedAddons String?
+  unitPrice      Float?
+
+  @@index([tenantId])
+}
+
+model Call {
+  id        String  @id @default(uuid())
+  twilioSid String?
+  tenantId  String
+  tenant    Tenant  @relation(fields: [tenantId], references: [id])
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+
+  fromNumber String
+  toNumber   String
+
+  duration   Int     @default(0)
+  transcript String?
+  summary    String?
+  customerName String?
+  audioUrl   String?
+  tokensUsed Int     @default(0)
+  cost       Float   @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+}
+
+model Appointment {
+  id            String   @id @default(uuid())
+  customerName  String
+  serviceName   String
+  date          DateTime
+
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id])
+
+  createdAt     DateTime @default(now())
+}

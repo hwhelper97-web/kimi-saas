@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexton technologies LLC — Operations Console</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body data-theme="dark">
+
+  <div class="app-shell-glow app-shell-glow-a"></div>
+  <div class="app-shell-glow app-shell-glow-b"></div>
+
+  <div class="layout">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">🤖</div>
+        <div class="logo-text">
+          <h2 id="brandLogoText">Nexton technologies LLC</h2>
+          <span>Voice Commerce Suite</span>
+        </div>
+      </div>
+
+      <nav id="sidebarNav"></nav>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-danger w-full" onclick="logout()">
+          <span class="icon">🚪</span> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-copy">
+          <p class="eyebrow" id="topbarEyebrow">Operations Console</p>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <div class="select-wrap">
+            <select id="businessSwitcher" onchange="switchBusiness(this.value)">
+              <option value="">Loading businesses...</option>
+            </select>
+          </div>
+          <div class="user-badge" id="userBadge">
+            Admin
+          </div>
+        </div>
+      </header>
+
+      <!-- DYNAMIC CONTENT AREA -->
+      <div id="contentArea"></div>
+
+      <!-- PREMIUM COMMAND CENTER GRID -->
+      <div class="dashboard-command-grid" id="chartsContainer" style="display: none;">
+        
+        <!-- LEFT: ANALYTICS & REVENUE -->
+        <div class="analytics-hub">
+          <div class="chart-box premium-revenue-card">
+            <div class="chart-header">
+              <div class="eyebrow">Financial Performance</div>
+              <h3>Revenue Growth</h3>
+            </div>
+            <canvas id="revenueChart"></canvas>
+          </div>
+
+          <div class="chart-box">
+            <div class="chart-header">
+              <div class="eyebrow">Engagement Metrics</div>
+              <h3>Call Volume</h3>
+            </div>
+            <canvas id="callsChart"></canvas>
+          </div>
+        </div>
+
+        <!-- RIGHT: FIXED LIVE AI CONSOLE -->
+        <aside class="live-ai-console">
+          <div class="console-header">
+            <div class="pulse-indicator"></div>
+            <h3>Live AI Operations</h3>
+            <span class="badge">Real-Time</span>
+          </div>
+          <div id="liveCallsContainer">
+            <div class="empty-state">System monitoring active...</div>
+          </div>
+          
+          <div class="console-footer">
+            <div class="stat-mini">
+              <span>Avg. Latency</span>
+              <strong style="color:var(--status-success);">840ms</strong>
+            </div>
+            <div class="stat-mini">
+              <span>AI Accuracy</span>
+              <strong style="color:var(--brand-primary);">98.2%</strong>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div id="notificationBox" class="notification">
+    <div class="notification-icon">🔔</div>
+    <div class="notification-content">
+      <h4 id="notificationTitle">Notification</h4>
+      <p id="notificationText">Something happened.</p>
+    </div>
+  </div>
+  <audio id="notifySound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
+
+  <!-- APP SCRIPT -->
+  <script src="/js/admin.js"></script>
+</body>
+</html>
