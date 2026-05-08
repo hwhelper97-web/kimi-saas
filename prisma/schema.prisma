@@ -8,269 +8,460 @@ datasource db {
 }
 
 model Tenant {
-  id           String   @id @default(uuid())
-  name         String
-  stripeId     String?
-  plan         String   @default("starter")
-  monthlyLimit Int      @default(500)
-  usedMinutes  Int      @default(0)
-  createdAt    DateTime @default(now())
-
-  users      User[]
-  businesses Business[]
-  appointments Appointment[]
-  orders     Order[]
-  calls      Call[]
-  
-  menuItems      MenuItem[]
-  menuSizes      MenuSize[]
-  menuAddons     MenuAddon[]
-  menuCategories MenuCategory[]
-  menuOptions    MenuOption[]
-  menuOptionGroups MenuOptionGroup[]
-  orderItems     OrderItem[]
+  id                   String              @id @default(uuid())
+  name                 String
+  stripeId             String?
+  plan                 String              @default("starter")
+  monthlyLimit         Int                 @default(500)
+  usedMinutes          Int                 @default(0)
+  tokenBalance         Int                 @default(100)
+  totalTokensPurchased Int                 @default(100)
+  isDemoAccount        Boolean             @default(false)
+  createdAt            DateTime            @default(now())
+  slug                 String?             @unique
+  appointments         Appointment[]
+  businesses           Business[]
+  calls                Call[]
+  conversations        Conversation[]
+  customers            Customer[]
+  externalMappings     ExternalMapping[]
+  integrations         Integration[]
+  knowledgeArticles    KnowledgeArticle[]
+  knowledgeCategories  KnowledgeCategory[]
+  menuAddons           MenuAddon[]
+  menuCategories       MenuCategory[]
+  menuItems            MenuItem[]
+  menuOptions          MenuOption[]
+  menuOptionGroups     MenuOptionGroup[]
+  menuSizes            MenuSize[]
+  mintRequests         MintRequest[]
+  orders               Order[]
+  orderItems           OrderItem[]
+  supportSettings      SupportSettings?
+  tickets              Ticket[]
+  users                User[]
 }
 
 model User {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  password    String
-
-  role        String   @default("OWNER")
-
-  tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  id                    String         @id @default(uuid())
+  email                 String         @unique
+  password              String
+  role                  String         @default("OWNER")
+  tenantId              String
+  assignedConversations Conversation[]
+  assignedTickets       Ticket[]
+  tenant                Tenant         @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
 }
 
 model Business {
-  id           String   @id @default(uuid())
-  name         String
-  type         String   @default("restaurant")
-
-  phoneNumber  String
-  address      String?
-  city         String?
-  country      String?
-
-  logoUrl      String?
-  theme        String?
-  language     String?
-  currency     String   @default("USD")
-  taxRate      Float    @default(0.0)
-  isMainBranch Boolean  @default(true)
-  timings      String?
-
-  tenantId     String
-  tenant       Tenant   @relation(fields: [tenantId], references: [id])
-
-  menuCategories MenuCategory[]
-  menuItems    MenuItem[]
-  calls        Call[]
-  orders       Order[]
-  appointments Appointment[]
+  id                  String           @id @default(uuid())
+  name                String
+  type                String           @default("restaurant")
+  subType             String?
+  phoneNumber         String
+  address             String?
+  city                String?
+  country             String?
+  logoUrl             String?
+  theme               String?
+  language            String?
+  currency            String           @default("USD")
+  taxRate             Float            @default(0.0)
+  isMainBranch        Boolean          @default(true)
+  timings             String?
+  aiVoice             String?          @default("nova")
+  aiVoiceId           String?
+  aiPersonality       String?          @default("friendly")
+  aiName              String?          @default("Sarah")
+  timezone            String           @default("UTC")
+  appointmentDuration Int              @default(30)
+  openTime            String           @default("09:00")
+  closeTime           String           @default("18:00")
+  orderSmsEnabled     Boolean          @default(false)
+  deliveryAvailable   Boolean          @default(true)
+  deliveryRadius      Float?           @default(5.0)
+  dineInAvailable     Boolean          @default(true)
+  takeawayAvailable   Boolean          @default(true)
+  reservationsEnabled Boolean          @default(false)
+  tenantId            String
+  appointments        Appointment[]
+  tenant              Tenant           @relation(fields: [tenantId], references: [id])
+  calls               Call[]
+  conversations       Conversation[]
+  integrations        Integration[]
+  menuCategories      MenuCategory[]
+  menuItems           MenuItem[]
+  orders              Order[]
+  supportSettings     SupportSettings?
+  tickets             Ticket[]
 }
 
 model MenuCategory {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  imageUrl    String?
-  displayOrder Int     @default(0)
-  isActive    Boolean  @default(true)
-
-  businessId  String
-  business    Business @relation(fields: [businessId], references: [id])
-
-  tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
-
-  items       MenuItem[]
-
-  createdAt   DateTime @default(now())
+  id           String     @id @default(uuid())
+  name         String
+  description  String?
+  imageUrl     String?
+  displayOrder Int        @default(0)
+  isActive     Boolean    @default(true)
+  businessId   String
+  tenantId     String
+  createdAt    DateTime   @default(now())
+  tenant       Tenant     @relation(fields: [tenantId], references: [id])
+  business     Business   @relation(fields: [businessId], references: [id])
+  items        MenuItem[]
 
   @@index([tenantId])
   @@index([businessId])
 }
 
 model MenuItem {
-  id          String  @id @default(uuid())
-  name        String
-  description String?
-  price       Float?
-  imageUrl    String?
-  prepTime    Int     @default(15)
-  isAvailable Boolean @default(true)
-
-  // New fields for enhancements
-  isVeg       Boolean @default(false)
-  isVegan     Boolean @default(false)
-  isSpicy     Boolean @default(false)
-  isPopular   Boolean @default(false)
-  isNew       Boolean @default(false)
-  tags        String? // Comma-separated tags
-  displayOrder Int     @default(0)
-  availability String? // JSON for time/day-wise availability
-
-  categoryId  String?
-  category    MenuCategory? @relation(fields: [categoryId], references: [id])
-
-  businessId String
-  business   Business @relation(fields: [businessId], references: [id])
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  sizes        MenuSize[]
-  addons       MenuAddon[]
-  optionGroups MenuOptionGroup[]
-  orderItems   OrderItem[]
-
-  createdAt DateTime @default(now())
+  id              String            @id @default(uuid())
+  name            String
+  description     String?
+  price           Float?
+  imageUrl        String?
+  prepTime        Int               @default(15)
+  isAvailable     Boolean           @default(true)
+  isVeg           Boolean           @default(false)
+  isVegan         Boolean           @default(false)
+  isSpicy         Boolean           @default(false)
+  isPopular       Boolean           @default(false)
+  isNew           Boolean           @default(false)
+  pricingType     String            @default("FIXED")
+  serviceDuration Int?
+  variants        String?
+  tags            String?
+  displayOrder    Int               @default(0)
+  availability    String?
+  categoryId      String?
+  businessId      String
+  tenantId        String
+  createdAt       DateTime          @default(now())
+  customerId      String?
+  addons          MenuAddon[]
+  customer        Customer?         @relation(fields: [customerId], references: [id])
+  category        MenuCategory?     @relation(fields: [categoryId], references: [id])
+  business        Business          @relation(fields: [businessId], references: [id])
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+  optionGroups    MenuOptionGroup[]
+  sizes           MenuSize[]
+  orderItems      OrderItem[]
 
   @@index([tenantId])
   @@index([businessId])
 }
 
 model MenuSize {
-  id    String @id @default(uuid())
-  name  String
-  price Float
-
+  id         String   @id @default(uuid())
+  name       String
+  price      Float
   menuItemId String
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
   menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
 }
 
 model MenuAddon {
-  id    String @id @default(uuid())
-  name  String
-  price Float
-
+  id         String   @id @default(uuid())
+  name       String
+  price      Float
   menuItemId String
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
   menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
 }
 
 model MenuOptionGroup {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  minSelect   Int      @default(0)
-  maxSelect   Int      @default(1)
-  isRequired  Boolean  @default(false)
-  displayOrder Int     @default(0)
-
-  menuItemId  String
-  menuItem    MenuItem @relation(fields: [menuItemId], references: [id])
-
-  options     MenuOption[]
-
-  tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  id           String       @id @default(uuid())
+  name         String
+  description  String?
+  minSelect    Int          @default(0)
+  maxSelect    Int          @default(1)
+  isRequired   Boolean      @default(false)
+  displayOrder Int          @default(0)
+  menuItemId   String
+  tenantId     String
+  options      MenuOption[]
+  tenant       Tenant       @relation(fields: [tenantId], references: [id])
+  menuItem     MenuItem     @relation(fields: [menuItemId], references: [id])
 
   @@index([tenantId])
 }
 
 model MenuOption {
-  id    String @id @default(uuid())
-  name  String
-  price Float  @default(0.0)
-
+  id            String          @id @default(uuid())
+  name          String
+  price         Float           @default(0.0)
   optionGroupId String
+  tenantId      String
+  tenant        Tenant          @relation(fields: [tenantId], references: [id])
   optionGroup   MenuOptionGroup @relation(fields: [optionGroupId], references: [id])
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
 }
 
 model Order {
-  id           String @id @default(uuid())
-  customerName String
-  total        Float
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  businessId String
-  business   Business @relation(fields: [businessId], references: [id])
-
-  callId     String?
-  items OrderItem[]
-
-  createdAt DateTime @default(now())
+  id            String      @id @default(uuid())
+  customerName  String
+  total         Float
+  tenantId      String
+  businessId    String
+  createdAt     DateTime    @default(now())
+  callId        String?
+  customerPhone String?
+  status        String      @default("pending")
+  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  business      Business    @relation(fields: [businessId], references: [id])
+  items         OrderItem[]
 
   @@index([tenantId])
 }
 
 model OrderItem {
-  id String @id @default(uuid())
-
-  orderId String
-  order   Order  @relation(fields: [orderId], references: [id])
-
-  menuItemId String
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  quantity Int
-
+  id             String   @id @default(uuid())
+  orderId        String
+  menuItemId     String
+  tenantId       String
+  quantity       Int
   selectedSize   String?
   selectedAddons String?
   unitPrice      Float?
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  menuItem       MenuItem @relation(fields: [menuItemId], references: [id])
+  order          Order    @relation(fields: [orderId], references: [id])
 
   @@index([tenantId])
 }
 
 model Call {
-  id        String  @id @default(uuid())
-  twilioSid String?
-  tenantId  String
-  tenant    Tenant  @relation(fields: [tenantId], references: [id])
-
-  businessId String
-  business   Business @relation(fields: [businessId], references: [id])
-
-  fromNumber String
-  toNumber   String
-
-  duration   Int     @default(0)
-  transcript String?
-  summary    String?
-  customerName String?
-  audioUrl   String?
-  tokensUsed Int     @default(0)
-  cost       Float   @default(0)
-
-  createdAt DateTime @default(now())
+  id                String   @id @default(uuid())
+  tenantId          String
+  businessId        String
+  fromNumber        String
+  toNumber          String
+  duration          Int      @default(0)
+  transcript        String?
+  tokensUsed        Int      @default(0)
+  cost              Float    @default(0)
+  createdAt         DateTime @default(now())
+  audioUrl          String?
+  twilioSid         String?
+  customerName      String?
+  summary           String?
+  sentiment         String?  @default("NEUTRAL")
+  sentimentScore    Float?   @default(0.5)
+  callType          String?  @default("support")
+  outcome           String?  @default("pending")
+  actionTaken       String?
+  aiConfidence      Float?   @default(0.95)
+  isGuardianRescued Boolean  @default(false)
+  language          String?  @default("en-US")
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  business          Business @relation(fields: [businessId], references: [id])
 
   @@index([tenantId])
 }
 
 model Appointment {
-  id            String   @id @default(uuid())
-  customerName  String
-  serviceName   String
-  date          DateTime
+  id              String    @id @default(uuid())
+  customerName    String
+  customerPhone   String?
+  serviceName     String
+  appointmentTime DateTime
+  status          String    @default("PENDING")
+  notes           String?
+  staffId         String?
+  callId          String?
+  tenantId        String
+  businessId      String
+  createdAt       DateTime  @default(now())
+  customerId      String?
+  customer        Customer? @relation(fields: [customerId], references: [id])
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  business        Business  @relation(fields: [businessId], references: [id])
+}
 
+model ExternalMapping {
+  id         String @id @default(uuid())
+  tenantId   String
+  internalId String
+  externalId String
+  entityType String
+  provider   String
+  tenant     Tenant @relation(fields: [tenantId], references: [id])
+}
+
+model Integration {
+  id          String                 @id @default(uuid())
+  tenantId    String
+  businessId  String
+  provider    String
+  status      String                 @default("DISCONNECTED")
+  lastSync    DateTime?
+  config      String?
+  tenant      Tenant                 @relation(fields: [tenantId], references: [id])
+  business    Business               @relation(fields: [businessId], references: [id])
+  credentials IntegrationCredential?
+  logs        IntegrationLog[]
+}
+
+model IntegrationCredential {
+  id            String      @id @default(uuid())
+  integrationId String      @unique
+  accessToken   String
+  refreshToken  String?
+  expiresAt     DateTime?
+  apiKey        String?
+  clientSecret  String?
+  integration   Integration @relation(fields: [integrationId], references: [id])
+}
+
+model IntegrationLog {
+  id            String      @id @default(uuid())
+  integrationId String
+  level         String
+  action        String
+  message       String
+  details       String?
+  createdAt     DateTime    @default(now())
+  integration   Integration @relation(fields: [integrationId], references: [id])
+}
+
+model MintRequest {
+  id        String   @id @default(uuid())
+  tenantId  String
+  amount    Int
+  status    String   @default("PENDING")
+  tier      String?
+  createdAt DateTime @default(now())
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model Customer {
+  id            String         @id @default(uuid())
+  name          String?
+  email         String?
+  phone         String?
+  avatarUrl     String?
   tenantId      String
-  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt     DateTime       @default(now())
+  appointments  Appointment[]
+  conversations Conversation[]
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  menuItems     MenuItem[]
+  tickets       Ticket[]
 
+  @@unique([tenantId, email])
+  @@unique([tenantId, phone])
+  @@index([tenantId])
+}
+
+model Conversation {
+  id            String    @id @default(uuid())
+  tenantId      String
   businessId    String
-  business      Business @relation(fields: [businessId], references: [id])
+  customerId    String
+  status        String    @default("open")
+  priority      String    @default("medium")
+  lastMessageAt DateTime  @default(now())
+  aiHandled     Boolean   @default(true)
+  assignedToId  String?
+  createdAt     DateTime  @default(now())
+  assignedTo    User?     @relation(fields: [assignedToId], references: [id])
+  customer      Customer  @relation(fields: [customerId], references: [id])
+  business      Business  @relation(fields: [businessId], references: [id])
+  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  messages      Message[]
 
-  createdAt     DateTime @default(now())
+  @@index([tenantId])
+  @@index([businessId])
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  senderId       String?
+  customerId     String?
+  senderType     String
+  content        String
+  contentType    String       @default("text")
+  attachmentUrl  String?
+  isRead         Boolean      @default(false)
+  metadata       String?
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@index([conversationId])
+}
+
+model Ticket {
+  id           String    @id @default(uuid())
+  title        String
+  description  String?
+  status       String    @default("open")
+  priority     String    @default("medium")
+  tags         String?
+  tenantId     String
+  businessId   String?
+  customerId   String
+  assignedToId String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  assignedTo   User?     @relation(fields: [assignedToId], references: [id])
+  customer     Customer  @relation(fields: [customerId], references: [id])
+  business     Business? @relation(fields: [businessId], references: [id])
+  tenant       Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@index([businessId])
+}
+
+model KnowledgeCategory {
+  id          String             @id @default(uuid())
+  name        String
+  description String?
+  tenantId    String
+  businessId  String
+  articles    KnowledgeArticle[]
+  tenant      Tenant             @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model KnowledgeArticle {
+  id          String            @id @default(uuid())
+  title       String
+  content     String
+  categoryId  String
+  tenantId    String
+  businessId  String
+  isPublished Boolean           @default(true)
+  metadata    String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
+  category    KnowledgeCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([tenantId])
+  @@index([categoryId])
+}
+
+model SupportSettings {
+  id               String   @id @default(uuid())
+  tenantId         String   @unique
+  businessId       String   @unique
+  aiEnabled        Boolean  @default(true)
+  aiName           String   @default("Sam")
+  aiSystemPrompt   String?
+  autoReplyEnabled Boolean  @default(true)
+  kbEnabled        Boolean  @default(true)
+  escalationRules  String?
+  tenant           Tenant   @relation(fields: [tenantId], references: [id])
+  business         Business @relation(fields: [businessId], references: [id])
 }

@@ -5,3 +5,8 @@ public/uploads
 .DS_Store
 dist
 build
+prisma/*.db
+prisma/*.db-journal
+.vercel
+.next
+package-lock.json

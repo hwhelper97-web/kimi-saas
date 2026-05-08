@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>
+        <%= business.name %> | Experience Premium Dining
+    </title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.5);
+            --bg: #050505;
+            --card: #121214;
+            --card-hover: #1c1c1f;
+            --text: #ffffff;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(255, 255, 255, 0.03);
+            --radius: 1.25rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- Luxury Hero Header --- */
+        .hero {
+            position: relative;
+            padding: 4rem 1.5rem 2.5rem;
+            text-align: center;
+            background: radial-gradient(circle at top, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: url('<%= business.logoUrl %>') center/cover no-repeat;
+            filter: blur(60px) brightness(0.3);
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .brand-badge {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            border-radius: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .brand-badge img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .biz-name {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to bottom, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .biz-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+        }
+
+        .biz-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* --- Premium Category Bar --- */
+        .nav-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+        }
+
+        .nav-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 0.75rem;
+            padding: 0 1.5rem;
+            scrollbar-width: none;
+        }
+
+        .nav-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cat-btn {
+            padding: 0.6rem 1.25rem;
+            border-radius: 1rem;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .cat-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 8px 20px var(--primary-glow);
+            transform: translateY(-2px);
+        }
+
+        /* --- Menu Content --- */
+        .menu-container {
+            padding: 1.5rem;
+        }
+
+        .cat-section {
+            margin-top: 3rem;
+            scroll-margin-top: 100px;
+        }
+
+        .cat-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .cat-header::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, var(--border), transparent);
+        }
+
+        .food-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 1.25rem;
+            display: flex;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .food-card:active {
+            transform: scale(0.98);
+            background: var(--card-hover);
+        }
+
+        .food-body {
+            flex: 1;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .food-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: #fff;
+        }
+
+        .food-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .food-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .food-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .food-image {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border-left: 1px solid var(--border);
+            background: #1a1a1a;
+        }
+
+        /* --- Footer --- */
+        footer {
+            padding: 4rem 1.5rem 8rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .powered-by {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            opacity: 0.6;
+        }
+
+        /* --- Back to Call --- */
+        .call-bridge {
+            position: fixed;
+            bottom: 2rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            height: 4rem;
+            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), #2563eb);
+            color: #fff;
+            border-radius: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 15px 35px var(--primary-glow);
+            text-decoration: none;
+            z-index: 10000;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(59, 130, 246, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="hero">
+        <div class="hero-bg"></div>
+        <div class="brand-badge">
+            <% if (business.logoUrl) { %>
+                <img src="<%= business.logoUrl %>" alt="<%= business.name %>">
+                <% } else { %>
+                    <i data-lucide="utensils-crossbones" style="width: 40px; height: 40px; color: var(--primary);"></i>
+                    <% } %>
+        </div>
+        <h1 class="biz-name">
+            <%= business.name %>
+        </h1>
+        <div class="biz-status">
+            <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: block;"></span>
+            Open & Serving
+        </div>
+
+        <div class="biz-details">
+            <div class="detail-item">
+                <i data-lucide="map-pin" style="width: 16px; height: 16px;"></i>
+                <span>
+                    <%= business.address || 'Premium Location' %>, <%= business.city %>
+                </span>
+            </div>
+            <div class="detail-item">
+                <i data-lucide="clock" style="width: 16px; height: 16px;"></i>
+                <span>Mon - Sun: 10:00 AM - 11:00 PM</span>
+            </div>
+            <div class="detail-item" style="margin-top: 0.5rem; gap: 1.5rem;">
+                <a href="tel:<%= business.phoneNumber %>"
+                    style="color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.4rem;">
+                    <i data-lucide="phone" style="width: 16px; height: 16px;"></i> Call Us
+                </a>
+                <a href="https://maps.google.com/?q=<%= business.name %> <%= business.address %>"
+                    style="color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.4rem;">
+                    <i data-lucide="navigation" style="width: 16px; height: 16px;"></i> Directions
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-wrapper">
+        <div class="nav-scroll" id="catNav">
+            <% categories.forEach((cat, idx)=> { %>
+                <a href="#cat-<%= cat.id %>" class="cat-btn <%= idx === 0 ? 'active' : '' %>"
+                    onclick="setCatActive(this)">
+                    <%= cat.name %>
+                </a>
+                <% }); %>
+        </div>
+    </div>
+
+    <div class="menu-container">
+        <% categories.forEach(cat=> { %>
+            <div class="cat-section" id="cat-<%= cat.id %>">
+                <h2 class="cat-header">
+                    <%= cat.name %>
+                </h2>
+                <div class="items-grid">
+                    <% cat.items.forEach(item=> { %>
+                        <div class="food-card">
+                            <div class="food-body">
+                                <h3 class="food-title">
+                                    <%= item.name %>
+                                </h3>
+                                <p class="food-desc">
+                                    <%= item.description
+                                        || 'Expertly crafted with premium ingredients for an unforgettable taste.' %>
+                                </p>
+                                <div class="food-footer">
+                                    <div class="food-price">
+                                        <%= business.currency || '$' %>
+                                            <%= item.price.toFixed(2) %>
+                                    </div>
+                                    <i data-lucide="plus-circle"
+                                        style="width: 24px; height: 24px; color: var(--border);"></i>
+                                </div>
+                            </div>
+                            <% if (item.imageUrl) { %>
+                                <img src="<%= item.imageUrl %>" class="food-image" alt="<%= item.name %>"
+                                    loading="lazy">
+                                <% } %>
+                        </div>
+                        <% }); %>
+                </div>
+            </div>
+            <% }); %>
+    </div>
+
+    <footer>
+        <div class="powered-by">
+            <i data-lucide="zap" style="width: 14px; height: 14px; color: var(--primary); fill: var(--primary);"></i>
+            Nexton Interactive Intelligence
+        </div>
+        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; letter-spacing: 0.05em;">SECURE
+            DIGITAL MENU SYSTEM v2.0</p>
+    </footer>
+
+    <a href="tel:<%= business.phoneNumber %>" class="call-bridge">
+        <i data-lucide="phone-forwarded"></i>
+        RESUME VOICE ORDER
+    </a>
+
+    <script>
+        lucide.createIcons();
+
+        function setCatActive(el) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        // Intersection Observer for Category Highlighting
+        const observerOptions = {
+            root: null,
+            rootMargin: '-100px 0px -70% 0px',
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    document.querySelectorAll('.cat-btn').forEach(btn => {
+                        btn.classList.toggle('active', btn.getAttribute('href') === '#' + id);
+                        if (btn.classList.contains('active')) {
+                            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.cat-section').forEach(section => observer.observe(section));
+    </script>
+</body>
+
+</html>

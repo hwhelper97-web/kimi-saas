@@ -1,0 +1,152 @@
+<div class="page-header">
+  <div style="display:flex; justify-content:space-between; align-items:flex-end; width:100%;">
+    <div>
+      <h1>Appointments & Scheduling</h1>
+      <p>Manage your patient flow, bookings, and service availability.</p>
+    </div>
+    <div style="display:flex; gap:0.75rem;">
+      <button class="action-btn" onclick="openBookingModal()" style="width:auto; padding:0 1rem; background:var(--primary); color:white; border:none; height:2.5rem; font-weight:600;">
+        <i data-lucide="plus" style="width:16px; margin-right:4px;"></i> New Appointment
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="apex-grid" style="grid-template-columns: 1fr 350px; gap: 1.5rem; align-items: start;">
+  <div class="apex-card" style="padding: 0;">
+    <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+        <div style="display:flex; gap:1rem; align-items:center;">
+          <h3 class="card-title">Weekly Schedule</h3>
+          <div style="display:flex; background:var(--bg-muted); border-radius:0.5rem; padding:0.25rem;">
+            <button class="action-btn active" style="font-size:0.7rem; height:1.75rem; padding:0 0.75rem;">Week</button>
+            <button class="action-btn" style="font-size:0.7rem; height:1.75rem; padding:0 0.75rem;">Day</button>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <button class="action-btn" style="width:32px; height:32px;"><i data-lucide="chevron-left"></i></button>
+          <span style="font-weight:700; font-size:0.875rem;">May 7 — May 13, 2026</span>
+          <button class="action-btn" style="width:32px; height:32px;"><i data-lucide="chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="text-align: left; border-bottom: 1px solid var(--border); background:rgba(255,255,255,0.01);">
+            <th style="padding: 1rem; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted);">Client</th>
+            <th style="padding: 1rem; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted);">Service</th>
+            <th style="padding: 1rem; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted);">Date & Time</th>
+            <th style="padding: 1rem; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted);">Status</th>
+            <th style="padding: 1rem; text-align:right; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted);">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="appointmentTableBody">
+          <tr>
+            <td colspan="5" style="text-align:center; padding:4rem;">
+              <div class="spin" style="width:24px; height:24px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; margin: 0 auto 1rem;"></div>
+              <p style="color:var(--text-muted); font-size:0.875rem;">Connecting to AI Scheduling Engine...</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:1.5rem;">
+    <div class="apex-card">
+      <h3 class="card-title" style="margin-bottom:1rem;">Capacity Monitor</h3>
+      <div style="margin-bottom:1.5rem;">
+        <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:0.5rem;">
+          <span>Morning Slots</span>
+          <span style="font-weight:700; color:var(--success);">85%</span>
+        </div>
+        <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
+          <div style="width:85%; height:100%; background:var(--success);"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:0.5rem;">
+          <span>Evening Slots</span>
+          <span style="font-weight:700; color:var(--primary);">40%</span>
+        </div>
+        <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
+          <div style="width:40%; height:100%; background:var(--primary);"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="apex-card" style="border-left: 4px solid var(--primary);">
+      <h4 style="font-size:0.875rem; font-weight:700; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+        <i data-lucide="sparkles" style="width:14px; color:var(--primary);"></i> AI Scheduler Tip
+      </h4>
+      <p style="font-size:0.8rem; color:var(--text-secondary); line-height:1.5;">
+        Sarah V2 has noticed a high demand for <strong>Teeth Whitening</strong> on Friday evenings. Consider opening 2 additional slots.
+      </p>
+      <button class="action-btn" style="margin-top:1rem; width:100%; border-color:var(--primary); color:var(--primary);">Open Slots</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  if (window.lucide) lucide.createIcons();
+  
+  // Load initial appointments
+  async function fetchAppointments() {
+    try {
+      const bId = localStorage.getItem("activeBusinessId");
+      const res = await fetch(`/api/appointment?businessId=${bId}`, {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem("accessToken") }
+      });
+      const result = await res.json();
+      const container = document.getElementById("appointmentTableBody");
+      
+      if (!container) return;
+
+      if (result.success && result.data.length > 0) {
+        container.innerHTML = result.data.map(a => {
+          const apptDate = new Date(a.appointmentTime);
+          return `
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 1rem;">
+                <p style="font-weight:600;">${a.customerName || 'Voice Lead'}</p>
+                <p style="font-size:0.75rem; color:var(--text-muted);">${a.customerPhone || 'No Phone'}</p>
+              </td>
+              <td style="padding: 1rem;">${a.serviceName}</td>
+              <td style="padding: 1rem;">
+                <p style="font-weight:500;">${apptDate.toLocaleDateString()}</p>
+                <p style="font-size:0.75rem; color:var(--text-muted);">${apptDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+              </td>
+              <td style="padding: 1rem;">
+                <span class="badge" style="background:${getStatusColor(a.status)}20; color:${getStatusColor(a.status)};">
+                  ${a.status.toUpperCase()}
+                </span>
+              </td>
+              <td style="padding: 1rem; text-align:right;">
+                <button class="action-btn" style="display:inline-flex;" onclick="updateApptStatus('${a.id}', 'confirmed')"><i data-lucide="check"></i></button>
+                <button class="action-btn" style="width:32px; height:32px; color:var(--danger); border-color:var(--border);" onclick="deleteAppt('${a.id}')"><i data-lucide="trash-2"></i></button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+        if (window.lucide) lucide.createIcons();
+      } else {
+        container.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:4rem; color:var(--text-muted);">No appointments found for this period.</td></tr>';
+      }
+    } catch (err) {
+      console.error("Fetch Appts Error:", err);
+    }
+  }
+
+  function getStatusColor(status) {
+    switch(status.toLowerCase()) {
+      case 'confirmed': return '#10b981';
+      case 'pending': return '#f59e0b';
+      case 'cancelled': return '#ef4444';
+      default: return '#6b7280';
+    }
+  }
+
+  fetchAppointments();
+</script>

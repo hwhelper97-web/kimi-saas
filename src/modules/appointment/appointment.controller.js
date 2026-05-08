@@ -5,11 +5,11 @@ const prisma = require("../../config/prisma");
 =============================== */
 exports.create = async (req, res) => {
   try {
-    const { customerName, serviceName, date, businessId } = req.body;
+    const { customerName, customerPhone, serviceName, appointmentTime, businessId, notes, staffId } = req.body;
 
-    if (!customerName || !serviceName || !date || !businessId) {
+    if (!customerName || !serviceName || !appointmentTime || !businessId) {
       return res.status(400).json({
-        message: "All fields are required"
+        message: "Required fields missing (name, service, time, businessId)"
       });
     }
 
@@ -27,11 +27,29 @@ exports.create = async (req, res) => {
       });
     }
 
+    // Check for existing appointment at same time
+    const existingAppt = await prisma.appointment.findFirst({
+      where: {
+        businessId,
+        appointmentTime: new Date(appointmentTime),
+        status: { not: "CANCELLED" }
+      }
+    });
+
+    if (existingAppt) {
+      return res.status(400).json({
+        message: "This time slot is already booked. Please choose another time."
+      });
+    }
+
     const appointment = await prisma.appointment.create({
       data: {
         customerName,
+        customerPhone,
         serviceName,
-        date: new Date(date),
+        appointmentTime: new Date(appointmentTime),
+        notes,
+        staffId,
         businessId,
         tenantId: req.tenantId
       }
@@ -65,13 +83,14 @@ exports.list = async (req, res) => {
       });
     }
 
+    const isSuper = req.user.role === "SUPERADMIN";
     const appointments = await prisma.appointment.findMany({
       where: {
-        tenantId: req.tenantId,
-        businessId
+        businessId,
+        ...(isSuper ? {} : { tenantId: req.tenantId })
       },
       orderBy: {
-        date: "asc"
+        appointmentTime: "asc"
       }
     });
 
@@ -86,5 +105,39 @@ exports.list = async (req, res) => {
     res.status(400).json({
       message: error.message
     });
+  }
+};
+
+/* ===============================
+   UPDATE STATUS
+=============================== */
+exports.updateStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const appointment = await prisma.appointment.update({
+      where: { id, tenantId: req.tenantId },
+      data: { status }
+    });
+
+    res.json({ success: true, data: appointment });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+/* ===============================
+   DELETE APPOINTMENT
+=============================== */
+exports.delete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.appointment.delete({
+      where: { id, tenantId: req.tenantId }
+    });
+    res.json({ success: true, message: "Appointment deleted" });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };

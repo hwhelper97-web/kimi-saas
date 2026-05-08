@@ -55,6 +55,121 @@
     --shadow-md: 0 12px 32px rgba(0,0,0,0.3);
     --shadow-lg: 0 24px 48px rgba(0,0,0,0.4);
   }
+
+  [data-theme="light"] {
+    --bg-base: #f8fafc;
+    --bg-panel: #ffffff;
+    --bg-elevated: rgba(255, 255, 255, 0.9);
+    --border-subtle: rgba(0, 0, 0, 0.08);
+    --border-strong: rgba(0, 0, 0, 0.15);
+    --text-heading: #0f172a;
+    --text-body: #334155;
+    --text-muted: #64748b;
+    --brand-primary: #3b82f6;
+    --brand-primary-hover: #2563eb;
+    --brand-secondary: #0ea5e9;
+  }
+
+  [data-theme="nexton-teal"] {
+    --bg-base: #061e26;
+    --bg-panel: #0a2d37;
+    --bg-elevated: #0d3b48;
+    --brand-primary: #00bcd4;
+    --brand-secondary: #008ba3;
+    --border-subtle: rgba(0, 188, 212, 0.15);
+    --text-heading: #e0f2f1;
+    --text-body: #80cbc4;
+  }
+
+  [data-theme="midnight"] {
+    --bg-base: #020617;
+    --bg-panel: #0f172a;
+    --bg-elevated: #1e293b;
+    --brand-primary: #38bdf8;
+    --text-heading: #f8fafc;
+    --text-body: #94a3b8;
+  }
+
+  [data-theme="ocean"] {
+    --bg-base: #083344;
+    --bg-panel: #0c4a6e;
+    --bg-elevated: #075985;
+    --brand-primary: #38bdf8;
+    --text-heading: #f0f9ff;
+    --text-body: #bae6fd;
+  }
+
+  [data-theme="forest"] {
+    --bg-base: #052e16;
+    --bg-panel: #14532d;
+    --bg-elevated: #166534;
+    --brand-primary: #10b981;
+    --text-heading: #f0fdf4;
+    --text-body: #a7f3d0;
+  }
+
+  [data-theme="sunset"] {
+    --bg-base: #2a0a18;
+    --bg-panel: #431424;
+    --bg-elevated: #5b1b2d;
+    --brand-primary: #f43f5e;
+    --text-heading: #fff1f2;
+    --text-body: #fda4af;
+  }
+
+  [data-theme="royal-gold"] {
+    --bg-base: #1a160d;
+    --bg-panel: #2d2613;
+    --bg-elevated: #3f351b;
+    --brand-primary: #fbbf24;
+    --text-heading: #fffbeb;
+    --text-body: #fef3c7;
+  }
+
+  [data-theme="deep-purple"] {
+    --bg-base: #12061f;
+    --bg-panel: #1e0b35;
+    --bg-elevated: #2d134d;
+    --brand-primary: #a855f7;
+    --text-heading: #f5f3ff;
+    --text-body: #ddd6fe;
+  }
+
+  [data-theme="slate"] {
+    --bg-base: #0f172a;
+    --bg-panel: #1e293b;
+    --bg-elevated: #334155;
+    --brand-primary: #94a3b8;
+    --text-heading: #f8fafc;
+    --text-body: #cbd5e1;
+  }
+
+  [data-theme="cyberpunk"] {
+    --bg-base: #090014;
+    --bg-panel: #1a0b2e;
+    --bg-elevated: #2d1b4e;
+    --brand-primary: #d946ef;
+    --text-heading: #fdf4ff;
+    --text-body: #e879f9;
+  }
+
+  [data-theme="neon-night"] {
+    --bg-base: #000000;
+    --bg-panel: #0a0a0a;
+    --bg-elevated: #1a1a1a;
+    --brand-primary: #00ff00;
+    --text-heading: #ffffff;
+    --text-body: #00ff00;
+  }
+
+  [data-theme="crimson"] {
+    --bg-base: #1a0505;
+    --bg-panel: #2d0a0a;
+    --bg-elevated: #451010;
+    --brand-primary: #ef4444;
+    --text-heading: #fef2f2;
+    --text-body: #fee2e2;
+  }
   
   /* ==========================================================================
      GLOBAL RESETS & TYPOGRAPHY
@@ -738,6 +853,7 @@
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

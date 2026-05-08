@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const prisma = require("../config/prisma");
 
 // Exact-match public paths (checked against req.originalUrl)
-const PUBLIC_EXACT = ["/", "/login", "/admin"];
+const PUBLIC_EXACT = ["/", "/login"];
 
 // Prefix-match public paths (any sub-path is public)
 const PUBLIC_PREFIXES = [
@@ -10,32 +10,39 @@ const PUBLIC_PREFIXES = [
   "/api/call/process",
   "/api/call/media-stream",
   "/api/auth",
+  // static assets needed by the admin UI
+  "/js/",
+  "/css/",
+  "/images/",
+  "/fonts/",
 ];
 
 module.exports = async (req, res, next) => {
   try {
     const originalUrl = req.originalUrl.split("?")[0]; // strip query string
 
-    // Exact matches (top-level pages only)
+    // Exact matches (top‑level pages only)
     if (PUBLIC_EXACT.includes(originalUrl)) return next();
 
-    // Prefix matches (Twilio webhooks + auth routes)
+    // Prefix matches (Twilio webhooks + auth routes + admin UI + static assets)
     const isPrefixPublic = PUBLIC_PREFIXES.some((route) =>
       originalUrl.startsWith(route)
     );
     if (isPrefixPublic) return next();
 
     const authHeader = req.headers.authorization;
+    let token = null;
 
-    if (!authHeader) {
-      return res.status(401).json({ error: "Authorization header missing" });
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    } else if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
     }
 
-    if (!authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ error: "Invalid token format" });
+    if (!token) {
+      return res.status(401).json({ error: "Authentication required" });
     }
 
-    const token = authHeader.split(" ")[1];
     let decoded;
 
     try {
@@ -50,7 +57,7 @@ module.exports = async (req, res, next) => {
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
-      select: { id: true, tenantId: true, role: true },
+      select: { id: true, tenantId: true, role: true, email: true },
     });
 
     if (!user) {

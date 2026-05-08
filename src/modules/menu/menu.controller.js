@@ -7,13 +7,27 @@ const prisma = require("../../config/prisma");
 exports.listCategories = async (req, res) => {
   try {
     const { businessId } = req.query;
+    const fs = require('fs');
+    const logMsg = `[${new Date().toISOString()}] businessId: ${businessId} | tenantId: ${req.tenantId} | role: ${req.user?.role}\n`;
+    fs.appendFileSync('debug_menu.log', logMsg);
+
     if (!businessId) return res.status(400).json({ error: "businessId is required" });
 
+    const isSuper = req.user.role === "SUPERADMIN";
     const categories = await prisma.menuCategory.findMany({
-      where: { businessId, tenantId: req.tenantId },
+      where: { 
+        businessId, 
+        ...(isSuper ? {} : { tenantId: req.tenantId }) 
+      },
+      include: {
+        _count: {
+          select: { items: true }
+        }
+      },
       orderBy: { displayOrder: "asc" }
     });
 
+    console.log(`[MenuCategory] Listing for Business: ${businessId} | Tenant: ${req.tenantId} | Found: ${categories.length}`);
     return res.json({ success: true, data: categories });
   } catch (err) {
     console.error("[MenuCategory] list error:", err);
@@ -26,14 +40,25 @@ exports.createCategory = async (req, res) => {
     const { name, description, imageUrl, displayOrder, businessId } = req.body;
     if (!name || !businessId) return res.status(400).json({ error: "Name and businessId are required" });
 
+    let targetTenantId = req.tenantId;
+    if (req.user.role === "SUPERADMIN") {
+      const biz = await prisma.business.findUnique({ where: { id: businessId } });
+      if (biz) targetTenantId = biz.tenantId;
+    }
+
+    let finalImageUrl = imageUrl;
+    if (req.file) {
+      finalImageUrl = `/uploads/${req.file.filename}`;
+    }
+
     const category = await prisma.menuCategory.create({
       data: {
         name,
         description,
-        imageUrl,
+        imageUrl: finalImageUrl,
         displayOrder: displayOrder || 0,
         businessId,
-        tenantId: req.tenantId
+        tenantId: targetTenantId
       }
     });
 
@@ -47,10 +72,18 @@ exports.createCategory = async (req, res) => {
 exports.updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, imageUrl, displayOrder, isActive } = req.body;
+    let { name, description, imageUrl, displayOrder, isActive } = req.body;
 
+    if (req.file) {
+      imageUrl = `/uploads/${req.file.filename}`;
+    }
+
+    const isSuper = req.user.role === "SUPERADMIN";
     const existing = await prisma.menuCategory.findFirst({
-      where: { id, tenantId: req.tenantId }
+      where: { 
+        id, 
+        ...(isSuper ? {} : { tenantId: req.tenantId }) 
+      }
     });
     if (!existing) return res.status(404).json({ error: "Category not found" });
 
@@ -77,9 +110,13 @@ exports.reorderCategories = async (req, res) => {
     const { orders } = req.body; // Array of {id, displayOrder}
     if (!orders || !Array.isArray(orders)) return res.status(400).json({ error: "Orders array required" });
 
+    const isSuper = req.user.role === "SUPERADMIN";
     await Promise.all(orders.map(o => 
-      prisma.menuCategory.update({
-        where: { id: o.id },
+      prisma.menuCategory.updateMany({
+        where: { 
+          id: o.id, 
+          ...(isSuper ? {} : { tenantId: req.tenantId }) 
+        },
         data: { displayOrder: o.displayOrder }
       })
     ));
@@ -94,8 +131,12 @@ exports.reorderCategories = async (req, res) => {
 exports.deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
+    const isSuper = req.user.role === "SUPERADMIN";
     const existing = await prisma.menuCategory.findFirst({
-      where: { id, tenantId: req.tenantId }
+      where: { 
+        id, 
+        ...(isSuper ? {} : { tenantId: req.tenantId }) 
+      }
     });
     if (!existing) return res.status(404).json({ error: "Category not found" });
 
@@ -116,10 +157,11 @@ exports.listItems = async (req, res) => {
     const { businessId, categoryId, search, availableOnly, priceMin, priceMax } = req.query;
     if (!businessId) return res.status(400).json({ error: "businessId is required" });
 
+    const isSuper = req.user.role === "SUPERADMIN";
     const items = await prisma.menuItem.findMany({
       where: {
         businessId,
-        tenantId: req.tenantId,
+        ...(isSuper ? {} : { tenantId: req.tenantId }),
         ...(categoryId && { categoryId }),
         ...(availableOnly === "true" && { isAvailable: true }),
         ...(priceMin && { price: { gte: parseFloat(priceMin) } }),
@@ -147,6 +189,7 @@ exports.listItems = async (req, res) => {
       ]
     });
 
+    console.log(`[MenuItem] Listing for Business: ${businessId} | Category: ${categoryId} | Tenant: ${req.tenantId} | Found: ${items.length}`);
     return res.json({ success: true, data: items });
   } catch (err) {
     console.error("[MenuItem] list error:", err);
@@ -156,13 +199,24 @@ exports.listItems = async (req, res) => {
 
 exports.createItem = async (req, res) => {
   try {
-    const {
+    let {
       name, description, price, imageUrl, prepTime, isAvailable,
       categoryId, businessId, sizes, addons, optionGroups,
-      isVeg, isVegan, isSpicy, isPopular, isNew, tags, displayOrder, availability
+      isVeg, isVegan, isSpicy, isPopular, isNew, tags, displayOrder, availability,
+      pricingType, serviceDuration
     } = req.body;
 
+    if (req.file) {
+      imageUrl = `/uploads/${req.file.filename}`;
+    }
+
     if (!name || !businessId) return res.status(400).json({ error: "Name and businessId are required" });
+
+    let targetTenantId = req.tenantId;
+    if (req.user.role === "SUPERADMIN") {
+      const biz = await prisma.business.findUnique({ where: { id: businessId } });
+      if (biz) targetTenantId = biz.tenantId;
+    }
 
     const item = await prisma.menuItem.create({
       data: {
@@ -174,7 +228,7 @@ exports.createItem = async (req, res) => {
         isAvailable: isAvailable !== undefined ? isAvailable : true,
         categoryId,
         businessId,
-        tenantId: req.tenantId,
+        tenantId: targetTenantId,
         isVeg: !!isVeg,
         isVegan: !!isVegan,
         isSpicy: !!isSpicy,
@@ -183,6 +237,8 @@ exports.createItem = async (req, res) => {
         tags,
         displayOrder: parseInt(displayOrder) || 0,
         availability: availability ? JSON.stringify(availability) : null,
+        pricingType: pricingType || "FIXED",
+        serviceDuration: parseInt(serviceDuration) || null,
         sizes: sizes && Array.isArray(sizes) ? {
           create: sizes.map(s => ({ name: s.name, price: parseFloat(s.price) || 0, tenantId: req.tenantId }))
         } : undefined,
@@ -221,14 +277,23 @@ exports.createItem = async (req, res) => {
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const {
+    let {
       name, description, price, imageUrl, prepTime, isAvailable,
-      categoryId, sizes, addons, optionGroups,
-      isVeg, isVegan, isSpicy, isPopular, isNew, tags, displayOrder, availability
+      categoryId, businessId, sizes, addons, optionGroups,
+      isVeg, isVegan, isSpicy, isPopular, isNew, tags, displayOrder, isActive, availability,
+      pricingType, serviceDuration
     } = req.body;
 
+    if (req.file) {
+      imageUrl = `/uploads/${req.file.filename}`;
+    }
+
+    const isSuper = req.user.role === "SUPERADMIN";
     const existing = await prisma.menuItem.findFirst({
-      where: { id, tenantId: req.tenantId }
+      where: { 
+        id, 
+        ...(isSuper ? {} : { tenantId: req.tenantId }) 
+      }
     });
     if (!existing) return res.status(404).json({ error: "Item not found" });
 
@@ -261,6 +326,8 @@ exports.updateItem = async (req, res) => {
         ...(tags !== undefined && { tags }),
         ...(displayOrder !== undefined && { displayOrder: parseInt(displayOrder) }),
         ...(availability !== undefined && { availability: availability ? JSON.stringify(availability) : null }),
+        ...(pricingType !== undefined && { pricingType }),
+        ...(serviceDuration !== undefined && { serviceDuration: parseInt(serviceDuration) }),
         sizes: sizes ? {
           create: sizes.map(s => ({ name: s.name, price: parseFloat(s.price) || 0, tenantId: req.tenantId }))
         } : undefined,
@@ -346,6 +413,7 @@ exports.bulkDeleteItems = async (req, res) => {
     const groupIds = groups.map(g => g.id);
     await prisma.menuOption.deleteMany({ where: { optionGroupId: { in: groupIds } } });
     await prisma.menuOptionGroup.deleteMany({ where: { menuItemId: { in: ids } } });
+    await prisma.orderItem.deleteMany({ where: { menuItemId: { in: ids } } });
     
     await prisma.menuItem.deleteMany({
       where: { id: { in: ids }, tenantId: req.tenantId }
@@ -362,8 +430,8 @@ exports.reorderItems = async (req, res) => {
   try {
     const { orders } = req.body; // Array of {id, displayOrder}
     await Promise.all(orders.map(o => 
-      prisma.menuItem.update({
-        where: { id: o.id },
+      prisma.menuItem.updateMany({
+        where: { id: o.id, tenantId: req.tenantId },
         data: { displayOrder: o.displayOrder }
       })
     ));
@@ -377,8 +445,12 @@ exports.reorderItems = async (req, res) => {
 exports.deleteItem = async (req, res) => {
   try {
     const { id } = req.params;
+    const isSuper = req.user.role === "SUPERADMIN";
     const existing = await prisma.menuItem.findFirst({
-      where: { id, tenantId: req.tenantId }
+      where: { 
+        id, 
+        ...(isSuper ? {} : { tenantId: req.tenantId }) 
+      }
     });
     if (!existing) return res.status(404).json({ error: "Item not found" });
 
@@ -389,6 +461,7 @@ exports.deleteItem = async (req, res) => {
       await prisma.menuOption.deleteMany({ where: { optionGroupId: g.id } });
     }
     await prisma.menuOptionGroup.deleteMany({ where: { menuItemId: id } });
+    await prisma.orderItem.deleteMany({ where: { menuItemId: id } });
     await prisma.menuItem.delete({ where: { id } });
 
     return res.json({ success: true, message: "Item deleted" });

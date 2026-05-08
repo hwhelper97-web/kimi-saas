@@ -1,0 +1,192 @@
+<div class="apex-card">
+  <div class="card-header">
+    <h3 class="card-title">Recent Conversations</h3>
+    <div style="display:flex; gap:0.75rem;">
+      <div class="header-search" style="max-width: 250px;">
+        <i data-lucide="search"></i>
+        <input type="text" placeholder="Search transcripts..." oninput="filterCalls(this.value)" />
+      </div>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="text-align: left; border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+          <th style="padding: 1rem;">Timestamp</th>
+          <th style="padding: 1rem;">Customer</th>
+          <th style="padding: 1rem;">Duration</th>
+          <th style="padding: 1rem;">Status</th>
+          <th style="padding: 1rem; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="callHistoryTable">
+        <tr>
+          <td colspan="5" style="padding: 4rem; text-align: center;">
+            <div class="spin" style="width:24px; height:24px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; margin: 0 auto 1rem;"></div>
+            Loading call logs...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function() {
+  console.log("[AI-Calls] Initializing call history logic...");
+  if (window.lucide) lucide.createIcons();
+  
+  var allCalls = [];
+
+  window.loadCallHistory = async function() {
+    var table = document.getElementById("callHistoryTable");
+    if (!table) {
+      console.warn("[AI-Calls] callHistoryTable element not found");
+      return;
+    }
+    
+    try {
+      var bId = (typeof getBusinessId === 'function' ? getBusinessId() : localStorage.getItem("activeBusinessId"));
+      var authToken = localStorage.getItem("accessToken") || window.token;
+      
+      // Cleanup bId if it's a string 'null' or empty
+      if (bId === "null" || bId === "undefined") bId = null;
+
+      console.log("[AI-Calls] Fetching history. Business:", bId);
+      var url = `/api/call/history` + (bId ? `?businessId=${bId}` : "");
+      
+      var res = await fetch(url, {
+        headers: { 'Authorization': 'Bearer ' + authToken }
+      });
+      
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      
+      var result = await res.json();
+
+      if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+        allCalls = result.data;
+        renderCalls(allCalls);
+      } else {
+        table.innerHTML = '<tr><td colspan="5" style="padding: 4rem; text-align: center; color: var(--text-muted);"><i data-lucide="phone-off" style="width:32px; height:32px; margin-bottom:1rem; opacity:0.3;"></i><br/>No call logs found for this selection.</td></tr>';
+        if (window.lucide) lucide.createIcons();
+      }
+    } catch (err) {
+      console.error("[AI-Calls] Load Error:", err);
+      table.innerHTML = '<tr><td colspan="5" style="padding: 4rem; text-align: center; color: var(--danger);"><i data-lucide="alert-circle" style="width:32px; height:32px; margin-bottom:1rem;"></i><br/>Failed to load call history. Please try again.</td></tr>';
+      if (window.lucide) lucide.createIcons();
+    }
+  };
+
+  function renderCalls(calls) {
+    var table = document.getElementById("callHistoryTable");
+    if (!table) return;
+    
+    table.innerHTML = calls.map(function(c) {
+      var customerDisplay = c.customerName || c.fromNumber || 'Anonymous Caller';
+      var status = (c.outcome || 'completed').toUpperCase();
+      var statusColor = status === 'COMPLETED' ? '#10b981' : (status === 'FAILED' ? '#ef4444' : '#f59e0b');
+      var statusBg = status === 'COMPLETED' ? 'rgba(16,185,129,0.1)' : (status === 'FAILED' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)');
+
+      return `
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 1rem; font-size: 0.875rem; color: var(--text-secondary);">${new Date(c.createdAt).toLocaleString()}</td>
+          <td style="padding: 1rem;">
+            <div style="font-weight: 600; color: var(--text-primary);">${customerDisplay}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${c.fromNumber || ''}</div>
+          </td>
+          <td style="padding: 1rem; font-family: 'JetBrains Mono'; font-size: 0.875rem;">${c.duration ? Math.floor(c.duration/60) + 'm ' + (c.duration%60) + 's' : '0s'}</td>
+          <td style="padding: 1rem;">
+            <span class="badge" style="background:${statusBg}; color:${statusColor};">
+              ${status}
+            </span>
+          </td>
+          <td style="padding: 1rem; text-align: right;">
+            <button class="action-btn" style="display:inline-flex; width:auto; padding:0 1rem; font-size:0.75rem; height:32px;" onclick="viewTranscript('${c.id}')">
+              <i data-lucide="file-text" style="width:14px; margin-right:6px;"></i> Detail
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+    if (window.lucide) lucide.createIcons();
+  }
+
+  window.viewTranscript = async function(id) {
+    var modal = document.getElementById("transcriptModal");
+    var content = document.getElementById("transcriptContent");
+    var title = document.getElementById("transcriptSubtitle");
+    var footer = document.getElementById("transcriptFooter");
+
+    if (!modal || !content) return;
+
+    modal.classList.add("show");
+    content.innerHTML = '<div style="text-align:center; padding:4rem;"><div class="spin" style="width:24px; height:24px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; margin: 0 auto;"></div></div>';
+
+    try {
+      var authToken = localStorage.getItem("accessToken") || window.token;
+      var res = await fetch(`/api/call/${id}`, {
+        headers: { 'Authorization': 'Bearer ' + authToken }
+      });
+      var result = await res.json();
+
+      if (result.success && result.data) {
+        var call = result.data;
+        if (title) title.innerText = `Call with ${call.customerName || call.fromNumber || 'Anonymous'} on ${new Date(call.createdAt).toLocaleString()}`;
+        
+        var transcripts = [];
+        if (call.transcript && typeof call.transcript === 'string') {
+          transcripts = call.transcript.split("\n").map(function(line) {
+            var parts = line.split(":");
+            var role = parts[0].toLowerCase().trim();
+            var text = parts.slice(1).join(":").trim();
+            if (!text) return null;
+            return { role: role === 'assistant' || role === 'ai' ? 'assistant' : 'user', text: text };
+          }).filter(Boolean);
+        }
+
+        if (transcripts.length > 0) {
+          content.innerHTML = transcripts.map(function(t) {
+            var isAI = t.role === 'assistant';
+            return `
+              <div style="margin-bottom: 1.5rem; display: flex; flex-direction: column; align-items: ${isAI ? 'flex-start' : 'flex-end'};">
+                <span style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom: 0.25rem;">
+                  ${isAI ? 'AI Agent' : 'Customer'}
+                </span>
+                <div style="background:${isAI ? 'rgba(var(--primary-rgb), 0.05)' : 'var(--bg-card)'}; padding:1rem; border-radius:1rem; border:1px solid ${isAI ? 'rgba(var(--primary-rgb), 0.1)' : 'var(--border)'}; font-size:0.875rem; line-height:1.6; max-width: 85%;">
+                  ${t.text}
+                </div>
+              </div>
+            `;
+          }).join("");
+        } else {
+          content.innerHTML = '<div style="text-align:center; padding:4rem;"><i data-lucide="message-square-off" style="width:32px; height:32px; color:var(--text-muted); margin-bottom:1rem;"></i><p style="color:var(--text-muted);">No transcript recorded for this call.</p></div>';
+          if (window.lucide) lucide.createIcons();
+        }
+
+        if (footer) footer.innerHTML = `SID: <span style="font-family:monospace;">${call.twilioSid || call.id}</span> | Duration: ${call.duration || 0}s | Cost: $${(call.cost || 0).toFixed(4)}`;
+      }
+    } catch (err) {
+      console.error("[AI-Calls] Modal Error:", err);
+      content.innerHTML = '<p style="text-align:center; padding:4rem; color:var(--danger);">Failed to load transcript details.</p>';
+    }
+  };
+
+  window.filterCalls = function(val) {
+    if (!val) {
+      renderCalls(allCalls);
+      return;
+    }
+    var filtered = allCalls.filter(function(c) {
+      var phone = (c.fromNumber || '').toLowerCase();
+      var name = (c.customerName || '').toLowerCase();
+      var search = val.toLowerCase();
+      return phone.includes(search) || name.includes(search);
+    });
+    renderCalls(filtered);
+  };
+
+  // Initial load
+  window.loadCallHistory();
+})();
+</script>

@@ -1,0 +1,128 @@
+<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-bottom: 1.5rem;">
+  <button type="button" class="action-btn" onclick="openCategoryModal()" style="width:auto; padding:0 1rem; border-color:var(--border); font-weight:600; height:2.5rem;">
+    <i data-lucide="folder-plus" style="width:16px; margin-right:4px;"></i> New Service Category
+  </button>
+  <button type="button" class="action-btn" onclick="openItemModal()" style="width:auto; padding:0 1rem; background:var(--primary); color:white; border:none; font-weight:600; height:2.5rem;">
+    <i data-lucide="plus" style="width:16px; margin-right:4px;"></i> Add New Service
+  </button>
+</div>
+
+<div class="apex-grid" style="grid-template-columns: 280px 1fr; gap: 1.5rem; align-items: start;">
+  <div class="apex-card" style="padding: 1rem;">
+    <h3 class="card-title" style="margin-bottom:1rem; font-size:0.75rem; text-transform:uppercase; color:var(--text-muted);">Service Categories</h3>
+    <div id="serviceCategoryList" style="display:flex; flex-direction:column; gap:0.5rem;">
+      <div class="spin" style="width:16px; height:16px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; margin: 1rem auto;"></div>
+    </div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:1.5rem;">
+    <div class="apex-card">
+      <div class="card-header" style="margin-bottom:1.5rem;">
+        <div class="header-search" style="max-width: 400px; background:var(--bg-muted);">
+          <i data-lucide="search"></i>
+          <input type="text" id="serviceSearch" placeholder="Search services..." oninput="filterServices(this.value)" />
+        </div>
+      </div>
+      <div id="servicesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        <div style="grid-column: 1/-1; text-align:center; padding:4rem; color:var(--text-muted);">Select a category to manage services</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  if (window.lucide) lucide.createIcons();
+  
+  // Make these accessible to global admin-apex.js
+  window.allServiceCategories = [];
+  window.activeServiceCategoryId = null;
+
+  window.loadServiceCategories = async function() {
+    const container = document.getElementById("serviceCategoryList");
+    if (!container) return;
+    try {
+      const bId = (typeof getBusinessId === 'function' ? getBusinessId() : localStorage.getItem("activeBusinessId"));
+      if (!bId) {
+        console.warn("[Services] No active business ID found");
+        return;
+      }
+      const res = await fetch(`/api/menu/categories?businessId=${bId}`, {
+        headers: { 'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token) }
+      });
+      const result = await res.json();
+      if (result.success) {
+        window.allServiceCategories = result.data;
+        container.innerHTML = result.data.map(c => `
+          <div class="apex-nav-item category-item ${window.activeServiceCategoryId === c.id ? 'active' : ''}" 
+               data-id="${c.id}" onclick="selectServiceCategory('${c.id}')">
+            <i data-lucide="layers" style="width:14px;"></i>
+            <span>${c.name}</span>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:0.5rem;">
+               <i data-lucide="edit-2" style="width:12px; cursor:pointer;" onclick="event.stopPropagation(); openCategoryModal({id:'${c.id}', name:'${c.name}', description:'${c.description||''}'})"></i>
+            </div>
+          </div>
+        `).join("");
+        if (window.lucide) window.lucide.createIcons();
+        if (!window.activeServiceCategoryId && result.data.length) selectServiceCategory(result.data[0].id);
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  window.selectServiceCategory = function(id) {
+    window.activeServiceCategoryId = id;
+    document.querySelectorAll('.category-item').forEach(it => {
+      it.classList.toggle('active', it.dataset.id === id);
+    });
+    loadServices(id);
+  };
+
+  window.loadServices = async function(catId) {
+    const grid = document.getElementById("servicesGrid");
+    if (!grid) return;
+    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:4rem;"><div class="spin"></div></div>';
+    try {
+      const bId = (typeof getBusinessId === 'function' ? getBusinessId() : localStorage.getItem("activeBusinessId"));
+      const res = await fetch(`/api/menu/items?businessId=${bId}&categoryId=${catId}`, {
+        headers: { 'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token) }
+      });
+      const result = await res.json();
+      if (result.success) {
+        grid.innerHTML = result.data.map(s => `
+          <div class="apex-card" style="padding:1.5rem; border-top: 4px solid var(--primary);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+              <div>
+                <h4 style="margin-bottom:0.25rem;">${s.name}</h4>
+                <div style="font-size:0.75rem; color:var(--text-muted);"><i data-lucide="clock" style="width:12px;"></i> ${s.serviceDuration || 30}m</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:1.1rem; font-weight:800; color:var(--primary);">$${(s.price || 0).toFixed(2)}</div>
+                <div style="font-size:0.6rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">${s.pricingType || 'Fixed'}</div>
+              </div>
+            </div>
+            <p style="font-size:0.8rem; height:3rem; overflow:hidden; color:var(--text-secondary);">${s.description || 'Professional service.'}</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);">
+              <span style="font-size:0.7rem; font-weight:700;">${s.isAvailable ? 'ACTIVE' : 'PAUSED'}</span>
+              <div style="display:flex; gap:0.5rem;">
+                <button class="action-btn" style="width:32px; height:32px;" onclick="editItem('${s.id}')"><i data-lucide="edit-3"></i></button>
+                <button class="action-btn" style="width:32px; height:32px;" onclick="deleteItem('${s.id}')"><i data-lucide="trash-2"></i></button>
+              </div>
+            </div>
+          </div>
+        `).join("");
+        if (window.lucide) window.lucide.createIcons();
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  window.filterServices = function(query) {
+    const q = query.toLowerCase();
+    document.querySelectorAll('#servicesGrid .apex-card').forEach(card => {
+      const name = card.querySelector('h4').innerText.toLowerCase();
+      card.style.display = name.includes(q) ? 'block' : 'none';
+    });
+  };
+
+  loadServiceCategories();
+})();
+</script>

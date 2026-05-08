@@ -7,6 +7,7 @@ const { ROLES } = require("../../constants/roles");
 const { tenantMiddleware } = require("../../middleware/tenant.middleware");
 const dashboardController = require("./dashboard.controller");
 const dashboardService = require("./dashboard.service");
+const prisma = require("../../config/prisma");
 
 // GET /api/dashboard/analytics
 router.get(
@@ -52,13 +53,62 @@ router.get(
   }
 );
 
-// GET /api/dashboard/business
+// Generic Section Loader
 router.get(
-  "/business",
+  "/:section",
   authMiddleware,
   tenantMiddleware,
-  allowRoles(ROLES.OWNER, ROLES.STAFF),
-  dashboardController.getBusinessDashboard
+  allowRoles(ROLES.OWNER, ROLES.STAFF, ROLES.SUPERADMIN),
+  async (req, res) => {
+    const { section } = req.params;
+    const isPartial = req.query.partial === "true";
+    
+    // Mapping sections to views
+    const viewMap = {
+      "dashboard": "admin-dashboard-apex", // This handles the main layout
+      "business": "business-settings",
+      "integrations": "integrations-marketplace",
+      "platform": "platform-hub", // I will create this
+      "call": "ai-calls", // I will create this
+      "menu": "menu-management", // I will create this
+      "services": "services-management", // I will create this
+      "orders": "orders-list", // I will create this
+      "appointment": "appointments-calendar", // I will create this
+      "support-center": "support-center",
+      "tickets": "tickets-management",
+      "create-ticket": "create-ticket"
+    };
+
+    const viewName = viewMap[section];
+    if (!viewName) return res.status(404).send("Section not found");
+
+    if (isPartial) {
+      const data = await dashboardService.getAnalytics(req.tenantId);
+      // For business, we need the actual business object
+      let business = null;
+      const bId = req.query.businessId;
+      if (section === "business") {
+        if (bId) {
+          business = await prisma.business.findUnique({ where: { id: bId } });
+        }
+        // Fallback: if no ID or not found, get first business for tenant
+        if (!business) {
+          business = await prisma.business.findFirst({ where: { tenantId: req.tenantId } });
+        }
+      }
+
+      return res.render(viewName, { 
+        layout: false, 
+        data, 
+        business, 
+        user: req.user 
+      });
+    }
+
+    // Default: render main dashboard shell
+    const data = await dashboardService.getAnalytics(req.tenantId);
+    res.render("admin-dashboard-apex", { data, section });
+  }
 );
 
 module.exports = router;

@@ -10,8 +10,8 @@ const { tenantMiddleware } = require("../../middleware/tenant.middleware");
 router.post(
   "/",
   authMiddleware,
-  tenantMiddleware, // ✅ FIXED: was missing — req.tenantId was undefined in controller
-  allowRoles("OWNER", "STAFF"),
+  tenantMiddleware,
+  allowRoles("OWNER", "STAFF", "SUPERADMIN"),
   controller.create
 );
 
@@ -19,9 +19,27 @@ router.post(
 router.get(
   "/",
   authMiddleware,
-  tenantMiddleware, // ✅ FIXED: was missing
-  allowRoles("OWNER", "STAFF"),
+  tenantMiddleware,
+  allowRoles("OWNER", "STAFF", "SUPERADMIN"),
   controller.list
+);
+
+// PUT /api/appointment/:id/status
+router.put(
+  "/:id/status",
+  authMiddleware,
+  tenantMiddleware,
+  allowRoles("OWNER", "STAFF", "SUPERADMIN"),
+  controller.updateStatus
+);
+
+// DELETE /api/appointment/:id
+router.delete(
+  "/:id",
+  authMiddleware,
+  tenantMiddleware,
+  allowRoles("OWNER", "STAFF", "SUPERADMIN"),
+  controller.delete
 );
 
 module.exports = router;

@@ -9,6 +9,8 @@ exports.getAnalytics = async (tenantId, businessId = null, role = "OWNER") => {
   const totalCalls = await prisma.call.count({ where });
 
   const totalOrders = await prisma.order.count({ where });
+  const totalAppointments = await prisma.appointment.count({ where });
+  const totalConversions = totalOrders + totalAppointments;
 
   const revenueData = await prisma.order.aggregate({
     where,
@@ -28,7 +30,7 @@ exports.getAnalytics = async (tenantId, businessId = null, role = "OWNER") => {
     : 0;
 
   const conversionRate = totalCalls > 0
-    ? ((totalOrders / totalCalls) * 100).toFixed(1)
+    ? ((totalConversions / totalCalls) * 100).toFixed(1)
     : 0;
 
   const orders = await prisma.order.findMany({
@@ -38,6 +40,15 @@ exports.getAnalytics = async (tenantId, businessId = null, role = "OWNER") => {
       createdAt: true,
       items: { include: { menuItem: true } },
     },
+  });
+
+  const appointments = await prisma.appointment.findMany({
+    where,
+    select: {
+      createdAt: true,
+      serviceName: true,
+      customerName: true
+    }
   });
 
   const revenueMap = {};
@@ -86,6 +97,18 @@ exports.getAnalytics = async (tenantId, businessId = null, role = "OWNER") => {
     }
   }
 
+  // Also count services from appointments as "Top Items"
+  for (const appt of appointments) {
+    const serviceName = appt.serviceName || "Unknown service";
+    const current = topItemsMap.get(serviceName) || {
+      name: serviceName,
+      totalSold: 0,
+      revenue: 0
+    };
+    current.totalSold += 1;
+    topItemsMap.set(serviceName, current);
+  }
+
   const top5 = Array.from(topItemsMap.values())
     .sort((a, b) => b.totalSold - a.totalSold)
     .slice(0, 5);
@@ -95,11 +118,11 @@ exports.getAnalytics = async (tenantId, businessId = null, role = "OWNER") => {
     : 0;
 
   const aiSuccessRate = totalCalls > 0
-    ? ((totalOrders / totalCalls) * 100).toFixed(1)
+    ? ((totalConversions / totalCalls) * 100).toFixed(1)
     : 0;
 
-  const missedOrders = totalCalls > totalOrders
-    ? totalCalls - totalOrders
+  const missedOrders = totalCalls > totalConversions
+    ? totalCalls - totalConversions
     : 0;
 
   const avgOrderValue = totalOrders > 0
@@ -110,6 +133,8 @@ exports.getAnalytics = async (tenantId, businessId = null, role = "OWNER") => {
     totals: {
       totalCalls,
       totalOrders,
+      totalAppointments,
+      totalConversions,
       totalRevenue,
       totalMinutes,
       averageCallDuration,

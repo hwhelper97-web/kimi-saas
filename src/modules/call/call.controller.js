@@ -36,11 +36,11 @@ const isOrderBusiness = (businessType = "") =>
   normalizeBusinessType(businessType) === "order";
 
 const getSessionKey = (req) => {
-  // Prefer Twilio's stable CallSid; fall back to From:To; never share a "default" session
+  const b = req.body || {};
   return (
-    req.body.CallSid ||
-    req.body.callSid ||
-    [req.body.From, req.body.To].filter(Boolean).join(":") ||
+    b.CallSid ||
+    b.callSid ||
+    [b.From, b.To].filter(Boolean).join(":") ||
     `anon_${Date.now()}_${Math.random().toString(36).slice(2)}`
   );
 };
@@ -226,12 +226,17 @@ exports.incoming = async (req, res) => {
   const { sessionKey, session } = getOrCreateSession(req);
 
   try {
-    console.log(`[CALL] Incoming call from ${req.body.From} to ${req.body.To}`);
-    // ⚡ SPEED OPTIMIZATION: Get basic business info first for the greeting
-    const toNumber = (req.body.To || "").replace(/[^0-9]/g, "").slice(-10);
+    const body = req.body || {};
+    const toNumber = (body.To || "").replace(/[^0-9]/g, "").slice(-10);
     const business = await prisma.business.findFirst({
-      where: { phoneNumber: { contains: toNumber } }
+      where: { phoneNumber: { contains: toNumber } },
+      include: { tenant: true }
     });
+
+    if (body.CallSid) {
+      const { startRecording } = require("../../services/twilio");
+      startRecording(req.body.CallSid).catch(() => {});
+    }
 
     if (!business) {
       return res.send(`
@@ -242,28 +247,36 @@ exports.incoming = async (req, res) => {
 </Response>`);
     }
 
-    // Now load full context for the session
-    const fullBusiness = await service.handleIncomingCall(req.body);
-    Object.assign(session, {
-      businessId: business.id,
-      tenantId: business.tenantId,
-      businessType: business.type,
-      businessName: business.name,
-      menuItems: fullBusiness.business.menuItems || [],
-      callId: fullBusiness.call.id,
-      startTime: Date.now(),
-      messages: [],
-      step: ""
-    });
+    // 🚀 ULTRA-FAST RESPONSE: Send TwiML to Twilio immediately
+    // All calls (including ElevenLabs Agents) must pass through our Node.js middleware
+    // because ElevenLabs requires Twilio media events to be translated into their specific JSON format.
+    const host = req.headers.host;
+    const protocol = host.includes("ngrok-free.dev") ? "wss" : (req.protocol === "https" ? "wss" : "ws");
+    const callerPhone = req.body.From || "Unknown";
+    const streamUrl = `${protocol}://${host}/v2/stream/${business.id}?caller=${encodeURIComponent(callerPhone)}`;
+    
+    console.log(`[CALL_INCOMING] business: ${business.name}, stream: ${streamUrl}`);
+    
+    res.send(`
+<Response>
+  <Connect>
+    <Stream url="${streamUrl}" track="inbound_track" />
+  </Connect>
+</Response>
+    `.trim());
 
-    const greeting = isOrderBusiness(business.type)
-      ? `Thanks for calling ${business.name}! What can I get for you today?`
-      : `Thanks for calling ${business.name}! How can I help you today?`;
+    // ─── BACKGROUND PROCESSING ───
+    (async () => {
+      try {
+        session.businessId = business.id;
+        session.tenantId = business.tenantId;
+        session.businessType = business.type;
+        session.businessName = business.name;
+      } catch (err) {
+        console.error("[BACKGROUND] Error fetching full context:", err.message);
+      }
+    })();
 
-    // Initialize history with the greeting
-    session.messages.push({ role: "assistant", content: greeting });
-
-    return res.send(buildTwimlGather(greeting));
   } catch (error) {
     console.error("[CALL FATAL ERROR] Incoming handler failed:", error);
     return res.send(`<Response><Say>Sorry, we're having a technical issue. Error: ${error.message}</Say><Hangup/></Response>`);
@@ -638,14 +651,15 @@ exports.testAI = async (req, res) => {
 exports.getCallHistory = async (req, res) => {
   try {
     const { businessId } = req.query;
+    const isSuperAdmin = req.user.role === "SUPERADMIN";
 
     const calls = await prisma.call.findMany({
       where: {
-        tenantId: req.tenantId,
+        ...(isSuperAdmin ? {} : { tenantId: req.tenantId }),
         ...(businessId ? { businessId } : {}),
       },
       orderBy: { createdAt: "desc" },
-      take: 20,
+      take: 50,
       include: { business: true },
     });
 
@@ -662,8 +676,12 @@ exports.getCallDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const isSuperAdmin = req.user.role === "SUPERADMIN";
     const call = await prisma.call.findFirst({
-      where: { id, tenantId: req.tenantId },
+      where: { 
+        id, 
+        ...(isSuperAdmin ? {} : { tenantId: req.tenantId })
+      },
       include: { business: true },
     });
 
@@ -679,3 +697,47 @@ exports.getCallDetails = async (req, res) => {
 };
 
 
+
+exports.status = (req, res) => res.sendStatus(200);
+exports.recordingCallback = (req, res) => res.sendStatus(200);
+exports.proxyRecording = (req, res) => res.sendStatus(200);
+
+exports.streamVoice = (req, res) => res.sendStatus(200);
+
+exports.testVoice = (req, res) => res.sendStatus(200);
+exports.testAI = (req, res) => res.sendStatus(200);
+
+/* ===============================
+   PROVISIONING: SEARCH NUMBERS
+   =============================== */
+exports.searchNumbers = async (req, res) => {
+  try {
+    const { areaCode, countryCode } = req.query;
+    const twilioService = require("../../services/twilio");
+    const numbers = await twilioService.searchAvailableNumbers(areaCode || "212", countryCode || "US");
+    return res.json({ success: true, data: numbers });
+  } catch (error) {
+    console.error("[Call] searchNumbers error:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/* ===============================
+   PROVISIONING: PURCHASE NUMBER
+   =============================== */
+exports.purchaseNumber = async (req, res) => {
+  try {
+    const { phoneNumber, businessId } = req.body;
+    if (!phoneNumber || !businessId) {
+      return res.status(400).json({ success: false, error: "Phone number and Business ID are required" });
+    }
+
+    const twilioService = require("../../services/twilio");
+    const result = await twilioService.purchaseAndConfigureNumber(phoneNumber, businessId);
+    
+    return res.json({ success: true, data: result, message: "Number successfully provisioned and linked to business." });
+  } catch (error) {
+    console.error("[Call] purchaseNumber error:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};

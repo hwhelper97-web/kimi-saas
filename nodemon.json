@@ -1,0 +1,4 @@
+{
+  "ignore": ["scratch/*", "public/uploads/*", "dev.db*", "knowledge/*", ".gemini/*"],
+  "ext": "js,json,ejs,css"
+}

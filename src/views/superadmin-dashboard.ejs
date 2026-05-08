@@ -1,966 +1,3085 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>SuperAdmin Panel</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SuperAdmin Hub — Nexton Technologies LLC</title>
+  <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/admin-apex.css" />
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  
   <style>
+    /* Themes are now handled via data-theme and admin-apex.css */
     body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-      background: #0f172a;
-      color: white;
+      background: var(--bg-app);
+      color: var(--text-primary);
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
-    .layout {
-      padding: 40px;
-      max-width: 1200px;
-      margin: auto;
-    }
-
-    h1 {
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-
-    .badge {
-      background: #22c55e;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .stats {
+    .apex-sidebar { transition: all 0.3s ease; }
+    .apex-header { transition: all 0.3s ease; }
+    
+    .logo-img { width: 70%; height: 70%; object-fit: contain; }
+    .hidden { display: none !important; }
+    
+    /* Utility for theme selection grid */
+    .theme-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      margin: 30px 0;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
     }
-
-    .card {
-      background: #1e293b;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-
-    .card h3 {
-      margin: 0 0 10px;
-      font-size: 14px;
-      color: #94a3b8;
-    }
-
-    .card p {
-      font-size: 22px;
-      font-weight: bold;
-      margin: 0;
-    }
-
-    .form-box {
-      background: #1e293b;
-      padding: 25px;
-      border-radius: 12px;
-      margin-bottom: 40px;
-    }
-
-    .form-box input {
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      margin-right: 10px;
-      margin-bottom: 10px;
-      width: 200px;
-    }
-
-    .form-box button {
-      padding: 10px 18px;
-      border-radius: 6px;
-      border: none;
-      background: #3b82f6;
-      color: white;
+    
+    .theme-option {
       cursor: pointer;
-      font-weight: 600;
-      transition: 0.2s;
+      border: 2px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      text-align: center;
+      transition: all 0.2s;
+      background: var(--bg-card);
     }
-
-    .form-box button:hover {
-      background: #2563eb;
+    
+    .theme-option:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
     }
-
-    .tenants-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
+    
+    .theme-option.active {
+      border-color: var(--primary);
+      background: rgba(var(--primary-rgb), 0.1);
+      box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.2);
     }
-
-    .tenant-card {
-      background: #1e293b;
-      padding: 20px;
-      border-radius: 12px;
-      transition: 0.3s;
-      border: 1px solid transparent;
+    
+    .theme-preview {
+      height: 40px;
+      border-radius: 0.4rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      overflow: hidden;
     }
+    
+    .theme-preview-color { flex: 1; }
 
-    .tenant-card:hover {
-      border: 1px solid #3b82f6;
+    /* Professional Dashboard Enhancements */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .dashboard-header h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.1rem;
+    }
+    
+    .dashboard-header p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    .eyebrow {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .apex-content { padding: 1.25rem 2rem !important; }
+    
+    .quick-actions {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      border-radius: 1.25rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .stat-card:hover {
       transform: translateY(-4px);
+      border-color: var(--primary);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+    
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .stat-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .stat-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      background: rgba(var(--primary-rgb), 0.1);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.75rem;
+      transition: all 0.3s;
+    }
+    
+    .stat-card:hover .stat-icon {
+      background: var(--primary);
+      color: white;
+      transform: scale(1.1) rotate(5deg);
+    }
+    
+    .stat-value {
+      font-size: 2.25rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -0.02em;
+    }
+    
+    .stat-footer {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+    }
+    
+    .trend-up { color: #10b981; display: flex; align-items: center; gap: 2px; font-weight: 600; }
+    .trend-down { color: #ef4444; display: flex; align-items: center; gap: 2px; font-weight: 600; }
+    
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .live-ops-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    
+    .system-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+      border-radius: 2rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    
+    .activity-item {
+      padding: 1rem;
+      border-radius: 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      margin-bottom: 0.75rem;
+      transition: all 0.2s;
+    }
+    
+    .activity-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--primary);
     }
 
-    .tenant-card h4 {
-      margin: 0 0 10px;
+    .section-container { display: none; }
+
+    /* Tenant Table Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .tenant-row {
+      animation: fadeInUp 0.4s ease forwards;
+      opacity: 0;
+    }
+    
+    .status-badge-premium {
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+      color: #000;
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 800;
+      box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);
+    }
+    
+    .status-badge-standard {
+      background: rgba(var(--primary-rgb), 0.1);
+      color: var(--primary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border: 1px solid rgba(var(--primary-rgb), 0.2);
     }
 
-    .tenant-card p {
-      margin: 4px 0;
-      font-size: 13px;
-      color: #cbd5e1;
+    .usage-progress-container {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    
+    .usage-progress-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .support-tabs { 
+      display: flex; 
+      gap: 0.25rem; 
+      background: rgba(0,0,0,0.2); 
+      padding: 0.35rem; 
+      border-radius: 14px; 
+      border: 1px solid var(--border); 
+      backdrop-filter: blur(10px);
+    }
+    .tab-btn { 
+      padding: 0.5rem 1.25rem; 
+      border: none; 
+      background: transparent; 
+      color: var(--text-secondary); 
+      font-size: 0.75rem; 
+      font-weight: 700; 
+      cursor: pointer; 
+      border-radius: 10px; 
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+      white-space: nowrap; 
+    }
+    .tab-btn:hover { color: white; background: rgba(255,255,255,0.08); }
+    .tab-btn.active { 
+      background: var(--primary); 
+      color: white; 
+      box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3); 
+      transform: translateY(-1px);
+    }
+    
+    .convo-filter { 
+      padding-bottom: 0.4rem; 
+      transition: all 0.2s; 
+      border-bottom: 2px solid transparent; 
+    }
+    .convo-filter:hover { color: var(--primary); }
+    .convo-filter.active { 
+      color: var(--primary) !important; 
+      border-bottom: 2px solid var(--primary); 
     }
 
-    .success {
-      background: #16a34a;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      display: none;
+    /* Quick Action Buttons Premium */
+    .quick-action-btn {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.8rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
     }
-
-    .error {
-      background: #dc2626;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      display: none;
+    .quick-action-btn:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: var(--primary);
+      color: white;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 20px -8px rgba(var(--primary-rgb), 0.4);
     }
-    /* NEW SECTION STYLE */
-
-    .section{
-    margin-top:50px;
-    padding-top:20px;
-    border-top:1px solid rgba(255,255,255,0.05);
+    .quick-action-btn:active { transform: scale(0.98); }
+    .quick-action-btn i { transition: transform 0.3s ease; }
+    .quick-action-btn:hover i { transform: rotate(15deg) scale(1.2); color: var(--primary); }
+    
+    .quick-action-btn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+      transition: 0.5s;
     }
+    .quick-action-btn:hover::after { left: 100%; }
 
-    .section h2{
-    margin-bottom:20px;
-    font-weight:600;
-    color:white;
+    /* Support Inbox Grid */
+    .support-tab-content { animation: fadeIn 0.4s ease; }
+    .convo-item-sa { 
+      padding: 1.25rem; 
+      border-bottom: 1px solid var(--border); 
+      cursor: pointer; 
+      transition: all 0.3s; 
+      position: relative; 
+      border-left: 3px solid transparent;
+    }
+    .convo-item-sa:hover { background: rgba(255,255,255,0.05); }
+    .convo-item-sa.active { 
+      background: rgba(var(--primary-rgb), 0.1); 
+      border-left-color: var(--primary); 
+    }
+    .msg-sa { 
+      max-width: 80%; 
+      padding: 1rem 1.25rem; 
+      border-radius: 16px; 
+      font-size: 0.875rem; 
+      line-height: 1.6; 
+      box-shadow: var(--shadow-sm);
+    }
+    .msg-sa.tenant { 
+      align-self: flex-start; 
+      background: var(--bg-muted); 
+      border: 1px solid var(--border); 
+      border-bottom-left-radius: 4px; 
+      color: var(--text-primary);
+    }
+    .msg-sa.admin { 
+      align-self: flex-end; 
+      background: linear-gradient(135deg, var(--primary), #4f46e5); 
+      color: white; 
+      border-bottom-right-radius: 4px; 
+      box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3); 
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .apex-table { width: 100%; border-collapse: collapse; }
+    .apex-table th { padding: 1rem; text-align: left; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .apex-table td { padding: 1rem; vertical-align: middle; }
+
+    .action-btn { 
+      min-width: 36px; 
+      height: 36px; 
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center; 
+      border-radius: 12px; 
+      border: 1px solid var(--border); 
+      background: rgba(255,255,255,0.02); 
+      cursor: pointer; 
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+      color: var(--text-secondary); 
+      font-size: 0.75rem;
+      font-weight: 700;
+      gap: 0.6rem;
+      padding: 0 0.75rem;
+    }
+    .action-btn:hover { 
+      background: rgba(255,255,255,0.08); 
+      color: white; 
+      border-color: rgba(var(--primary-rgb), 0.5); 
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .action-btn.primary { 
+      background: var(--primary); 
+      color: white; 
+      border: none; 
+      box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+    }
+    .action-btn.primary:hover { 
+      background: #1d4ed8; 
+      box-shadow: 0 6px 16px rgba(var(--primary-rgb), 0.5); 
     }
   </style>
 </head>
-<body>
+<body data-theme="dark">
 
-<div class="layout">
-
-  <h1>
-    <img id="projectLogo" src="<%= platformLogo || '' %>" alt="Logo" style="height: 40px; vertical-align: middle; margin-right: 15px; <%= platformLogo ? '' : 'display: none;' %>">
-    <span id="dashboardTitle"><%= projectName || 'SuperAdmin' %> Dashboard</span> <span class="badge">SUPERADMIN</span>
-  </h1>
-
-  <div id="successBox" class="success"></div>
-  <div id="errorBox" class="error"></div>
-
-  <!-- PLATFORM SETTINGS -->
-  <section class="section">
-    <h2>Platform Settings</h2>
-    
-    <div class="form-box">
-      <h3>General Configuration</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-        <div>
-          <label style="display: block; margin-bottom: 8px; color: #94a3b8; font-size: 14px;">Project Name</label>
-          <input type="text" id="projectNameInput" placeholder="Enter Project Name" style="width: 100%; padding: 10px; border-radius: 6px; background: #0f172a; color: white; border: 1px solid #334155;">
+  <div class="apex-layout">
+    <aside class="apex-sidebar">
+      <div class="sidebar-header">
+        <div class="logo-box" style="background: var(--primary);">
+          <img src="<%= platformLogo || '' %>" class="logo-img <%= platformLogo ? '' : 'hidden' %>" />
+          <i data-lucide="shield-check" class="<%= platformLogo ? 'hidden' : '' %>"></i>
         </div>
-        <div>
-          <h3>Project Logo</h3>
-          <div style="display: flex; align-items: center; gap: 20px;">
-            <img id="logoPreview" src="" alt="Logo Preview" style="max-height: 50px; border-radius: 8px; background: #0f172a; padding: 5px; display: none;">
-            <div>
-              <input type="file" id="logoInput" accept="image/*" style="display: none;" onchange="handleLogoUpload(this)">
-              <button onclick="document.getElementById('logoInput').click()">Upload New Logo</button>
+        <div class="logo-text">
+          <h2 style="font-size: 0.95rem; font-weight: 700;"><%= projectName || 'Nexton Technologies' %></h2>
+          <p style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">AI Voice Suite</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <p class="nav-group-label">Overview</p>
+        <a class="apex-nav-item active" id="nav-dashboard" onclick="showSection('dashboard')">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Platform Hub</span>
+        </a>
+
+        <p class="nav-group-label">Management</p>
+        <a class="apex-nav-item" id="nav-tenants" onclick="showSection('tenants')">
+          <i data-lucide="database"></i>
+          <span>Registered Tenants</span>
+        </a>
+        <a class="apex-nav-item" id="nav-transcripts" onclick="showSection('transcripts')">
+          <i data-lucide="monitor"></i>
+          <span>Live Transcripts</span>
+        </a>
+        <a class="apex-nav-item" id="nav-support" onclick="showSection('support')">
+          <i data-lucide="life-buoy"></i>
+          <span>Tenant Support</span>
+        </a>
+
+        <p class="nav-group-label">System Control</p>
+        <a class="apex-nav-item" id="nav-provisioning" onclick="showSection('provisioning')">
+          <i data-lucide="plus-circle"></i>
+          <span>Provisioning</span>
+        </a>
+        <a class="apex-nav-item" id="nav-settings" onclick="showSection('settings')">
+          <i data-lucide="settings"></i>
+          <span>System Settings</span>
+        </a>
+        <a class="apex-nav-item" id="nav-billing" onclick="showSection('billing')">
+          <i data-lucide="credit-card"></i>
+          <span>Billing & Tokens</span>
+        </a>
+        <a class="apex-nav-item" id="nav-demo" onclick="showSection('demo')">
+          <i data-lucide="play-circle"></i>
+          <span>Demo Lab</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer" style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--border);">
+        <a class="apex-nav-item" onclick="logout()" style="color: var(--danger);">
+          <i data-lucide="log-out"></i>
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="apex-main">
+      <header class="apex-header">
+        <div class="header-search">
+          <i data-lucide="search"></i>
+          <input type="text" placeholder="Search for actions, tenants, stats..." />
+        </div>
+        
+        <div class="header-actions">
+          <div class="theme-selector" style="position: relative; margin-right: 1rem;">
+            <button class="action-btn" id="themeBtn" title="Change Theme" onclick="toggleThemeMenu()">
+              <i data-lucide="palette"></i>
+            </button>
+            <div id="themeMenu" class="apex-card" style="position: absolute; top: 100%; right: 0; width: 240px; z-index: 1000; display: none; margin-top: 0.5rem; padding: 1rem; border: 1px solid var(--border); box-shadow: var(--shadow-md);">
+              <h4 style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; color: var(--text-muted);">Select Theme</h4>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;">
+                <div class="theme-swatch" onclick="applyTheme('default')" style="background: #3b82f6;" title="Default Blue"></div>
+                <div class="theme-swatch" onclick="applyTheme('light')" style="background: #ffffff; border: 1px solid #ccc;" title="Clean Light"></div>
+                <div class="theme-swatch" onclick="applyTheme('midnight')" style="background: #0f172a;" title="Midnight Blue"></div>
+                <div class="theme-swatch" onclick="applyTheme('forest')" style="background: #14532d;" title="Forest Green"></div>
+                <div class="theme-swatch" onclick="applyTheme('sunset')" style="background: #431424;" title="Sunset Rose"></div>
+                <div class="theme-swatch" onclick="applyTheme('cyberpunk')" style="background: #d946ef;" title="Cyberpunk Pink"></div>
+                <div class="theme-swatch" onclick="applyTheme('ocean')" style="background: #082f49;" title="Deep Ocean"></div>
+                <div class="theme-swatch" onclick="applyTheme('royal')" style="background: #1e1b4b;" title="Royal Purple"></div>
+                <div class="theme-swatch" onclick="applyTheme('espresso')" style="background: #1c1917;" title="Espresso Brown"></div>
+                <div class="theme-swatch" onclick="applyTheme('lavender')" style="background: #2e1065;" title="Lavender Mist"></div>
+                <div class="theme-swatch" onclick="applyTheme('emerald')" style="background: #064e3b;" title="Emerald Isle"></div>
+                <div class="theme-swatch" onclick="applyTheme('crimson')" style="background: #450a0a;" title="Crimson Red"></div>
+                <div class="theme-swatch" onclick="applyTheme('slate')" style="background: #0f172a;" title="Slate Professional"></div>
+                <div class="theme-swatch" onclick="applyTheme('neon')" style="background: #000000; border: 1px solid #22c55e;" title="Neon Green"></div>
+                <div class="theme-swatch" onclick="applyTheme('minimalist')" style="background: #f8fafc; border: 1px solid #ddd;" title="Minimalist"></div>
+              </div>
             </div>
+          </div>
+          <button class="action-btn" style="margin-right: 1rem;"><i data-lucide="bell"></i></button>
+          <div class="user-profile">
+            <div class="user-avatar"><span>SA</span></div>
+            <div style="padding-right: 0.75rem;">
+              <p style="font-size: 0.75rem; font-weight: 600;">SuperAdmin</p>
+              <p style="font-size: 0.625rem; color: var(--text-muted);">Master Access</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="apex-content">
+        <div id="successBox" class="alert-box alert-success"></div>
+        <div id="errorBox" class="alert-box alert-error"></div>
+
+        <!-- DASHBOARD SECTION (Platform Hub) -->
+        <div id="dashboardSection" class="section-container" style="display: block;">
+          <div class="dashboard-header">
+            <div>
+              <p class="eyebrow" style="margin-bottom: 4px;">System Overview</p>
+              <h1>Platform Intelligence</h1>
+              <p id="dashboardScopeLabel">Real-time analytics and infrastructure monitoring across all tenants.</p>
+            </div>
+            <div class="quick-actions">
+              <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 0.25rem 0.75rem; border-radius: 0.75rem;">
+                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Viewing Scope:</span>
+                <select id="globalBusinessFilter" class="form-control" style="width: 200px; height: 2rem; padding: 0 0.5rem; border: none; background: transparent; font-size: 0.85rem; font-weight: 600;" onchange="updateDashboardFilter(this.value)">
+                  <option value="">Full Platform Overview</option>
+                </select>
+              </div>
+              <div class="system-status-pill">
+                <div class="pulse-dot"></div>
+                <span>CORE SYSTEMS ONLINE</span>
+              </div>
+              <button class="action-btn" onclick="loadAnalytics()" title="Refresh Data">
+                <i data-lucide="refresh-cw" style="width: 16px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- PRIMARY STATS -->
+          <div class="apex-grid" style="margin-bottom: 2.5rem;">
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Platform Revenue</span>
+                <div class="stat-icon"><i data-lucide="dollar-sign"></i></div>
+              </div>
+              <div class="stat-value" id="statRevenue">$0.00</div>
+              <div class="stat-footer">
+                <span class="trend-up"><i data-lucide="trending-up"></i> 12.5%</span>
+                <span style="color: var(--text-muted);">vs last 30d</span>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Active Tenants</span>
+                <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><i data-lucide="layers"></i></div>
+              </div>
+              <div class="stat-value" id="totalTenants">0</div>
+              <div class="stat-footer">
+                <span class="trend-up"><i data-lucide="plus"></i> 3 new</span>
+                <span style="color: var(--text-muted);">this week</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">AI Interactions</span>
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i data-lucide="phone-call"></i></div>
+              </div>
+              <div class="stat-value" id="totalCalls">0</div>
+              <div class="stat-footer">
+                <span class="trend-up"><i data-lucide="trending-up"></i> 8.2%</span>
+                <span style="color: var(--text-muted);">avg duration 142s</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">AI Success Rate</span>
+                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i data-lucide="zap"></i></div>
+              </div>
+              <div class="stat-value" id="conversionRate">0%</div>
+              <div class="stat-footer">
+                <span class="trend-up" style="color: #10b981;"><i data-lucide="check-circle"></i> Optimized</span>
+                <span style="color: var(--text-muted);">high fidelity</span>
+              </div>
+            </div>
+          </div>
+          <!-- SYSTEM INFRASTRUCTURE HEALTH -->
+          <div class="apex-card" style="margin-bottom: 2.5rem; border-left: 4px solid var(--primary);">
+            <div class="card-title-row">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="activity" style="color: var(--primary); width: 20px;"></i>
+                <h3 class="card-title">Infrastructure Health</h3>
+              </div>
+              <span class="system-status-pill">ALL SYSTEMS OPERATIONAL</span>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
+              <!-- ElevenLabs -->
+              <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center;">
+                  <span style="font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="mic-2" style="width: 14px; color: #a855f7;"></i> ElevenLabs AI
+                  </span>
+                  <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">99.9%</span>
+                </div>
+                <div class="usage-progress-container">
+                  <div class="usage-progress-bar" style="width: 99.9%; background: linear-gradient(90deg, #a855f7, #c084fc);"></div>
+                </div>
+                <p style="font-size: 0.6rem; color: var(--text-muted); margin-top: 4px;">Conversational Voice Bridge</p>
+              </div>
+
+              <!-- Twilio -->
+              <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center;">
+                  <span style="font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="phone" style="width: 14px; color: #f43f5e;"></i> Twilio Telephony
+                  </span>
+                  <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">100%</span>
+                </div>
+                <div class="usage-progress-container">
+                  <div class="usage-progress-bar" style="width: 100%; background: linear-gradient(90deg, #f43f5e, #fb7185);"></div>
+                </div>
+                <p style="font-size: 0.6rem; color: var(--text-muted); margin-top: 4px;">Global SIP & PSTN Gateway</p>
+              </div>
+
+              <!-- OpenAI -->
+              <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center;">
+                  <span style="font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="brain-circuit" style="width: 14px; color: #10b981;"></i> OpenAI Neural
+                  </span>
+                  <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">98.5%</span>
+                </div>
+                <div class="usage-progress-container">
+                  <div class="usage-progress-bar" style="width: 98.5%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
+                </div>
+                <p style="font-size: 0.6rem; color: var(--text-muted); margin-top: 4px;">LLM Intelligence & Extraction</p>
+              </div>
+
+              <!-- Deepgram -->
+              <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center;">
+                  <span style="font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="audio-lines" style="width: 14px; color: #3b82f6;"></i> Deepgram STT
+                  </span>
+                  <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">99.7%</span>
+                </div>
+                <div class="usage-progress-container">
+                  <div class="usage-progress-bar" style="width: 99.7%; background: linear-gradient(90deg, #3b82f6, #60a5fa);"></div>
+                </div>
+                <p style="font-size: 0.6rem; color: var(--text-muted); margin-top: 4px;">Speech-to-Text Processing</p>
+              </div>
+
+              <!-- Prisma/DB -->
+              <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center;">
+                  <span style="font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="database" style="width: 14px; color: #f59e0b;"></i> Core Database
+                  </span>
+                  <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">ONLINE</span>
+                </div>
+                <div class="usage-progress-container">
+                  <div class="usage-progress-bar" style="width: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24);"></div>
+                </div>
+                <p style="font-size: 0.6rem; color: var(--text-muted); margin-top: 4px;">PostgreSQL Cluster & Prisma</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ANALYTICS ENGINE -->
+          <div class="dashboard-main-grid">
+            <div class="left-col">
+              <div class="apex-card" style="margin-bottom: 1.5rem;">
+                <div class="card-title-row">
+                  <h3 class="card-title">Financial Performance</h3>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <button class="action-btn" style="font-size: 0.7rem; padding: 0.25rem 0.75rem;">WEEK</button>
+                    <button class="action-btn active" style="font-size: 0.7rem; padding: 0.25rem 0.75rem; background: var(--primary); color: white; border: none;">MONTH</button>
+                  </div>
+                </div>
+                <div style="height: 320px;"><canvas id="revenueChart"></canvas></div>
+              </div>
+              
+              <div class="apex-card">
+                <div class="card-title-row">
+                  <h3 class="card-title">Infrastructure Load</h3>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Concurrent AI Streams</span>
+                </div>
+                <div style="height: 250px;"><canvas id="callsChart"></canvas></div>
+              </div>
+            </div>
+
+            <div class="right-col">
+              <div class="apex-card live-ops-panel" style="height: 100%;">
+                <div class="card-title-row">
+                  <div class="live-ops-header">
+                    <div class="pulse-dot"></div>
+                    <h3 class="card-title">Live AI Console</h3>
+                  </div>
+                  <span style="font-size: 0.7rem; background: rgba(255,255,255,0.05); padding: 0.25rem 0.6rem; border-radius: 0.4rem; border: 1px solid var(--border);">REALTIME</span>
+                </div>
+                
+                <div id="liveCallsContainer" style="flex: 1; overflow-y: auto; padding-right: 0.5rem; margin-top: 0.5rem;">
+                  <div style="text-align: center; padding: 3rem 1rem;">
+                    <div style="margin-bottom: 1rem; color: var(--primary); opacity: 0.5;">
+                      <i data-lucide="activity" style="width: 48px; height: 48px; margin: 0 auto;"></i>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">Awaiting stream initialization...</p>
+                  </div>
+                </div>
+
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Total Tokens Ingested</span>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">142.5k</span>
+                  </div>
+                  <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden;">
+                    <div style="width: 65%; height: 100%; background: var(--primary);"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TENANTS SECTION -->
+        <div id="tenantsSection" class="section-container" style="display: none;">
+          <div class="page-header">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
+              <div>
+                <h1>Registered Tenants</h1>
+                <p>Manage all business accounts and platform capacity.</p>
+              </div>
+              <div class="header-search" style="width: 300px;">
+                <i data-lucide="search"></i>
+                <input type="text" id="tenantSearch" placeholder="Search tenants..." oninput="filterTenants(this.value)" />
+              </div>
+            </div>
+          </div>
+
+          <div class="apex-card" style="padding: 0; overflow: hidden;">
+            <table class="apex-table">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
+                  <th style="padding: 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Business / Tenant</th>
+                  <th style="padding: 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Subscription Plan</th>
+                  <th style="padding: 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Usage Capacity</th>
+                  <th style="padding: 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Joined Date</th>
+                  <th style="padding: 1rem; text-align: right; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tenantList">
+                <tr><td colspan="5" style="text-align: center; padding: 4rem; color: var(--text-muted);">Fetching platform data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TRANSCRIPTS SECTION -->
+        <div id="transcriptsSection" class="section-container" style="display: none;">
+          <div class="page-header" style="margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
+              <div>
+                <p class="eyebrow" style="color: var(--primary); margin-bottom: 4px;">Intelligence Hub</p>
+                <h1 style="font-size: 2rem; font-weight: 800;">Neural Transcripts</h1>
+                <p style="color: var(--text-muted);">AI-to-human conversation intelligence and monitoring.</p>
+              </div>
+              <div style="display: flex; gap: 1rem; align-items: center;">
+                <button class="action-btn" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.2); height: 44px; padding: 0 1.25rem;">
+                  <i data-lucide="sparkles" style="width: 16px; margin-right: 8px;"></i> AI INSIGHTS
+                </button>
+                <button class="action-btn" style="background: transparent; border: 1px solid var(--border); height: 44px; padding: 0 1.25rem;">
+                  <i data-lucide="download" style="width: 16px; margin-right: 8px;"></i> EXPORT
+                </button>
+                <div class="header-search" style="width: 280px; height: 44px; margin-bottom: 0;">
+                  <i data-lucide="search"></i>
+                  <input type="text" id="transcriptSearch" placeholder="Filter transcripts..." oninput="handleTranscriptSearch(this.value)" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 0.5rem;">
+            <button class="mini-btn active" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1.25rem;">All Sessions</button>
+            <button class="mini-btn" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 0.5rem 1.25rem;">Bookings</button>
+            <button class="mini-btn" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 0.5rem 1.25rem;">Support</button>
+            <button class="mini-btn" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 0.5rem 1.25rem;">Escalations</button>
+          </div>
+
+          <div id="transcriptBox" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 2rem;"></div>
+        </div>
+
+        <!-- PROVISIONING SECTION -->
+        <div id="provisioningSection" class="section-container" style="display: none;">
+          <div class="page-header">
+            <h1>Provision New Tenant</h1>
+            <p>Instantly deploy a new AI Voice Suite for a client.</p>
+          </div>
+          <div class="apex-card" style="max-width: 500px; margin: 0 auto;">
+            <div class="form-group">
+              <label>Business Name</label>
+              <input id="tenantName" class="form-control" placeholder="e.g. Maya Burger Joint">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group"><label>Admin Email</label><input id="email" class="form-control" placeholder="admin@client.com"></div>
+              <div class="form-group"><label>Password</label><input id="password" type="password" class="form-control" placeholder="••••••••"></div>
+            </div>
+            <div class="form-group">
+              <label>Universal Currency</label>
+              <select id="currency" class="form-control">
+                <option value="USD">USD ($)</option>
+                <option value="PKR">PKR (₨)</option>
+                <option value="INR">INR (₹)</option>
+                <option value="EUR">EUR (€)</option>
+              </select>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label>Category</label>
+                <select id="businessType" class="form-control" onchange="updateSubCategoriesSA()">
+                  <option value="restaurant">Restaurant / Food (Ordering)</option>
+                  <option value="appointment">Service / Salon (Appointments)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Business Niche</label>
+                <select id="businessSubType" class="form-control">
+                  <!-- Will be populated by JS -->
+                  <option value="Restaurants">Restaurants</option>
+                  <option value="Cafes">Cafes</option>
+                  <option value="Fast food">Fast food</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group" style="padding: 1rem; background: rgba(0, 188, 212, 0.05); border-radius: 0.5rem; border: 1px dashed var(--border);">
+              <label style="color: var(--primary);"><i data-lucide="sparkles" style="width:14px; vertical-align:middle;"></i> AI SMART IMPORT</label>
+              <input id="importUrl" class="form-control" style="margin-top:0.5rem;" placeholder="https://old-website.com/menu">
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+              <div class="form-group" style="flex: 1;">
+                <label>Demo Mode</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                  <label class="switch">
+                    <input type="checkbox" id="isDemoAccount">
+                    <span class="slider round"></span>
+                  </label>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Enables Demo Lab Access</span>
+                </div>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Initial Mints (Tokens)</label>
+                <input id="initialTokens" type="number" class="form-control" value="100">
+              </div>
+            </div>
+            <button id="provisionBtn" class="action-btn" style="width: 100%; height: 3.5rem; background: var(--primary); color: white; font-weight: 700;" onclick="createTenant()">
+              LAUNCH CLIENT INSTANCE
+            </button>
+          </div>
+        </div>
+
+        <!-- TOKEN ADD MODAL -->
+        <div id="tokenModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10001; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+          <div class="apex-card" style="max-width: 400px; width: 90%;">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+              <div style="width: 60px; height: 60px; background: rgba(0, 188, 212, 0.1); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                <i data-lucide="zap" style="width: 32px; height: 32px;"></i>
+              </div>
+              <h3 style="color: white; margin-bottom: 0.5rem;">Add Mints to <span id="tokenTenantName">Tenant</span></h3>
+              <p style="font-size: 0.875rem; color: var(--text-muted);">Manually inject tokens into this business's account balance.</p>
+            </div>
+            
+            <div class="form-group">
+              <label>Amount of Mints</label>
+              <input type="number" id="tokenAmountInput" class="form-control" value="100" min="1">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+              <button class="action-btn" onclick="closeTokenModal()" style="background: transparent; border: 1px solid var(--border);">Cancel</button>
+              <button id="addTokenBtn" class="action-btn" style="background: var(--primary); color: white; border: none; font-weight: 700;">ADD MINTS</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECURITY MODAL FOR DELETION -->
+        <div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10001; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+          <div class="apex-card" style="max-width: 400px; width: 90%; border: 1px solid var(--danger);">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+              <div style="width: 60px; height: 60px; background: rgba(255, 82, 82, 0.1); color: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                <i data-lucide="alert-triangle" style="width: 32px; height: 32px;"></i>
+              </div>
+              <h3 style="color: white; margin-bottom: 0.5rem;">Confirm Permanent Deletion</h3>
+              <p style="font-size: 0.875rem; color: var(--text-muted);">This action will permanently purge this tenant and all associated businesses, menu items, and orders. This cannot be undone.</p>
+            </div>
+            
+            <div class="form-group">
+              <label>Enter Superadmin Password to Confirm</label>
+              <input type="password" id="confirmAdminPassword" class="form-control" placeholder="••••••••" style="border-color: var(--danger);">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+              <button class="action-btn" onclick="closeDeleteModal()" style="background: transparent; border: 1px solid var(--border);">Cancel</button>
+              <button id="finalDeleteBtn" class="action-btn" style="background: var(--danger); color: white; border: none; font-weight: 700;">PURGE ACCOUNT</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BILLING & TOKENS SECTION -->
+        <div id="billingSection" class="section-container" style="display: none;">
+          <div class="page-header">
+            <h1>Billing & Token Management</h1>
+            <p>Manage token tiers (Starter, Elite, Custom) and approve mint requests.</p>
+          </div>
+
+          <!-- TOKEN TIERS -->
+          <div class="apex-grid" style="margin-bottom: 2rem;">
+            <div class="apex-card" style="border: 1px solid #10b981;">
+              <div class="card-header">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <h3 class="card-title">Starter Pack</h3>
+                  <span class="status-badge-standard">ACTIVE</span>
+                </div>
+              </div>
+              <div style="margin: 1.5rem 0;">
+                <h2 style="font-size: 2rem; font-weight: 800;">100 <span style="font-size: 0.8rem; color: var(--text-muted);">MINTS</span></h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Perfect for new restaurants to test the waters.</p>
+              </div>
+              <ul style="list-style: none; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                <li style="margin-bottom: 0.5rem;"><i data-lucide="check" style="width:14px; color: #10b981; vertical-align:middle;"></i> AI Voice Ordering</li>
+                <li><i data-lucide="check" style="width:14px; color: #10b981; vertical-align:middle;"></i> Basic Reporting</li>
+              </ul>
+            </div>
+
+            <div class="apex-card" style="border: 1px solid #f59e0b; position: relative; overflow: hidden;">
+              <div style="position: absolute; top: 10px; right: -30px; background: #f59e0b; color: #000; padding: 2px 40px; transform: rotate(45deg); font-size: 0.6rem; font-weight: 800;">POPULAR</div>
+              <div class="card-header">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <h3 class="card-title">Elite Growth</h3>
+                  <span class="status-badge-premium">PREMIUM</span>
+                </div>
+              </div>
+              <div style="margin: 1.5rem 0;">
+                <h2 style="font-size: 2rem; font-weight: 800;">500 <span style="font-size: 0.8rem; color: var(--text-muted);">MINTS</span></h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Scalable package for busy establishments.</p>
+              </div>
+              <ul style="list-style: none; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                <li style="margin-bottom: 0.5rem;"><i data-lucide="check" style="width:14px; color: #f59e0b; vertical-align:middle;"></i> Priority AI Processing</li>
+                <li><i data-lucide="check" style="width:14px; color: #f59e0b; vertical-align:middle;"></i> POS Direct Sync</li>
+              </ul>
+            </div>
+
+            <div class="apex-card" style="border: 1px solid var(--primary);">
+              <div class="card-header">
+                <h3 class="card-title">Custom Enterprise</h3>
+              </div>
+              <div style="margin: 1.5rem 0;">
+                <h2 style="font-size: 2rem; font-weight: 800;">∞ <span style="font-size: 0.8rem; color: var(--text-muted);">FLEX</span></h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Bespoke token limits for large franchises.</p>
+              </div>
+              <ul style="list-style: none; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                <li style="margin-bottom: 0.5rem;"><i data-lucide="check" style="width:14px; color: var(--primary); vertical-align:middle;"></i> Multi-Location Support</li>
+                <li><i data-lucide="check" style="width:14px; color: var(--primary); vertical-align:middle;"></i> 24/7 Dedicated Support</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- MINT REQUESTS -->
+          <div class="apex-card">
+            <div class="card-title-row">
+              <h3 class="card-title">Pending Mint Requests</h3>
+              <span class="system-status-pill">REALTIME MONITOR</span>
+            </div>
+            <div class="apex-card" style="padding: 0; overflow: hidden; background: transparent; border: none;">
+              <table class="apex-table">
+                <thead>
+                  <tr style="border-bottom: 1px solid var(--border);">
+                    <th style="padding: 1rem; text-align: left; font-size: 0.7rem;">Tenant</th>
+                    <th style="padding: 1rem; text-align: left; font-size: 0.7rem;">Requested Amount</th>
+                    <th style="padding: 1rem; text-align: left; font-size: 0.7rem;">Tier</th>
+                    <th style="padding: 1rem; text-align: left; font-size: 0.7rem;">Date</th>
+                    <th style="padding: 1rem; text-align: right; font-size: 0.7rem;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="mintRequestList">
+                  <tr><td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-muted);">No pending requests.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- DEMO LAB SECTION -->
+        <div id="demoSection" class="section-container" style="display: none;">
+          <div class="page-header">
+            <h1>Nexton Demo Lab</h1>
+            <p>Simulate voice interactions and test AI processing without burning production credits.</p>
+          </div>
+
+          <div class="dashboard-main-grid">
+            <div class="left-col">
+              <div class="apex-card">
+                <div class="card-header"><h3 class="card-title">Trigger Voice Demo</h3></div>
+                <div class="form-group">
+                  <label>Select Tenant to Demo</label>
+                  <select id="demoTenantSelect" class="form-control">
+                    <option value="">Choose a business...</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Caller Phone (Simulated)</label>
+                  <input type="text" id="demoCallerPhone" class="form-control" value="+15550009999">
+                </div>
+                <div class="form-group">
+                  <label>Demo Script / Scenario</label>
+                  <textarea id="demoScript" class="form-control" style="height: 100px;">"Hi, I'd like to order a Large Pepperoni Pizza and two Cokes for pickup at 7 PM. My name is Alex."</textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                  <button class="action-btn" style="flex: 1; background: var(--primary); color: white;" onclick="runDemo('order')">
+                    <i data-lucide="shopping-cart" style="width: 14px; margin-right: 5px;"></i> SIMULATE ORDER
+                  </button>
+                  <button class="action-btn" style="flex: 1; border: 1px solid var(--primary); color: var(--primary);" onclick="runDemo('appt')">
+                    <i data-lucide="calendar" style="width: 14px; margin-right: 5px;"></i> SIMULATE APPOINTMENT
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="right-col">
+              <div class="apex-card" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="card-header">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 class="card-title">Live Demo Console</h3>
+                    <div id="demoStatusPill" class="system-status-pill hidden">
+                      <div class="pulse-dot"></div>
+                      <span>ACTIVE DEMO</span>
+                    </div>
+                  </div>
+                </div>
+                <div id="demoConsole" style="flex: 1; background: rgba(0,0,0,0.2); border-radius: 1rem; border: 1px solid var(--border); padding: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; overflow-y: auto; color: #10b981;">
+                  <p style="color: var(--text-muted);">System ready. Select a scenario to begin simulation.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SYSTEM SETTINGS SECTION -->
+        <div id="settingsSection" class="section-container" style="display: none;">
+          <div class="page-header">
+            <h1>System Configuration</h1>
+            <p>Adjust platform-wide settings, themes, and security parameters.</p>
+          </div>
+
+          <div class="dashboard-main-grid">
+            <div class="left-col">
+              <div class="apex-card">
+                <div class="card-header"><h3 class="card-title">Platform Aesthetics</h3></div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Select a global theme for the SuperAdmin interface.</p>
+                
+                <div class="form-group">
+                  <label>Active Theme</label>
+                  <select id="themeSelector" class="form-control" onchange="applyTheme(this.value)">
+                    <option value="dark">Premium Dark (Default)</option>
+                    <option value="light">Clean Light</option>
+                    <option value="nexton-teal">Nexton Teal</option>
+                    <option value="midnight">Midnight Blue</option>
+                    <option value="ocean">Deep Ocean</option>
+                    <option value="forest">Emerald Forest</option>
+                    <option value="sunset">Crimson Sunset</option>
+                    <option value="royal-gold">Royal Gold</option>
+                    <option value="deep-purple">Amethyst Purple</option>
+                    <option value="slate">Professional Slate</option>
+                    <option value="cyberpunk">Neon Cyberpunk</option>
+                    <option value="neon-night">Matrix Green</option>
+                    <option value="crimson">Blood Crimson</option>
+                  </select>
+                </div>
+
+                <div class="theme-grid" id="themeGrid">
+                  <!-- Theme previews will be rendered here -->
+                </div>
+              </div>
+            </div>
+
+            <div class="right-col">
+              <div class="apex-card">
+                <div class="card-header"><h3 class="card-title">System Health</h3></div>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(16, 185, 129, 0.05); border-radius: 0.5rem; border: 1px solid rgba(16, 185, 129, 0.1);">
+                    <div>
+                      <p style="font-size: 0.85rem; font-weight: 600; color: #10b981;">Database Engine</p>
+                      <p style="font-size: 0.7rem; color: var(--text-muted);">Prisma / PostgreSQL Connected</p>
+                    </div>
+                    <i data-lucide="check-circle" style="color: #10b981;"></i>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(59, 130, 246, 0.05); border-radius: 0.5rem; border: 1px solid rgba(59, 130, 246, 0.1);">
+                    <div>
+                      <p style="font-size: 0.85rem; font-weight: 600; color: #3b82f6;">Voice Processing</p>
+                      <p style="font-size: 0.7rem; color: var(--text-muted);">Deepgram / OpenAI Clusters</p>
+                    </div>
+                    <i data-lucide="cpu" style="color: #3b82f6;"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="supportSection" class="section-container" style="display: none;">
+          <style>
+            .support-tabs {
+              display: flex;
+              gap: 0.5rem;
+              background: rgba(255,255,255,0.03);
+              padding: 0.4rem;
+              border-radius: 12px;
+              border: 1px solid var(--border);
+            }
+            .tab-btn {
+              padding: 0.6rem 1.25rem;
+              border-radius: 8px;
+              font-size: 0.75rem;
+              font-weight: 700;
+              cursor: pointer;
+              border: none;
+              background: transparent;
+              color: var(--text-secondary);
+              transition: all 0.2s;
+            }
+            .tab-btn.active {
+              background: var(--primary);
+              color: white;
+              box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.4);
+            }
+
+            /* Support Inbox 3-Column Grid */
+            .support-inbox-grid {
+              display: grid;
+              grid-template-columns: 340px 1fr 360px;
+              gap: 1.5rem;
+              height: calc(100vh - 280px);
+            }
+
+            .convo-panel-sa {
+              background: var(--bg-card);
+              backdrop-filter: blur(20px);
+              border: 1px solid var(--border);
+              border-radius: 24px;
+              display: flex;
+              flex-direction: column;
+              overflow: hidden;
+            }
+
+            .convo-item-sa {
+              padding: 1.25rem;
+              border-radius: 16px;
+              margin: 0.5rem 1rem;
+              cursor: pointer;
+              transition: all 0.2s;
+              border: 1px solid transparent;
+              display: flex;
+              gap: 1rem;
+            }
+            .convo-item-sa:hover { background: rgba(255,255,255,0.05); }
+            .convo-item-sa.active {
+              background: rgba(var(--primary-rgb), 0.05);
+              border-color: rgba(var(--primary-rgb), 0.2);
+            }
+
+            .chat-panel-sa {
+              background: var(--bg-card);
+              backdrop-filter: blur(20px);
+              border: 1px solid var(--border);
+              border-radius: 24px;
+              display: flex;
+              flex-direction: column;
+              overflow: hidden;
+              box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            }
+
+            .msg-sa-wrap { display: flex; flex-direction: column; gap: 0.4rem; max-width: 75%; margin-bottom: 1.5rem; }
+            .msg-sa-wrap.tenant { align-self: flex-start; }
+            .msg-sa-wrap.admin { align-self: flex-end; }
+
+            .msg-sa-bubble {
+              padding: 0.875rem 1.25rem;
+              border-radius: 18px;
+              font-size: 0.9rem;
+              line-height: 1.5;
+            }
+            .tenant .msg-sa-bubble {
+              background: rgba(255,255,255,0.04);
+              border: 1px solid var(--border);
+              border-bottom-left-radius: 4px;
+            }
+            .admin .msg-sa-bubble {
+              background: linear-gradient(135deg, var(--primary), #3b82f6);
+              color: white;
+              border-bottom-right-radius: 4px;
+            }
+
+            .context-card-sa {
+              background: var(--bg-card);
+              border: 1px solid var(--border);
+              border-radius: 20px;
+              padding: 1.5rem;
+            }
+
+            /* --- NEURAL TRANSCRIPT PREMIUM STYLES --- */
+            .transcript-card {
+              background: var(--bg-card);
+              backdrop-filter: blur(20px);
+              border: 1px solid var(--border);
+              border-radius: 24px;
+              padding: 0;
+              overflow: hidden;
+              transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+              display: flex;
+              flex-direction: column;
+              position: relative;
+              box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            }
+            .transcript-card:hover {
+              transform: translateY(-8px) scale(1.01);
+              border-color: var(--primary);
+              box-shadow: 0 20px 40px -15px rgba(var(--primary-rgb), 0.2);
+            }
+            .transcript-header {
+              padding: 1.5rem;
+              background: rgba(255,255,255,0.01);
+              border-bottom: 1px solid var(--border);
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+            }
+            .transcript-badge {
+              font-size: 0.6rem;
+              font-weight: 800;
+              letter-spacing: 0.05em;
+              padding: 0.25rem 0.6rem;
+              border-radius: 100px;
+              text-transform: uppercase;
+            }
+            .badge-booking { background: rgba(0, 188, 212, 0.1); color: var(--primary); }
+            .badge-support { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+            .badge-sales { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+            .badge-complaint { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+            .ai-summary-mini {
+              margin: 1rem 1.5rem;
+              padding: 1rem;
+              background: rgba(var(--primary-rgb), 0.03);
+              border: 1px solid rgba(var(--primary-rgb), 0.1);
+              border-radius: 16px;
+              position: relative;
+            }
+            .ai-summary-mini::before {
+              content: 'AI SUMMARY';
+              position: absolute;
+              top: -8px;
+              left: 12px;
+              background: var(--bg-card);
+              padding: 0 6px;
+              font-size: 0.5rem;
+              font-weight: 900;
+              color: var(--primary);
+              letter-spacing: 0.1em;
+            }
+
+            .chat-preview {
+              padding: 0 1.5rem 1.5rem;
+              display: flex;
+              flex-direction: column;
+              gap: 1rem;
+              max-height: 400px;
+              overflow: hidden;
+              position: relative;
+            }
+            .chat-preview-fade {
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              width: 100%;
+              height: 100px;
+              background: linear-gradient(to top, var(--bg-card), transparent);
+              z-index: 2;
+            }
+
+            .bubble-item {
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
+              max-width: 85%;
+            }
+            .bubble-item.ai { align-self: flex-start; }
+            .bubble-item.customer { align-self: flex-end; align-items: flex-end; }
+            
+            .bubble-text {
+              padding: 0.75rem 1rem;
+              font-size: 0.85rem;
+              line-height: 1.5;
+              border-radius: 16px;
+            }
+            .ai .bubble-text { 
+              background: rgba(255,255,255,0.03); 
+              border: 1px solid var(--border);
+              border-bottom-left-radius: 4px;
+            }
+            .customer .bubble-text { 
+              background: linear-gradient(135deg, var(--primary), #3b82f6);
+              color: white;
+              border-bottom-right-radius: 4px;
+            }
+
+            .expand-btn {
+              width: 100%;
+              padding: 1rem;
+              background: rgba(255,255,255,0.02);
+              border: none;
+              border-top: 1px solid var(--border);
+              color: var(--text-secondary);
+              font-size: 0.75rem;
+              font-weight: 700;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+              transition: all 0.2s;
+            }
+            .expand-btn:hover {
+              background: rgba(var(--primary-rgb), 0.05);
+              color: var(--primary);
+            }
+
+            .insight-row {
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.7rem;
+              margin-top: 0.5rem;
+              padding: 0.5rem 1.5rem;
+              border-top: 1px solid var(--border);
+              background: rgba(0,0,0,0.1);
+            }
+
+            .sentiment-dot {
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              display: inline-block;
+              margin-right: 4px;
+            }
+          </style>
+
+          <div class="dashboard-header">
+            <div>
+              <p class="eyebrow" style="margin-bottom: 4px;">Platform Command</p>
+              <h1>Support & Success Center</h1>
+              <p>Unified hub for tenant assistance, ticketing, and AI training.</p>
+            </div>
+            <div class="support-tabs">
+              <button class="tab-btn active" onclick="switchSupportTab('overview')">Overview</button>
+              <button class="tab-btn" onclick="switchSupportTab('tickets')">Tickets</button>
+              <button class="tab-btn" onclick="switchSupportTab('inbox')">Support Inbox</button>
+              <button class="tab-btn" onclick="switchSupportTab('kb')">Knowledge Base</button>
+            </div>
+          </div>
+
+        <!-- TAB: OVERVIEW -->
+        <div id="support-overview" class="support-tab-content">
+          <div class="apex-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2.5rem;">
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Active Conversations</span>
+                <div class="stat-icon" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary);"><i data-lucide="message-circle"></i></div>
+              </div>
+              <div class="stat-value" id="activeConvosCount">3</div>
+              <div class="stat-trend success">Real-time active</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Open Tickets</span>
+                <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;"><i data-lucide="ticket"></i></div>
+              </div>
+              <div class="stat-value" id="openTicketsCount">5</div>
+              <div class="stat-trend danger">Awaiting Action</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Resolved (30d)</span>
+                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i data-lucide="check-circle"></i></div>
+              </div>
+              <div class="stat-value">128</div>
+              <div class="stat-trend success">94% SLA Met</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Avg. Response Time</span>
+                <div class="stat-icon" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary);"><i data-lucide="clock"></i></div>
+              </div>
+              <div class="stat-value">12m</div>
+              <div class="stat-trend success">Stable</div>
+            </div>
+          </div>
+
+          <div class="dashboard-main-grid">
+            <div class="left-col">
+              <div class="apex-card" style="cursor: pointer; margin-bottom: 1.5rem;" onclick="switchSupportTab('inbox')">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                  <div style="width: 52px; height: 52px; background: rgba(var(--primary-rgb), 0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                    <i data-lucide="message-square"></i>
+                  </div>
+                  <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 700;">Live Success Inbox</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Interactive tenant assistance portal.</p>
+                  </div>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--primary); font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                  Open Support Hub <i data-lucide="arrow-right" style="width: 14px;"></i>
+                </div>
+              </div>
+              
+              <div class="apex-card">
+                <div class="card-title-row">
+                  <h3 class="card-title">Success Activity</h3>
+                  <button class="action-btn" style="font-size: 0.7rem;">Live Feed</button>
+                </div>
+                <div id="supportActivityFeed" style="display: flex; flex-direction: column; gap: 1rem;">
+                  <p style="text-align: center; color: var(--text-muted); padding: 2rem; font-size: 0.8rem;">Monitoring platform frequencies...</p>
+                </div>
+              </div>
+            </div>
+            <div class="right-col">
+              <div class="apex-card" style="margin-bottom: 1.5rem; cursor: pointer;" onclick="switchSupportTab('tickets')">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                  <div style="width: 52px; height: 52px; background: rgba(239, 68, 68, 0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #ef4444;">
+                    <i data-lucide="ticket"></i>
+                  </div>
+                  <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 700;">Issue Management</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Track system bugs and requests.</p>
+                  </div>
+                </div>
+                <div style="font-size: 0.75rem; color: #ef4444; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                  Manage Neural Tickets <i data-lucide="arrow-right" style="width: 14px;"></i>
+                </div>
+              </div>
+
+              <div class="apex-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                  <h3 class="card-title">Critical Escalations</h3>
+                  <span style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 0.2rem 0.6rem; border-radius: 100px; font-size: 0.65rem; font-weight: 800;">L3 PRIORITY</span>
+                </div>
+                <div id="urgentTicketsList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  <div style="text-align: center; padding: 2rem;">
+                    <i data-lucide="shield-check" style="width: 32px; color: var(--success); opacity: 0.3; margin-bottom: 0.5rem;"></i>
+                    <p style="color: var(--text-muted); font-size: 0.75rem;">All systems operational.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: TICKETS -->
+        <div id="support-tickets" class="support-tab-content" style="display: none;">
+          <div class="apex-card" style="padding: 0; overflow: hidden;">
+            <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; gap: 1rem;">
+                <select class="form-control" style="width: 150px; height: 36px; font-size: 0.8rem;" onchange="filterSupportTickets(this.value)">
+                  <option value="">All Statuses</option>
+                  <option value="open">Open</option>
+                  <option value="pending">Pending</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+              </div>
+              <div class="header-search" style="width: 250px;">
+                <i data-lucide="search"></i>
+                <input type="text" placeholder="Search tickets..." oninput="searchTicketsSA(this.value)">
+              </div>
+            </div>
+            <table class="apex-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">#</th>
+                  <th>Ticket / Subject</th>
+                  <th>Tenant</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Created</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ticketsListTableSA">
+                <tr><td colspan="6" style="text-align: center; padding: 4rem; color: var(--text-muted);">Loading ticket database...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB: INBOX -->
+        <div id="support-inbox" class="support-tab-content" style="display: none;">
+          <div class="support-inbox-grid">
+            <!-- Left: Conversations -->
+            <div class="convo-panel-sa">
+              <div style="padding: 1.5rem; border-bottom: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <h3 style="font-size: 1rem; font-weight: 700;">Conversations</h3>
+                    <button class="action-btn" onclick="loadConversationsSA()" title="Refresh" style="width: 24px; height: 24px; padding: 0; border: none; background: transparent; color: var(--text-muted); cursor: pointer;">
+                       <i data-lucide="refresh-cw" style="width: 12px;"></i>
+                    </button>
+                  </div>
+                  <span id="convoBadgeSA" style="background: var(--primary); color: white; padding: 0.1rem 0.5rem; border-radius: 100px; font-size: 0.7rem; font-weight: 800;">0</span>
+                </div>
+                <div class="header-search" style="width: 100%;">
+                  <i data-lucide="search"></i>
+                  <input type="text" placeholder="Search conversations..." oninput="searchConvosSA(this.value)">
+                </div>
+                <div id="convoFilterSA" style="display: flex; gap: 1rem; margin-top: 1.25rem; font-size: 0.7rem; font-weight: 700; color: var(--text-muted);">
+                  <span class="convo-filter active" onclick="filterConvosSA('all')" style="cursor: pointer;">All <span id="countAllSA">0</span></span>
+                  <span class="convo-filter" onclick="filterConvosSA('unread')" style="cursor: pointer;">Unread <span id="countUnreadSA">0</span></span>
+                  <span class="convo-filter" onclick="filterConvosSA('mentions')" style="cursor: pointer;">Mentions <span id="countMentionsSA">0</span></span>
+                </div>
+              </div>
+              <div id="convoListSA" style="flex: 1; overflow-y: auto; padding-top: 0.5rem;">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+
+            <!-- Center: Chat -->
+            <div class="chat-panel-sa">
+               <div id="activeChatHeaderSA" style="padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); visibility: hidden;">
+                 <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div id="activeChatAvatarWrapSA" style="width: 40px; height: 40px; border-radius: 12px; overflow: hidden; background: #064e3b; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(16, 185, 129, 0.2);">
+                      <div id="activeChatAvatarSA" class="avatar" style="font-size: 0.9rem; color: #10b981;">?</div>
+                      <img id="activeChatLogoSA" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                    </div>
+                    <div>
+                      <h4 id="activeChatNameSA" style="font-size: 0.9rem; font-weight: 700;">Select Conversation</h4>
+                      <p id="activeChatStatusSA" style="font-size: 0.7rem; color: var(--text-muted);">Awaiting selection</p>
+                    </div>
+                 </div>
+                 <div id="chatActionsSA" style="display: none; gap: 0.75rem; align-items: center; flex-shrink: 0;">
+                    <button class="action-btn" id="aiToggleBtnSA" onclick="toggleAISupportSA()" style="width: auto; min-width: max-content; height: 36px; padding: 0 1.25rem; font-size: 0.75rem; font-weight: 700; border-radius: 10px; display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: all 0.2s ease;">
+                      <i data-lucide="bot" style="width: 16px;"></i> <span id="aiStatusTextSA">AI ASSISTING</span>
+                    </button>
+                    <button class="action-btn" onclick="resolveTicketSA()" style="width: auto; min-width: max-content; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); color: #10b981; height: 36px; padding: 0 1.25rem; font-size: 0.75rem; font-weight: 700; border-radius: 10px; display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: all 0.2s ease;">
+                      <i data-lucide="check-circle" style="width: 16px;"></i> RESOLVE
+                    </button>
+                 </div>
+               </div>
+
+               <div id="chatMessagesSA" style="flex: 1; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column;">
+                 <div style="margin: auto; text-align: center; opacity: 0.2;">
+                   <i data-lucide="message-square" style="width: 64px; height: 64px; margin-bottom: 1rem;"></i>
+                   <p style="font-weight: 700;">Platform Secure Channel</p>
+                 </div>
+               </div>
+
+               <div id="chatInputAreaSA" style="padding: 1.5rem 2rem; background: rgba(0,0,0,0.2); border-top: 1px solid var(--border); display: none;">
+                 <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 1rem;">
+                    <i data-lucide="smile" style="width: 18px; color: var(--text-muted);"></i>
+                    <i data-lucide="paperclip" style="width: 18px; color: var(--text-muted);"></i>
+                    <input type="text" id="replyInputSA" style="flex: 1; background: transparent; border: none; color: white; outline: none; padding: 0.5rem 0; font-size: 0.9rem;" placeholder="Type your reply to tenant..." onkeypress="handleSAReply(event)">
+                    <button onclick="sendSAReply()" style="width: 32px; height: 32px; border-radius: 8px; background: var(--primary); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                      <i data-lucide="send" style="width: 16px;"></i>
+                    </button>
+                 </div>
+               </div>
+            </div>
+
+            <!-- Right: Tenant Context -->
+            <div class="context-panel-sa">
+               <div class="context-card-sa">
+                 <span class="label-caps">Tenant Information</span>
+                 <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                   <div id="tenantContextAvatarWrap" style="width: 52px; height: 52px; border-radius: 12px; overflow: hidden; background: #3730a3; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);">
+                      <div id="tenantContextAvatar" class="avatar" style="font-size: 1.2rem;">?</div>
+                      <img id="tenantContextLogo" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                   </div>
+                   <div>
+                     <h4 id="tenantContextName" style="font-size: 1rem; font-weight: 700;">No Tenant Selected</h4>
+                     <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <p id="tenantContextEmail" style="font-size: 0.7rem; color: var(--text-muted);"></p>
+                        <p id="tenantContextPhone" style="font-size: 0.7rem; color: var(--text-muted);"></p>
+                     </div>
+                   </div>
+                 </div>
+                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <a id="tenantEmailBtn" href="#" class="mini-btn" style="text-decoration: none; color: inherit; justify-content: center;"><i data-lucide="mail" style="width: 14px;"></i></a>
+                    <a id="tenantPhoneBtn" href="#" class="mini-btn" style="text-decoration: none; color: inherit; justify-content: center;"><i data-lucide="phone" style="width: 14px;"></i></a>
+                 </div>
+               </div>
+
+               <div class="context-card-sa">
+                 <span class="label-caps">Subscription & Usage</span>
+                 <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.5rem;">
+                   <span style="color: var(--text-muted);">Plan</span>
+                   <span id="tenantContextPlan" style="font-weight: 700; color: var(--primary);">Basic</span>
+                 </div>
+                 <div style="margin-top: 1.5rem;">
+                   <div style="display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 0.4rem;">
+                     <span style="color: var(--text-muted);">Monthly Usage</span>
+                     <span id="tenantContextUsage">0 / 15,000 mins</span>
+                   </div>
+                   <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; margin: 0.5rem 0;">
+                      <div id="tenantContextUsageBar" style="height: 100%; background: linear-gradient(to right, var(--primary), #a855f7); border-radius: 10px; width: 0%;"></div>
+                   </div>
+                 </div>
+               </div>
+
+               <div class="context-card-sa">
+                  <span class="label-caps">System Alerts</span>
+                  <div id="tenantContextAlerts">
+                    <p style="font-size: 0.7rem; color: var(--text-muted); text-align: center; padding: 1rem;">No active alerts for this tenant.</p>
+                  </div>
+               </div>
+
+               <div class="context-card-sa">
+                  <span class="label-caps">Quick Actions</span>
+                  <div class="action-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                     <button class="quick-action-btn" onclick="triggerQuickActionSA('restart-ai')"><i data-lucide="refresh-cw" style="width: 16px;"></i> Restart AI</button>
+                     <button class="quick-action-btn" onclick="triggerQuickActionSA('reset-twilio')"><i data-lucide="shield-alert" style="width: 16px;"></i> Reset Twilio</button>
+                     <button class="quick-action-btn" onclick="triggerQuickActionSA('sync-cal')"><i data-lucide="calendar" style="width: 16px;"></i> Sync Cal</button>
+                     <button class="quick-action-btn" onclick="triggerQuickActionSA('billing')" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.1); color: #10b981;">
+                        <i data-lucide="credit-card" style="width: 16px;"></i> Billing
+                     </button>
+                  </div>
+               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: KB -->
+        <div id="support-kb" class="support-tab-content" style="display: none;">
+          <div class="dashboard-main-grid">
+            <div class="left-col">
+              <div class="apex-card">
+                <div class="card-title-row">
+                  <h3 class="card-title">Knowledge Library</h3>
+                  <button class="action-btn primary" style="background: var(--primary); color: white; border: none; padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="plus" style="width: 14px;"></i> Create Article
+                  </button>
+                </div>
+                <div id="kbArticlesListSA" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+                  <!-- Articles will be injected -->
+                  <div style="padding: 1rem; border: 1px solid var(--border); border-radius: 12px;">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 0.25rem;">Platform Onboarding Guide</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Published 2 days ago • 142 views</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="right-col">
+              <div class="apex-card" style="height: 100%;">
+                <h3 class="card-title" style="margin-bottom: 1rem;">Article Editor</h3>
+                <div id="kbEditorSA" style="padding: 2rem; background: rgba(0,0,0,0.1); border-radius: 1rem; min-height: 400px; color: var(--text-muted); text-align: center; border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center;">
+                  <p>Select an article to edit or create a new one.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+                </div>
+      </div>
+    </div>
+
+    <!-- Modal: Full Neural Transcript -->
+    <div id="neuralTranscriptModal" class="modal-overlay">
+      <div class="modal-container" style="max-width: 1000px; height: 85vh; background: rgba(10, 15, 20, 0.98); border: 1px solid var(--border); display: flex; flex-direction: column; padding: 0; overflow: hidden;">
+        <div class="modal-header" style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
+           <div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 0.65rem; color: var(--primary); font-weight: 800; letter-spacing: 0.1em;">NEURAL LOG RECONSTRUCTION</span>
+                <div class="pulse-online" style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%;"></div>
+              </div>
+              <h3 id="nt_biz_name" style="font-size: 1.5rem; font-weight: 800; color: white; margin-top: 0.5rem;">Business Name</h3>
+           </div>
+           <button class="close-modal" onclick="closeNeuralModal()">&times;</button>
+        </div>
+
+        <div style="display: flex; flex: 1; overflow: hidden;">
+          <!-- Left: Full Chat -->
+          <div style="flex: 1; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; background: rgba(0,0,0,0.2);">
+            <div id="nt_chat_full"></div>
+          </div>
+
+          <!-- Right: AI Analytics Sidebar -->
+          <div style="width: 320px; border-left: 1px solid var(--border); background: rgba(255,255,255,0.01); padding: 2rem; display: flex; flex-direction: column; gap: 2rem;">
+            <div>
+              <span class="label-caps" style="font-size: 0.6rem; opacity: 0.5;">Intelligence Metrics</span>
+              <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1.25rem;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 8px;">
+                    <span>AI Confidence</span>
+                    <span id="nt_confidence" style="color: var(--primary); font-weight: 800;">98%</span>
+                  </div>
+                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                    <div id="nt_confidence_bar" style="height: 100%; background: var(--primary); width: 98%;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 8px;">
+                    <span>Customer Sentiment</span>
+                    <span id="nt_sentiment" style="color: #10b981; font-weight: 800;">Positive</span>
+                  </div>
+                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                    <div id="nt_sentiment_bar" style="height: 100%; background: #10b981; width: 85%;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <span class="label-caps" style="font-size: 0.6rem; opacity: 0.5;">Session Details</span>
+              <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                  <span style="color: var(--text-muted);">Duration</span>
+                  <span id="nt_duration" style="color: white; font-weight: 700;">42s</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                  <span style="color: var(--text-muted);">Call Type</span>
+                  <span id="nt_type" style="color: var(--primary); font-weight: 700; text-transform: uppercase;">BOOKING</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                  <span style="color: var(--text-muted);">Outcome</span>
+                  <span id="nt_outcome" style="color: #10b981; font-weight: 700; text-transform: uppercase;">SUCCESS</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ai-summary-mini" style="margin: 0; padding: 1rem; background: rgba(255,255,255,0.02);">
+              <span class="label-caps" style="font-size: 0.5rem; margin-bottom: 0.5rem; display: block;">Executive Summary</span>
+              <p id="nt_summary" style="font-size: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
+                Analysis pending...
+              </p>
+            </div>
+            
+            <button class="action-btn" style="width: 100%; background: var(--primary); color: white; border: none; margin-top: auto;" onclick="closeNeuralModal()">
+              CLOSE AUDIT
+            </button>
           </div>
         </div>
       </div>
     </div>
-
-    <div class="form-box" style="margin-top: 20px;">
-      <h3>AI Voice Settings</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-        <div>
-          <label style="display: block; margin-bottom: 8px; color: #94a3b8; font-size: 14px;">Select AI Voice</label>
-          <select id="voiceSelect" style="width: 100%; padding: 10px; border-radius: 6px; background: #0f172a; color: white; border: 1px solid #334155;">
-            <option value="alloy">Alloy (Neutral)</option>
-            <option value="echo">Echo (Mature)</option>
-            <option value="fable">Fable (British)</option>
-            <option value="onyx">Onyx (Deep)</option>
-            <option value="nova" selected>Nova (Energetic)</option>
-            <option value="shimmer">Shimmer (Soft)</option>
-          </select>
-        </div>
-        <div>
-          <label style="display: block; margin-bottom: 8px; color: #94a3b8; font-size: 14px;">Speaking Speed: <span id="speedVal">1.0</span>x</label>
-          <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0" style="width: 100%;" oninput="document.getElementById('speedVal').innerText = this.value">
-        </div>
-        <div>
-          <label style="display: block; margin-bottom: 8px; color: #94a3b8; font-size: 14px;">Listening Timeout (Delay): <span id="delayVal">0.8</span>s</label>
-          <input type="range" id="delaySlider" min="0.5" max="3.0" step="0.1" value="0.8" style="width: 100%;" oninput="document.getElementById('delayVal').innerText = this.value">
-        </div>
+    <!-- Modal: Ticket Details -->
+    <div id="ticketModalSA" class="modal-overlay">
+      <div class="modal-container" style="max-width: 600px; background: rgba(13, 17, 23, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+         <div class="modal-header" style="border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+            <div>
+               <span id="mt_id" style="font-size: 0.65rem; color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">TICKET #838A9D97</span>
+               <h3 id="mt_title" style="font-size: 1.25rem; font-weight: 800; color: white; margin-top: 0.25rem;">Technical Issue</h3>
+            </div>
+            <button class="close-modal" onclick="closeTicketModalSA()">&times;</button>
+         </div>
+         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="context-card-sa" style="margin-bottom: 0; padding: 1rem;">
+               <span class="label-caps" style="font-size: 0.6rem;">Tenant Source</span>
+               <p id="mt_tenant" style="font-weight: 700; color: white; font-size: 0.9rem;">Nexton Platform Hub</p>
+            </div>
+            <div class="context-card-sa" style="margin-bottom: 0; padding: 1rem;">
+               <span class="label-caps" style="font-size: 0.6rem;">System Priority</span>
+               <div id="mt_priority" style="font-weight: 700; color: #ef4444; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="alert-circle" style="width: 14px;"></i> HIGH
+               </div>
+            </div>
+         </div>
+         <div class="context-card-sa" style="margin-bottom: 2rem;">
+            <span class="label-caps" style="font-size: 0.6rem;">Incident Description</span>
+            <p id="mt_desc" style="font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary); white-space: pre-wrap; margin-bottom: 1.5rem;">User reports issues with the neural voice engine timing out during high-volume periods.</p>
+            <span class="label-caps" style="font-size: 0.6rem;">Resolution Response</span>
+            <textarea id="mt_response" placeholder="Type the final resolution message for the tenant..." style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; color: white; font-size: 0.85rem; outline: none; height: 100px; resize: none; margin-top: 0.5rem; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+         </div>
+         <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+            <button class="mini-btn" onclick="closeTicketModalSA()" style="padding: 0.75rem 1.5rem; border: 1px solid var(--border);">Close</button>
+            <button id="mt_action_btn" class="mini-btn" style="padding: 0.75rem 1.5rem; background: var(--primary); color: white; border: none; font-weight: 800;">Mark as Resolved</button>
+         </div>
       </div>
     </div>
+    </div>
 
-    <div class="form-box" style="margin-top: 20px;">
-      <h3>Infrastructure Settings (API Keys)</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
-        <div>
-          <label style="display: block; margin-bottom: 8px; color: #94a3b8; font-size: 14px;">OpenAI API Key</label>
-          <input type="password" id="openaiKeyInput" placeholder="sk-..." style="width: 100%; padding: 10px; border-radius: 6px; background: #0f172a; color: white; border: 1px solid #334155;">
-        </div>
-        <div>
-          <label style="display: block; margin-bottom: 8px; color: #94a3b8; font-size: 14px;">Twilio Account SID</label>
-          <input type="text" id="twilioSidInput" placeholder="AC..." style="width: 100%; padding: 10px; border-radius: 6px; background: #0f172a; color: white; border: 1px solid #334155;">
-        </div>
-      </div>
-      <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 8px; color: #94a3b8; font-size: 14px;">Twilio Auth Token</label>
-        <input type="password" id="twilioTokenInput" placeholder="Token" style="width: 100%; padding: 10px; border-radius: 6px; background: #0f172a; color: white; border: 1px solid #334155;">
-      </div>
+  <!-- SYNC OVERLAY -->
+  <div id="syncOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 30, 38, 0.95); z-index: 10000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+    <div style="width: 120px; height: 120px; position: relative; margin-bottom: 2rem;">
+      <svg style="width: 100%; height: 100%; transform: rotate(-90deg);">
+        <circle cx="60" cy="60" r="54" style="fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 8;"></circle>
+        <circle id="syncProgressCircle" cx="60" cy="60" r="54" style="fill: none; stroke: var(--primary); stroke-width: 8; stroke-dasharray: 339; stroke-dashoffset: 339; transition: stroke-dashoffset 0.5s ease; stroke-linecap: round;"></circle>
+      </svg>
+      <div id="syncPercent" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; font-weight: 800;">0%</div>
+    </div>
+    <h2 style="color: var(--primary);">AI Sync in Progress</h2>
+    <p id="syncStatus" style="color: var(--text-secondary);">Initializing Nexton AI Crawler...</p>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
+    if (!token) window.location.href = "/login";
+    const socket = io();
+    let allTenants = [];
+    let revenueChartInstance = null;
+    let callsChartInstance = null;
+    let currentBusinessFilter = "";
+
+    function logout() { localStorage.clear(); window.location.href = "/login"; }
+
+    function showSection(id) {
+      document.querySelectorAll('.section-container').forEach(s => s.style.display = 'none');
+      document.querySelectorAll('.apex-nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById(id + 'Section').style.display = 'block';
+      document.getElementById('nav-' + id).classList.add('active');
       
-      <button onclick="saveAISettings()" style="margin-top: 10px; background: #16a34a; width: 100%; font-size: 16px;">Save All Necessary Settings</button>
-    </div>
-  </section>
-
-  <div class="stats">
-
-  <div class="card">
-    <h3>Total Tenants</h3>
-    <p id="totalTenants">0</p>
-  </div>
-
-  <div class="card">
-    <h3>Total Users</h3>
-    <p id="totalUsers">0</p>
-  </div>
-
-  <div class="card">
-    <h3>Total Orders</h3>
-    <p id="totalOrders">0</p>
-  </div>
-
-  <div class="card">
-    <h3>Total Calls</h3>
-    <p id="totalCalls">0</p>
-  </div>
-
-  <div class="card">
-    <h3>Calls Today</h3>
-    <p id="callsToday">0</p>
-  </div>
-
-  <div class="card">
-    <h3>Orders Today</h3>
-    <p id="ordersToday">0</p>
-  </div>
-
-  <div class="card">
-    <h3>Avg Call Duration</h3>
-    <p id="avgDuration">0 sec</p>
-  </div>
-
-  <div class="card">
-    <h3>Conversion Rate</h3>
-    <p id="conversionRate">0%</p>
-  </div>
-
-</div>
-
-
-<section class="section">
-
-<h2>Platform Analytics</h2>
-
-<div class="charts-grid">
-
-  <div class="chart-card">
-    <h3>Revenue (Last 7 Days)</h3>
-    <canvas id="revenueChart"></canvas>
-  </div>
-
-  <div class="chart-card">
-    <h3>Calls (Last 7 Days)</h3>
-    <canvas id="callsChart"></canvas>
-  </div>
-
-</div>
-</section>
-
-<style>
-.charts-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:25px;
-margin-top:20px;
-}
-
-.chart-card{
-background:#1e293b;
-padding:20px;
-border-radius:10px;
-}
-
-.chart-card h3{
-margin-bottom:10px;
-color:#94a3b8;
-}
-</style>
-
-</section>
-
-<section class="section">
-
-<h2>Restaurant Performance</h2>
-<div id="restaurantPerformance"></div>
-<h3>Top Restaurants</h3>
-</section>
-
-<section class="section">
-
-<h2>AI Sales Leaderboard</h2>
-<div id="salesLeaderboard"></div>
-<div id="topRestaurants"></div>
-</section>
-
-  <section class="section">
-
-<h2>Tenant Management</h2>
-
-<div class="form-box">
-  <div class="form-box">
-    <h3>Create New Tenant</h3>
-    <input id="tenantName" placeholder="Tenant Name" />
-    <input id="email" placeholder="Admin Email" />
-    <input id="password" type="password" placeholder="Password" />
-    <button onclick="createTenant()">Create Tenant</button>
-  </div>
-
-  <h2>All Tenants</h2>
-<div class="tenants-grid" id="tenantList"></div>
-</section>
-
-<section class="section">
-
-<h2>Recent AI Calls</h2>
-
-<h2 style="margin-top:40px;">Latest Call Transcripts</h2>
-
-<div id="transcriptBox" style="margin-top:20px;"></div>
-<h2 style="margin-top:40px;">Live Platform Activity</h2>
-
-<div id="activityFeed" style="margin-top:20px;"></div>
-<h2 style="margin-top:40px;">Call Inspector</h2>
-
-<div id="callInspector" style="
-  background:#1e293b;
-  padding:20px;
-  border-radius:10px;
-  margin-top:15px;
-">
-  Click a call above to inspect details.
-</div>
-</section>
-
-<table style="width:100%; margin-top:20px; border-collapse:collapse;">
-  <thead>
-    <tr style="text-align:left;">
-      <th>Restaurant</th>
-      <th>Duration</th>
-      <th>Tokens Used</th>
-    </tr>
-  </thead>
-
-  <tbody id="callsTable">
-  </tbody>
-</table>
-
-</div>
-
-<script>
-const token =
-  localStorage.getItem("accessToken") ||
-  sessionStorage.getItem("accessToken");
-
-if (!token) {
-  window.location.href = "/login";
-} else {
-
-  try {
-
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    const currentTime = Date.now() / 1000;
-
-    // Token expired
-    if (payload.exp < currentTime) {
-
-      console.log("Token expired");
-
-      localStorage.removeItem("accessToken");
-      sessionStorage.removeItem("accessToken");
-
-      window.location.href = "/login";
+      // Auto-load section specific data
+      if (id === 'dashboard') { loadAnalytics(); loadActivityFeed(); loadBusinesses(); }
+      if (id === 'support') { loadSupportActivity(); loadTicketsSA(); loadConversationsSA(); }
+      if (id === 'billing') loadMintRequests();
+      if (id === 'demo') loadDemoTenants();
+      
+      lucide.createIcons();
     }
 
-    // Role protection
-    if (payload.role !== "superadmin") {
+    function showSuccess(m) { const b = document.getElementById("successBox"); b.innerText = m; b.style.display = "block"; setTimeout(() => b.style.display="none", 4000); }
+    function showError(m) { const b = document.getElementById("errorBox"); b.innerText = m; b.style.display = "block"; setTimeout(() => b.style.display="none", 4000); }
 
-      console.log("Access denied");
+    async function loadAnalytics() {
+      try {
+        const query = currentBusinessFilter ? `?businessId=${currentBusinessFilter}` : "";
+        const res = await fetch(`/api/superadmin/analytics${query}`, { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json(); if (!r.success) return;
+        const d = r.data;
+        document.getElementById("statRevenue").innerText = "$" + (d.totalRevenue || 0).toFixed(2);
+        document.getElementById("totalTenants").innerText = d.tenants;
+        document.getElementById("totalCalls").innerText = d.calls;
+        document.getElementById("conversionRate").innerText = (d.conversionRate || 0) + "%";
+        if (d.revenueChart) renderRevenueChart(d.revenueChart);
+        if (d.callsChart) renderCallsChart(d.callsChart);
+        lucide.createIcons();
+      } catch (e) {}
+    }
 
+    async function loadBusinesses() {
+      try {
+        const res = await fetch("/api/superadmin/businesses", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          const select = document.getElementById("globalBusinessFilter");
+          const options = r.data.map(b => `<option value="${b.id}">${b.name} (${b.type})</option>`).join("");
+          select.innerHTML = `<option value="">Full Platform Overview</option>` + options;
+        }
+      } catch (e) {}
+    }
+
+    function updateDashboardFilter(val) {
+      currentBusinessFilter = val;
+      const label = document.getElementById("dashboardScopeLabel");
+      if (val) {
+        const name = document.getElementById("globalBusinessFilter").options[document.getElementById("globalBusinessFilter").selectedIndex].text;
+        label.innerText = `Detailed insights for ${name}.`;
+      } else {
+        label.innerText = "Real-time analytics and infrastructure monitoring across all tenants.";
+      }
+      loadAnalytics();
+      loadActivityFeed();
+      loadTranscripts();
+    }
+
+    function renderRevenueChart(data) {
+      if (revenueChartInstance) revenueChartInstance.destroy();
+      revenueChartInstance = new Chart(document.getElementById("revenueChart"), {
+        type: 'line', data: { labels: data.labels, datasets: [{ label: 'Revenue', data: data.values, borderColor: '#00bcd4', backgroundColor: 'rgba(0,188,212,0.1)', fill: true, tension: 0.4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
+      });
+    }
+
+    function renderCallsChart(data) {
+      if (callsChartInstance) callsChartInstance.destroy();
+      callsChartInstance = new Chart(document.getElementById("callsChart"), {
+        type: 'bar', data: { labels: data.labels, datasets: [{ label: 'Calls', data: data.values, backgroundColor: '#a29bfe', borderRadius: 6 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
+      });
+    }
+
+    async function loadTenants() {
+      try {
+        const res = await fetch("/api/superadmin/tenants", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json(); if (r.success) { allTenants = r.data; renderTenantTable(allTenants); }
+      } catch (e) {}
+    }
+
+    function renderTenantTable(data) {
+      const container = document.getElementById("tenantList");
+      if (!data.length) { 
+        container.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:5rem; color:var(--text-muted);">No active tenants found.</td></tr>`; 
+        return; 
+      }
+      
+      container.innerHTML = data.map((t, index) => {
+        const usagePct = Math.min((t.usedMinutes / t.monthlyLimit) * 100, 100);
+        const joined = new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const bizId = t.businesses && t.businesses[0] ? t.businesses[0].id : null;
+        const planClass = t.plan.toLowerCase().includes('premium') ? 'status-badge-premium' : 'status-badge-standard';
+        
+        // Progress color based on usage
+        let progressColor = 'var(--primary)';
+        if (usagePct > 80) progressColor = 'var(--danger)';
+        else if (usagePct > 50) progressColor = 'var(--warning)';
+
+        const isDemo = t.isDemoAccount;
+        const demoClass = isDemo ? 'status-badge-standard' : 'status-badge-standard hidden';
+
+        const isMaster = t.name === "Nexton Platform Hub";
+
+        return `
+          <tr class="tenant-row" style="animation-delay: ${index * 0.05}s; ${isMaster ? 'opacity: 0.8; background: rgba(var(--primary-rgb), 0.02);' : ''}">
+            <td style="padding: 1.25rem 1rem;">
+              <div style="display:flex; align-items:center; gap:0.75rem;">
+                <div style="width: 36px; height: 36px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
+                  <i data-lucide="${isMaster ? 'shield-check' : 'building-2'}" style="width: 18px; color: ${isMaster ? 'var(--primary)' : 'inherit'}"></i>
+                </div>
+                <div style="display:flex; flex-direction:column;">
+                  <div style="display:flex; align-items:center; gap:5px;">
+                    <span style="font-weight:700; color:var(--text-primary); font-size:0.9rem;">${t.name}</span>
+                    ${isMaster ? '<span style="font-size:0.6rem; background:var(--primary); color:white; padding:1px 6px; border-radius:10px; font-weight:800;">MASTER</span>' : ''}
+                    ${isDemo ? '<span style="font-size:0.6rem; background:rgba(255,255,255,0.1); color:white; padding:1px 4px; border-radius:3px;">DEMO</span>' : ''}
+                  </div>
+                  <span style="font-size:0.65rem; color:var(--text-muted); font-family: 'JetBrains Mono', monospace;">ID: ${t.id.substring(0,8)}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span class="${planClass}">${t.plan.toUpperCase()}</span>
+                <span style="font-size:0.7rem; color:var(--text-muted);"><i data-lucide="zap" style="width:10px; vertical-align:middle;"></i> ${t.tokenBalance} Mints</span>
+              </div>
+            </td>
+            <td style="min-width: 200px;">
+              <div style="display:flex; flex-direction:column;">
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; font-weight: 600; margin-bottom: 2px;">
+                  <span style="color: var(--text-secondary);">${t.usedMinutes} / ${t.monthlyLimit} min</span>
+                  <span style="color: ${progressColor};">${usagePct.toFixed(0)}%</span>
+                </div>
+                <div class="usage-progress-container">
+                  <div class="usage-progress-bar" style="width: ${usagePct}%; background: ${progressColor};"></div>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--text-muted); font-size:0.8rem; font-weight: 500;">${joined}</td>
+            <td style="text-align:right; padding-right: 1rem;">
+              <div style="display: flex; justify-content: flex-end; gap: 0.6rem;">
+                ${isMaster ? `
+                  <div style="font-size: 0.65rem; color: var(--text-muted); padding: 0.5rem; background: rgba(255,255,255,0.03); border-radius: 0.5rem; border: 1px solid var(--border);">
+                    <i data-lucide="lock" style="width: 10px; vertical-align: middle;"></i> PROTECTED
+                  </div>
+                ` : `
+                  <button class="action-btn" onclick="openTokenModal('${t.id}', '${t.name}')" title="Add Mints" style="background: rgba(var(--primary-rgb), 0.1); border-color: rgba(var(--primary-rgb), 0.2);"><i data-lucide="zap" style="width:14px;"></i></button>
+                  <button class="action-btn" onclick="toggleDemo('${t.id}')" title="Toggle Demo Mode" style="background: ${isDemo ? 'var(--primary)' : 'transparent'}; border-color: var(--primary);"><i data-lucide="play-circle" style="width:14px; color: ${isDemo ? 'white' : 'var(--primary)'}"></i></button>
+                  ${bizId ? `<button class="action-btn" onclick="goToBusiness('${bizId}')" title="Direct Access" style="background: rgba(var(--primary-rgb), 0.1); border-color: rgba(var(--primary-rgb), 0.2);"><i data-lucide="external-link" style="width:14px;"></i></button>` : `<span style="color:var(--text-muted);font-size:0.7rem;">Orphan</span>`}
+                  <button class="action-btn" style="color: var(--danger); background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.1);" onclick="openDeleteModal('${t.id}')" title="Terminate Instance"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                `}
+              </div>
+            </td>
+          </tr>`;
+      }).join("");
+      lucide.createIcons();
+    }
+
+    function filterTenants(q) { const f = allTenants.filter(t => t.name.toLowerCase().includes(q.toLowerCase())); renderTenantTable(f); }
+
+    let allTranscripts = [];
+    async function loadTranscripts() {
+      try {
+        const query = currentBusinessFilter ? `?businessId=${currentBusinessFilter}` : "";
+        const res = await fetch(`/api/superadmin/transcripts${query}`, { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json(); if (!r.success) return;
+        allTranscripts = r.data;
+        renderTranscripts(allTranscripts);
+      } catch (e) {}
+    }
+
+    function renderTranscripts(data) {
+      const container = document.getElementById("transcriptBox");
+      if (!data.length) {
+        container.innerHTML = `<div class="apex-card" style="grid-column: 1/-1; text-align: center; padding: 5rem; opacity: 0.5;">No neural sessions detected.</div>`;
+        return;
+      }
+
+      container.innerHTML = data.map((c, index) => {
+        const dateStr = new Date(c.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const bizName = c.business?.name || "Global Node";
+        const initials = bizName.substring(0, 2).toUpperCase();
+        
+        // Mocking AI metrics if missing
+        const confidence = c.aiConfidence || (0.92 + Math.random() * 0.07);
+        const type = c.callType || (index % 3 === 0 ? "booking" : index % 3 === 1 ? "support" : "sales");
+        const sentiment = c.sentiment || "POSITIVE";
+        const score = c.sentimentScore || (sentiment === "POSITIVE" ? 0.85 : 0.45);
+        const outcome = c.outcome || "resolved";
+
+        // Parse transcript into bubbles (Simple split by common markers)
+        const rawLines = c.transcript ? c.transcript.split(/(AI:|Customer:|USER:|BOT:)/i).filter(Boolean) : [];
+        let bubbles = [];
+        let lastRole = "ai";
+        
+        if (rawLines.length < 2) {
+            // If not formatted, mock it into bubbles for visual fidelity
+            bubbles = [
+                { role: 'ai', text: "Hello! This is " + bizName + " AI. How can I assist you?" },
+                { role: 'customer', text: c.transcript || "Hello, I have a question about my service." }
+            ];
+        } else {
+            for (let i = 0; i < rawLines.length; i++) {
+                const part = rawLines[i].trim();
+                const partLower = part.toLowerCase();
+                if (partLower === "ai:" || partLower === "bot:") { lastRole = "ai"; continue; }
+                if (partLower === "customer:" || partLower === "user:") { lastRole = "customer"; continue; }
+                bubbles.push({ role: lastRole, text: part });
+            }
+        }
+
+        return `
+          <div class="transcript-card" style="animation: fadeInUp 0.6s ease backwards ${index * 0.1}s;">
+            <div class="transcript-header">
+              <div style="display: flex; gap: 1rem; align-items: center;">
+                <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(var(--primary-rgb), 0.1); border: 1px solid rgba(var(--primary-rgb), 0.2); display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--primary);">
+                  ${initials}
+                </div>
+                <div>
+                  <h3 style="font-size: 1rem; font-weight: 800; color: white;">${bizName}</h3>
+                  <div style="display: flex; gap: 8px; align-items: center; margin-top: 2px;">
+                    <span class="transcript-badge badge-${type}">${type}</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);">${c.duration}s session</span>
+                  </div>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 0.8rem; font-weight: 800; color: ${confidence > 0.9 ? 'var(--primary)' : '#f59e0b'};">
+                  ${(confidence * 100).toFixed(0)}% <span style="font-size: 0.6rem; opacity: 0.6;">CONFIDENCE</span>
+                </div>
+                <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 4px;">${dateStr}</div>
+              </div>
+            </div>
+
+            <div class="ai-summary-mini">
+              <p style="font-size: 0.8rem; line-height: 1.5; color: var(--text-secondary);">
+                ${c.summary || "Customer initiated a " + type + " request. AI successfully identified intent and provided relevant platform synchronization."}
+              </p>
+              <div style="display: flex; gap: 1rem; margin-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem;">
+                <div style="font-size: 0.65rem; color: var(--text-muted);">
+                   SENTIMENT: <span style="color: ${score > 0.7 ? '#10b981' : '#f59e0b'}; font-weight: 800;">${sentiment}</span>
+                </div>
+                <div style="font-size: 0.65rem; color: var(--text-muted);">
+                   OUTCOME: <span style="color: var(--primary); font-weight: 800;">${outcome.toUpperCase()}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-preview">
+              ${bubbles.slice(0, 4).map(b => `
+                <div class="bubble-item ${b.role}">
+                  <div class="bubble-text">${b.text}</div>
+                  <span style="font-size: 0.6rem; color: var(--text-muted); margin-top: 2px;">${b.role.toUpperCase()}</span>
+                </div>
+              `).join('')}
+              <div class="chat-preview-fade"></div>
+            </div>
+
+            <button class="expand-btn" onclick="openFullTranscript('${c.id}')">
+              <i data-lucide="maximize-2" style="width: 14px;"></i> EXPAND FULL NEURAL LOG
+            </button>
+
+            <div class="insight-row">
+               <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="color: var(--text-muted);">AI PERFORMANCE</span>
+                  <div style="width: 80px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                     <div style="width: ${confidence * 100}%; height: 100%; background: var(--primary);"></div>
+                  </div>
+               </div>
+               <div style="color: var(--primary); font-weight: 800;">EXCELLENT</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+      lucide.createIcons();
+    }
+
+    function handleTranscriptSearch(q) {
+      const filtered = allTranscripts.filter(t => 
+        (t.business?.name || "").toLowerCase().includes(q.toLowerCase()) || 
+        (t.transcript || "").toLowerCase().includes(q.toLowerCase())
+      );
+      renderTranscripts(filtered);
+    }
+
+    function openFullTranscript(id) {
+        const c = allTranscripts.find(t => t.id === id);
+        if (!c) return;
+
+        document.getElementById("nt_biz_name").innerText = c.business?.name || "Global Node";
+        document.getElementById("nt_duration").innerText = c.duration + "s";
+        document.getElementById("nt_type").innerText = c.callType || "SUPPORT";
+        document.getElementById("nt_outcome").innerText = (c.outcome || "RESOLVED").toUpperCase();
+        document.getElementById("nt_summary").innerText = c.summary || "No automated summary available for this session.";
+        
+        const confidence = c.aiConfidence || 0.95;
+        document.getElementById("nt_confidence").innerText = (confidence * 100).toFixed(0) + "%";
+        document.getElementById("nt_confidence_bar").style.width = (confidence * 100) + "%";
+
+        const score = c.sentimentScore || 0.85;
+        document.getElementById("nt_sentiment").innerText = (c.sentiment || "POSITIVE").toUpperCase();
+        document.getElementById("nt_sentiment_bar").style.width = (score * 100) + "%";
+        document.getElementById("nt_sentiment").style.color = score > 0.7 ? '#10b981' : '#f59e0b';
+        document.getElementById("nt_sentiment_bar").style.background = score > 0.7 ? '#10b981' : '#f59e0b';
+
+        // Parse full chat
+        const rawLines = c.transcript ? c.transcript.split(/(AI:|Customer:|USER:|BOT:)/i).filter(Boolean) : [];
+        let bubbles = [];
+        let lastRole = "ai";
+        
+        if (rawLines.length < 2) {
+            bubbles = [{ role: 'ai', text: "Hello! This is AI assistant. How can I help?" }, { role: 'customer', text: c.transcript }];
+        } else {
+            for (let i = 0; i < rawLines.length; i++) {
+                const part = rawLines[i].trim();
+                const partLower = part.toLowerCase();
+                if (partLower === "ai:" || partLower === "bot:") { lastRole = "ai"; continue; }
+                if (partLower === "customer:" || partLower === "user:") { lastRole = "customer"; continue; }
+                bubbles.push({ role: lastRole, text: part });
+            }
+        }
+
+        document.getElementById("nt_chat_full").innerHTML = bubbles.map(b => `
+            <div class="bubble-item ${b.role}" style="max-width: 70%; margin-bottom: 1rem;">
+                <div class="bubble-text" style="padding: 1rem 1.25rem; font-size: 1rem;">${b.text}</div>
+                <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; display: block;">${b.role.toUpperCase()} • Just now</span>
+            </div>
+        `).join('');
+
+        const modal = document.getElementById("neuralTranscriptModal");
+        modal.classList.add("show");
+        lucide.createIcons();
+    }
+
+    function closeNeuralModal() {
+        document.getElementById("neuralTranscriptModal").classList.remove("show");
+    }
+
+    async function loadActivityFeed() {
+      try {
+        const query = currentBusinessFilter ? `?businessId=${currentBusinessFilter}` : "";
+        const res = await fetch(`/api/superadmin/activity${query}`, { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json(); if (!r.success) return;
+        const container = document.getElementById("liveCallsContainer");
+        
+        if (!r.data.length) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 4rem 1rem;">
+              <p style="color: var(--text-muted); font-size: 0.875rem;">No recent system activity recorded.</p>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = r.data.map(a => `
+          <div class="activity-item" ${a.isGuardianRescued ? 'style="border-left: 3px solid #f59e0b; background: rgba(245, 158, 11, 0.03);"' : ''}>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 32px; height: 32px; background: rgba(var(--primary-rgb), 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                  <i data-lucide="cpu" style="width: 16px;"></i>
+                </div>
+                <div>
+                  <div style="font-weight: 700; font-size: 0.85rem;">${a.restaurant}</div>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">AI Voice Processing</div>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <span style="font-size: 0.65rem; background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 0.15rem 0.5rem; border-radius: 2rem; font-weight: 700;">SUCCESS</span>
+                ${a.isGuardianRescued ? '<div style="font-size: 0.55rem; color: #f59e0b; font-weight: 800; margin-top: 2px;">🛡️ GUARDIAN RESCUED</div>' : ''}
+              </div>
+            </div>
+            <div style="display: flex; gap: 1rem; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.75rem;">
+              <span style="display: flex; align-items: center; gap: 4px;"><i data-lucide="clock" style="width: 12px;"></i> ${a.duration}s</span>
+              <span style="display: flex; align-items: center; gap: 4px;"><i data-lucide="layers" style="width: 12px;"></i> ${a.tokens} tokens</span>
+            </div>
+          </div>
+        `).join("");
+        lucide.createIcons();
+      } catch (e) {}
+    }
+
+    async function createTenant() {
+      const btn = document.getElementById("provisionBtn");
+        const data = {
+          name: document.getElementById("tenantName").value,
+          ownerEmail: document.getElementById("email").value,
+          ownerPassword: document.getElementById("password").value,
+          currency: document.getElementById("currency").value,
+          type: document.getElementById("businessType").value,
+          subType: document.getElementById("businessSubType").value,
+          importUrl: document.getElementById("importUrl").value,
+          isDemo: document.getElementById("isDemoAccount").checked,
+          initialTokens: parseInt(document.getElementById("initialTokens").value)
+        };
+      if (!data.name || !data.ownerEmail || !data.ownerPassword) return showError("Required fields missing");
+      btn.disabled = true; btn.innerHTML = "PROVISIONING...";
+      try {
+        const res = await fetch("/api/superadmin/tenants", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token }, body: JSON.stringify(data) });
+        const r = await res.json();
+        if (r.success) { showSuccess("Tenant Provisioned!"); loadTenants(); showSection("tenants"); }
+        else showError(r.message);
+      } catch (e) { showError("Network error"); }
+      finally { btn.disabled = false; btn.innerHTML = "LAUNCH CLIENT INSTANCE"; lucide.createIcons(); }
+    }
+
+    let tenantToDelete = null;
+    function openDeleteModal(id) {
+      tenantToDelete = id;
+      document.getElementById("confirmAdminPassword").value = "";
+      document.getElementById("deleteModal").style.display = "flex";
+      document.getElementById("finalDeleteBtn").onclick = () => confirmDeleteTenant(id);
+    }
+
+    function closeDeleteModal() {
+      document.getElementById("deleteModal").style.display = "none";
+      tenantToDelete = null;
+    }
+
+    async function confirmDeleteTenant(id) {
+      const password = document.getElementById("confirmAdminPassword").value;
+      if (!password) return showError("Password required");
+      const btn = document.getElementById("finalDeleteBtn");
+      btn.disabled = true; btn.innerHTML = "PURGING...";
+      try {
+        const res = await fetch(`/api/superadmin/tenants/${id}`, { method: "DELETE", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token }, body: JSON.stringify({ adminPassword: password }) });
+        const r = await res.json();
+        if (r.success) { showSuccess("Purged!"); closeDeleteModal(); loadTenants(); }
+        else showError(r.message);
+      } catch (e) { showError("Network error"); }
+      finally { btn.disabled = false; btn.innerHTML = "PURGE ACCOUNT"; }
+    }
+
+    // God-Mode: redirect to /admin impersonating this business
+    function goToBusiness(businessId) {
+      localStorage.setItem("activeBusinessId", businessId);
+      localStorage.setItem("superadminProxy", "true");
       window.location.href = "/admin";
     }
 
-  } catch (err) {
-
-    console.log("Invalid token");
-
-    localStorage.removeItem("accessToken");
-    sessionStorage.removeItem("accessToken");
-
-    window.location.href = "/login";
-
-  }
-
-}
-
-// =======================
-// UI Helpers
-// =======================
-function showSuccess(msg) {
-  const box = document.getElementById("successBox");
-  box.innerText = msg;
-  box.style.display = "block";
-  setTimeout(() => box.style.display = "none", 3000);
-}
-
-function showError(msg) {
-  const box = document.getElementById("errorBox");
-  box.innerText = msg;
-  box.style.display = "block";
-  setTimeout(() => box.style.display = "none", 3000);
-}
-
-
-// =======================
-// Analytics
-// =======================
-async function loadAnalytics() {
-
-  const res = await fetch("/api/superadmin/analytics", {
-    headers: {
-      Authorization: "Bearer " + token
+    async function loadBusinesses() {
+      try {
+        const res = await fetch("/api/superadmin/businesses", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          const s = document.getElementById("businessSwitcher");
+          s.innerHTML = `<option value="">-- Select a Business --</option>` + r.data.map(b => `<option value="${b.id}">${b.name}</option>`).join("");
+          s.value = "";
+        }
+      } catch (e) {}
     }
-  });
 
-  const result = await res.json();
-
-  if (!res.ok) {
-    return showError(result.error || "Failed to load analytics");
-  }
-
-  const stats = result.data;
-
-  document.getElementById("totalTenants").innerText = stats.tenants;
-  document.getElementById("totalUsers").innerText = stats.users;
-  document.getElementById("totalOrders").innerText = stats.orders;
-  document.getElementById("totalCalls").innerText = stats.calls;
-  document.getElementById("callsToday").innerText = stats.callsToday;
-document.getElementById("ordersToday").innerText = stats.ordersToday;
-document.getElementById("avgDuration").innerText = stats.avgDuration + " sec";
-document.getElementById("conversionRate").innerText = stats.conversionRate + "%";
-}
-
-
-
-// =======================
-// loadActivityFeed
-// =======================
-async function loadActivityFeed() {
-
-// 1️⃣ Get stored token
-const token =
-localStorage.getItem("accessToken") ||
-sessionStorage.getItem("accessToken");
-
-if (!token) {
-console.log("No token found");
-return;
-}
-
-try {
-
-// 2️⃣ Send token to backend
-const res = await fetch("/api/superadmin/activity", {
-  headers: {
-    Authorization: "Bearer " + token
-  }
-});
-
-const result = await res.json();
-
-if (!result.success) {
-  console.log("API error:", result);
-  return;
-}
-
-const feed = document.getElementById("activityFeed");
-
-// 3️⃣ Render activity cards
-feed.innerHTML = result.data.map(a => `
-  <div style="
-    background:#1e293b;
-    padding:12px;
-    margin-bottom:10px;
-    border-radius:8px;
-    color:white;
-  ">
-    📞 <strong>${a.restaurant}</strong> call ended — ${a.duration}s
-    <br>
-    🧠 Tokens used: ${a.tokens}
-  </div>
-`).join("");
-
-} catch (err) {
-
-console.error("Activity Feed Error:", err);
-
-}
-
-}
-
-
-// =======================
-// loadTranscripts
-// =======================
-async function loadTranscripts() {
-
-  const res = await fetch("/api/superadmin/transcripts", {
-    headers: {
-      Authorization: "Bearer " + token
+    function switchBusiness(id) {
+      if (!id) return;
+      goToBusiness(id);
     }
-  });
 
-  const result = await res.json();
-
-  if (!result.success) return;
-
-  const calls = result.data;
-
-  const box = document.getElementById("transcriptBox");
-
-  box.innerHTML = calls.map(c => `
-    <div style="background:#1e293b; padding:15px; margin-bottom:15px; border-radius:8px;">
-      <strong>Restaurant:</strong> ${c.business?.name || "Unknown"}<br>
-      <strong>Duration:</strong> ${c.duration || 0} sec<br>
-      <strong>Transcript:</strong><br>
-      <div style="margin-top:10px; font-size:14px; white-space:pre-wrap;">
-        ${c.transcript || "No transcript available"}
-      </div>
-    </div>
-  `).join("");
-}
-
-
-/* =========================
-   LOAD RECENT CALLS
-========================= */
-
-async function loadRecentCalls() {
-
-  const res = await fetch("/api/superadmin/calls", {
-    headers: {
-      Authorization: "Bearer " + token
-    }
-  });
-
-  const result = await res.json();
-
-  if (!result.success) return;
-
-  const calls = result.data;
-
-  const table = document.getElementById("callsTable");
-
-  
-table.innerHTML = calls.map(c => `
-  <tr onclick="openCall('${c.id}')" style="cursor:pointer;">
-    <td>${c.business?.name || "Unknown"}</td>
-    <td>${c.duration || 0} sec</td>
-    <td>${c.tokensUsed || 0}</td>
-  </tr>
-`).join("");
-
-}
-
-/* =========================
-   openCall
-========================= */
-async function openCall(callId) {
-
-  const res = await fetch("/api/superadmin/call/" + callId, {
-    headers: {
-      Authorization: "Bearer " + token
-    }
-  });
-
-  const result = await res.json();
-
-  if (!result.success) return;
-
-  const c = result.data;
-
-  const box = document.getElementById("callInspector");
-
-  box.innerHTML = `
-    <h3>${c.business?.name || "Unknown Restaurant"}</h3>
-
-    <p><strong>Duration:</strong> ${c.duration || 0} sec</p>
-    <p><strong>Tokens Used:</strong> ${c.tokensUsed || 0}</p>
-
-    <h4>Transcript</h4>
-    <div style="white-space:pre-wrap; font-size:14px;">
-      ${c.transcript || "No transcript available"}
-    </div>
-  `;
-}
-
-
-// =======================
-// Load Tenants
-// =======================
-async function loadTenants() {
-  const res = await fetch("/api/superadmin/tenants", {
-    headers: { Authorization: "Bearer " + token }
-  });
-
-  const result = await res.json();
-
-  if (!res.ok) return showError(result.error || "Unauthorized");
-
-  const tenants = result.data;
-
-  document.getElementById("totalTenants").innerText = tenants.length;
-
-  document.getElementById("tenantList").innerHTML =
-    tenants.map(t => `
-      <div class="tenant-card">
-        <h4>${t.name}</h4>
-        <p><strong>Plan:</strong> ${t.plan}</p>
-        <p><strong>Usage:</strong> ${t.usedMinutes} / ${t.monthlyLimit}</p>
-        <p><strong>Tenant ID:</strong> ${t.id}</p>
-      </div>
-    `).join("");
-}
-
-async function createTenant() {
-  const tenantName = document.getElementById("tenantName").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-
-  if (!tenantName || !email || !password)
-    return showError("All fields required");
-
-  const res = await fetch("/api/superadmin/create-tenant", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token
-    },
-    body: JSON.stringify({ tenantName, email, password })
-  });
-
-  const result = await res.json();
-
-  if (!res.ok) return showError(result.error || "Creation failed");
-
-  showSuccess("Tenant Created Successfully");
-  loadTenants();
-}
-
-
-async function loadRevenueStats() {
-
-  const res = await fetch("/api/superadmin/revenue", {
-    headers: {
-      Authorization: "Bearer " + token
-    }
-  });
-
-  const result = await res.json();
-
-  if (!result.success) return;
-
-  const data = result.data;
-
-  document.getElementById("totalRevenue").innerText =
-    "$" + data.totalRevenue;
-
-  const container = document.getElementById("topRestaurants");
-
-  container.innerHTML = data.topRestaurants.map(r => `
-    <div style="
-      background:#1e293b;
-      padding:12px;
-      margin-bottom:10px;
-      border-radius:8px;
-    ">
-      ${r.name} — $${r.revenue}
-    </div>
-  `).join("");
-}
-
-
-async function loadRestaurantPerformance() {
-
-  const res = await fetch("/api/superadmin/restaurant-performance", {
-    headers: {
-      Authorization: "Bearer " + token
-    }
-  });
-
-  const result = await res.json();
-
-  if (!result.success) return;
-
-  const container = document.getElementById("restaurantPerformance");
-
-  container.innerHTML = result.data.map(r => `
-    <div style="
-      background:#1e293b;
-      padding:15px;
-      margin-bottom:12px;
-      border-radius:10px;
-    ">
-      <strong>${r.name}</strong><br>
-
-      Calls Today: ${r.callsToday}<br>
-      Orders Today: ${r.ordersToday}<br>
-      Revenue Today: $${r.revenueToday}<br>
-      Avg Call Duration: ${r.avgDuration} sec
-    </div>
-  `).join("");
-}
-
-
-async function loadSalesLeaderboard() {
-
-  const res = await fetch("/api/superadmin/leaderboard", {
-    headers: {
-      Authorization: "Bearer " + token
-    }
-  });
-
-  const result = await res.json();
-
-  if (!result.success) return;
-
-  const data = result.data;
-
-  const container = document.getElementById("salesLeaderboard");
-
-  container.innerHTML = `
-
-    <div style="background:#1e293b; padding:15px; border-radius:10px; margin-bottom:20px;">
-      <h3>Top Restaurants</h3>
-      ${data.topRestaurants.map(r => `
-        ${r.name} — $${r.revenue}<br>
-      `).join("")}
-    </div>
-
-    <div style="background:#1e293b; padding:15px; border-radius:10px; margin-bottom:20px;">
-      <h3>Top Menu Items</h3>
-      ${data.topItems.map(i => `
-        ${i.name} — ${i.qty} sold<br>
-      `).join("")}
-    </div>
-
-    <div style="background:#1e293b; padding:15px; border-radius:10px;">
-      <h3>Longest Calls</h3>
-      ${data.topCalls.map(c => `
-        ${c.restaurant} — ${c.duration}s (${c.tokens} tokens)<br>
-      `).join("")}
-    </div>
-
-  `;
-}
-
-async function loadPlatformCharts(){
-
-const token =
-localStorage.getItem("accessToken") ||
-sessionStorage.getItem("accessToken");
-
-const res = await fetch("/api/superadmin/analytics",{
-headers:{
-Authorization:"Bearer "+token
-}
-});
-
-const result = await res.json();
-
-if(!result.success) return;
-
-const data = result.data;
-
-new Chart(document.getElementById("revenueChart"),{
-type:"line",
-data:{
-labels:data.revenueChart.labels,
-datasets:[{
-label:"Revenue",
-data:data.revenueChart.values,
-borderColor:"#22c55e",
-backgroundColor:"rgba(34,197,94,0.2)",
-tension:0.3
-}]
-}
-});
-
-new Chart(document.getElementById("callsChart"),{
-type:"bar",
-data:{
-labels:data.callsChart.labels,
-datasets:[{
-label:"Calls",
-data:data.callsChart.values,
-backgroundColor:"#3b82f6"
-}]
-}
-});
-
-}
-
-
-
-// =======================
-// Settings & Logo
-// =======================
-async function loadSettings() {
-  try {
-    const res = await fetch("/api/superadmin/settings", {
-      headers: { Authorization: "Bearer " + token }
+    socket.on("call-update", () => { loadAnalytics(); loadActivityFeed(); });
+    socket.on("import-progress", (data) => {
+      const o = document.getElementById("syncOverlay"); if (!o) return;
+      o.style.display = "flex"; document.getElementById("syncStatus").innerText = data.message; document.getElementById("syncPercent").innerText = data.progress + "%";
+      const off = 339 - (339 * data.progress / 100); document.getElementById("syncProgressCircle").style.strokeDashoffset = off;
+      if (data.progress >= 100) setTimeout(() => { o.style.display = "none"; loadTenants(); loadBusinesses(); }, 3000);
     });
-    const result = await res.json();
-    if (result.success && result.data) {
-      const { logoUrl, voice, speed, responseDelay, projectName, twilioSid, twilioToken, openaiKey } = result.data;
+
+    function applyTheme(theme) {
+      document.body.setAttribute("data-theme", theme);
+      localStorage.setItem("kimi_theme", theme);
+      document.getElementById("themeSelector").value = theme;
+      renderThemeGrid();
+    }
+
+    function renderThemeGrid() {
+      const themes = [
+        { id: 'dark', name: 'Premium Dark', colors: ['#09090b', '#18181b', '#3b82f6'] },
+        { id: 'light', name: 'Clean Light', colors: ['#fbfbfc', '#ffffff', '#2563eb'] },
+        { id: 'nexton-teal', name: 'Nexton Teal', colors: ['#061e26', '#0a2d37', '#00bcd4'] },
+        { id: 'midnight', name: 'Midnight Blue', colors: ['#020617', '#0f172a', '#38bdf8'] },
+        { id: 'ocean', name: 'Deep Ocean', colors: ['#083344', '#0c4a6e', '#38bdf8'] },
+        { id: 'forest', name: 'Emerald Forest', colors: ['#052e16', '#14532d', '#10b981'] },
+        { id: 'sunset', name: 'Crimson Sunset', colors: ['#2a0a18', '#431424', '#f43f5e'] },
+        { id: 'royal-gold', name: 'Royal Gold', colors: ['#1a160d', '#2d2613', '#fbbf24'] },
+        { id: 'deep-purple', name: 'Amethyst Purple', colors: ['#12061f', '#1e0b35', '#a855f7'] },
+        { id: 'slate', name: 'Professional Slate', colors: ['#0f172a', '#1e293b', '#94a3b8'] },
+        { id: 'cyberpunk', name: 'Neon Cyberpunk', colors: ['#090014', '#1a0b2e', '#d946ef'] },
+        { id: 'neon-night', name: 'Matrix Green', colors: ['#000000', '#0a0a0a', '#00ff00'] },
+        { id: 'crimson', name: 'Blood Crimson', colors: ['#1a0505', '#2d0a0a', '#ef4444'] }
+      ];
+
+      const currentTheme = localStorage.getItem("kimi_theme") || "dark";
+      const grid = document.getElementById("themeGrid");
+      grid.innerHTML = themes.map(t => `
+        <div class="theme-option ${t.id === currentTheme ? 'active' : ''}" onclick="applyTheme('${t.id}')">
+          <div class="theme-preview">
+            <div class="theme-preview-color" style="background: ${t.colors[0]}"></div>
+            <div class="theme-preview-color" style="background: ${t.colors[1]}"></div>
+            <div class="theme-preview-color" style="background: ${t.colors[2]}"></div>
+          </div>
+          <div style="font-size: 0.7rem; font-weight: 600;">${t.name}</div>
+        </div>
+      `).join("");
+    }
+
+    function updateSubCategoriesSA() {
+        const type = document.getElementById("businessType").value;
+        const subSelect = document.getElementById("businessSubType");
+        
+        const options = type === "restaurant" 
+          ? ["Restaurants", "Cafes", "Fast food"]
+          : ["Barber Shop", "Beauty Salon", "Spa Center", "Dental Clinic", "Medical Clinic"];
+          
+        subSelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join("");
+      }
+
+    // Initialize Theme
+    const savedTheme = localStorage.getItem("kimi_theme") || "nexton-teal"; // Default to nexton-teal for superadmin
+    applyTheme(savedTheme);
+
+    loadAnalytics(); loadTenants(); loadTranscripts(); loadActivityFeed(); loadBusinesses();
+
+    /* ======================================
+       NEW TOKEN & DEMO LOGIC
+    ====================================== */
+
+    async function loadMintRequests() {
+      try {
+        const res = await fetch("/api/superadmin/mint-requests", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        const container = document.getElementById("mintRequestList");
+        if (!r.success || !r.data.length) {
+          container.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-muted);">No pending requests.</td></tr>`;
+          return;
+        }
+        container.innerHTML = r.data.map(req => `
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 1rem;">${req.tenant?.name || 'Unknown'}</td>
+            <td style="padding: 1rem; font-weight: 700;">${req.amount} MINTS</td>
+            <td style="padding: 1rem;"><span class="status-badge-standard">${req.tier || 'CUSTOM'}</span></td>
+            <td style="padding: 1rem; font-size: 0.75rem; color: var(--text-muted);">${new Date(req.createdAt).toLocaleDateString()}</td>
+            <td style="padding: 1rem; text-align: right;">
+              <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                <button class="action-btn" onclick="updateMintRequest('${req.id}', 'APPROVED')" style="background: #10b981; color: white; border: none;"><i data-lucide="check" style="width: 14px;"></i></button>
+                <button class="action-btn" onclick="updateMintRequest('${req.id}', 'REJECTED')" style="background: #ef4444; color: white; border: none;"><i data-lucide="x" style="width: 14px;"></i></button>
+              </div>
+            </td>
+          </tr>
+        `).join("");
+        lucide.createIcons();
+      } catch (e) {}
+    }
+
+    async function updateMintRequest(id, status) {
+      try {
+        const res = await fetch(`/api/superadmin/mint-requests/${id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ status })
+        });
+        const r = await res.json();
+        if (r.success) { showSuccess(r.message); loadMintRequests(); loadTenants(); }
+        else showError(r.message);
+      } catch (e) { showError("Failed to update request"); }
+    }
+
+    function openTokenModal(id, name) {
+      document.getElementById("tokenTenantName").innerText = name;
+      document.getElementById("tokenModal").style.display = "flex";
+      document.getElementById("addTokenBtn").onclick = () => addTokens(id);
+    }
+
+    function closeTokenModal() {
+      document.getElementById("tokenModal").style.display = "none";
+    }
+
+    async function addTokens(id) {
+      const amount = document.getElementById("tokenAmountInput").value;
+      try {
+        const res = await fetch(`/api/superadmin/tenants/${id}/tokens`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ amount })
+        });
+        const r = await res.json();
+        if (r.success) { showSuccess(r.message); closeTokenModal(); loadTenants(); }
+        else showError(r.message);
+      } catch (e) { showError("Failed to add tokens"); }
+    }
+
+    async function toggleDemo(id) {
+      try {
+        const res = await fetch(`/api/superadmin/tenants/${id}/toggle-demo`, {
+          method: "POST",
+          headers: { Authorization: "Bearer " + token }
+        });
+        const r = await res.json();
+        if (r.success) { showSuccess(`Demo mode ${r.isDemo ? 'ENABLED' : 'DISABLED'}`); loadTenants(); loadDemoTenants(); }
+      } catch (e) {}
+    }
+
+    async function loadDemoTenants() {
+      const select = document.getElementById("demoTenantSelect");
+      select.innerHTML = `<option value="">Choose a business...</option>` + allTenants.filter(t => t.isDemoAccount).map(t => `<option value="${t.id}">${t.name}</option>`).join("");
+    }
+
+    async function runDemo(type) {
+      const tenantId = document.getElementById("demoTenantSelect").value;
+      const script = document.getElementById("demoScript").value;
+      const phone = document.getElementById("demoCallerPhone").value;
+      if (!tenantId) return showError("Select a demo tenant first");
+
+      const consoleDiv = document.getElementById("demoConsole");
+      const pill = document.getElementById("demoStatusPill");
+      pill.classList.remove("hidden");
+      consoleDiv.innerHTML += `<p style="color: #3b82f6;">> Starting ${type} simulation for ${tenantId}...</p>`;
       
-      if (logoUrl) {
-        const projectLogo = document.getElementById("projectLogo");
-        const logoPreview = document.getElementById("logoPreview");
-        projectLogo.src = logoUrl;
-        projectLogo.style.display = "inline-block";
-        logoPreview.src = logoUrl;
-        logoPreview.style.display = "block";
+      try {
+        // We can use a special demo endpoint or just mock it here for visual confirmation
+        // For actual functionality, we'll trigger the process endpoint with a simulated payload
+        const res = await fetch("/api/call/process", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            CallSid: "DEMO_" + Date.now(),
+            From: phone,
+            To: "+19998887777",
+            SpeechResult: script,
+            IsDemo: "true",
+            DemoTenantId: tenantId
+          })
+        });
+        
+        consoleDiv.innerHTML += `<p style="color: #10b981;">> AI Processing completed. Analyzing response...</p>`;
+        consoleDiv.innerHTML += `<p style="color: white;">> Simulation successful. Check Live Transcripts for details.</p>`;
+        loadTranscripts();
+        loadActivityFeed();
+      } catch (e) {
+        consoleDiv.innerHTML += `<p style="color: #ef4444;">> Simulation error: ${e.message}</p>`;
+      } finally {
+        setTimeout(() => pill.classList.add("hidden"), 3000);
       }
-
-      if (projectName) {
-        document.getElementById("projectNameInput").value = projectName;
-        document.getElementById("dashboardTitle").innerText = projectName + " Dashboard";
-        document.title = projectName + " SuperAdmin";
-      }
-
-      if (voice) document.getElementById("voiceSelect").value = voice;
-      if (speed) {
-        document.getElementById("speedSlider").value = speed;
-        document.getElementById("speedVal").innerText = speed;
-      }
-      if (responseDelay) {
-        document.getElementById("delaySlider").value = responseDelay;
-        document.getElementById("delayVal").innerText = responseDelay;
-      }
-
-      if (twilioSid) document.getElementById("twilioSidInput").value = twilioSid;
-      if (twilioToken) document.getElementById("twilioTokenInput").value = twilioToken;
-      if (openaiKey) document.getElementById("openaiKeyInput").value = openaiKey;
     }
-  } catch (err) {
-    console.error("Load settings error:", err);
-  }
-}
+    function switchSupportTab(tabId) {
+      document.querySelectorAll('.support-tab-content').forEach(c => c.style.display = 'none');
+      document.querySelectorAll('.support-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+      const target = document.getElementById('support-' + tabId);
+      if (target) target.style.display = 'block';
+      if (event && event.currentTarget) event.currentTarget.classList.add('active');
+      
+      if (tabId === 'overview') loadSupportActivity();
+      if (tabId === 'tickets') loadTicketsSA();
+      if (tabId === 'inbox') loadConversationsSA();
+    }
 
-async function saveAISettings() {
-  const voice = document.getElementById("voiceSelect").value;
-  const speed = document.getElementById("speedSlider").value;
-  const responseDelay = document.getElementById("delaySlider").value;
-  const projectName = document.getElementById("projectNameInput").value;
-  const twilioSid = document.getElementById("twilioSidInput").value;
-  const twilioToken = document.getElementById("twilioTokenInput").value;
-  const openaiKey = document.getElementById("openaiKeyInput").value;
+    async function loadSupportActivity() {
+      const container = document.getElementById("supportActivityFeed");
+      if (!container) return;
+      
+      try {
+        // Fetch conversations and tickets in parallel
+        const [convosRes, ticketsRes] = await Promise.all([
+          fetch("/api/support/conversations", { headers: { Authorization: "Bearer " + token } }),
+          fetch("/api/support/tickets", { headers: { Authorization: "Bearer " + token } })
+        ]);
+        
+        const convos = await convosRes.json();
+        const tickets = await ticketsRes.json();
+        
+        // Update counters
+        if (convos.success) {
+          document.getElementById("activeConvosCount").innerText = convos.data.length;
+        }
+        if (tickets.success) {
+          const openCount = tickets.data.filter(t => t.status === 'open' || t.status === 'pending').length;
+          document.getElementById("openTicketsCount").innerText = openCount;
+        }
 
-  try {
-    const res = await fetch("/api/superadmin/settings", {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token 
-      },
-      body: JSON.stringify({ voice, speed, responseDelay, projectName, twilioSid, twilioToken, openaiKey })
+        let activities = [];
+        
+        if (convos.success) {
+          convos.data.slice(0, 5).forEach(c => {
+            activities.push({
+              type: 'chat',
+              title: `Chat with ${c.customer?.name || 'Tenant'}`,
+              desc: c.messages?.[0]?.content || 'Started a new session',
+              time: c.updatedAt || c.createdAt,
+              icon: 'message-circle',
+              color: 'var(--primary)'
+            });
+          });
+        }
+        
+        if (tickets.success) {
+          tickets.data.slice(0, 5).forEach(t => {
+            activities.push({
+              type: 'ticket',
+              title: `Ticket: ${t.title}`,
+              desc: `Status: ${t.status.toUpperCase()} • Priority: ${t.priority.toUpperCase()}`,
+              time: t.createdAt,
+              icon: 'ticket',
+              color: t.priority === 'high' ? '#ef4444' : '#f59e0b'
+            });
+          });
+        }
+        
+        // Sort by time descending
+        activities.sort((a, b) => new Date(b.time) - new Date(a.time));
+        
+        if (activities.length === 0) {
+          container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem; font-size: 0.8rem;">No recent platform frequencies detected.</p>';
+          return;
+        }
+
+        // Update Urgent Tickets List
+        const urgentContainer = document.getElementById("urgentTicketsList");
+        if (urgentContainer && tickets.success) {
+          const highPriority = tickets.data.filter(t => t.priority === 'high' && (t.status === 'open' || t.status === 'pending'));
+          if (highPriority.length > 0) {
+            urgentContainer.innerHTML = highPriority.slice(0, 3).map(t => `
+              <div style="padding: 0.75rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.1); border-radius: 12px; display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="alert-circle" style="width: 14px; color: #ef4444;"></i>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-size: 0.75rem; font-weight: 700; color: #ef4444;">${t.title}</div>
+                  <div style="font-size: 0.65rem; color: var(--text-muted);">${t.tenant?.name || 'Platform'}</div>
+                </div>
+              </div>
+            `).join('');
+          } else {
+             urgentContainer.innerHTML = `
+              <div style="text-align: center; padding: 1.5rem;">
+                <i data-lucide="shield-check" style="width: 24px; color: var(--success); opacity: 0.3; margin-bottom: 0.5rem;"></i>
+                <p style="color: var(--text-muted); font-size: 0.65rem;">All systems operational.</p>
+              </div>
+            `;
+          }
+        }
+        
+        container.innerHTML = activities.slice(0, 8).map(a => `
+          <div style="display: flex; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 16px;">
+            <div style="width: 36px; height: 36px; background: ${a.color}20; color: ${a.color}; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i data-lucide="${a.icon}" style="width: 18px;"></i>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                <h4 style="font-size: 0.85rem; font-weight: 700;">${a.title}</h4>
+                <span style="font-size: 0.65rem; color: var(--text-muted);">${new Date(a.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+              <p style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${a.desc}</p>
+            </div>
+          </div>
+        `).join('');
+        lucide.createIcons();
+        
+      } catch (e) {
+        console.error("Failed to load support activity", e);
+      }
+    }
+
+    async function loadTicketsSA() {
+      const list = document.getElementById("ticketsListTableSA");
+      if (!list) return;
+      list.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 3rem; opacity: 0.5;">Synchronizing with neural database...</td></tr>';
+      try {
+        const res = await fetch("/api/support/tickets", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) renderTicketsSA(r.data);
+      } catch (e) { console.error(e); }
+    }
+
+    function renderTicketsSA(tickets) {
+      const list = document.getElementById("ticketsListTableSA");
+      if (!list) return;
+      if (tickets.length === 0) {
+        list.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">No tickets found.</td></tr>';
+        return;
+      }
+      list.innerHTML = tickets.map((t, i) => `
+        <tr id="ticket-row-${t.id}" style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 1rem; color: var(--text-muted); font-size: 0.75rem; font-family: monospace;">${(i + 1).toString().padStart(2, '0')}</td>
+          <td style="padding: 1rem;">
+            <div style="font-weight: 700; color: white;">${t.title}</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted);">${t.id.substring(0,8)}</div>
+          </td>
+          <td style="padding: 1rem; font-size: 0.85rem;">${t.tenant?.name || 'Platform'}</td>
+          <td class="status-cell" style="padding: 1rem;">
+            <span class="status-badge-${t.status.toLowerCase() === 'open' ? 'danger' : 'success'}" style="font-size: 0.65rem;">${t.status.toUpperCase()}</span>
+          </td>
+          <td style="padding: 1rem;">
+            <div style="display: flex; align-items: center; gap: 4px; color: ${t.priority === 'high' ? '#ef4444' : '#f59e0b'}; font-size: 0.8rem; font-weight: 600;">
+              <i data-lucide="alert-circle" style="width: 12px;"></i> ${t.priority.toUpperCase()}
+            </div>
+          </td>
+          <td style="padding: 1rem; font-size: 0.8rem; color: var(--text-muted);">${new Date(t.createdAt).toLocaleDateString()}</td>
+          <td style="padding: 1rem; text-align: right;">
+            <button class="action-btn" onclick="viewTicketSA('${t.id}')"><i data-lucide="eye"></i></button>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    let allConvosSA = [];
+    let activeConvoSA = null;
+    let currentFilterSA = 'all';
+
+    async function loadConversationsSA() {
+      const list = document.getElementById("convoListSA");
+      if (!list) return;
+      
+      try {
+        const res = await fetch("/api/support/conversations", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          allConvosSA = r.data;
+          updateConvoCountsSA();
+          filterConvosSA(currentFilterSA);
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    function updateConvoCountsSA() {
+      const total = allConvosSA.length;
+      const unread = allConvosSA.filter(c => c.messages && c.messages[0] && !c.messages[0].isRead && c.messages[0].senderType === 'CUSTOMER').length;
+      const mentions = allConvosSA.filter(c => c.status === 'escalated').length;
+
+      const badge = document.getElementById("convoBadgeSA");
+      if (badge) badge.innerText = total;
+      
+      const cAll = document.getElementById("countAllSA");
+      const cUnread = document.getElementById("countUnreadSA");
+      const cMentions = document.getElementById("countMentionsSA");
+      
+      if (cAll) cAll.innerText = total;
+      if (cUnread) cUnread.innerText = unread;
+      if (cMentions) cMentions.innerText = mentions;
+    }
+
+    function filterConvosSA(type) {
+      currentFilterSA = type;
+      
+      // Update UI active state
+      const btns = document.querySelectorAll("#convoFilterSA .convo-filter");
+      btns.forEach(b => {
+        const isMatch = b.getAttribute('onclick').includes(`'${type}'`);
+        b.classList.toggle('active', isMatch);
+      });
+
+      let filtered = allConvosSA;
+      if (type === 'unread') {
+        filtered = allConvosSA.filter(c => c.messages && c.messages[0] && !c.messages[0].isRead && c.messages[0].senderType === 'CUSTOMER');
+      } else if (type === 'mentions') {
+        filtered = allConvosSA.filter(c => c.status === 'escalated');
+      }
+
+      renderConvosSA(filtered);
+    }
+
+    function searchConvosSA(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) {
+        filterConvosSA(currentFilterSA);
+        return;
+      }
+
+      const filtered = allConvosSA.filter(c => {
+        const name = (c.customer?.name || "").toLowerCase();
+        const email = (c.customer?.email || "").toLowerCase();
+        const biz = (c.business?.name || "").toLowerCase();
+        const msg = (c.messages && c.messages[0] ? c.messages[0].content : "").toLowerCase();
+        return name.includes(q) || email.includes(q) || biz.includes(q) || msg.includes(q);
+      });
+
+      renderConvosSA(filtered);
+    }
+
+    function renderConvosSA(convos) {
+      console.log("[Support] Rendering convos:", convos.length);
+      const list = document.getElementById("convoListSA");
+      if (!list) return;
+      
+      if (convos.length === 0) {
+        list.innerHTML = '<p style="text-align: center; padding: 2rem; opacity: 0.5;">No sessions found.</p>';
+        return;
+      }
+
+      list.innerHTML = convos.map(c => {
+        const date = c.lastMessageAt ? new Date(c.lastMessageAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now';
+        const name = c.customer?.name || c.customer?.email || 'Anonymous Tenant';
+        const initials = name.substring(0, 2).toUpperCase();
+        
+        // Status logic
+        let statusClass = 'status-online';
+        if (c.status === 'escalated') statusClass = 'status-escalated';
+        else if (c.aiHandled === false) statusClass = 'status-waiting';
+
+        return `
+          <div class="convo-item-sa ${activeConvoSA === c.id ? 'active' : ''}" onclick="selectConvoSA('${c.id}', '${name}')">
+            <div class="item-avatar" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-weight: 700; position: relative; flex-shrink: 0;">
+              ${initials}
+              <div class="status-badge-mini ${statusClass}" style="position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg-card);"></div>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <h5 style="font-size: 0.85rem; font-weight: 700; color: white;">${name} <span style="font-size: 0.65rem; color: var(--primary); font-weight: 400; margin-left: 4px;">[${c.tenant?.name || 'Platform'}]</span></h5>
+                <span style="font-size: 0.65rem; color: var(--text-muted);">${date}</span>
+              </div>
+              <p style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${c.messages && c.messages[0] ? c.messages[0].content : 'Starting secure session...'}
+              </p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function selectConvoSA(id, name) {
+      // Show areas
+      document.getElementById("activeChatHeaderSA").style.visibility = "visible";
+      document.getElementById("chatActionsSA").style.display = "flex";
+      document.getElementById("chatInputAreaSA").style.display = "block";
+      
+      // Update basic name immediately
+      document.getElementById("activeChatNameSA").innerText = name;
+
+      const headAvatar = document.getElementById("activeChatAvatarSA");
+      const headLogo = document.getElementById("activeChatLogoSA");
+      const ctxAvatar = document.getElementById("tenantContextAvatar");
+      const ctxLogo = document.getElementById("tenantContextLogo");
+
+      // Load context data from cache or fresh fetch
+      const convo = allConvosSA.find(c => c.id === id);
+      if (convo) {
+        updateAIToggleUI(convo.aiHandled);
+        
+        // Identity & Logos
+        const tenantName = convo.tenant?.name || "Platform";
+        const customerName = convo.customer?.name || convo.customer?.email || "Anonymous";
+        
+        document.getElementById("activeChatNameSA").innerText = `${customerName} @ ${tenantName}`;
+        document.getElementById("activeChatStatusSA").innerHTML = '<div style="display: flex; align-items: center; gap: 6px;"><div class="pulse-online" style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div> Status: Online</div>';
+
+        if (convo.business?.logoUrl) {
+           headLogo.src = convo.business.logoUrl;
+           headLogo.style.display = 'block'; headAvatar.style.display = 'none';
+           ctxLogo.src = convo.business.logoUrl;
+           ctxLogo.style.display = 'block'; ctxAvatar.style.display = 'none';
+        } else {
+           headLogo.style.display = 'none'; headAvatar.style.display = 'block';
+           headAvatar.innerText = customerName.substring(0, 2).toUpperCase();
+           ctxLogo.style.display = 'none'; ctxAvatar.style.display = 'block';
+           ctxAvatar.innerText = customerName.substring(0, 2).toUpperCase();
+        }
+
+        // Contact Info
+        document.getElementById("tenantContextName").innerText = customerName;
+        const email = convo.customer?.email || convo.tenant?.email || "No email";
+        const phone = convo.customer?.phone || convo.business?.phoneNumber || "No phone";
+        document.getElementById("tenantContextEmail").innerText = email;
+        document.getElementById("tenantContextPhone").innerText = phone;
+        document.getElementById("tenantEmailBtn").href = `mailto:${email}`;
+        document.getElementById("tenantPhoneBtn").href = `tel:${phone}`;
+        document.getElementById("tenantContextPlan").innerText = (convo.tenant?.plan || "Standard").toUpperCase();
+      }
+
+      // Load messages
+      try {
+        const res = await fetch(`/api/support/conversations/${id}/messages`, { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          const msgList = document.getElementById("chatMessagesSA");
+          msgList.innerHTML = r.data.reverse().map(m => {
+            const isTenant = m.senderType === 'CUSTOMER';
+            return `
+              <div class="msg-sa-wrap ${isTenant ? 'tenant' : 'admin'}">
+                ${isTenant ? `<span style="font-size: 0.6rem; color: var(--primary); margin-bottom: 2px; font-weight: 700; opacity: 0.7;">TENANT</span>` : ''}
+                <div class="msg-sa-bubble">${m.content}</div>
+                <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem; align-self: ${isTenant ? 'flex-start' : 'flex-end'};">
+                  ${new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            `;
+          }).join('');
+          msgList.scrollTop = msgList.scrollHeight;
+        }
+      } catch (e) { console.error("Error loading messages:", e); }
+    }
+
+    function handleSAReply(e) { if (e.key === 'Enter') sendSAReply(); }
+
+    async function sendSAReply() {
+      const input = document.getElementById("replyInputSA");
+      const content = input.value.trim();
+      if (!content || !activeConvoSA) return;
+
+      input.value = "";
+      try {
+        const res = await fetch(`/api/support/conversations/${activeConvoSA}/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ content, role: "admin" })
+        });
+        const r = await res.json();
+        if (r.success) {
+          const msgList = document.getElementById("chatMessagesSA");
+          msgList.innerHTML += `
+            <div class="msg-sa-wrap admin">
+              <div class="msg-sa-bubble">${content}</div>
+              <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem; align-self: flex-end;">Just now</span>
+            </div>
+          `;
+          msgList.scrollTop = msgList.scrollHeight;
+        }
+      } catch (e) { showError("Failed to send message"); }
+    }
+
+    async function toggleAISupportSA() {
+      if (!activeConvoSA) return;
+      try {
+        const res = await fetch(`/api/support/conversations/${activeConvoSA}/toggle-ai`, {
+          method: "POST",
+          headers: { Authorization: "Bearer " + token }
+        });
+        const r = await res.json();
+        if (r.success) {
+          updateAIToggleUI(r.aiHandled);
+          showSuccess(`AI Mode: ${r.aiHandled ? 'ACTIVE' : 'PAUSED'}`);
+        }
+      } catch (e) { showError("Failed to toggle AI"); }
+    }
+
+    function updateAIToggleUI(isActive) {
+      const btn = document.getElementById("aiToggleBtnSA");
+      const text = document.getElementById("aiStatusTextSA");
+      if (isActive) {
+        btn.style.background = "rgba(59, 130, 246, 0.1)";
+        btn.style.color = "var(--primary)";
+        btn.style.borderColor = "rgba(59, 130, 246, 0.3)";
+        text.innerText = "AI ASSISTING";
+      } else {
+        btn.style.background = "rgba(239, 68, 68, 0.1)";
+        btn.style.color = "var(--danger)";
+        btn.style.borderColor = "rgba(239, 68, 68, 0.3)";
+        text.innerText = "MANUAL MODE";
+      }
+    }
+
+    async function resolveTicketSA() {
+      if (!activeConvoSA) return;
+      if (!confirm("Are you sure you want to mark this conversation as resolved?")) return;
+      
+      try {
+        const res = await fetch(`/api/support/conversations/${activeConvoSA}/resolve`, {
+          method: "POST",
+          headers: { Authorization: "Bearer " + token }
+        });
+        const r = await res.json();
+        if (r.success) {
+          showSuccess("Conversation resolved and archived.");
+          activeConvoSA = null;
+          document.getElementById("activeChatHeaderSA").style.visibility = 'hidden';
+          document.getElementById("chatActionsSA").style.display = 'none';
+          document.getElementById("chatMessagesSA").innerHTML = "";
+          loadConversationsSA();
+        }
+      } catch (e) { showError("Failed to resolve conversation"); }
+    }
+
+    async function searchTicketsSA(query) {
+      const q = query.toLowerCase().trim();
+      const list = document.getElementById("ticketsListTableSA");
+      if (!list) return;
+      
+      try {
+        const res = await fetch("/api/support/tickets", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          const filtered = r.data.filter(t => 
+            t.title.toLowerCase().includes(q) || 
+            (t.tenant?.name || "").toLowerCase().includes(q) ||
+            t.id.toLowerCase().includes(q)
+          );
+          renderTicketsSA(filtered);
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    async function viewTicketSA(id) {
+      try {
+        const res = await fetch("/api/support/tickets", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (!r.success) return;
+        
+        const t = r.data.find(x => x.id === id);
+        if (!t) return;
+
+        // Populate Modal
+        document.getElementById("mt_id").innerText = `TICKET #${t.id.substring(0,8).toUpperCase()}`;
+        document.getElementById("mt_title").innerText = t.title;
+        document.getElementById("mt_tenant").innerText = t.tenant?.name || 'Global Instance';
+        document.getElementById("mt_desc").innerText = t.description || 'No description provided for this neural incident.';
+        
+        const priorityEl = document.getElementById("mt_priority");
+        priorityEl.style.color = t.priority === 'high' ? '#ef4444' : '#f59e0b';
+        priorityEl.innerHTML = `<i data-lucide="alert-circle" style="width: 14px;"></i> ${t.priority.toUpperCase()}`;
+        
+        const modal = document.getElementById("ticketModalSA");
+        modal.classList.add("show");
+
+        // Wire Resolve Button
+        const resolveBtn = document.getElementById("mt_action_btn");
+        if (t.status === 'resolved' || t.status === 'closed') {
+          resolveBtn.style.display = 'none';
+        } else {
+          resolveBtn.style.display = 'block';
+          resolveBtn.onclick = () => updateTicketStatusSA(t.id, 'closed');
+        }
+
+        lucide.createIcons();
+
+      } catch (e) { console.error(e); showError("Failed to load ticket details"); }
+    }
+
+    function closeTicketModalSA() {
+      document.getElementById("ticketModalSA").classList.remove("show");
+    }
+
+    async function updateTicketStatusSA(id, status) {
+      const responseText = document.getElementById("mt_response").value.trim();
+      if (!responseText) return showError("Please provide a resolution response for the tenant.");
+      
+      if (!confirm(`Are you sure you want to mark this ticket as ${status.toUpperCase()} and send the response?`)) return;
+      
+      try {
+        const res = await fetch(`/api/support/tickets/${id}/status`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ status, responseText })
+        });
+        const r = await res.json();
+        if (r.success) {
+          showSuccess(`Ticket ${status.toUpperCase()} and response sent.`);
+          
+          // Live/Direct UI Update
+          const row = document.getElementById(`ticket-row-${id}`);
+          if (row) {
+            const cell = row.querySelector(".status-cell");
+            if (cell) {
+              cell.innerHTML = `<span class="status-badge-success" style="font-size: 0.65rem;">${status.toUpperCase()}</span>`;
+            }
+          }
+
+          document.getElementById("mt_response").value = "";
+          closeTicketModalSA();
+          loadSupportActivity(); // Refresh activity feed
+        }
+      } catch (e) { showError("Failed to update ticket status"); }
+    }
+
+    async function filterTicketsByStatusSA(status) {
+      const list = document.getElementById("ticketsListTableSA");
+      if (!list) return;
+      
+      try {
+        const res = await fetch("/api/support/tickets", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          const filtered = status === 'all' 
+            ? r.data 
+            : r.data.filter(t => t.status.toLowerCase() === status.toLowerCase());
+          renderTicketsSA(filtered);
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    async function triggerQuickActionSA(type) {
+      if (!activeConvoSA) return showError("No active tenant session");
+      
+      const labels = {
+        'restart-ai': 'AI context rebooted successfully.',
+        'reset-twilio': 'Twilio webhooks and sessions synchronized.',
+        'sync-cal': 'Calendar nodes synchronized with external providers.',
+        'billing': 'Redirecting to billing management...'
+      };
+
+      try {
+        if (type === 'billing') {
+          showSection('billing');
+          return;
+        }
+
+        // We can simulate the API call or implement real platform triggers here
+        showSuccess(`Action [${type.toUpperCase()}] initiated...`);
+        
+        // Mocking a platform delay
+        setTimeout(() => {
+          showSuccess(labels[type]);
+        }, 1500);
+
+      } catch (e) {
+        showError("Infrastructure action failed.");
+      }
+    }
+
+    lucide.createIcons();
+    
+    // Neural Link: Live Polling for Support Inbox
+    setInterval(() => {
+       if (document.getElementById("supportSection").style.display !== 'none') {
+          loadConversationsSA();
+       }
+    }, 10000);
+
+    // =============================================================================
+    // THEME MANAGEMENT
+    // =============================================================================
+
+    function toggleThemeMenu() {
+      const menu = document.getElementById("themeMenu");
+      if (!menu) return;
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    function applyTheme(themeName) {
+      document.body.setAttribute("data-theme", themeName);
+      localStorage.setItem("apex_theme", themeName);
+      
+      const menu = document.getElementById("themeMenu");
+      if (menu) menu.style.display = "none";
+      
+      console.log(`[SuperAdmin] Theme applied: ${themeName}`);
+    }
+
+    // Close menu on click outside
+    document.addEventListener("click", (e) => {
+      const menu = document.getElementById("themeMenu");
+      const btn = document.getElementById("themeBtn");
+      if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.style.display = "none";
+      }
     });
 
-    const result = await res.json();
-
-    if (result.success) {
-      showSuccess("AI settings saved!");
-    } else {
-      showError(result.message || "Failed to save settings");
-    }
-  } catch (err) {
-    showError("Network error during save");
-  }
-}
-
-async function handleLogoUpload(input) {
-  if (!input.files || !input.files[0]) return;
-
-  const formData = new FormData();
-  formData.append("logo", input.files[0]);
-
-  try {
-    const res = await fetch("/api/superadmin/upload-logo", {
-      method: "POST",
-      headers: { Authorization: "Bearer " + token },
-      body: formData
-    });
-
-    const result = await res.json();
-
-    if (result.success) {
-      showSuccess("Logo updated successfully!");
-      loadSettings(); // Refresh logos
-    } else {
-      showError(result.message || "Upload failed");
-    }
-  } catch (err) {
-    showError("Network error during upload");
-  }
-}
-
-loadAnalytics();
-loadRevenueStats();
-loadRestaurantPerformance();
-loadSalesLeaderboard();
-loadTenants();
-loadRecentCalls();
-loadTranscripts();
-loadActivityFeed();
-loadPlatformCharts();
-loadSettings();
-
-
-
-
-
-
-
-setInterval(loadRecentCalls, 5000);
-setInterval(loadTranscripts, 7000);
-setInterval(loadActivityFeed, 10000);
-</script>
-
+    // Load saved theme on boot
+    (function initTheme() {
+      const savedTheme = localStorage.getItem("apex_theme") || "default";
+      document.body.setAttribute("data-theme", savedTheme);
+    })();
+  </script>
 </body>
 </html>

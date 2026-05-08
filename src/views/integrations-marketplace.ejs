@@ -1,0 +1,475 @@
+<div class="marketplace-header" style="margin-bottom: 2rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <h2 style="font-size: 1.5rem; font-weight: 700;">Integration Marketplace</h2>
+      <p style="color: var(--text-muted);">Connect your POS and hospitality systems to sync menus and orders.</p>
+    </div>
+    <div class="header-pills">
+      <span class="badge" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary);">
+        <i data-lucide="shield-check" style="width:14px; margin-right:4px;"></i> Enterprise Grade
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="apex-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+
+  <!-- TOAST CARD -->
+  <div class="apex-card integration-card" id="card-toast">
+    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom: 1.5rem;">
+      <div class="pos-logo"
+        style="width: 48px; height: 48px; background: #ff4d00; border-radius: 12px; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:1.25rem;">
+        T</div>
+      <div class="status-indicator">
+        <span class="badge badge-disconnected" id="badge-TOAST">Disconnected</span>
+      </div>
+    </div>
+    <h3 style="font-weight:700; margin-bottom:0.5rem;">Toast POS</h3>
+    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">California's #1 Restaurant POS.
+      Sync menus, inventory, and push orders directly to the kitchen.</p>
+
+    <div class="card-footer"
+      style="margin-top:auto; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; gap:0.75rem;">
+      <button class="action-btn" id="btn-TOAST" style="flex:1; background:var(--primary); color:white; border:none;"
+        onclick="connectIntegration('TOAST')">Connect</button>
+      <button class="action-btn" style="width:40px;" onclick="openSettings('TOAST')"><i
+          data-lucide="settings"></i></button>
+    </div>
+  </div>
+
+  <!-- SQUARE CARD -->
+  <div class="apex-card integration-card" id="card-square">
+    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom: 1.5rem;">
+      <div class="pos-logo"
+        style="width: 48px; height: 48px; background: #3e4348; border-radius: 12px; display:flex; align-items:center; justify-content:center; color:white;">
+        <i data-lucide="square"></i></div>
+      <div class="status-indicator">
+        <span class="badge badge-disconnected" id="badge-SQUARE">Disconnected</span>
+      </div>
+    </div>
+    <h3 style="font-weight:700; margin-bottom:0.5rem;">Square</h3>
+    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">The standard for modern cafes and
+      retail. Seamless OAuth connection and real-time menu sync.</p>
+
+    <div class="card-footer"
+      style="margin-top:auto; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; gap:0.75rem;">
+      <button class="action-btn" id="btn-SQUARE" style="flex:1; background:var(--primary); color:white; border:none;"
+        onclick="connectIntegration('SQUARE')">Connect</button>
+      <button class="action-btn" style="width:40px;" onclick="openSettings('SQUARE')"><i
+          data-lucide="settings"></i></button>
+    </div>
+  </div>
+
+  <!-- CLOVER CARD -->
+  <div class="apex-card integration-card" id="card-clover">
+    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom: 1.5rem;">
+      <div class="pos-logo"
+        style="width: 48px; height: 48px; background: #00cc66; border-radius: 12px; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:1.25rem;">
+        C</div>
+      <div class="status-indicator">
+        <span class="badge badge-disconnected" id="badge-CLOVER">Disconnected</span>
+      </div>
+    </div>
+    <h3 style="font-weight:700; margin-bottom:0.5rem;">Clover</h3>
+    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">Robust hardware and API for
+      high-volume restaurants. Manage location sync and payments.</p>
+
+    <div class="card-footer"
+      style="margin-top:auto; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; gap:0.75rem;">
+      <button class="action-btn" id="btn-CLOVER" style="flex:1; background:var(--primary); color:white; border:none;"
+        onclick="connectIntegration('CLOVER')">Connect</button>
+      <button class="action-btn" style="width:40px;" onclick="openSettings('CLOVER')"><i
+          data-lucide="settings"></i></button>
+    </div>
+  </div>
+
+</div>
+
+<!-- SYNC MONITORING LOG -->
+<div class="apex-card" style="margin-top: 2rem;">
+  <div class="card-header">
+    <h3 class="card-title">Real-time Integration Logs</h3>
+    <div class="header-actions">
+      <button class="action-btn" style="width:auto; padding:0 1rem; font-size: 0.75rem;" onclick="refreshLogs()">
+        <i data-lucide="refresh-cw" style="width:14px; margin-right:4px;"></i> Refresh
+      </button>
+    </div>
+  </div>
+  <div id="syncLogs"
+    style="height: 250px; overflow-y: auto; background: #000; color: #0f0; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid var(--border); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+    <div style="opacity:0.5;">[SYSTEM] Initializing stream...</div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="integrationSettingsModal" class="modal-overlay">
+  <div class="apex-card"
+    style="width: 100%; max-width: 500px; margin: 2rem; position: relative; border-color: var(--primary);">
+    <div class="card-header">
+      <h3 class="card-title" id="settingsModalTitle">Integration Settings</h3>
+      <button onclick="closeSettings()"
+        style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.5rem;">&times;</button>
+    </div>
+
+    <div style="padding: 1.5rem;">
+      <input type="hidden" id="currentIntegrationId" />
+
+      <div class="settings-group" style="margin-bottom: 2rem;">
+        <h4
+          style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 1rem;">
+          Sync Configuration</h4>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div>
+            <p style="font-weight: 600; font-size: 0.875rem;">Menu Synchronization</p>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Pull items and categories from POS.</p>
+          </div>
+          <input type="checkbox" id="syncMenuToggle" checked />
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div>
+            <p style="font-weight: 600; font-size: 0.875rem;">Order Injection</p>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Push AI Voice orders into POS queue.</p>
+          </div>
+          <input type="checkbox" id="pushOrderToggle" checked />
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div>
+            <p style="font-weight: 600; font-size: 0.875rem;">Live Inventory</p>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Real-time stock level verification.</p>
+          </div>
+          <input type="checkbox" id="inventorySyncToggle" />
+        </div>
+      </div>
+
+      <!-- ADVANCED CREDENTIALS (Provider Specific) -->
+      <div id="credentialsGroup" class="settings-group" style="margin-bottom: 2rem;">
+        <h4
+          style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1rem;">
+          Provider Credentials</h4>
+
+        <div id="cloverFields" style="display: none;">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label style="font-size: 0.75rem; color: var(--text-muted);">Merchant ID</label>
+            <input type="text" id="cloverMerchantId" class="form-control" placeholder="ABC123XYZ"
+              style="font-size: 0.875rem;" />
+          </div>
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label style="font-size: 0.75rem; color: var(--text-muted);">API Access Token</label>
+            <input type="password" id="cloverAccessToken" class="form-control" placeholder="••••••••••••"
+              style="font-size: 0.875rem;" />
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Sandbox Environment</p>
+            <input type="checkbox" id="cloverSandboxToggle" />
+          </div>
+        </div>
+
+        <div id="genericStatusGroup"
+          style="background: var(--bg-muted); padding: 1rem; border-radius: 0.5rem; font-size: 0.75rem; margin-top: 1rem;">
+          <p style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+            <span style="color:var(--text-muted);">Connection Status:</span>
+            <span id="settingsStatus" style="color:var(--success); font-weight:700;">CONNECTED</span>
+          </p>
+          <p style="display: flex; justify-content: space-between;">
+            <span style="color:var(--text-muted);">Last Pulse:</span>
+            <span id="settingsLastSync">Never</span>
+          </p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <button class="action-btn" style="background: var(--error); color: white; border: none;"
+          onclick="disconnectIntegrationAction()">Disconnect</button>
+        <button class="action-btn" style="background: var(--primary); color: white; border: none;"
+          onclick="saveIntegrationSettings()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .integration-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+  }
+
+  .integration-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .badge-disconnected {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+  }
+
+  .badge-connected {
+    background: rgba(var(--success-rgb), 0.15);
+    color: var(--success);
+    font-weight: 700;
+  }
+
+  #syncLogs::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #syncLogs::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  input[type="checkbox"] {
+    width: 38px;
+    height: 20px;
+    appearance: none;
+    background: var(--bg-muted);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: 1px solid var(--border);
+  }
+
+  input[type="checkbox"]:checked {
+    background: var(--primary);
+  }
+
+  input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+    transition: transform 0.2s;
+  }
+
+  input[type="checkbox"]:checked::before {
+    transform: translateX(18px);
+  }
+</style>
+
+<script>
+  (function() {
+    if (window.lucide) lucide.createIcons();
+
+    // -- State & Fetching --
+    async function updateIntegrationStatuses() {
+      try {
+        const bId = (typeof getBusinessId === 'function' ? getBusinessId() : localStorage.getItem("activeBusinessId"));
+        if (!bId) return;
+        
+        const res = await fetch(`/api/integrations/status?businessId=${bId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken") || window.token}` }
+        });
+        const result = await res.json();
+        
+        if (result.success && Array.isArray(result.data)) {
+          result.data.forEach(int => {
+            const badge = document.getElementById(`badge-${int.provider}`);
+            const btn = document.getElementById(`btn-${int.provider}`);
+            if (badge) {
+              badge.innerText = int.isConnected ? "Connected" : "Disconnected";
+              badge.className = `badge ${int.isConnected ? 'badge-connected' : 'badge-disconnected'}`;
+            }
+            if (btn) {
+              btn.innerText = int.isConnected ? "Reconnect" : "Connect";
+            }
+          });
+        }
+      } catch (err) {
+        console.error("[Integrations] Status Error:", err);
+      }
+    }
+
+    window.refreshLogs = async function() {
+      const container = document.getElementById("syncLogs");
+      if (!container) return;
+      
+      try {
+        const bId = (typeof getBusinessId === 'function' ? getBusinessId() : localStorage.getItem("activeBusinessId"));
+        const res = await fetch(`/api/integrations/logs?businessId=${bId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken") || window.token}` }
+        });
+        const result = await res.json();
+        
+        if (result.success && result.data) {
+          if (result.data.length === 0) {
+            container.innerHTML = '<div style="opacity:0.5;">[SYSTEM] No sync history found.</div>';
+          } else {
+            container.innerHTML = result.data.map(log => {
+              const time = new Date(log.createdAt).toLocaleTimeString();
+              const levelColor = log.level === 'ERROR' ? '#ff4d4d' : (log.level === 'WARN' ? '#ffcc00' : '#0f0');
+              return `<div style="margin-bottom:0.25rem;">
+                <span style="color:#666;">[${time}]</span> 
+                <span style="color:${levelColor}; font-weight:700;">${log.level}</span> 
+                <span style="color:#eee;">${log.message}</span>
+              </div>`;
+            }).join("");
+            container.scrollTop = container.scrollHeight;
+          }
+        }
+      } catch (err) {
+        container.innerHTML = '<div style="color:red;">[ERROR] Failed to fetch logs.</div>';
+      }
+    };
+
+    // -- Actions --
+    window.connectIntegration = async function(provider) {
+      const bId = (typeof getBusinessId === 'function' ? getBusinessId() : localStorage.getItem("activeBusinessId"));
+      try {
+        const res = await fetch('/api/integrations/connect', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem("accessToken") || window.token}`
+          },
+          body: JSON.stringify({ businessId: bId, provider })
+        });
+        const result = await res.json();
+        if (result.success) {
+          if (typeof notify === 'function') notify(`${provider} connected!`, "Success");
+          updateIntegrationStatuses();
+          refreshLogs();
+        } else {
+          alert(result.error || "Failed to connect");
+        }
+      } catch (err) {
+        console.error("Connect Error:", err);
+      }
+    };
+
+    window.openSettings = async function(provider) {
+      const bId = (typeof getBusinessId === 'function' ? getBusinessId() : localStorage.getItem("activeBusinessId"));
+      const modal = document.getElementById("integrationSettingsModal");
+      
+      try {
+        const res = await fetch(`/api/integrations/get-settings?businessId=${bId}&provider=${provider}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken") || window.token}` }
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          const data = result.data;
+          document.getElementById("settingsModalTitle").innerText = `${provider} Settings`;
+          document.getElementById("currentIntegrationId").value = data.id;
+          
+          // Set Toggles
+          document.getElementById("syncMenuToggle").checked = data.config.menuSync;
+          document.getElementById("pushOrderToggle").checked = data.config.orderPush;
+          document.getElementById("inventorySyncToggle").checked = data.config.inventorySync;
+          
+          // Set Status
+          document.getElementById("settingsStatus").innerText = data.status;
+          document.getElementById("settingsStatus").style.color = data.status === 'CONNECTED' ? 'var(--success)' : 'var(--text-muted)';
+          document.getElementById("settingsLastSync").innerText = data.lastSync ? new Date(data.lastSync).toLocaleString() : 'Never';
+          
+          // Provider Fields
+          document.getElementById("cloverFields").style.display = provider === 'CLOVER' ? 'block' : 'none';
+          if (provider === 'CLOVER' && data.credentials) {
+            document.getElementById("cloverMerchantId").value = data.credentials.apiKey || "";
+            document.getElementById("cloverAccessToken").value = data.credentials.accessToken || "";
+          }
+
+          modal.classList.add("show");
+        } else {
+          alert("Could not load settings. Is the integration connected?");
+        }
+      } catch (err) {
+        console.error("Settings Load Error:", err);
+      }
+    };
+
+    window.closeSettings = function() {
+      document.getElementById("integrationSettingsModal").classList.remove("show");
+    };
+
+    // Close on backdrop click
+    document.getElementById("integrationSettingsModal").addEventListener("click", function(e) {
+      if (e.target === this) closeSettings();
+    });
+
+    window.saveIntegrationSettings = async function() {
+      const id = document.getElementById("currentIntegrationId").value;
+      const config = {
+        menuSync: document.getElementById("syncMenuToggle").checked,
+        orderPush: document.getElementById("pushOrderToggle").checked,
+        inventorySync: document.getElementById("inventorySyncToggle").checked
+      };
+      
+      let credentials = null;
+      if (document.getElementById("cloverFields").style.display === 'block') {
+        credentials = {
+          merchantId: document.getElementById("cloverMerchantId").value,
+          accessToken: document.getElementById("cloverAccessToken").value
+        };
+      }
+
+      try {
+        const res = await fetch('/api/integrations/update-settings', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem("accessToken") || window.token}`
+          },
+          body: JSON.stringify({ integrationId: id, config, credentials })
+        });
+        const result = await res.json();
+        if (result.success) {
+          if (typeof notify === 'function') notify("Settings saved", "Success");
+          closeSettings();
+          refreshLogs();
+        }
+      } catch (err) {
+        console.error("Save Error:", err);
+      }
+    };
+
+    window.disconnectIntegrationAction = async function() {
+      if (!confirm("Are you sure you want to disconnect this integration? This will stop all sync processes.")) return;
+      
+      const id = document.getElementById("currentIntegrationId").value;
+      try {
+        const res = await fetch('/api/integrations/disconnect', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem("accessToken") || window.token}`
+          },
+          body: JSON.stringify({ integrationId: id })
+        });
+        const result = await res.json();
+        if (result.success) {
+          if (typeof notify === 'function') notify("Integration disconnected", "Status Updated");
+          closeSettings();
+          updateIntegrationStatuses();
+          refreshLogs();
+        }
+      } catch (err) {
+        console.error("Disconnect Error:", err);
+      }
+    };
+
+    // -- Init --
+    updateIntegrationStatuses();
+    refreshLogs();
+    
+    // Auto-refresh logs every 10 seconds if section is active
+    const logInterval = setInterval(() => {
+      if (document.getElementById("syncLogs")) {
+        refreshLogs();
+      } else {
+        clearInterval(logInterval);
+      }
+    }, 10000);
+
+  })();
+</script>

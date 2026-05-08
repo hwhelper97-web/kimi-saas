@@ -1,0 +1,300 @@
+<% if (!business) { %>
+  <div class="apex-card" style="text-align:center; padding:4rem;">
+    <i data-lucide="alert-circle" style="width:48px; height:48px; color:var(--warning); margin-bottom:1rem;"></i>
+    <h3>No Business Found</h3>
+    <p style="color:var(--text-muted);">Please create a business first to manage its settings.</p>
+  </div>
+<% } else { %>
+
+<div class="apex-card" style="max-width: 800px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+    <h3 class="card-title">General Information</h3>
+  </div>
+
+  <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <div class="form-group">
+      <label>Business Name</label>
+      <input type="text" id="bizName" class="form-control" value="<%= business.name %>" placeholder="e.g. Maya Burger Joint" />
+    </div>
+
+    <div class="form-group">
+      <label>Twilio Phone Number</label>
+      <input type="text" id="bizPhone" class="form-control" value="<%= business.phoneNumber %>" placeholder="+1234567890" />
+    </div>
+
+    <div class="form-group" style="grid-column: 1 / -1;">
+      <label>Location Address</label>
+      <input type="text" id="bizAddress" class="form-control" value="<%= business.address || '' %>" placeholder="123 Main St, City" />
+    </div>
+
+    <div class="form-group">
+      <label>Opening Time</label>
+      <input type="time" id="bizOpenTime" class="form-control" value="<%= business.openTime || '09:00' %>" />
+    </div>
+
+    <div class="form-group">
+      <label>Closing Time</label>
+      <input type="time" id="bizCloseTime" class="form-control" value="<%= business.closeTime || '18:00' %>" />
+    </div>
+
+    <div class="form-group" style="grid-column: 1 / -1;">
+      <label style="margin-bottom: 1rem; display: block;">Operational Days</label>
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <% const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; 
+           const activeDays = (business.timings || '').split(',');
+        %>
+        <% days.forEach(day => { %>
+          <label class="day-check" style="flex:1; min-width: 80px; height: 40px; border: 1px solid var(--border); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 0.875rem; font-weight: 600;">
+            <input type="checkbox" name="bizDays" value="<%= day %>" style="display:none;" <%= activeDays.includes(day) ? 'checked' : '' %> onchange="this.parentElement.classList.toggle('active', this.checked)">
+            <%= day %>
+          </label>
+        <% }) %>
+      </div>
+    </div>
+<style>
+  .day-check:has(input:checked), .day-check.active {
+    background: var(--primary);
+    border-color: var(--primary) !important;
+    color: white;
+  }
+</style>
+
+    <div class="form-group">
+      <label>Local Currency</label>
+      <select id="bizCurrency" class="form-control">
+        <option value="USD" <%= business.currency === 'USD' ? 'selected' : '' %>>USD ($)</option>
+        <option value="EUR" <%= business.currency === 'EUR' ? 'selected' : '' %>>EUR (€)</option>
+        <option value="GBP" <%= business.currency === 'GBP' ? 'selected' : '' %>>GBP (£)</option>
+        <option value="CAD" <%= business.currency === 'CAD' ? 'selected' : '' %>>CAD ($)</option>
+        <option value="AUD" <%= business.currency === 'AUD' ? 'selected' : '' %>>AUD ($)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Tax Rate (%)</label>
+      <input type="number" step="0.1" id="bizTaxRate" class="form-control" value="<%= business.taxRate || 0 %>" />
+    </div>
+
+    <div class="form-group" style="grid-column: 1 / -1;">
+      <label>Brand Logo URL</label>
+      <div style="display:flex; gap:1rem; align-items:center;">
+        <input type="text" id="bizLogo" class="form-control" value="<%= business.logoUrl || '' %>" placeholder="https://path-to-your-logo.png" style="flex:1;" />
+        <input type="file" id="bizLogoFile" style="display:none;" accept="image/*" onchange="handleLogoUpload(this)" />
+        <button type="button" class="action-btn" style="width:auto; padding:0 1rem; height:2.75rem; border-color:var(--border);" onclick="document.getElementById('bizLogoFile').click()">
+          <i data-lucide="upload-cloud" style="width:16px; margin-right:6px;"></i> Upload File
+        </button>
+        <% if (business.logoUrl) { %>
+          <div id="logoPreview" style="width:40px; height:40px; border-radius:0.5rem; background:var(--bg-muted); overflow:hidden; border:1px solid var(--border);">
+            <img src="<%= business.logoUrl %>" style="width:100%; height:100%; object-fit:contain;" />
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+<div class="apex-card" style="max-width: 800px; margin-top: 2rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+    <h3 class="card-title">AI Agent Configuration</h3>
+    <span class="badge" style="background:rgba(var(--primary-rgb), 0.1); color:var(--primary);">Conversational AI V2</span>
+  </div>
+
+  <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <div class="form-group" style="grid-column: 1 / -1;">
+      <label>AI Assistant Name</label>
+      <input type="text" id="aiName" class="form-control" value="<%= business.aiName || 'Sarah' %>" placeholder="e.g. Sarah" />
+      <p style="font-size:0.7rem; color:var(--text-muted); margin-top:0.5rem;">The name the AI will use to introduce itself.</p>
+    </div>
+
+    <div class="form-group" style="grid-column: 1 / -1;">
+      <label>ElevenLabs Agent ID</label>
+      <input type="text" id="aiVoiceId" class="form-control" value="<%= business.aiVoiceId || '' %>" placeholder="e.g. 21m00Tcm4llvDq8ikUX7" />
+      <p style="font-size:0.7rem; color:var(--text-muted); margin-top:0.5rem;">Your agent ID from the ElevenLabs Conversational AI dashboard.</p>
+    </div>
+
+    <div class="form-group">
+      <label>AI Personality</label>
+      <select id="aiPersonality" class="form-control">
+        <option value="friendly" <%= business.aiPersonality === 'friendly' ? 'selected' : '' %>>Friendly & Helpful</option>
+        <option value="professional" <%= business.aiPersonality === 'professional' ? 'selected' : '' %>>Professional & Direct</option>
+        <option value="energetic" <%= business.aiPersonality === 'energetic' ? 'selected' : '' %>>Energetic & Sales-driven</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Default Booking Duration (min)</label>
+      <input type="number" id="appointmentDuration" class="form-control" value="<%= business.appointmentDuration || 30 %>" />
+    </div>
+  </div>
+</div>
+
+<div class="apex-card" style="max-width: 800px; margin-top: 2rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+    <h3 class="card-title">Service & Fulfillment</h3>
+    <span class="badge" style="background:rgba(255,255,255,0.05); color:var(--text-muted);">Operational Modes</span>
+  </div>
+
+  <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <div class="form-group">
+      <label class="toggle-container" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.75rem; background: rgba(255,255,255,0.02);">
+        <span style="font-size: 0.875rem; font-weight: 600;">Dine-In Available</span>
+        <input type="checkbox" id="dineInAvailable" <%= business.dineInAvailable ? 'checked' : '' %> style="width:1.2rem; height:1.2rem; accent-color:var(--primary);" />
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label class="toggle-container" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.75rem; background: rgba(255,255,255,0.02);">
+        <span style="font-size: 0.875rem; font-weight: 600;">Takeaway Available</span>
+        <input type="checkbox" id="takeawayAvailable" <%= business.takeawayAvailable ? 'checked' : '' %> style="width:1.2rem; height:1.2rem; accent-color:var(--primary);" />
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label class="toggle-container" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.75rem; background: rgba(255,255,255,0.02);">
+        <span style="font-size: 0.875rem; font-weight: 600;">Delivery Service</span>
+        <input type="checkbox" id="deliveryAvailable" <%= business.deliveryAvailable ? 'checked' : '' %> style="width:1.2rem; height:1.2rem; accent-color:var(--primary);" onchange="document.getElementById('radiusGroup').style.opacity = this.checked ? '1' : '0.5'" />
+      </label>
+    </div>
+
+    <div class="form-group" id="radiusGroup" style="transition: opacity 0.3s; opacity: <%= business.deliveryAvailable ? 1 : 0.5 %>">
+      <label>Delivery Radius (KM)</label>
+      <input type="number" step="0.5" id="deliveryRadius" class="form-control" value="<%= business.deliveryRadius || 5.0 %>" placeholder="e.g. 5.0" />
+    </div>
+
+    <div class="form-group" style="grid-column: 1 / -1;">
+      <label class="toggle-container" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 1rem; border: 1px solid var(--border); border-radius: 0.75rem; background: rgba(var(--primary-rgb), 0.05);">
+        <div>
+          <span style="font-size: 0.875rem; font-weight: 700; display:block;">Require Reservations</span>
+          <span style="font-size: 0.75rem; color:var(--text-muted);">Enable this to allow/require customers to book tables in advance.</span>
+        </div>
+        <input type="checkbox" id="reservationsEnabled" <%= business.reservationsEnabled ? 'checked' : '' %> style="width:1.5rem; height:1.5rem; accent-color:var(--primary);" />
+      </label>
+    </div>
+  </div>
+</div>
+
+<div class="apex-card" style="max-width: 800px; margin-top: 2rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+      <h3 class="card-title">AI Phone Provisioning</h3>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">Search and acquire a dedicated Twilio number for your AI agent.</p>
+    </div>
+    <i data-lucide="phone-call" style="color:var(--primary); opacity:0.6;"></i>
+  </div>
+
+  <div class="apex-grid" style="grid-template-columns: 2fr 1fr; gap: 1rem; align-items: flex-end; margin-bottom: 1.5rem;">
+    <div class="form-group" style="margin-bottom:0;">
+      <label>Search by Area Code (e.g. 212)</label>
+      <input type="text" id="areaCodeSearch" class="form-control" placeholder="212" maxlength="3" />
+    </div>
+    <button class="action-btn" style="width:100%; background:rgba(var(--primary-rgb), 0.1); border-color:var(--primary); color:var(--primary); height:2.75rem;" onclick="searchNumbers()">
+      <i data-lucide="search" style="width:16px; margin-right:6px;"></i> Find Numbers
+    </button>
+  </div>
+
+  <div id="numberList" style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border); border-radius: 0.75rem; display:none; background:rgba(255,255,255,0.02);">
+    <!-- Numbers will be injected here -->
+  </div>
+</div>
+
+<div class="apex-card" style="max-width: 800px; margin-top: 2rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+    <h3 class="card-title">Staff & Permissions</h3>
+    <button class="action-btn" style="width:auto; padding:0 1rem; border-color:var(--border);" onclick="loadSection('staff')">
+      Manage Access
+    </button>
+  </div>
+  <p style="color:var(--text-muted); font-size:0.875rem;">Configure who can access this business dashboard and their role-based permissions.</p>
+</div>
+
+  <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end;">
+    <button class="action-btn" style="width:auto; padding:0 2rem; background:var(--primary); color:white; border:none; height:2.75rem; font-weight:600;" onclick="saveBusiness()">
+      Save Profile Changes
+    </button>
+  </div>
+</div>
+
+<div style="height: 100px;"></div>
+
+<% } %>
+
+<script>
+  function handleLogoUpload(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        let preview = document.getElementById('logoPreview');
+        if (!preview) {
+          const container = input.parentElement;
+          preview = document.createElement('div');
+          preview.id = 'logoPreview';
+          preview.style = "width:40px; height:40px; border-radius:0.5rem; background:var(--bg-muted); overflow:hidden; border:1px solid var(--border); flex-shrink:0;";
+          container.appendChild(preview);
+        }
+        preview.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:contain;" />`;
+        notify("Image selected. Click Save to upload.", "Info");
+      }
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  if (window.lucide) lucide.createIcons();
+
+  async function searchNumbers() {
+    const areaCode = document.getElementById('areaCodeSearch').value;
+    const list = document.getElementById('numberList');
+    
+    if (!areaCode || areaCode.length < 3) return notify("Please enter a 3-digit area code", "Warning");
+    
+    list.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">Searching...</div>';
+    list.style.display = 'block';
+
+    try {
+      const res = await fetch(`/api/call/provision/search?areaCode=${areaCode}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const result = await res.json();
+      
+      if (result.success && result.data.length > 0) {
+        list.innerHTML = result.data.map(n => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; border-bottom:1px solid var(--border);">
+            <span style="font-weight:600; font-family:monospace;">${n.friendlyName}</span>
+            <button class="action-btn" style="width:auto; height:32px; padding:0 12px; font-size:0.75rem;" onclick="purchaseNumber('${n.phoneNumber}')">
+              Buy & Link
+            </button>
+          </div>
+        `).join('');
+      } else {
+        list.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">No numbers found for this area code.</div>';
+      }
+    } catch (err) {
+      notify("Search failed", "Error");
+      list.style.display = 'none';
+    }
+  }
+
+  async function purchaseNumber(phoneNumber) {
+    if (!confirm(`Are you sure you want to purchase ${phoneNumber}? This will link it to your current business.`)) return;
+
+    try {
+      const res = await fetch('/api/call/provision/purchase', {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ phoneNumber, businessId: getBusinessId() })
+      });
+      const result = await res.json();
+      
+      if (result.success) {
+        notify("Number successfully provisioned!", "Success");
+        if (document.getElementById('bizPhone')) document.getElementById('bizPhone').value = phoneNumber;
+        document.getElementById('numberList').style.display = 'none';
+      } else {
+        notify(result.error || "Purchase failed", "Error");
+      }
+    } catch (err) {
+      notify("Network error", "Error");
+    }
+  }
+</script>

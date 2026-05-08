@@ -90,6 +90,8 @@ exports.getLiveCalls = async (req, res) => {
     const formatted = calls.map((call) => ({
       id: call.id,
       business: call.business?.name || "Unknown",
+      customerName: call.customerName || "Voice Customer",
+      fromNumber: call.fromNumber || "Private Line",
       duration: call.duration || 0,
       tokens: call.tokensUsed || 0,
       createdAt: call.createdAt
@@ -157,6 +159,14 @@ exports.getBusinessDashboard = async (req, res) => {
     if (!business) {
       return res.status(403).json({
         message: "Invalid business"
+      });
+    }
+
+    if (req.query.partial === "true") {
+      return res.render("business-settings", { 
+        business, 
+        user: req.user,
+        layout: false 
       });
     }
 

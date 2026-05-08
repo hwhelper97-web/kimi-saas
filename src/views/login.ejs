@@ -1,362 +1,425 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexton technologies LLC — Login</title>
+  <title>Nexton Technologies LLC | Secure Access</title>
+  <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:           #060d18;
-      --panel:        rgba(12, 24, 44, 0.85);
-      --border:       rgba(148, 176, 220, 0.13);
-      --brand:        #5eead4;
-      --brand-dim:    rgba(94, 234, 212, 0.15);
-      --accent:       #818cf8;
-      --text-h:       #f0f6ff;
-      --text-body:    #c9d8ef;
-      --text-muted:   #7a96b8;
-      --danger:       #f87171;
-      --success:      #34d399;
-      --input-bg:     rgba(255,255,255,0.04);
-      --input-border: rgba(148,176,220,0.18);
-      --shadow-lg:    0 32px 64px rgba(0,0,0,0.5);
-      --radius:       18px;
+      --bg-dark: #020617;
+      --accent-primary: #8b5cf6;
+      --accent-secondary: #ec4899;
+      --glass-bg: rgba(15, 23, 42, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
     }
 
-    html, body {
-      height: 100%;
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text-body);
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    /* ── Animated background glows ── */
-    .glow {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
-      opacity: 0.35;
-      animation: drift 12s ease-in-out infinite alternate;
-    }
-    .glow-a { width:420px; height:420px; top:-100px; left:-80px;  background:rgba(94,234,212,0.28); animation-delay:0s; }
-    .glow-b { width:320px; height:320px; bottom:0;  right:-60px;  background:rgba(129,140,248,0.22); animation-delay:-5s; }
-    @keyframes drift { from{transform:translate(0,0)} to{transform:translate(30px,24px)} }
-
-    /* ── Page layout ── */
-    .page {
-      min-height: 100vh;
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
-      position: relative;
-      z-index: 1;
+      min-height: 100vh;
     }
 
-    /* ── Card ── */
-    .card {
+    /* 🎨 Mesh Gradient Background */
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      max-width: 420px;
-      background: var(--panel);
-      backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      padding: 44px 40px 40px;
-      box-shadow: var(--shadow-lg);
+      height: 100%;
+      z-index: -1;
+      background-color: var(--bg-dark);
+      background-image:
+        radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
     }
 
-    /* ── Logo ── */
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 32px;
-    }
-    .brand-icon {
-      width: 40px; height: 40px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #5eead4, #818cf8);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-    .brand-text { display: flex; flex-direction: column; }
-    .brand-name {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text-h);
-      letter-spacing: -0.02em;
-    }
-    .brand-sub {
-      font-size: 11px;
-      color: var(--brand);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-top: 1px;
-    }
-
-    /* ── Headings ── */
-    .card h1 {
-      font-size: 26px;
-      font-weight: 700;
-      color: var(--text-h);
-      letter-spacing: -0.03em;
-      margin-bottom: 6px;
-    }
-    .card .subtitle {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-bottom: 32px;
-    }
-
-    /* ── Form ── */
-    .field { margin-bottom: 18px; }
-    .field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-muted);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-    .input-wrap { position: relative; }
-    .input-wrap .icon {
+    .background::after {
+      content: "";
       position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      font-size: 16px;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+      opacity: 0.03;
       pointer-events: none;
     }
-    input[type="email"],
-    input[type="password"],
-    input[type="text"] {
-      width: 100%;
-      padding: 13px 14px 13px 42px;
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: var(--radius);
-      color: var(--text-h);
-      font-family: inherit;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    input:focus {
-      border-color: rgba(94,234,212,0.45);
-      box-shadow: 0 0 0 3px rgba(94,234,212,0.08);
-    }
-    input::placeholder { color: var(--text-muted); }
 
-    /* ── Button ── */
-    .btn {
+    /* 💎 Premium Glass Card */
+    .login-container {
       width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: var(--radius);
-      background: linear-gradient(135deg, #5eead4, #818cf8);
-      color: #06111e;
-      font-family: inherit;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: 0.01em;
-      margin-top: 8px;
-      transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 8px 24px rgba(94,234,212,0.25);
+      max-width: 440px;
+      padding: 2rem;
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 2rem;
+      padding: 3rem 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
       position: relative;
       overflow: hidden;
     }
-    .btn:hover   { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 14px 32px rgba(94,234,212,0.3); }
-    .btn:active  { transform: translateY(0); }
-    .btn.loading { opacity: 0.7; pointer-events: none; }
-    .btn .spinner {
-      display: none;
-      width: 16px; height: 16px;
-      border: 2px solid rgba(6,17,30,0.4);
-      border-top-color: #06111e;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-    .btn.loading .spinner { display: inline-block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Error ── */
-    .error-msg {
-      background: rgba(248,113,113,0.1);
-      border: 1px solid rgba(248,113,113,0.25);
-      color: #fca5a5;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 13px;
-      margin-top: 16px;
-      display: none;
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+      animation: shine 3s infinite linear;
     }
-    .error-msg.show { display: block; }
 
-    /* ── Footer ── */
-    .card-footer {
-      margin-top: 28px;
+    @keyframes shine {
+      to {
+        left: 100%;
+      }
+    }
+
+    /* 🏢 Brand Identity */
+    .brand {
       text-align: center;
-      font-size: 12px;
-      color: var(--text-muted);
-      border-top: 1px solid var(--border);
-      padding-top: 20px;
+      margin-bottom: 2.5rem;
     }
-    .card-footer a { color: var(--brand); text-decoration: none; }
-    .card-footer a:hover { text-decoration: underline; }
 
-    /* ── Divider ── */
-    .divider {
+    .logo-box {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      border-radius: 1rem;
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin: 24px 0;
-      color: var(--text-muted);
-      font-size: 12px;
+      justify-content: center;
+      box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+      font-size: 2rem;
+      color: white;
     }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
+
+    .brand h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin-bottom: 0.25rem;
+      background: linear-gradient(to right, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand p {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      color: var(--accent-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      margin-top: 1rem;
+    }
+
+    /* 📝 Form Elements */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+      margin-left: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 1.25rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      width: 18px;
+      height: 18px;
+      transition: color 0.3s;
+    }
+
+    input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--glass-border);
+      border-radius: 1rem;
+      padding: 1.1rem 1.1rem 1.1rem 3.25rem;
+      color: white;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      background: rgba(139, 92, 246, 0.05);
+      box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+
+    input:focus+i {
+      color: var(--accent-primary);
+    }
+
+    /* 🚀 Action Button */
+    .login-btn {
+      width: 100%;
+      padding: 1.1rem;
+      border-radius: 1rem;
+      border: none;
+      background: linear-gradient(135deg, var(--accent-primary), #6366f1);
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+      margin-top: 2.5rem;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3);
+      filter: brightness(1.1);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    #error-msg {
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.2);
+      color: #f87171;
+      padding: 1rem;
+      border-radius: 1rem;
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+      display: none;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-5px);
+      }
+
+      75% {
+        transform: translateX(5px);
+      }
+    }
+
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
+
 <body>
+  <div class="background"></div>
 
-<div class="glow glow-a"></div>
-<div class="glow glow-b"></div>
-
-<div class="page">
-  <div class="card">
-
-    <div class="brand">
-      <div class="brand-icon" style="<%= platformLogo ? 'background:none;' : '' %>">
-        <% if (platformLogo) { %>
-          <img src="<%= platformLogo %>" style="width: 100%; height: 100%; border-radius: 12px; object-fit: cover;">
-        <% } else { %>
-          🤖
-        <% } %>
+  <div class="login-container">
+    <div class="card">
+      <div class="brand">
+        <div class="logo-box">
+          <i data-lucide="zap"></i>
+        </div>
+        <h1>NEXTON TECHNOLOGIES</h1>
+        <p>Enterprise Control Center</p>
+        <span class="badge">Superadmin Access</span>
       </div>
-      <div class="brand-text">
-        <span class="brand-name"><%= projectName || 'Nexton technologies LLC' %></span>
-        <span class="brand-sub">Voice Commerce Suite</span>
-      </div>
+
+      <div id="error-msg"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email Address</label>
+          <div class="input-wrapper">
+            <i data-lucide="mail"></i>
+            <input type="email" id="email" placeholder="admin@nexton.ai" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Security Key</label>
+          <div class="input-wrapper">
+            <i data-lucide="lock"></i>
+            <input type="password" id="password" placeholder="••••••••" required />
+          </div>
+        </div>
+
+        <button type="submit" class="login-btn">
+          <span>Authenticate</span>
+          <i data-lucide="arrow-right"></i>
+        </button>
+      </form>
     </div>
 
-    <h1>Welcome back</h1>
-    <p class="subtitle">Sign in to your operations console</p>
-
-    <form onsubmit="handleLogin(event)" autocomplete="on" novalidate>
-
-      <div class="field">
-        <label for="email">Email address</label>
-        <div class="input-wrap">
-          <span class="icon">✉️</span>
-          <input type="email" id="email" name="email" placeholder="you@company.com" autocomplete="email" required />
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="password">Password</label>
-        <div class="input-wrap">
-          <span class="icon">🔒</span>
-          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required />
-        </div>
-      </div>
-
-      <button type="submit" class="btn" id="loginBtn">
-        <span class="spinner"></span>
-        Sign in
-      </button>
-
-    </form>
-
-    <div class="error-msg" id="errorMsg"></div>
-
-    <div class="card-footer">
-      Protected by JWT · <a href="#">Privacy Policy</a>
+    <div class="footer">
+      &copy; 2026 Nexton Technologies LLC. All rights reserved.
     </div>
   </div>
-</div>
 
-<script>
-async function loadPlatform() {
-  try {
-    const res = await fetch('/api/platform/settings');
-    const result = await res.json();
-    if (result.success && result.data) {
-      const { logoUrl, projectName } = result.data;
-      if (logoUrl) {
-        document.querySelector('.brand-icon').innerHTML = `<img src="${logoUrl}" style="width: 100%; height: 100%; border-radius: 12px; object-fit: cover;">`;
-        document.querySelector('.brand-icon').style.background = 'none';
-      }
-      if (projectName) {
-        document.querySelector('.brand-name').innerText = projectName;
-        document.title = projectName + " — Login";
+  <script>
+    lucide.createIcons();
+
+    const loginForm = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('error-msg');
+
+    async function loadPlatform() {
+      try {
+        const res = await fetch('/api/platform/settings');
+        const result = await res.json();
+        if (result.success && result.data) {
+          const { logoUrl, projectName } = result.data;
+          if (logoUrl) {
+            document.querySelector('.logo-box').innerHTML = `<img src="${logoUrl}" style="width: 40px; height: 40px; object-fit: contain;">`;
+            document.querySelector('.logo-box').style.background = 'none';
+          }
+          if (projectName) {
+            document.querySelector('.brand h1').innerText = projectName.toUpperCase();
+          }
+        }
+      } catch (err) {
+        console.error("Load platform error:", err);
       }
     }
-  } catch (err) {
-    console.error("Load platform error:", err);
-  }
-}
 
-loadPlatform();
+    loadPlatform();
 
-async function handleLogin(event) {
-  event.preventDefault();
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-  const email    = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const errorEl  = document.getElementById('errorMsg');
-  const btn      = document.getElementById('loginBtn');
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
 
-  errorEl.classList.remove('show');
+      const btn = loginForm.querySelector('.login-btn');
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i> Verifying...';
+      lucide.createIcons();
 
-  if (!email || !password) {
-    errorEl.textContent = 'Please enter your email and password.';
-    errorEl.classList.add('show');
-    return;
-  }
+      errorMsg.style.display = 'none';
 
-  btn.classList.add('loading');
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
 
-  try {
-    const res    = await fetch('/api/auth/login', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email, password }),
+        const data = await response.json();
+
+        if (data.success) {
+          localStorage.setItem('accessToken', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.removeItem('activeBusinessId'); // Clear old business session
+
+          const role = data.user.role.toUpperCase();
+          if (role === 'SUPERADMIN') {
+            window.location.href = '/superadmin';
+          } else {
+            window.location.href = '/admin';
+          }
+        } else {
+          errorMsg.textContent = data.error || 'Authentication failed';
+          errorMsg.style.display = 'block';
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+          lucide.createIcons();
+        }
+      } catch (error) {
+        errorMsg.textContent = 'Server connection failed';
+        errorMsg.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        lucide.createIcons();
+      }
     });
-    const result = await res.json();
-
-    if (res.ok) {
-      localStorage.setItem('accessToken',  result.accessToken);
-      localStorage.setItem('refreshToken', result.refreshToken);
-
-      const payload = JSON.parse(atob(result.accessToken.split('.')[1]));
-      window.location.href = '/admin';
-    } else {
-      errorEl.textContent = result.error || 'Invalid credentials. Please try again.';
-      errorEl.classList.add('show');
-      btn.classList.remove('loading');
-    }
-  } catch {
-    errorEl.textContent = 'Cannot reach the server. Please check your connection.';
-    errorEl.classList.add('show');
-    btn.classList.remove('loading');
-  }
-}
-</script>
-
+  </script>
 </body>
+
 </html>

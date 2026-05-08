@@ -19,123 +19,64 @@ const io = new Server(server, {
 
 app.set("io", io);
 
-io.on("connection", (socket) => {
-  console.log("[Socket.IO] Dashboard connected:", socket.id);
+const chatHandler = require("./modules/support/chat.handler");
 
+io.on("connection", (socket) => {
+  console.log("[Socket.IO] New connection:", socket.id);
+
+  // Dashboard logic
   socket.on("join-business", (businessId) => {
     socket.join(businessId);
-    console.log(`[Socket.IO] Socket ${socket.id} joined room: ${businessId}`);
+    console.log(`[Socket.IO] Socket ${socket.id} joined business room: ${businessId}`);
   });
 
+  // Support Chat logic
+  chatHandler(io, socket);
+
   socket.on("disconnect", () => {
-    console.log("[Socket.IO] Dashboard disconnected:", socket.id);
+    console.log("[Socket.IO] Disconnected:", socket.id);
   });
 });
 
-// ─── WebSocket (Twilio Media Stream → Deepgram STT) ──────────────────────────
-const wss = new WebSocket.Server({ server });
+// ─── WebSocket (Twilio Media Stream → AI Processor) ──────────────────────────
+const wss = new WebSocket.Server({ noServer: true });
+const { handleMediaStream } = require("./modules/call/stream.handler");
 
-wss.on("connection", async (ws, req) => {
-  let businessContext = null;
-  let businessId = null;
-  let callId = null;
+server.on("upgrade", (request, socket, head) => {
+  const { pathname } = new URL(request.url, `http://${request.headers.host}`);
+  console.log(`[WEBSOCKET_UPGRADE] Requested Path: ${pathname}`);
+  
+  const { handleMediaStream, handleV2AgentEngine } = require("./modules/call/stream.handler");
 
-  try {
-    const requestUrl = new URL(req.url, `http://${req.headers.host}`);
-    businessId = requestUrl.searchParams.get("businessId");
-    callId = requestUrl.searchParams.get("callId");
-
-    if (businessId) {
-      businessContext = await prisma.business.findUnique({
-        where: { id: businessId },
-        include: { menuItems: true },
+  if (pathname.startsWith("/v2/stream")) {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      handleV2AgentEngine(ws, request, io).catch(err => {
+        console.error("[V2 CRASH] Stream initialization failed:", err);
+        ws.close();
       });
-    }
-  } catch (err) {
-    console.error("[WS] Business lookup failed:", err.message);
-    // Continue without business context — don't crash the connection
+    });
+  } else if (pathname.startsWith("/media-stream")) {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      handleMediaStream(ws, request, io).catch(err => {
+        console.error("[V1 CRASH] Stream initialization failed:", err);
+        ws.close();
+      });
+    });
+  } else if (pathname.startsWith("/support/voice-stream")) {
+    const { handleVoiceSupportStream } = require("./modules/support/voice-support.handler");
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      handleVoiceSupportStream(ws, request, io).catch(err => {
+        console.error("[Support Voice CRASH] Stream initialization failed:", err);
+        ws.close();
+      });
+    });
   }
-
-  console.log("[WS] Twilio connected", { businessId, callId });
-
-  const deepgramWs = createDeepgram();
-  let deepgramReady = false;
-
-  deepgramWs.on("open", () => {
-    deepgramReady = true;
-    console.log("[Deepgram] Ready");
-  });
-
-  deepgramWs.on("message", async (msg) => {
-    let data;
-    try {
-      data = JSON.parse(msg.toString());
-    } catch {
-      return;
-    }
-
-    const transcript = data.channel?.alternatives?.[0]?.transcript;
-    if (!transcript || transcript.trim() === "") return;
-
-    console.log(`[Deepgram] Transcript: "${transcript}"`);
-
-    // Emit live transcript to the dashboard room
-    if (businessId) {
-      io.to(businessId).emit("live-transcript", { businessId, callId, text: transcript });
-    }
-
-    /* 
-    // Generate AI reply (used for analytics / logging — TwiML still drives the Twilio side)
-    try {
-      const reply = await getAIResponse(transcript, {
-        businessName: businessContext?.name,
-        businessType: businessContext?.type,
-        menuItems: businessContext?.menuItems?.map((i) => i.name) || [],
-      });
-      console.log(`[AI] Reply: "${reply}"`);
-    } catch (err) {
-      console.error("[AI] getAIResponse error:", err.message);
-    }
-    */
-  });
-
-  deepgramWs.on("error", (err) => {
-    console.error("[Deepgram] WebSocket error:", err.message);
-  });
-
-  ws.on("message", (msg) => {
-    // Only forward binary or JSON media events — skip plain text metadata
-    const str = msg.toString();
-    let data;
-    try {
-      data = JSON.parse(str);
-    } catch {
-      return;
-    }
-
-    if (data.event === "media" && deepgramReady) {
-      const audioBuffer = Buffer.from(data.media.payload, "base64");
-      if (deepgramWs.readyState === WebSocket.OPEN) {
-        deepgramWs.send(audioBuffer);
-      }
-    }
-  });
-
-  ws.on("close", () => {
-    console.log("[WS] Call ended", { businessId, callId });
-    if (deepgramWs.readyState === WebSocket.OPEN) {
-      deepgramWs.close();
-    }
-  });
-
-  ws.on("error", (err) => {
-    console.error("[WS] Error:", err.message);
-  });
+  // Socket.IO is handled automatically by its own listener attached to 'server'
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
-  console.log(`[Server] Running on http://localhost:${PORT}`);
+  console.log(`🚀 [NEXTON-AI-V2] Server LIVE on port ${PORT}`);
 });

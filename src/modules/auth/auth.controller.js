@@ -50,7 +50,8 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
@@ -84,10 +85,25 @@ exports.login = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    return res.json({ accessToken, refreshToken });
+    // Remove password from user object before sending
+    const { password: _, ...safeUser } = user;
+
+    // Set cookie for EJS/browser navigation
+    res.cookie("token", accessToken, {
+      httpOnly: false, // Set to false if you need to access it from client JS, true for better security
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000 // 1 day
+    });
+
+    return res.json({ 
+      success: true, 
+      token: accessToken, 
+      refreshToken, 
+      user: safeUser 
+    });
   } catch (error) {
     console.error("LOGIN ERROR:", error);
-    return res.status(500).json({ error: "Login failed" });
+    return res.status(500).json({ success: false, error: "Login failed" });
   }
 };
 

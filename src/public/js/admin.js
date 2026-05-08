@@ -34,7 +34,7 @@ socket.on("new_order", (data) => {
 document.addEventListener("DOMContentLoaded", () => {
   loadBusinesses().then(() => {
     applyTheme(localStorage.getItem("kimi_theme") || "dark");
-    applyBrandName(localStorage.getItem("kimi_brand") || "Nexton AI");
+    applyBrandName(localStorage.getItem("kimi_brand") || "Nexton Technologies LLC");
     renderSidebar();
     loadSection("dashboard");
   });
@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
    ========================================================================== */
 function logout() {
   localStorage.removeItem("accessToken");
+  localStorage.removeItem("activeBusinessId");
   sessionStorage.removeItem("accessToken");
   window.location.href = "/login";
 }
@@ -140,12 +141,9 @@ function renderSidebar() {
 
   items.push({ name: "AI Calls", key: "calls", icon: "📞" });
   items.push({ name: "Business Info", key: "business", icon: "🏢" });
+  items.push({ name: "Billing & Mints", key: "billing", icon: "💳" });
   items.push({ name: "Staff", key: "staff", icon: "👥" });
   items.push({ name: "Settings", key: "settings", icon: "⚙️" });
-
-  if (decodedToken && decodedToken.role === "SUPERADMIN") {
-    items.push({ name: "Create Business", key: "create-business", icon: "✨" });
-  }
 
   nav.innerHTML = items.map(item => `
     <a class="nav-item ${item.key === currentSection ? 'active' : ''}" onclick="loadSection('${item.key}')">
@@ -180,6 +178,7 @@ async function loadSection(section) {
     else if (section === "business") await renderBusinessInfo(content);
     else if (section === "menu") await renderMenu(content);
     else if (section === "staff") await renderStaff(content);
+    else if (section === "billing") await renderBilling(content);
     else if (section === "settings") await renderSettings(content);
     else if (section === "create-business") await renderCreateBusiness(content);
   } catch (err) {
@@ -590,6 +589,17 @@ async function renderSettings(content) {
           <select id="settingTheme" class="form-control">
             <option value="dark" ${localStorage.getItem('kimi_theme') === 'dark' ? 'selected' : ''}>Premium Dark (Default)</option>
             <option value="light" ${localStorage.getItem('kimi_theme') === 'light' ? 'selected' : ''}>Clean Light</option>
+            <option value="nexton-teal" ${localStorage.getItem('kimi_theme') === 'nexton-teal' ? 'selected' : ''}>Nexton Teal</option>
+            <option value="midnight" ${localStorage.getItem('kimi_theme') === 'midnight' ? 'selected' : ''}>Midnight Blue</option>
+            <option value="ocean" ${localStorage.getItem('kimi_theme') === 'ocean' ? 'selected' : ''}>Deep Ocean</option>
+            <option value="forest" ${localStorage.getItem('kimi_theme') === 'forest' ? 'selected' : ''}>Emerald Forest</option>
+            <option value="sunset" ${localStorage.getItem('kimi_theme') === 'sunset' ? 'selected' : ''}>Crimson Sunset</option>
+            <option value="royal-gold" ${localStorage.getItem('kimi_theme') === 'royal-gold' ? 'selected' : ''}>Royal Gold</option>
+            <option value="deep-purple" ${localStorage.getItem('kimi_theme') === 'deep-purple' ? 'selected' : ''}>Amethyst Purple</option>
+            <option value="slate" ${localStorage.getItem('kimi_theme') === 'slate' ? 'selected' : ''}>Professional Slate</option>
+            <option value="cyberpunk" ${localStorage.getItem('kimi_theme') === 'cyberpunk' ? 'selected' : ''}>Neon Cyberpunk</option>
+            <option value="neon-night" ${localStorage.getItem('kimi_theme') === 'neon-night' ? 'selected' : ''}>Matrix Green</option>
+            <option value="crimson" ${localStorage.getItem('kimi_theme') === 'crimson' ? 'selected' : ''}>Blood Crimson</option>
           </select>
         </div>
 
@@ -1370,4 +1380,89 @@ function handleMenuSearch(val) {
 
 function closeModal(id) {
   document.getElementById(id).classList.remove("show");
+}
+/* ==========================================================================
+   BILLING & TOKEN MANAGEMENT (RESTAURANT OWNER)
+   ========================================================================== */
+async function renderBilling(content) {
+  const res = await fetch("/api/billing/status", { headers: { Authorization: `Bearer ${token}` } });
+  const result = await res.json();
+  if (!result.success) throw new Error("Billing status failed");
+  const data = result.data;
+
+  content.innerHTML = `
+    <div class="stats-grid" style="margin-bottom:24px;">
+      <div class="stat-card">
+        <div class="stat-title">Current Mint Balance</div>
+        <div class="stat-value text-gradient">${data.tokenBalance}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Total Purchased</div>
+        <div class="stat-value">${data.totalTokensPurchased}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Current Plan</div>
+        <div class="stat-value" style="font-size:1.5rem;">${data.plan.toUpperCase()}</div>
+      </div>
+    </div>
+
+    <div class="grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+      <div class="card">
+        <h3 style="margin-bottom:20px;">Purchase / Request Mints</h3>
+        <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Choose a package to boost your AI calling capacity.</p>
+        
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <button class="btn btn-secondary w-full" style="justify-content:space-between;" onclick="requestMints(100, 'STARTER')">
+            <span>Starter Pack (100 Mints)</span>
+            <strong>$49.00</strong>
+          </button>
+          <button class="btn btn-secondary w-full" style="justify-content:space-between;" onclick="requestMints(500, 'ELITE')">
+            <span>Elite Growth (500 Mints)</span>
+            <strong>$199.00</strong>
+          </button>
+          <button class="btn btn-primary w-full" style="justify-content:space-between;" onclick="requestMints(1000, 'CUSTOM')">
+            <span>Enterprise Flex (Custom)</span>
+            <strong>Contact Sales</strong>
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:20px;">Request History</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Amount</th><th>Tier</th><th>Status</th></tr></thead>
+            <tbody>
+              ${data.pendingRequests.length ? data.pendingRequests.map(r => `
+                <tr>
+                  <td style="font-weight:700;">${r.amount} Mints</td>
+                  <td>${r.tier}</td>
+                  <td><span class="badge badge-warning">${r.status}</span></td>
+                </tr>
+              `).join("") : '<tr><td colspan="3" style="text-align:center;">No pending requests.</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function requestMints(amount, tier) {
+  try {
+    const res = await fetch("/api/billing/request-mints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ amount, tier })
+    });
+    const result = await res.json();
+    if (result.success) {
+      notify(result.message, "Success");
+      loadSection("billing");
+    } else {
+      notify(result.message, "Error");
+    }
+  } catch (err) {
+    notify("Request failed", "Error");
+  }
 }

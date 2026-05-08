@@ -1,0 +1,85 @@
+<div class="page-header">
+  <h1>AI Platform Hub</h1>
+  <p>Global oversight of your AI agents, telephony bridge, and connection status.</p>
+</div>
+
+<div class="apex-grid">
+  <div class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">System Status</span>
+      <div class="stat-icon"><i data-lucide="shield-check"></i></div>
+    </div>
+    <div class="stat-value">Operational</div>
+    <div class="stat-footer">
+      <span class="trend-up">99.9% Uptime</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">Active Agents</span>
+      <div class="stat-icon"><i data-lucide="bot"></i></div>
+    </div>
+    <div class="stat-value">4</div>
+    <div class="stat-footer">
+      <span>Sarah V2, Alex, Maya, Roy</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">Telephony Bridge</span>
+      <div class="stat-icon"><i data-lucide="phone-forwarded"></i></div>
+    </div>
+    <div class="stat-value" style="color:var(--success);">Connected</div>
+    <div class="stat-footer">
+      <span>Twilio Proxy: Active</span>
+    </div>
+  </div>
+</div>
+
+<div class="apex-card">
+  <div class="card-header">
+    <h3 class="card-title">Agent Configuration</h3>
+    <button class="action-btn" style="width:auto; padding:0 1rem; background:var(--primary); color:white; border:none;" onclick="openAgentModal()">
+      <i data-lucide="plus" style="width:14px; margin-right:4px;"></i> New Agent
+    </button>
+  </div>
+
+  <div class="table-wrapper">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="text-align: left; border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+          <th style="padding: 1rem;">Agent Name</th>
+          <th style="padding: 1rem;">Primary Task</th>
+          <th style="padding: 1rem;">Model</th>
+          <th style="padding: 1rem;">Status</th>
+          <th style="padding: 1rem; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 1rem;">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <div style="width:32px; height:32px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; color:white; font-weight:700;">S</div>
+              <div>
+                <p style="font-weight:600;">Sarah V2</p>
+                <p style="font-size:0.75rem; color:var(--text-muted);">Front Desk Assistant</p>
+              </div>
+            </div>
+          </td>
+          <td style="padding: 1rem;">Booking & Inquiry</td>
+          <td style="padding: 1rem;">ElevenLabs Turbo v2</td>
+          <td style="padding: 1rem;"><span class="badge" style="background:rgba(var(--success-rgb), 0.1); color:var(--success);">Active</span></td>
+          <td style="padding: 1rem; text-align: right;">
+            <button class="action-btn" style="display:inline-flex;"><i data-lucide="settings"></i></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  if (window.lucide) lucide.createIcons();
+</script>

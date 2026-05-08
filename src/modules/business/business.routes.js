@@ -68,4 +68,13 @@ router.delete(
   controller.remove
 );
 
+// Delete business (ONLY SUPERADMIN, Secure)
+router.delete(
+  "/:id",
+  authMiddleware,
+  tenantMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.remove
+);
+
 module.exports = router;

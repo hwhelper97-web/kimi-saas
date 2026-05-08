@@ -1,0 +1,215 @@
+<div class="tickets-management-container">
+    <style>
+        .tickets-management-container {
+            padding: 1rem 0;
+            color: var(--support-text);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tickets-table-card {
+            background: var(--support-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--support-border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .table-header {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--support-border);
+        }
+
+        .tickets-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tickets-table th {
+            text-align: left;
+            padding: 1rem 2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--support-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .tickets-table td {
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--support-border);
+            font-size: 0.875rem;
+        }
+
+        .tickets-table tr:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .ticket-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-open { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .status-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .status-closed { background: rgba(107, 114, 128, 0.1); color: #9ca3af; }
+
+        .priority-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .priority-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .priority-high { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        .priority-medium { background: #f59e0b; }
+        .priority-low { background: #10b981; }
+
+    </style>
+
+    <div class="tickets-table-card">
+        <div class="table-header">
+            <h3 style="font-size: 1.125rem; font-weight: 700;">Ticket History</h3>
+            <button class="action-button primary" onclick="loadSection('create-ticket')" style="background: var(--support-accent); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 10px; font-weight: 700; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <i data-lucide="plus" style="width: 16px;"></i> New Ticket
+            </button>
+        </div>
+
+        <table class="tickets-table">
+            <thead>
+                <tr>
+                    <th>Ticket ID</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="ticketsBody">
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 3rem; opacity: 0.5;">Synchronizing with Support Hub...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal: Ticket Details -->
+    <div id="ticketDetailModal" class="modal-overlay">
+      <div class="modal-container" style="max-width: 650px; background: rgba(13, 17, 23, 0.98); backdrop-filter: blur(20px); border: 1px solid var(--support-border);">
+        <div class="modal-header" style="border-bottom: 1px solid var(--support-border); padding-bottom: 1.5rem;">
+           <div>
+              <span id="td_id" style="font-size: 0.65rem; color: var(--support-accent); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">TICKET #----</span>
+              <h3 id="td_title" style="font-size: 1.25rem; font-weight: 800; color: white; margin-top: 0.25rem;">Loading...</h3>
+           </div>
+           <button class="close-modal" onclick="closeModal('ticketDetailModal')">&times;</button>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;">
+           <div style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 12px; border: 1px solid var(--support-border);">
+              <span class="label-caps" style="font-size: 0.6rem; opacity: 0.5; display: block; margin-bottom: 0.5rem;">STATUS</span>
+              <span id="td_status" class="ticket-status status-open">---</span>
+           </div>
+           <div style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 12px; border: 1px solid var(--support-border);">
+              <span class="label-caps" style="font-size: 0.6rem; opacity: 0.5; display: block; margin-bottom: 0.5rem;">PRIORITY</span>
+              <div id="td_priority" class="priority-badge">
+                 <div class="priority-dot priority-medium"></div>
+                 <span id="td_priority_text">Medium</span>
+              </div>
+           </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--support-border); margin-bottom: 2rem;">
+           <span class="label-caps" style="font-size: 0.6rem; opacity: 0.5; display: block; margin-bottom: 1rem;">ISSUE DESCRIPTION</span>
+           <p id="td_desc" style="font-size: 0.9375rem; line-height: 1.6; color: var(--support-text); white-space: pre-wrap;"></p>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+           <button class="mini-btn" onclick="closeModal('ticketDetailModal')" style="padding: 0.75rem 2rem; border: 1px solid var(--support-border); background: transparent; color: white; border-radius: 10px; cursor: pointer;">Close Details</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+        if (window.lucide) window.lucide.createIcons();
+        
+        let myTickets = [];
+
+        async function fetchTickets() {
+            try {
+                const res = await fetch("/api/support/tickets", {
+                    headers: { "Authorization": "Bearer " + (window.token || localStorage.getItem("accessToken")) }
+                });
+                const result = await res.json();
+                if (result.success) {
+                    myTickets = result.data;
+                    renderTickets();
+                }
+            } catch (e) { console.error("Ticket fetch error:", e); }
+        }
+
+        function renderTickets() {
+            const body = document.getElementById("ticketsBody");
+            if (!myTickets.length) {
+                body.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 4rem; opacity: 0.5;">No tickets found in your history.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = myTickets.map(t => {
+                const dateStr = new Date(t.createdAt).toLocaleDateString();
+                const statusClass = `status-${t.status.toLowerCase()}`;
+                const priorityClass = `priority-${t.priority.toLowerCase()}`;
+                
+                return `
+                    <tr>
+                        <td style="font-family: monospace; color: var(--support-accent);">#T-${t.id.substring(0, 5).toUpperCase()}</td>
+                        <td style="font-weight: 600;">${t.title}</td>
+                        <td><span class="ticket-status ${statusClass}">${t.status}</span></td>
+                        <td>
+                            <div class="priority-badge">
+                                <div class="priority-dot ${priorityClass}"></div>
+                                <span>${t.priority}</span>
+                            </div>
+                        </td>
+                        <td style="color: var(--support-text-muted);">${dateStr}</td>
+                        <td>
+                            <button class="action-icon-btn" onclick="viewTicket('${t.id}')" title="View Details">
+                                <i data-lucide="external-link" style="width: 16px;"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+            lucide.createIcons();
+        }
+
+        function viewTicket(id) {
+            const t = myTickets.find(ticket => ticket.id === id);
+            if (!t) return;
+
+            document.getElementById("td_id").innerText = `TICKET #${t.id.substring(0, 8).toUpperCase()}`;
+            document.getElementById("td_title").innerText = t.title;
+            document.getElementById("td_desc").innerText = t.description;
+            
+            const statusEl = document.getElementById("td_status");
+            statusEl.className = `ticket-status status-${t.status.toLowerCase()}`;
+            statusEl.innerText = t.status.toUpperCase();
+
+            const priorityDot = document.querySelector("#td_priority .priority-dot");
+            priorityDot.className = `priority-dot priority-${t.priority.toLowerCase()}`;
+            document.getElementById("td_priority_text").innerText = t.priority.charAt(0).toUpperCase() + t.priority.slice(1);
+
+            document.getElementById("ticketDetailModal").classList.add("show");
+            lucide.createIcons();
+        }
+
+        fetchTickets();
+    </script>
+</div>

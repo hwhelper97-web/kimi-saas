@@ -1,0 +1,115 @@
+<div class="apex-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));" id="ordersGrid">
+  <!-- Orders injected here -->
+  <div style="grid-column: 1/-1; text-align:center; padding:4rem;">
+    <div class="spin" style="width:24px; height:24px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; margin: 0 auto 1rem;"></div>
+    Loading incoming orders...
+  </div>
+</div>
+
+<script>
+(function() {
+  console.log("[Orders] Initializing section...");
+  if (window.lucide) lucide.createIcons();
+
+  window.loadOrders = async function() {
+    const grid = document.getElementById("ordersGrid");
+    if (!grid) return;
+    
+    try {
+      const bId = typeof getBusinessId === 'function' ? getBusinessId() : localStorage.getItem("activeBusinessId");
+      if (!bId) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:4rem; color:var(--text-muted);">Please select a business to view orders.</div>';
+        return;
+      }
+      
+      const authToken = localStorage.getItem("accessToken") || (typeof token !== 'undefined' ? token : null);
+      const res = await fetch(`/api/order?businessId=${bId}`, {
+        headers: { 'Authorization': 'Bearer ' + authToken }
+      });
+      const result = await res.json();
+      
+      if (result.success && result.data && result.data.length > 0) {
+        grid.innerHTML = result.data.map(o => `
+          <div class="apex-card" style="display:flex; flex-direction:column; gap:1rem; border-left: 4px solid ${getStatusBorder(o.status || 'pending')};">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <h4 style="margin-bottom:0.25rem;">Order #${o.id.substring(o.id.length - 6)}</h4>
+                <p style="font-size:0.75rem; color:var(--text-muted);">${new Date(o.createdAt).toLocaleString()}</p>
+              </div>
+              <span class="badge" style="background:${getStatusColor(o.status || 'pending')}20; color:${getStatusColor(o.status || 'pending')}; font-weight:700;">
+                ${(o.status || 'pending').toUpperCase()}
+              </span>
+            </div>
+
+            <div style="padding:1rem; background:rgba(255,255,255,0.02); border-radius:0.5rem; border:1px solid var(--border);">
+              ${o.items && o.items.length > 0 ? o.items.map(i => `
+                <div style="display:flex; justify-content:space-between; font-size:0.875rem; margin-bottom:0.4rem;">
+                  <span><strong style="color:var(--primary);">${i.quantity}x</strong> ${i.menuItem?.name || 'Item'}</span>
+                  <span style="color:var(--text-secondary);">$${((i.unitPrice || 0) * i.quantity).toFixed(2)}</span>
+                </div>
+              `).join("") : '<p style="font-size:0.8rem; color:var(--text-muted);">No items listed.</p>'}
+              <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px dashed var(--border); display:flex; justify-content:space-between; font-weight:700;">
+                <span>Total</span>
+                <span style="color:var(--primary); font-size:1.125rem;">$${(o.total || 0).toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:0.75rem;">
+              <button class="action-btn" style="flex:1; background:var(--primary); color:white; border:none; font-weight:600;" onclick="updateOrderStatus('${o.id}', 'preparing')">Accept</button>
+              <button class="action-btn" style="flex:1; border-color:var(--border);" onclick="updateOrderStatus('${o.id}', 'completed')">Done</button>
+              <button class="action-btn" style="width:40px; color:var(--danger); border-color:var(--border);" onclick="cancelOrder('${o.id}')"><i data-lucide="x" style="width:14px;"></i></button>
+            </div>
+          </div>
+        `).join("");
+        if (window.lucide) lucide.createIcons();
+      } else {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:4rem; color:var(--text-muted);">No active orders at the moment.</div>';
+      }
+    } catch (err) { 
+      console.error("[Orders] Load Error:", err);
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:4rem; color:var(--danger);">Failed to load orders history.</div>';
+    }
+  };
+
+  window.updateOrderStatus = async function(id, status) {
+    try {
+      const authToken = localStorage.getItem("accessToken") || (typeof token !== 'undefined' ? token : null);
+      const res = await fetch(`/api/order/${id}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + authToken 
+        },
+        body: JSON.stringify({ status })
+      });
+      const result = await res.json();
+      if (result.success) {
+        notify(`Order status updated to ${status}`, "Success");
+        window.loadOrders();
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  window.cancelOrder = async function(id) {
+    if (!confirm("Are you sure you want to cancel this order?")) return;
+    window.updateOrderStatus(id, 'cancelled');
+  };
+
+  function getStatusColor(status) {
+    if (!status) return '#6b7280';
+    switch(status.toLowerCase()) {
+      case 'pending': return '#f59e0b';
+      case 'preparing': return '#3b82f6';
+      case 'completed': return '#10b981';
+      case 'cancelled': return '#ef4444';
+      default: return '#6b7280';
+    }
+  }
+
+  function getStatusBorder(status) {
+    return getStatusColor(status);
+  }
+
+  window.loadOrders();
+})();
+</script>

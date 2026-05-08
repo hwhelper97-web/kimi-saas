@@ -20,10 +20,26 @@ router.get(
 
 // Create new tenant
 router.post(
-  "/create-tenant",
+  "/tenants",
   authMiddleware,
   allowRoles(ROLES.SUPERADMIN),
   controller.createTenant
+);
+
+// Delete tenant (Secure)
+router.delete(
+  "/tenants/:tenantId",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.deleteTenant
+);
+
+// Get all businesses (no tenantMiddleware needed — superadmin scope)
+router.get(
+  "/businesses",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.getAllBusinesses
 );
 
 // Analytics overview
@@ -115,6 +131,38 @@ router.post(
   authMiddleware,
   allowRoles(ROLES.SUPERADMIN),
   controller.updateSettings
+);
+
+// Get Mint Requests
+router.get(
+  "/mint-requests",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.getMintRequests
+);
+
+// Update Mint Request Status
+router.post(
+  "/mint-requests/:requestId",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.updateMintRequest
+);
+
+// Manually Add Tokens to Tenant
+router.post(
+  "/tenants/:tenantId/tokens",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.addTokensManually
+);
+
+// Toggle Demo Account
+router.post(
+  "/tenants/:tenantId/toggle-demo",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.toggleDemoAccount
 );
 
 module.exports = router;

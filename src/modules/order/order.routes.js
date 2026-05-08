@@ -37,4 +37,12 @@ router.get(
   controller.getOrderById
 );
 
+router.put(
+  "/:id",
+  authMiddleware,
+  tenantMiddleware,
+  allowRoles(ROLES.OWNER, ROLES.STAFF, ROLES.SUPERADMIN),
+  controller.updateStatus
+);
+
 module.exports = router;

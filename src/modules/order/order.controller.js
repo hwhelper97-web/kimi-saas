@@ -58,9 +58,10 @@ exports.getOrders = async (req, res) => {
   try {
     const { businessId } = req.query;
 
+    const isSuper = req.user.role === "SUPERADMIN";
     const orders = await prisma.order.findMany({
       where: {
-        tenantId: req.tenantId,
+        ...(isSuper ? {} : { tenantId: req.tenantId }),
         ...(businessId ? { businessId } : {})
       },
       include: {
@@ -93,10 +94,11 @@ exports.getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const isSuper = req.user.role === "SUPERADMIN";
     const order = await prisma.order.findFirst({
       where: {
         id,
-        tenantId: req.tenantId
+        ...(isSuper ? {} : { tenantId: req.tenantId })
       },
       include: {
         items: {
@@ -124,6 +126,48 @@ exports.getOrderById = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to fetch order details"
+    });
+  }
+};
+exports.updateStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required"
+      });
+    }
+
+    const isSuper = req.user.role === "SUPERADMIN";
+    const order = await prisma.order.updateMany({
+      where: {
+        id,
+        ...(isSuper ? {} : { tenantId: req.tenantId })
+      },
+      data: {
+        status: status.toLowerCase()
+      }
+    });
+
+    if (order.count === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found or access denied"
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: `Order status updated to ${status}`
+    });
+  } catch (err) {
+    console.error("ORDER UPDATE ERROR:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update order status"
     });
   }
 };
