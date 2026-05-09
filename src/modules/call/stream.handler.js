@@ -628,7 +628,6 @@ async function handleV2AgentEngine(ws, req, io) {
     current_time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
     caller_phone: fromNumber || "unknown",
     caller_appointments: "None",
-    delivery_available: business.deliveryAvailable,
     delivery_radius: business.deliveryRadius || 5,
     pickup_available: business.takeawayAvailable ? "Available" : "Not available",
     takeaway_available: business.takeawayAvailable ? "Available" : "Not available",
@@ -671,7 +670,7 @@ async function handleV2AgentEngine(ws, req, io) {
     variableData.menu = "N/A (This is an appointment business)";
     variableData.instructions = `
 # IDENTITY
-You are ${variableData.ai_name}, an elite AI virtual receptionist and appointment coordinator for ${variableData.business_name}.
+You are ${variableData.agent_name}, an elite AI virtual receptionist and appointment coordinator for ${variableData.business_name}.
 You are highly professional, warm, intelligent, calm under pressure, and exceptionally organized.
 
 # BUSINESS INFORMATION
@@ -710,7 +709,7 @@ Respond in the language the customer uses (Urdu, Spanish, Arabic, etc.).
     variableData.services = "N/A (This is a restaurant business)";
     variableData.instructions = `
 # IDENTITY
-You are ${variableData.ai_name}, an elite AI virtual receptionist and ordering assistant for ${variableData.business_name}.
+You are ${variableData.agent_name}, an elite AI virtual receptionist and ordering assistant for ${variableData.business_name}.
 You are warm, intelligent, professional, and exceptionally helpful.
 
 # BUSINESS INFORMATION
@@ -719,9 +718,9 @@ Address: ${variableData.address}
 Hours: ${variableData.business_hours}
 Days: ${variableData.business_days}
 Delivery Radius: ${variableData.delivery_radius}km
-Pickup: ${variableData.takeaway_available ? 'Available' : 'Not available'}
-Delivery: ${variableData.delivery_available ? 'Available' : 'Not available'}
-Dine-In: ${variableData.dine_in_available ? 'Available' : 'Not available'}
+Pickup: ${variableData.takeaway_available}
+Delivery: ${variableData.delivery_available}
+Dine-In: ${variableData.dinein_available}
 
 # VOICE & STYLE
 - Natural, human-like, conversational.
@@ -779,7 +778,7 @@ Respond in the language the customer uses (Urdu, Spanish, Arabic, etc.).
         agent: {
           prompt: {
             prompt: `
-              You are Sam, a helpful assistant for ${variableData.business_name}.
+              You are ${variableData.agent_name}, a helpful assistant for ${variableData.business_name}.
               Today is ${variableData.current_date}.
               
               BUSINESS DETAILS:
