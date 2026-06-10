@@ -1,300 +1,805 @@
 <% if (!business) { %>
-  <div class="apex-card" style="text-align:center; padding:4rem;">
-    <i data-lucide="alert-circle" style="width:48px; height:48px; color:var(--warning); margin-bottom:1rem;"></i>
-    <h3>No Business Found</h3>
-    <p style="color:var(--text-muted);">Please create a business first to manage its settings.</p>
+  <div class="glass-card entrance-fade-up" style="text-align:center; padding:5rem; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border-radius: 2rem; border: 1px solid rgba(255,255,255,0.1);">
+    <div class="icon-pulse" style="margin-bottom: 2rem;">
+      <i data-lucide="alert-circle" style="width:64px; height:64px; color:var(--warning); opacity: 0.8;"></i>
+    </div>
+    <h2 style="font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, #aaa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">No Business Found</h2>
+    <p style="color:var(--text-muted); font-size: 1.1rem; max-width: 400px; margin: 1rem auto;">It looks like you haven't set up a business yet. Let's create your first workspace to begin.</p>
+    <button class="apex-btn" onclick="loadSection('business-new')" style="margin-top: 2rem;">Create My Business</button>
   </div>
 <% } else { %>
 
-<div class="apex-card" style="max-width: 800px;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-    <h3 class="card-title">General Information</h3>
-  </div>
-
-  <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-    <div class="form-group">
-      <label>Business Name</label>
-      <input type="text" id="bizName" class="form-control" value="<%= business.name %>" placeholder="e.g. Maya Burger Joint" />
-    </div>
-
-    <div class="form-group">
-      <label>Twilio Phone Number</label>
-      <input type="text" id="bizPhone" class="form-control" value="<%= business.phoneNumber %>" placeholder="+1234567890" />
-    </div>
-
-    <div class="form-group" style="grid-column: 1 / -1;">
-      <label>Location Address</label>
-      <input type="text" id="bizAddress" class="form-control" value="<%= business.address || '' %>" placeholder="123 Main St, City" />
-    </div>
-
-    <div class="form-group">
-      <label>Opening Time</label>
-      <input type="time" id="bizOpenTime" class="form-control" value="<%= business.openTime || '09:00' %>" />
-    </div>
-
-    <div class="form-group">
-      <label>Closing Time</label>
-      <input type="time" id="bizCloseTime" class="form-control" value="<%= business.closeTime || '18:00' %>" />
-    </div>
-
-    <div class="form-group" style="grid-column: 1 / -1;">
-      <label style="margin-bottom: 1rem; display: block;">Operational Days</label>
-      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-        <% const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; 
-           const activeDays = (business.timings || '').split(',');
-        %>
-        <% days.forEach(day => { %>
-          <label class="day-check" style="flex:1; min-width: 80px; height: 40px; border: 1px solid var(--border); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 0.875rem; font-weight: 600;">
-            <input type="checkbox" name="bizDays" value="<%= day %>" style="display:none;" <%= activeDays.includes(day) ? 'checked' : '' %> onchange="this.parentElement.classList.toggle('active', this.checked)">
-            <%= day %>
-          </label>
-        <% }) %>
+<div class="settings-container entrance-fade-up" style="max-width: 900px; margin: 0 auto; padding-bottom: 5rem;">
+  
+  <!-- ✨ Profile Completion Header -->
+  <div class="glass-card mb-4" style="padding: 1.5rem 2rem; display: flex; align-items: center; gap: 2rem; border-radius: 1.5rem; background: linear-gradient(90deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(255,255,255,0.02) 100%);">
+    <div style="flex: 1;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+        <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary);">Profile Strength</span>
+        <span style="font-size: 0.8rem; font-weight: 700; color: white;">85% Complete</span>
+      </div>
+      <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+        <div style="width: 85%; height: 100%; background: linear-gradient(90deg, var(--primary) 0%, #00f2ff 100%); box-shadow: 0 0 15px var(--primary);"></div>
       </div>
     </div>
+    <div style="text-align: right; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 2rem;">
+      <p style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800; margin-bottom: 0.25rem;">Business ID</p>
+      <p style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: white; opacity: 0.8;"><%= business.id.substring(0, 8) %>...</p>
+    </div>
+  </div>
+
+  <!-- 🏛️ General Information -->
+  <div class="glass-card mb-4">
+    <div class="card-header-premium">
+      <div class="header-icon-box">
+        <i data-lucide="building-2"></i>
+      </div>
+      <div>
+        <h3 class="card-title-premium">Core Business Profile</h3>
+        <p class="card-subtitle-premium">Identity and operational foundations for your workspace.</p>
+      </div>
+    </div>
+
+    <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; padding: 2rem;">
+      <div class="form-group-premium">
+        <label><i data-lucide="tag"></i> Business Name</label>
+        <input type="text" id="bizName" class="form-control-premium" value="<%= business.name %>" placeholder="e.g. Celestial Dental Hub" />
+      </div>
+
+      <div class="form-group-premium">
+        <label><i data-lucide="phone"></i> Inbound Line</label>
+        <input type="text" id="bizPhone" class="form-control-premium" value="<%= business.phoneNumber %>" placeholder="+1234567890" />
+      </div>
+
+      <div class="form-group-premium" style="grid-column: 1 / -1;">
+        <label><i data-lucide="map-pin"></i> Global Headquarters / Address</label>
+        <input type="text" id="bizAddress" class="form-control-premium" value="<%= business.address || '' %>" placeholder="e.g. 1 Infinite Loop, Cupertino, CA" />
+      </div>
+
+      <div class="form-group-premium">
+        <label><i data-lucide="clock-3"></i> Opening Sequence</label>
+        <input type="time" id="bizOpenTime" class="form-control-premium" value="<%= business.openTime || '09:00' %>" />
+      </div>
+
+      <div class="form-group-premium">
+        <label><i data-lucide="moon"></i> Closing Sequence</label>
+        <input type="time" id="bizCloseTime" class="form-control-premium" value="<%= business.closeTime || '18:00' %>" />
+      </div>
+
+      <div class="form-group-premium" style="grid-column: 1 / -1;">
+        <label style="margin-bottom: 1.25rem;"><i data-lucide="calendar-range"></i> Operational Cycle</label>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <% const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; 
+             const activeDays = (business.timings || '').split(',');
+          %>
+          <% days.forEach(day => { %>
+            <label class="day-check-premium <%= activeDays.includes(day) ? 'active' : '' %>">
+              <input type="checkbox" name="bizDays" value="<%= day %>" style="display:none;" <%= activeDays.includes(day) ? 'checked' : '' %> onchange="toggleDayActive(this)">
+              <%= day %>
+            </label>
+          <% }) %>
+        </div>
+      </div>
+
+      <div class="form-group-premium">
+        <label><i data-lucide="coins"></i> Primary Currency</label>
+        <select id="bizCurrency" class="form-control-premium">
+          <option value="USD" <%= business.currency === 'USD' ? 'selected' : '' %>>USD ($) — US Dollar</option>
+          <option value="EUR" <%= business.currency === 'EUR' ? 'selected' : '' %>>EUR (€) — Euro</option>
+          <option value="GBP" <%= business.currency === 'GBP' ? 'selected' : '' %>>GBP (£) — British Pound</option>
+          <option value="AED" <%= business.currency === 'AED' ? 'selected' : '' %>>AED (DH) — UAE Dirham</option>
+        </select>
+      </div>
+
+      <div class="form-group-premium">
+        <label><i data-lucide="percent"></i> Regional Tax Rate (%)</label>
+        <input type="number" step="0.1" id="bizTaxRate" class="form-control-premium" value="<%= business.taxRate || 0 %>" />
+      </div>
+
+      <div class="form-group-premium">
+        <label><i data-lucide="globe"></i> Timezone</label>
+        <select id="bizTimezone" class="form-control-premium">
+          <option value="UTC" <%= (business.timezone === 'UTC' || !business.timezone) ? 'selected' : '' %>>UTC (Standard)</option>
+          <option value="America/Los_Angeles" <%= business.timezone === 'America/Los_Angeles' ? 'selected' : '' %>>America/Los_Angeles (California/Pacific)</option>
+          <option value="America/New_York" <%= business.timezone === 'America/New_York' ? 'selected' : '' %>>America/New_York (EST)</option>
+          <option value="Europe/London" <%= business.timezone === 'Europe/London' ? 'selected' : '' %>>Europe/London (GMT)</option>
+          <option value="Asia/Karachi" <%= business.timezone === 'Asia/Karachi' ? 'selected' : '' %>>Asia/Karachi (GMT+5)</option>
+          <option value="Asia/Dubai" <%= business.timezone === 'Asia/Dubai' ? 'selected' : '' %>>Asia/Dubai (GMT+4)</option>
+        </select>
+      </div>
+
+      <div class="form-group-premium" style="grid-column: 1 / -1;">
+        <label><i data-lucide="image"></i> Brand Identity (Logo)</label>
+        <div style="display:flex; gap:1.25rem; align-items:center;">
+          <div id="logoPreview" class="logo-preview-box">
+            <% if (business.logoUrl) { %>
+              <img src="<%= business.logoUrl %>" />
+            <% } else { %>
+              <i data-lucide="image" style="width: 24px; opacity: 0.3;"></i>
+            <% } %>
+          </div>
+          <div style="flex:1;">
+            <input type="text" id="bizLogo" class="form-control-premium" value="<%= business.logoUrl || '' %>" placeholder="External URL" style="margin-bottom: 0.75rem;" />
+            <div style="display: flex; gap: 0.75rem;">
+              <input type="file" id="bizLogoFile" style="display:none;" accept="image/*" onchange="handleLogoUpload(this)" />
+              <button type="button" class="action-btn-premium" onclick="document.getElementById('bizLogoFile').click()">
+                <i data-lucide="upload-cloud"></i> Upload New Image
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🤖 AI Agent Configuration -->
+  <div class="glass-card mb-4" style="border-top: 2px solid rgba(var(--primary-rgb), 0.3);">
+    <div class="card-header-premium">
+      <div class="header-icon-box" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary);">
+        <i data-lucide="sparkles"></i>
+      </div>
+      <div>
+        <h3 class="card-title-premium">AI Voice Synthesis & Persona</h3>
+        <p class="card-subtitle-premium">Configure the voice and logic of your digital frontline assistant.</p>
+      </div>
+      <span class="badge badge-premium">Elite Engine V2</span>
+    </div>
+
+    <% const isAppointment = ['appointment', 'salon', 'clinic', 'spa', 'barber'].some(t => (business.type || '').includes(t)); %>
+
+    <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; padding: 2rem;">
+      <div class="form-group-premium" style="grid-column: 1 / -1;">
+        <label><i data-lucide="user"></i> AI Entity Name</label>
+        <input type="text" id="aiName" class="form-control-premium" value="<%= business.aiName || 'Sarah' %>" placeholder="e.g. Sarah" />
+        <p class="input-hint">The cognitive identity your AI will use when engaging with clients.</p>
+      </div>
+
+      <div class="form-group-premium" style="grid-column: 1 / -1;">
+        <label><i data-lucide="users"></i> AI Gender Identity</label>
+        <div style="display: flex; gap: 1rem;">
+          <label class="gender-btn <%= (business.aiGender === 'female' || !business.aiGender) ? 'active' : '' %>" onclick="setGender('female')">
+            <input type="radio" name="aiGender" value="female" <%= (business.aiGender === 'female' || !business.aiGender) ? 'checked' : '' %> style="display:none;">
+            <i data-lucide="user-round-plus"></i> Female
+          </label>
+          <label class="gender-btn <%= business.aiGender === 'male' ? 'active' : '' %>" onclick="setGender('male')">
+            <input type="radio" name="aiGender" value="male" <%= business.aiGender === 'male' ? 'checked' : '' %> style="display:none;">
+            <i data-lucide="user-round"></i> Male
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group-premium">
+        <label><i data-lucide="brain"></i> Cognitive Personality</label>
+        <select id="aiPersonality" class="form-control-premium" onchange="filterVoices()">
+          <option value="friendly" <%= business.aiPersonality === 'friendly' ? 'selected' : '' %>>Friendly & Warm</option>
+          <option value="professional" <%= (business.aiPersonality === 'professional' || !business.aiPersonality) ? 'selected' : '' %>>Professional & Elite</option>
+          <option value="energetic" <%= business.aiPersonality === 'energetic' ? 'selected' : '' %>>Energetic & Vibrant</option>
+        </select>
+      </div>
+
+      <div class="form-group-premium">
+        <label><i data-lucide="mic-2"></i> Voice Signature</label>
+        <select id="aiVoiceId" class="form-control-premium highlight-select">
+          <!-- Populated by JS -->
+        </select>
+      </div>
+
+      <div id="customAgentInput" style="grid-column: 1 / -1; display: none;">
+        <label>Custom ElevenLabs Agent ID</label>
+        <input type="text" id="customAiVoiceId" class="form-control-premium" value="<%= business.aiVoiceId %>" placeholder="agent_..." />
+      </div>
+
+      <% if (isAppointment) { %>
+      <div class="form-group-premium">
+        <label><i data-lucide="hourglass"></i> Session Cycle (Minutes)</label>
+        <input type="number" id="appointmentDuration" class="form-control-premium" value="<%= business.appointmentDuration || 30 %>" />
+      </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- 🚀 Operational Constraints -->
+  <% if (!isAppointment) { %>
+  <div class="glass-card mb-4">
+    <div class="card-header-premium">
+      <div class="header-icon-box" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+        <i data-lucide="truck"></i>
+      </div>
+      <div>
+        <h3 class="card-title-premium">Logistics & Fulfillment</h3>
+        <p class="card-subtitle-premium">Control how your physical inventory reaches your clientele.</p>
+      </div>
+    </div>
+
+    <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; padding: 2rem;">
+      <label class="toggle-card <%= business.dineInAvailable ? 'active' : '' %>" onclick="toggleCardActive(this)">
+        <div class="toggle-content">
+          <i data-lucide="utensils"></i>
+          <span>Dine-In Operations</span>
+        </div>
+        <input type="checkbox" id="dineInAvailable" <%= business.dineInAvailable ? 'checked' : '' %> class="hidden-check" />
+      </label>
+
+      <label class="toggle-card <%= business.takeawayAvailable ? 'active' : '' %>" onclick="toggleCardActive(this)">
+        <div class="toggle-content">
+          <i data-lucide="package"></i>
+          <span>Takeaway / Curbside</span>
+        </div>
+        <input type="checkbox" id="takeawayAvailable" <%= business.takeawayAvailable ? 'checked' : '' %> class="hidden-check" />
+      </label>
+
+      <label class="toggle-card <%= business.deliveryAvailable ? 'active' : '' %>" onclick="toggleCardActive(this); document.getElementById('radiusGroup').style.opacity = this.querySelector('input').checked ? '1' : '0.4'">
+        <div class="toggle-content">
+          <i data-lucide="map"></i>
+          <span>Global Delivery</span>
+        </div>
+        <input type="checkbox" id="deliveryAvailable" <%= business.deliveryAvailable ? 'checked' : '' %> class="hidden-check" />
+      </label>
+
+      <div class="form-group-premium" id="radiusGroup" style="transition: all 0.4s; opacity: <%= business.deliveryAvailable ? 1 : 0.4 %>; pointer-events: <%= business.deliveryAvailable ? 'auto' : 'none' %>;">
+        <label>Operational Radius (KM)</label>
+        <input type="number" step="0.5" id="deliveryRadius" class="form-control-premium" value="<%= business.deliveryRadius || 5.0 %>" />
+      </div>
+
+      <div class="form-group-premium" style="grid-column: 1 / -1;">
+        <label class="toggle-card highlight-card <%= business.reservationsEnabled ? 'active' : '' %>" onclick="toggleCardActive(this)" style="flex-direction: row; justify-content: space-between; padding: 1.5rem;">
+          <div style="display: flex; gap: 1rem; align-items: center;">
+            <i data-lucide="calendar-check" style="width: 24px;"></i>
+            <div style="text-align: left;">
+              <span style="display: block; font-weight: 700;">Mandatory Reservations</span>
+              <span style="font-size: 0.7rem; opacity: 0.7;">Require clients to secure time slots via AI.</span>
+            </div>
+          </div>
+          <input type="checkbox" id="reservationsEnabled" <%= business.reservationsEnabled ? 'checked' : '' %> class="hidden-check" />
+        </label>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- 🔒 Security & Management -->
+  <div class="glass-card mb-5">
+    <div class="card-header-premium">
+      <div class="header-icon-box" style="background: rgba(255,255,255,0.05);">
+        <i data-lucide="shield-check"></i>
+      </div>
+      <div>
+        <h3 class="card-title-premium">Access Control & Governance</h3>
+        <p class="card-subtitle-premium">Manage team permissions and workspace security.</p>
+      </div>
+    </div>
+    <div style="padding: 2rem; display: flex; justify-content: space-between; align-items: center;">
+      <p style="color:var(--text-muted); font-size:0.875rem; max-width: 400px;">Configure granular role-based access controls for your staff members and executive team.</p>
+      <button class="action-btn-premium" onclick="loadSection('staff')">
+        <i data-lucide="users"></i> Manage Personnel
+      </button>
+    </div>
+  </div>
+
+  <!-- 💾 Global Footer Actions -->
+  <div class="footer-actions-glass">
+    <div style="display: flex; align-items: center; gap: 1rem; color: var(--text-muted); font-size: 0.8rem;">
+      <i data-lucide="info" style="width: 14px;"></i>
+      <span>Last synced: <%= new Date().toLocaleTimeString() %></span>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+      <button class="apex-btn-outline" onclick="loadSection('dashboard')">Cancel</button>
+      <button class="apex-btn" onclick="saveBusiness()" id="saveProfileBtn">
+        <i data-lucide="save"></i> Propagate Profile Changes
+      </button>
+    </div>
+  </div>
+
+</div>
+
 <style>
-  .day-check:has(input:checked), .day-check.active {
-    background: var(--primary);
-    border-color: var(--primary) !important;
+  :root {
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --primary-glow: rgba(var(--primary-rgb), 0.15);
+  }
+
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.25rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .glass-card:hover {
+    border-color: rgba(255,255,255,0.15);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  }
+
+  .card-header-premium {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    position: relative;
+  }
+
+  .header-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.8rem;
+    background: rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: white;
   }
+
+  .header-icon-box i { width: 22px; height: 22px; }
+
+  .card-title-premium {
+    font-size: 1.125rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(90deg, #fff 0%, #aaa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .card-subtitle-premium {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  .form-group-premium { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .form-group-premium label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .form-group-premium label i { width: 14px; height: 14px; opacity: 0.7; }
+
+  .form-control-premium {
+    background: rgba(0,0,0,0.2) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 0.75rem !important;
+    padding: 0.875rem 1rem !important;
+    color: white !important;
+    font-size: 0.95rem !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .form-control-premium:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 4px var(--primary-glow) !important;
+    background: rgba(0,0,0,0.3) !important;
+  }
+
+  .highlight-select {
+    background: linear-gradient(90deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(0,0,0,0.2) 100%) !important;
+    border-color: rgba(var(--primary-rgb), 0.3) !important;
+    font-weight: 700 !important;
+    color: var(--primary) !important;
+  }
+
+  .day-check-premium {
+    flex: 1;
+    min-width: 70px;
+    height: 42px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-muted);
+  }
+
+  .day-check-premium.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--primary-glow);
+  }
+
+  .logo-preview-box {
+    width: 64px;
+    height: 64px;
+    border-radius: 1rem;
+    background: rgba(0,0,0,0.3);
+    border: 1px dashed var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .logo-preview-box img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+
+  .action-btn-premium {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 0.6rem 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .action-btn-premium:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.2);
+    transform: translateY(-1px);
+  }
+
+  .toggle-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+  }
+
+  .toggle-card i { width: 24px; height: 24px; opacity: 0.5; transition: all 0.3s; }
+  .toggle-card span { font-size: 0.875rem; font-weight: 600; color: var(--text-muted); transition: all 0.3s; }
+
+  .toggle-card.active {
+    background: rgba(var(--primary-rgb), 0.08);
+    border-color: var(--primary);
+  }
+
+  .toggle-card.active i { color: var(--primary); opacity: 1; transform: scale(1.1); }
+  .toggle-card.active span { color: white; }
+
+  .highlight-card.active {
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.15) 0%, rgba(0,0,0,0.2) 100%);
+  }
+
+  .gender-btn {
+    flex: 1;
+    height: 48px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+  }
+
+  .gender-btn i { width: 18px; height: 18px; opacity: 0.6; }
+
+  .gender-btn.active {
+    background: rgba(var(--primary-rgb), 0.1);
+    border-color: var(--primary);
+    color: white;
+    box-shadow: 0 4px 15px var(--primary-glow);
+  }
+
+  .gender-btn.active i { opacity: 1; color: var(--primary); }
+
+  .hidden-check { display: none; }
+
+  .badge-premium {
+    position: absolute;
+    top: 1.5rem;
+    right: 2rem;
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary);
+    padding: 0.4rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid rgba(var(--primary-rgb), 0.2);
+  }
+
+  .input-hint { font-size: 0.7rem; color: var(--text-muted); margin-top: -0.25rem; }
+
+  .footer-actions-glass {
+    position: sticky;
+    bottom: 2rem;
+    margin-top: 3rem;
+    background: rgba(10, 10, 10, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.25rem;
+    padding: 1.25rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    z-index: 100;
+    animation: slideInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .entrance-fade-up {
+    animation: entranceFadeUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
+
+  @keyframes entranceFadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes icon-pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.8; }
+  }
+
+  .icon-pulse { animation: icon-pulse 3s infinite ease-in-out; }
 </style>
-
-    <div class="form-group">
-      <label>Local Currency</label>
-      <select id="bizCurrency" class="form-control">
-        <option value="USD" <%= business.currency === 'USD' ? 'selected' : '' %>>USD ($)</option>
-        <option value="EUR" <%= business.currency === 'EUR' ? 'selected' : '' %>>EUR (€)</option>
-        <option value="GBP" <%= business.currency === 'GBP' ? 'selected' : '' %>>GBP (£)</option>
-        <option value="CAD" <%= business.currency === 'CAD' ? 'selected' : '' %>>CAD ($)</option>
-        <option value="AUD" <%= business.currency === 'AUD' ? 'selected' : '' %>>AUD ($)</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Tax Rate (%)</label>
-      <input type="number" step="0.1" id="bizTaxRate" class="form-control" value="<%= business.taxRate || 0 %>" />
-    </div>
-
-    <div class="form-group" style="grid-column: 1 / -1;">
-      <label>Brand Logo URL</label>
-      <div style="display:flex; gap:1rem; align-items:center;">
-        <input type="text" id="bizLogo" class="form-control" value="<%= business.logoUrl || '' %>" placeholder="https://path-to-your-logo.png" style="flex:1;" />
-        <input type="file" id="bizLogoFile" style="display:none;" accept="image/*" onchange="handleLogoUpload(this)" />
-        <button type="button" class="action-btn" style="width:auto; padding:0 1rem; height:2.75rem; border-color:var(--border);" onclick="document.getElementById('bizLogoFile').click()">
-          <i data-lucide="upload-cloud" style="width:16px; margin-right:6px;"></i> Upload File
-        </button>
-        <% if (business.logoUrl) { %>
-          <div id="logoPreview" style="width:40px; height:40px; border-radius:0.5rem; background:var(--bg-muted); overflow:hidden; border:1px solid var(--border);">
-            <img src="<%= business.logoUrl %>" style="width:100%; height:100%; object-fit:contain;" />
-          </div>
-        <% } %>
-      </div>
-    </div>
-  </div>
-
-<div class="apex-card" style="max-width: 800px; margin-top: 2rem;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-    <h3 class="card-title">AI Agent Configuration</h3>
-    <span class="badge" style="background:rgba(var(--primary-rgb), 0.1); color:var(--primary);">Conversational AI V2</span>
-  </div>
-
-  <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-    <div class="form-group" style="grid-column: 1 / -1;">
-      <label>AI Assistant Name</label>
-      <input type="text" id="aiName" class="form-control" value="<%= business.aiName || 'Sarah' %>" placeholder="e.g. Sarah" />
-      <p style="font-size:0.7rem; color:var(--text-muted); margin-top:0.5rem;">The name the AI will use to introduce itself.</p>
-    </div>
-
-    <div class="form-group" style="grid-column: 1 / -1;">
-      <label>ElevenLabs Agent ID</label>
-      <input type="text" id="aiVoiceId" class="form-control" value="<%= business.aiVoiceId || '' %>" placeholder="e.g. 21m00Tcm4llvDq8ikUX7" />
-      <p style="font-size:0.7rem; color:var(--text-muted); margin-top:0.5rem;">Your agent ID from the ElevenLabs Conversational AI dashboard.</p>
-    </div>
-
-    <div class="form-group">
-      <label>AI Personality</label>
-      <select id="aiPersonality" class="form-control">
-        <option value="friendly" <%= business.aiPersonality === 'friendly' ? 'selected' : '' %>>Friendly & Helpful</option>
-        <option value="professional" <%= business.aiPersonality === 'professional' ? 'selected' : '' %>>Professional & Direct</option>
-        <option value="energetic" <%= business.aiPersonality === 'energetic' ? 'selected' : '' %>>Energetic & Sales-driven</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Default Booking Duration (min)</label>
-      <input type="number" id="appointmentDuration" class="form-control" value="<%= business.appointmentDuration || 30 %>" />
-    </div>
-  </div>
-</div>
-
-<div class="apex-card" style="max-width: 800px; margin-top: 2rem;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-    <h3 class="card-title">Service & Fulfillment</h3>
-    <span class="badge" style="background:rgba(255,255,255,0.05); color:var(--text-muted);">Operational Modes</span>
-  </div>
-
-  <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-    <div class="form-group">
-      <label class="toggle-container" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.75rem; background: rgba(255,255,255,0.02);">
-        <span style="font-size: 0.875rem; font-weight: 600;">Dine-In Available</span>
-        <input type="checkbox" id="dineInAvailable" <%= business.dineInAvailable ? 'checked' : '' %> style="width:1.2rem; height:1.2rem; accent-color:var(--primary);" />
-      </label>
-    </div>
-
-    <div class="form-group">
-      <label class="toggle-container" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.75rem; background: rgba(255,255,255,0.02);">
-        <span style="font-size: 0.875rem; font-weight: 600;">Takeaway Available</span>
-        <input type="checkbox" id="takeawayAvailable" <%= business.takeawayAvailable ? 'checked' : '' %> style="width:1.2rem; height:1.2rem; accent-color:var(--primary);" />
-      </label>
-    </div>
-
-    <div class="form-group">
-      <label class="toggle-container" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.75rem; background: rgba(255,255,255,0.02);">
-        <span style="font-size: 0.875rem; font-weight: 600;">Delivery Service</span>
-        <input type="checkbox" id="deliveryAvailable" <%= business.deliveryAvailable ? 'checked' : '' %> style="width:1.2rem; height:1.2rem; accent-color:var(--primary);" onchange="document.getElementById('radiusGroup').style.opacity = this.checked ? '1' : '0.5'" />
-      </label>
-    </div>
-
-    <div class="form-group" id="radiusGroup" style="transition: opacity 0.3s; opacity: <%= business.deliveryAvailable ? 1 : 0.5 %>">
-      <label>Delivery Radius (KM)</label>
-      <input type="number" step="0.5" id="deliveryRadius" class="form-control" value="<%= business.deliveryRadius || 5.0 %>" placeholder="e.g. 5.0" />
-    </div>
-
-    <div class="form-group" style="grid-column: 1 / -1;">
-      <label class="toggle-container" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 1rem; border: 1px solid var(--border); border-radius: 0.75rem; background: rgba(var(--primary-rgb), 0.05);">
-        <div>
-          <span style="font-size: 0.875rem; font-weight: 700; display:block;">Require Reservations</span>
-          <span style="font-size: 0.75rem; color:var(--text-muted);">Enable this to allow/require customers to book tables in advance.</span>
-        </div>
-        <input type="checkbox" id="reservationsEnabled" <%= business.reservationsEnabled ? 'checked' : '' %> style="width:1.5rem; height:1.5rem; accent-color:var(--primary);" />
-      </label>
-    </div>
-  </div>
-</div>
-
-<div class="apex-card" style="max-width: 800px; margin-top: 2rem;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-    <div>
-      <h3 class="card-title">AI Phone Provisioning</h3>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">Search and acquire a dedicated Twilio number for your AI agent.</p>
-    </div>
-    <i data-lucide="phone-call" style="color:var(--primary); opacity:0.6;"></i>
-  </div>
-
-  <div class="apex-grid" style="grid-template-columns: 2fr 1fr; gap: 1rem; align-items: flex-end; margin-bottom: 1.5rem;">
-    <div class="form-group" style="margin-bottom:0;">
-      <label>Search by Area Code (e.g. 212)</label>
-      <input type="text" id="areaCodeSearch" class="form-control" placeholder="212" maxlength="3" />
-    </div>
-    <button class="action-btn" style="width:100%; background:rgba(var(--primary-rgb), 0.1); border-color:var(--primary); color:var(--primary); height:2.75rem;" onclick="searchNumbers()">
-      <i data-lucide="search" style="width:16px; margin-right:6px;"></i> Find Numbers
-    </button>
-  </div>
-
-  <div id="numberList" style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border); border-radius: 0.75rem; display:none; background:rgba(255,255,255,0.02);">
-    <!-- Numbers will be injected here -->
-  </div>
-</div>
-
-<div class="apex-card" style="max-width: 800px; margin-top: 2rem;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-    <h3 class="card-title">Staff & Permissions</h3>
-    <button class="action-btn" style="width:auto; padding:0 1rem; border-color:var(--border);" onclick="loadSection('staff')">
-      Manage Access
-    </button>
-  </div>
-  <p style="color:var(--text-muted); font-size:0.875rem;">Configure who can access this business dashboard and their role-based permissions.</p>
-</div>
-
-  <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end;">
-    <button class="action-btn" style="width:auto; padding:0 2rem; background:var(--primary); color:white; border:none; height:2.75rem; font-weight:600;" onclick="saveBusiness()">
-      Save Profile Changes
-    </button>
-  </div>
-</div>
-
-<div style="height: 100px;"></div>
-
-<% } %>
-
 <script>
-  function handleLogoUpload(input) {
-    if (input.files && input.files[0]) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        let preview = document.getElementById('logoPreview');
-        if (!preview) {
-          const container = input.parentElement;
-          preview = document.createElement('div');
-          preview.id = 'logoPreview';
-          preview.style = "width:40px; height:40px; border-radius:0.5rem; background:var(--bg-muted); overflow:hidden; border:1px solid var(--border); flex-shrink:0;";
-          container.appendChild(preview);
-        }
-        preview.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:contain;" />`;
-        notify("Image selected. Click Save to upload.", "Info");
+  let currentGender = '<%= business.aiGender || 'female' %>';
+  const bizType = '<%= business.type || 'appointment' %>';
+  const currentVoiceId = '<%= business.aiVoiceId %>';
+
+  const allAgents = [
+    // --- APPOINTMENT / SALON ---
+    { id: "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g", voiceId: "DODLEQrClDo8wCz460ld", name: "Lauren (Friendly & Soft)", gender: "female", personality: "friendly", category: "appointment" },
+    { id: "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g", voiceId: "ImnfuV8oxhB7ya99oJfc", name: "Helen (Warm & Articulate)", gender: "female", personality: "professional", category: "appointment" },
+    { id: "agent_9401kqqj87jzf9mrmfwsprqh3frh", voiceId: "UgBBYS2sOqTuMpoF3BR0", name: "Mark (Natural Conversation)", gender: "male", personality: "friendly", category: "appointment" },
+    { id: "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g", name: "Sarah (Default)", gender: "female", personality: "professional", category: "appointment" },
+    { id: "agent_9401kqqj87jzf9mrmfwsprqh3frh", name: "Adam (Male Pro)", gender: "male", personality: "professional", category: "appointment" },
+    
+    // --- ORDER / RESTAURANT ---
+    { id: "agent_9401kqqj87jzf9mrmfwsprqh3frh", name: "Alex (Default)", gender: "male", personality: "professional", category: "order" },
+    { id: "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g", name: "Sarah (Female Pro)", gender: "female", personality: "professional", category: "order" },
+    { id: "agent_9401kqqj87jzf9mrmfwsprqh3frh", voiceId: "UgBBYS2sOqTuMpoF3BR0", name: "Mark (Order Assistant)", gender: "male", personality: "friendly", category: "order" },
+    { id: "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g", voiceId: "DODLEQrClDo8wCz460ld", name: "Lauren (Soft Helper)", gender: "female", personality: "friendly", category: "order" }
+  ];
+
+  function setGender(gender) {
+    currentGender = gender;
+    document.querySelectorAll('.gender-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.querySelector('input').value === gender);
+      if (btn.querySelector('input').value === gender) btn.querySelector('input').checked = true;
+    });
+    filterVoices();
+  }
+
+  function filterVoices() {
+    const personality = document.getElementById('aiPersonality').value;
+    const category = bizType.includes('order') ? 'order' : 'appointment';
+    const voiceSelect = document.getElementById('aiVoiceId');
+    const customInput = document.getElementById('customAgentInput');
+    
+    // Filter matching agents
+    const filtered = allAgents.filter(a => 
+      a.gender === currentGender && 
+      a.personality === personality && 
+      a.category === category
+    );
+
+    // If no perfect match, filter by gender + category
+    let finalSelection = filtered;
+    if (finalSelection.length === 0) {
+      finalSelection = allAgents.filter(a => a.gender === currentGender && a.category === category);
+    }
+
+    voiceSelect.innerHTML = finalSelection.map(a => 
+      '<option value="' + a.id + '" ' + (a.voiceId ? 'data-voice="' + a.voiceId + '"' : '') + ' ' + (currentVoiceId === a.id ? 'selected' : '') + '>' + a.name + ' (Elite Synthesis)</option>'
+    ).join('');
+
+    voiceSelect.innerHTML += '<option value="custom" ' + (!allAgents.find(a => a.id === currentVoiceId) && currentVoiceId ? 'selected' : '') + '>-- Custom Agent ID --</option>';
+
+    // Trigger custom input visibility
+    if (voiceSelect.value === 'custom') customInput.style.display = 'block';
+    else customInput.style.display = 'none';
+  }
+
+  async function saveBusiness() {
+    const btn = document.getElementById('saveProfileBtn');
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="spin" data-lucide="refresh-cw"></i> Processing...';
+    if (window.lucide) lucide.createIcons();
+
+    const selectedDays = Array.from(document.querySelectorAll('input[name="bizDays"]:checked')).map(i => i.value).join(',');
+
+    const payload = {
+      name: document.getElementById('bizName').value,
+      phoneNumber: document.getElementById('bizPhone').value,
+      address: document.getElementById('bizAddress').value,
+      openTime: document.getElementById('bizOpenTime').value,
+      closeTime: document.getElementById('bizCloseTime').value,
+      timings: selectedDays,
+      currency: document.getElementById('bizCurrency').value,
+      taxRate: parseFloat(document.getElementById('bizTaxRate').value) || 0,
+      logoUrl: document.getElementById('bizLogo').value,
+      aiName: document.getElementById('aiName').value,
+      aiGender: currentGender,
+      aiPersonality: document.getElementById('aiPersonality').value,
+      aiVoiceId: document.getElementById('aiVoiceId').value === 'custom' ? document.getElementById('customAiVoiceId').value : document.getElementById('aiVoiceId').value
+    };
+
+    const selectedVoiceOption = document.getElementById('aiVoiceId').options[document.getElementById('aiVoiceId').selectedIndex];
+    if (selectedVoiceOption && selectedVoiceOption.dataset.voice) {
+      payload.aiVoice = 'eleven_' + selectedVoiceOption.dataset.voice;
+    } else {
+      payload.aiVoice = 'nova'; // Fallback / Default
+    }
+
+    const apptDur = document.getElementById('appointmentDuration');
+    if (apptDur) {
+      const val = parseInt(apptDur.value) || 30;
+      payload.appointmentDuration = val;
+      payload.slotInterval = val;
+    }
+
+    const bizTz = document.getElementById('bizTimezone');
+    if (bizTz) payload.timezone = bizTz.value;
+
+    const dineIn = document.getElementById('dineInAvailable');
+    if (dineIn) payload.dineInAvailable = dineIn.checked;
+
+    const takeaway = document.getElementById('takeawayAvailable');
+    if (takeaway) payload.takeawayAvailable = takeaway.checked;
+
+    const delivery = document.getElementById('deliveryAvailable');
+    if (delivery) payload.deliveryAvailable = delivery.checked;
+
+    const radius = document.getElementById('deliveryRadius');
+    if (radius) payload.deliveryRadius = parseFloat(radius.value) || 5.0;
+
+    const resv = document.getElementById('reservationsEnabled');
+    if (resv) payload.reservationsEnabled = resv.checked;
+
+    try {
+      const bId = getBusinessId();
+      const res = await fetch(`/api/business/${bId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token)
+        },
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+      if (result.success) {
+        notify("Neural personality synchronized. AI frontier updated.", "Success");
+      } else {
+        notify(result.error || "Update failed", "Error");
       }
-      reader.readAsDataURL(input.files[0]);
+    } catch (err) {
+      console.error(err);
+      notify("Platform connection error", "Error");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+      if (window.lucide) lucide.createIcons();
     }
   }
 
-  if (window.lucide) lucide.createIcons();
-
+  // --- Phone Number Provisioning ---
   async function searchNumbers() {
-    const areaCode = document.getElementById('areaCodeSearch').value;
+    const areaCode = document.getElementById('areaCodeSearch')?.value;
     const list = document.getElementById('numberList');
-    
+    if (!list) return;
+
     if (!areaCode || areaCode.length < 3) return notify("Please enter a 3-digit area code", "Warning");
     
-    list.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">Searching...</div>';
+    list.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);"><div class="spin" style="margin:0 auto 1rem;"></div>Searching...</div>';
     list.style.display = 'block';
 
     try {
-      const res = await fetch(`/api/call/provision/search?areaCode=${areaCode}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await fetch(`/api/phone/search?areaCode=${areaCode}`, {
+        headers: { 'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token) }
       });
       const result = await res.json();
       
       if (result.success && result.data.length > 0) {
-        list.innerHTML = result.data.map(n => `
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; border-bottom:1px solid var(--border);">
-            <span style="font-weight:600; font-family:monospace;">${n.friendlyName}</span>
-            <button class="action-btn" style="width:auto; height:32px; padding:0 12px; font-size:0.75rem;" onclick="purchaseNumber('${n.phoneNumber}')">
-              Buy & Link
-            </button>
-          </div>
-        `).join('');
+        list.innerHTML = result.data.map(n => 
+          '<div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; border-bottom:1px solid var(--glass-border);">' +
+            '<span style="font-weight:600; font-family:\'JetBrains Mono\'; color:white;">' + n.friendlyName + '</span>' +
+            '<button class="action-btn-premium" style="padding:0.4rem 0.8rem; font-size:0.7rem;" onclick="purchaseNumber(\'' + n.phoneNumber + '\')">' +
+              'Secure & Link' +
+            '</button>' +
+          '</div>'
+        ).join('');
       } else {
-        list.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">No numbers found for this area code.</div>';
+        list.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">No matching identifiers found in this region.</div>';
       }
     } catch (err) {
-      notify("Search failed", "Error");
+      notify("Intelligence search failed", "Error");
       list.style.display = 'none';
     }
   }
 
   async function purchaseNumber(phoneNumber) {
-    if (!confirm(`Are you sure you want to purchase ${phoneNumber}? This will link it to your current business.`)) return;
+    if (!confirm(`Are you sure you want to purchase ${phoneNumber}? This will establish a secure AI bridge for your business.`)) return;
 
     try {
-      const res = await fetch('/api/call/provision/purchase', {
+      const res = await fetch('/api/phone/purchase', {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}` 
+          "Authorization": "Bearer " + (localStorage.getItem("accessToken") || window.token)
         },
         body: JSON.stringify({ phoneNumber, businessId: getBusinessId() })
       });
       const result = await res.json();
       
       if (result.success) {
-        notify("Number successfully provisioned!", "Success");
+        notify("Secure line successfully provisioned!", "Success");
         if (document.getElementById('bizPhone')) document.getElementById('bizPhone').value = phoneNumber;
         document.getElementById('numberList').style.display = 'none';
       } else {
-        notify(result.error || "Purchase failed", "Error");
+        notify(result.error || "Provisioning failed", "Error");
       }
     } catch (err) {
-      notify("Network error", "Error");
+      notify("Neural link interrupted", "Error");
     }
   }
+
+  // --- UI Helpers ---
+  function toggleDayActive(input) {
+    input.parentElement.classList.toggle('active', input.checked);
+  }
+
+  function toggleCardActive(label) {
+    const input = label.querySelector('input');
+    if (!input) return;
+    input.checked = !input.checked;
+    label.classList.toggle('active', input.checked);
+    if (input.onchange) input.onchange();
+  }
+
+  function handleLogoUpload(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('logoPreview');
+        if (preview) {
+          preview.innerHTML = '<img src="' + e.target.result + '" style="width:100%; height:100%; object-fit:contain;" />';
+          preview.style.borderStyle = "solid";
+          preview.style.borderColor = "var(--primary)";
+        }
+        notify("Visual identity staged. Ready for propagation.", "Success");
+      }
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // Init
+  if (window.lucide) lucide.createIcons();
+  filterVoices(); // Run initial filter
+
+  document.getElementById('aiVoiceId')?.addEventListener('change', function() {
+    const customInput = document.getElementById('customAgentInput');
+    if (!customInput) return;
+    if (this.value === 'custom') customInput.style.display = 'block';
+    else customInput.style.display = 'none';
+  });
 </script>
+<% } %>

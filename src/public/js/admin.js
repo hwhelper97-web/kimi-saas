@@ -18,7 +18,39 @@ const socket = io();
 socket.on("connect", () => {
   const businessId = getBusinessId();
   if (businessId) socket.emit("join-business", businessId);
+  
+  // 🚀 Global Telemetry Connection Log
+  socket.emit("app_event", {
+    type: "info",
+    source: "ADMIN_CLIENT",
+    message: `Admin session established for ${decodedToken?.email || 'Unknown User'}`,
+    url: window.location.href
+  });
 });
+
+// 🚀 Global Click Telemetry
+document.addEventListener("click", (e) => {
+  const target = e.target.closest("button, a, .action-btn, input, select");
+  if (!target) return;
+
+  const tag = target.tagName;
+  const text = target.innerText?.trim().substring(0, 30) || target.value || target.placeholder || "Icon/Element";
+  const id = target.id ? `#${target.id}` : "";
+  const cls = target.className ? `.${target.className.split(" ").join(".")}` : "";
+  
+  socket.emit("app_event", {
+    type: "info",
+    source: "USER_CLICK",
+    message: `Clicked ${tag}${id}: "${text}"`,
+    data: {
+      element: tag,
+      id: target.id,
+      classes: target.className,
+      url: window.location.href,
+      user: decodedToken?.email
+    }
+  });
+}, true);
 
 socket.on("new_appointment", (data) => {
   notify(`New booking: ${data.name} (${data.service})`);
@@ -34,7 +66,7 @@ socket.on("new_order", (data) => {
 document.addEventListener("DOMContentLoaded", () => {
   loadBusinesses().then(() => {
     applyTheme(localStorage.getItem("kimi_theme") || "dark");
-    applyBrandName(localStorage.getItem("kimi_brand") || "Nexton Technologies LLC");
+    applyBrandName(localStorage.getItem("kimi_brand") || "Naxton Technologies LLC");
     renderSidebar();
     loadSection("dashboard");
   });
@@ -47,7 +79,7 @@ function logout() {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("activeBusinessId");
   sessionStorage.removeItem("accessToken");
-  window.location.href = "/login";
+  window.location.href = "/logout";
 }
 
 function notify(message, title = "Notification") {
@@ -68,6 +100,13 @@ function getBusinessType() {
   if (!select) return "appointment";
   const option = select.options[select.selectedIndex];
   return option ? option.dataset.type : "appointment";
+}
+
+function getBusinessTypeName() {
+  const select = document.getElementById("businessSwitcher");
+  if (!select) return "Clinic";
+  const option = select.options[select.selectedIndex];
+  return option ? option.innerText : "Business";
 }
 
 function isOrderBusiness() {
@@ -133,16 +172,16 @@ function renderSidebar() {
   let items = [{ name: "Dashboard", key: "dashboard", icon: "📊" }];
 
   if (isOrderBusiness()) {
-    items.push({ name: "Menu", key: "menu", icon: "🍽️" });
-    items.push({ name: "Orders", key: "orders", icon: "📦" });
+    items.push({ name: "Menu Management", key: "menu", icon: "🍽️" });
+    items.push({ name: "Orders List", key: "orders", icon: "📦" });
   } else {
-    items.push({ name: "Appointments", key: "appointments", icon: "📅" });
+    items.push({ name: "Appointment Calendar", key: "appointment", icon: "📅" });
+    items.push({ name: "Service Menu", key: "services", icon: "💇" });
   }
 
-  items.push({ name: "AI Calls", key: "calls", icon: "📞" });
+  items.push({ name: "AI AI Calls", key: "call", icon: "📞" });
   items.push({ name: "Business Info", key: "business", icon: "🏢" });
-  items.push({ name: "Billing & Mints", key: "billing", icon: "💳" });
-  items.push({ name: "Staff", key: "staff", icon: "👥" });
+  items.push({ name: "Staff Management", key: "staff", icon: "👥" });
   items.push({ name: "Settings", key: "settings", icon: "⚙️" });
 
   nav.innerHTML = items.map(item => `
@@ -157,33 +196,74 @@ function renderSidebar() {
    ========================================================================== */
 async function loadSection(section) {
   currentSection = section;
-  renderSidebar(); // update active class
+  renderSidebar(); 
   
   if (liveCallsInterval) { clearInterval(liveCallsInterval); liveCallsInterval = null; }
-  if (revenueChartInstance) revenueChartInstance.destroy();
-  if (callsChartInstance) callsChartInstance.destroy();
+  
+  const titleMap = {
+    "dashboard": "Business Overview",
+    "appointment": "Appointment Calendar",
+    "services": "Service Menu Management",
+    "menu": "Restaurant Menu Management",
+    "orders": "Order Management",
+    "call": "AI Voice Calls",
+    "business": "Business Settings",
+    "staff": "Staff & Specialists",
+    "settings": "System Settings",
+    "billing": "Billing & Credits"
+  };
 
-  document.getElementById("pageTitle").innerText = section.charAt(0).toUpperCase() + section.slice(1);
+  document.getElementById("pageTitle").innerText = titleMap[section] || section;
   const content = document.getElementById("contentArea");
   const charts = document.getElementById("chartsContainer");
   
   charts.style.display = (section === "dashboard") ? "grid" : "none";
-  content.innerHTML = "<p>Loading...</p>";
+  content.innerHTML = `
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:4rem; color:var(--text-muted);">
+      <div class="spin" style="margin-bottom:1rem; width:32px; height:32px;"></div>
+      <p>Synchronizing ${section} module...</p>
+    </div>
+  `;
 
   try {
-    if (section === "dashboard") await renderDashboard(content);
-    else if (section === "appointments") await renderAppointments(content);
-    else if (section === "orders") await renderOrders(content);
-    else if (section === "calls") await renderCalls(content);
-    else if (section === "business") await renderBusinessInfo(content);
-    else if (section === "menu") await renderMenu(content);
-    else if (section === "staff") await renderStaff(content);
-    else if (section === "billing") await renderBilling(content);
-    else if (section === "settings") await renderSettings(content);
-    else if (section === "create-business") await renderCreateBusiness(content);
+    if (section === "dashboard") {
+       await renderDashboard(content);
+       return;
+    }
+
+    // 🔥 DYNAMIC SERVER-SIDE PARTIAL LOADING
+    const bId = getBusinessId();
+    const url = `/api/dashboard/${section}?partial=true&businessId=${bId}`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) throw new Error("Module failed to load");
+    
+    const html = await res.text();
+    content.innerHTML = html;
+
+    // Post-load initialization
+    if (window.lucide) lucide.createIcons();
+    executeInlineScripts(content);
+
   } catch (err) {
-    content.innerHTML = `<div class="card badge-danger">Failed to load ${section}: ${err.message}</div>`;
+    content.innerHTML = `
+      <div style="padding:3rem; text-align:center;">
+        <div style="font-size:3rem; margin-bottom:1rem;">⚠️</div>
+        <h3 style="color:var(--danger); margin-bottom:0.5rem;">Connection Error</h3>
+        <p style="color:var(--text-muted);">${err.message}</p>
+        <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="loadSection('${section}')">Retry Connection</button>
+      </div>
+    `;
   }
+}
+
+function executeInlineScripts(container) {
+  const scripts = container.querySelectorAll("script");
+  scripts.forEach(oldScript => {
+    const newScript = document.createElement("script");
+    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+    oldScript.parentNode.replaceChild(newScript, oldScript);
+  });
 }
 
 /* ==========================================================================
@@ -200,7 +280,7 @@ async function renderCreateBusiness(content) {
           <h3 style="margin-bottom: 16px; font-size:15px; color:var(--brand-primary);">1. Business Details</h3>
           <div class="form-group">
             <label>Business Name</label>
-            <input type="text" id="cbName" class="form-control" placeholder="e.g. Nexton's Diner" />
+            <input type="text" id="cbName" class="form-control" placeholder="e.g. Naxton's Diner" />
           </div>
           <div class="form-group">
             <label>Business Type</label>
@@ -581,7 +661,7 @@ async function renderSettings(content) {
         
         <div class="form-group">
           <label>Brand Name</label>
-          <input type="text" id="settingBrandName" class="form-control" value="${localStorage.getItem('kimi_brand') || 'Nexton AI'}" />
+          <input type="text" id="settingBrandName" class="form-control" value="${localStorage.getItem('kimi_brand') || 'Naxton AI'}" />
         </div>
 
         <div class="form-group">
@@ -589,7 +669,7 @@ async function renderSettings(content) {
           <select id="settingTheme" class="form-control">
             <option value="dark" ${localStorage.getItem('kimi_theme') === 'dark' ? 'selected' : ''}>Premium Dark (Default)</option>
             <option value="light" ${localStorage.getItem('kimi_theme') === 'light' ? 'selected' : ''}>Clean Light</option>
-            <option value="nexton-teal" ${localStorage.getItem('kimi_theme') === 'nexton-teal' ? 'selected' : ''}>Nexton Teal</option>
+            <option value="nexton-teal" ${localStorage.getItem('kimi_theme') === 'nexton-teal' ? 'selected' : ''}>Naxton Teal</option>
             <option value="midnight" ${localStorage.getItem('kimi_theme') === 'midnight' ? 'selected' : ''}>Midnight Blue</option>
             <option value="ocean" ${localStorage.getItem('kimi_theme') === 'ocean' ? 'selected' : ''}>Deep Ocean</option>
             <option value="forest" ${localStorage.getItem('kimi_theme') === 'forest' ? 'selected' : ''}>Emerald Forest</option>
@@ -750,7 +830,7 @@ async function openOrderDetails(orderId) {
       <div class="receipt-modal">
         <div class="receipt-header">
           <div class="receipt-badge">AI Voice Order</div>
-          <div class="receipt-logo">Nexton Burger Joint</div>
+          <div class="receipt-logo">Naxton Burger Joint</div>
           <p style="font-size:12px; color:var(--text-muted);">#${order.id.substring(0,8)} | ${new Date(order.createdAt).toLocaleString()}</p>
         </div>
 

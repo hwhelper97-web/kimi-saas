@@ -1,4 +1,17 @@
 const prisma = require("../../config/prisma");
+const menuAliasService = require("../../services/menu-alias.service");
+
+exports.suggestAliases = async (req, res) => {
+  try {
+    const { name } = req.query;
+    if (!name) return res.status(400).json({ error: "Name required" });
+    const suggestions = menuAliasService.generateAutoAliases(name);
+    return res.json({ success: true, data: suggestions });
+  } catch (err) {
+    console.error("[MenuItem] suggestAliases error:", err);
+    return res.status(500).json({ error: "Failed to suggest aliases" });
+  }
+};
 
 /* ===============================
    CATEGORY CONTROLLERS
@@ -176,11 +189,14 @@ exports.listItems = async (req, res) => {
       },
       include: {
         category: true,
-        sizes: true,
-        addons: true,
-        optionGroups: {
-          include: { options: true }
-        }
+        variants: true,
+        modifierGroups: { include: { group: { include: { options: true } } } },
+        itemAddons: { include: { addon: true } },
+        availabilityRule: true,
+        aliases: true,
+        sizes: true, // Legacy
+        addons: true, // Legacy
+        optionGroups: { include: { options: true } } // Legacy
       },
       orderBy: [
         { category: { displayOrder: "asc" } },
@@ -199,18 +215,27 @@ exports.listItems = async (req, res) => {
 
 exports.createItem = async (req, res) => {
   try {
-    let {
+    let { 
       name, description, price, imageUrl, prepTime, isAvailable,
-      categoryId, businessId, sizes, addons, optionGroups,
-      isVeg, isVegan, isSpicy, isPopular, isNew, tags, displayOrder, availability,
-      pricingType, serviceDuration
+      categoryId, businessId, variants, modifierGroups, itemAddons,
+      calories, allergens, spicyLevel, availabilityRule,
+      isVeg, isVegan, isSpicy, isPopular, isNew, tags, displayOrder,
+      pricingType, serviceDuration, aliases
     } = req.body;
 
+    let finalImageUrl = imageUrl;
     if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`;
+      finalImageUrl = `/uploads/${req.file.filename}`;
     }
 
     if (!name || !businessId) return res.status(400).json({ error: "Name and businessId are required" });
+
+    // 🛡️ Parse JSON strings if they came from FormData
+    if (typeof variants === 'string') try { variants = JSON.parse(variants); } catch(e){}
+    if (typeof modifierGroups === 'string') try { modifierGroups = JSON.parse(modifierGroups); } catch(e){}
+    if (typeof itemAddons === 'string') try { itemAddons = JSON.parse(itemAddons); } catch(e){}
+    if (typeof availabilityRule === 'string') try { availabilityRule = JSON.parse(availabilityRule); } catch(e){}
+    if (typeof aliases === 'string') try { aliases = JSON.parse(aliases); } catch(e){}
 
     let targetTenantId = req.tenantId;
     if (req.user.role === "SUPERADMIN") {
@@ -223,9 +248,9 @@ exports.createItem = async (req, res) => {
         name,
         description,
         price: parseFloat(price) || 0,
-        imageUrl,
+        imageUrl: finalImageUrl,
         prepTime: parseInt(prepTime) || 15,
-        isAvailable: isAvailable !== undefined ? isAvailable : true,
+        isAvailable: isAvailable !== undefined ? !!isAvailable : true,
         categoryId,
         businessId,
         tenantId: targetTenantId,
@@ -236,38 +261,57 @@ exports.createItem = async (req, res) => {
         isNew: !!isNew,
         tags,
         displayOrder: parseInt(displayOrder) || 0,
-        availability: availability ? JSON.stringify(availability) : null,
         pricingType: pricingType || "FIXED",
         serviceDuration: parseInt(serviceDuration) || null,
-        sizes: sizes && Array.isArray(sizes) ? {
-          create: sizes.map(s => ({ name: s.name, price: parseFloat(s.price) || 0, tenantId: req.tenantId }))
-        } : undefined,
-        addons: addons && Array.isArray(addons) ? {
-          create: addons.map(a => ({ name: a.name, price: parseFloat(a.price) || 0, tenantId: req.tenantId }))
-        } : undefined,
-        optionGroups: optionGroups && Array.isArray(optionGroups) ? {
-          create: optionGroups.map(og => ({
-            name: og.name,
-            description: og.description,
-            minSelect: parseInt(og.minSelect) || 0,
-            maxSelect: parseInt(og.maxSelect) || 1,
-            isRequired: !!og.isRequired,
-            displayOrder: parseInt(og.displayOrder) || 0,
-            tenantId: req.tenantId,
-            options: {
-              create: og.options.map(o => ({
-                name: o.name,
-                price: parseFloat(o.price) || 0,
-                tenantId: req.tenantId
-              }))
-            }
+        calories: parseInt(calories) || null,
+        allergens,
+        spicyLevel: parseInt(spicyLevel) || 0,
+        variants: variants && Array.isArray(variants) ? {
+          create: variants.map(v => ({
+            name: v.name,
+            price: parseFloat(v.price) || 0,
+            calories: parseInt(v.calories) || null,
+            prepTime: parseInt(v.prepTime) || null,
+            isDefault: !!v.isDefault,
+            tenantId: targetTenantId
           }))
+        } : undefined,
+        modifierGroups: modifierGroups && Array.isArray(modifierGroups) ? {
+          create: modifierGroups.map(mgId => ({
+            modifierGroupId: mgId
+          }))
+        } : undefined,
+        itemAddons: itemAddons && Array.isArray(itemAddons) ? {
+          create: itemAddons.map(aId => ({
+            addonId: aId
+          }))
+        } : undefined,
+        availabilityRule: availabilityRule ? {
+          create: {
+            availableDays: JSON.stringify(availabilityRule.days || []),
+            startTime: availabilityRule.start,
+            endTime: availabilityRule.end,
+            stockQuantity: parseInt(availabilityRule.stock) || null
+          }
         } : undefined
       },
-      include: { sizes: true, addons: true, optionGroups: { include: { options: true } } }
+      include: { 
+        variants: true, 
+        modifierGroups: { include: { group: true } }, 
+        itemAddons: { include: { addon: true } },
+        availabilityRule: true,
+        aliases: true 
+      }
     });
 
-    return res.status(201).json({ success: true, data: item });
+    // 🤖 AI Alias Generation
+    const finalAliases = (aliases && Array.isArray(aliases) && aliases.length > 0) 
+      ? aliases 
+      : menuAliasService.generateAutoAliases(name);
+    
+    await menuAliasService.saveAliases(item.id, targetTenantId, finalAliases);
+
+    return res.status(201).json({ success: true, data: { ...item, aliases: finalAliases } });
   } catch (err) {
     console.error("[MenuItem] create error:", err);
     return res.status(500).json({ error: "Failed to create item" });
@@ -277,16 +321,25 @@ exports.createItem = async (req, res) => {
 exports.updateItem = async (req, res) => {
   try {
     const { id } = req.params;
-    let {
+    let { 
       name, description, price, imageUrl, prepTime, isAvailable,
-      categoryId, businessId, sizes, addons, optionGroups,
-      isVeg, isVegan, isSpicy, isPopular, isNew, tags, displayOrder, isActive, availability,
-      pricingType, serviceDuration
+      categoryId, businessId, variants, modifierGroups, itemAddons,
+      calories, allergens, spicyLevel, availabilityRule,
+      isVeg, isVegan, isSpicy, isPopular, isNew, tags, displayOrder, isActive,
+      pricingType, serviceDuration, aliases
     } = req.body;
 
+    let finalImageUrl = imageUrl;
     if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`;
+      finalImageUrl = `/uploads/${req.file.filename}`;
     }
+
+    // 🛡️ Parse JSON strings if they came from FormData
+    if (typeof variants === 'string') try { variants = JSON.parse(variants); } catch(e){}
+    if (typeof modifierGroups === 'string') try { modifierGroups = JSON.parse(modifierGroups); } catch(e){}
+    if (typeof itemAddons === 'string') try { itemAddons = JSON.parse(itemAddons); } catch(e){}
+    if (typeof availabilityRule === 'string') try { availabilityRule = JSON.parse(availabilityRule); } catch(e){}
+    if (typeof aliases === 'string') try { aliases = JSON.parse(aliases); } catch(e){}
 
     const isSuper = req.user.role === "SUPERADMIN";
     const existing = await prisma.menuItem.findFirst({
@@ -297,64 +350,83 @@ exports.updateItem = async (req, res) => {
     });
     if (!existing) return res.status(404).json({ error: "Item not found" });
 
-    // Handle relations cleanup
-    if (sizes) await prisma.menuSize.deleteMany({ where: { menuItemId: id } });
-    if (addons) await prisma.menuAddon.deleteMany({ where: { menuItemId: id } });
-    if (optionGroups) {
-      const groups = await prisma.menuOptionGroup.findMany({ where: { menuItemId: id } });
-      for (const g of groups) {
-        await prisma.menuOption.deleteMany({ where: { optionGroupId: g.id } });
-      }
-      await prisma.menuOptionGroup.deleteMany({ where: { menuItemId: id } });
-    }
-
     const updated = await prisma.menuItem.update({
       where: { id },
       data: {
-        ...(name !== undefined && { name }),
-        ...(description !== undefined && { description }),
-        ...(price !== undefined && { price: parseFloat(price) }),
-        ...(imageUrl !== undefined && { imageUrl }),
-        ...(prepTime !== undefined && { prepTime: parseInt(prepTime) }),
-        ...(isAvailable !== undefined && { isAvailable }),
-        ...(categoryId !== undefined && { categoryId }),
-        ...(isVeg !== undefined && { isVeg: !!isVeg }),
-        ...(isVegan !== undefined && { isVegan: !!isVegan }),
-        ...(isSpicy !== undefined && { isSpicy: !!isSpicy }),
-        ...(isPopular !== undefined && { isPopular: !!isPopular }),
-        ...(isNew !== undefined && { isNew: !!isNew }),
-        ...(tags !== undefined && { tags }),
-        ...(displayOrder !== undefined && { displayOrder: parseInt(displayOrder) }),
-        ...(availability !== undefined && { availability: availability ? JSON.stringify(availability) : null }),
-        ...(pricingType !== undefined && { pricingType }),
-        ...(serviceDuration !== undefined && { serviceDuration: parseInt(serviceDuration) }),
-        sizes: sizes ? {
-          create: sizes.map(s => ({ name: s.name, price: parseFloat(s.price) || 0, tenantId: req.tenantId }))
-        } : undefined,
-        addons: addons ? {
-          create: addons.map(a => ({ name: a.name, price: parseFloat(a.price) || 0, tenantId: req.tenantId }))
-        } : undefined,
-        optionGroups: optionGroups ? {
-          create: optionGroups.map(og => ({
-            name: og.name,
-            description: og.description,
-            minSelect: parseInt(og.minSelect) || 0,
-            maxSelect: parseInt(og.maxSelect) || 1,
-            isRequired: !!og.isRequired,
-            displayOrder: parseInt(og.displayOrder) || 0,
-            tenantId: req.tenantId,
-            options: {
-              create: og.options.map(o => ({
-                name: o.name,
-                price: parseFloat(o.price) || 0,
-                tenantId: req.tenantId
-              }))
-            }
-          }))
-        } : undefined
-      },
-      include: { sizes: true, addons: true, optionGroups: { include: { options: true } } }
+        name, description,
+        price: parseFloat(price) || 0,
+        imageUrl: finalImageUrl,
+        prepTime: parseInt(prepTime) || 15,
+        isAvailable: isAvailable !== undefined ? !!isAvailable : true,
+        isActive: isActive !== undefined ? !!isActive : true,
+        categoryId,
+        isVeg: !!isVeg,
+        isVegan: !!isVegan,
+        isSpicy: !!isSpicy,
+        isPopular: !!isPopular,
+        isNew: !!isNew,
+        tags,
+        displayOrder: parseInt(displayOrder) || 0,
+        pricingType: pricingType || "FIXED",
+        serviceDuration: parseInt(serviceDuration) || null,
+        calories: parseInt(calories) || null,
+        allergens,
+        spicyLevel: parseInt(spicyLevel) || 0
+      }
     });
+
+    // 🚀 Sync Enterprise Relations
+    if (variants && Array.isArray(variants)) {
+      await prisma.menuVariant.deleteMany({ where: { menuItemId: id } });
+      await prisma.menuVariant.createMany({
+        data: variants.map(v => ({
+          menuItemId: id,
+          name: v.name,
+          price: parseFloat(v.price) || 0,
+          calories: parseInt(v.calories) || null,
+          prepTime: parseInt(v.prepTime) || null,
+          isDefault: !!v.isDefault,
+          tenantId: req.tenantId
+        }))
+      });
+    }
+
+    if (modifierGroups && Array.isArray(modifierGroups)) {
+      await prisma.menuItemModifierGroup.deleteMany({ where: { menuItemId: id } });
+      await prisma.menuItemModifierGroup.createMany({
+        data: modifierGroups.map(mgId => ({ menuItemId: id, modifierGroupId: mgId }))
+      });
+    }
+
+    if (itemAddons && Array.isArray(itemAddons)) {
+      await prisma.menuItemAddon.deleteMany({ where: { menuItemId: id } });
+      await prisma.menuItemAddon.createMany({
+        data: itemAddons.map(aId => ({ menuItemId: id, addonId: aId }))
+      });
+    }
+
+    if (availabilityRule) {
+      await prisma.menuAvailability.upsert({
+        where: { menuItemId: id },
+        update: {
+          availableDays: JSON.stringify(availabilityRule.days || []),
+          startTime: availabilityRule.start,
+          endTime: availabilityRule.end,
+          stockQuantity: parseInt(availabilityRule.stock) || null
+        },
+        create: {
+          menuItemId: id,
+          availableDays: JSON.stringify(availabilityRule.days || []),
+          startTime: availabilityRule.start,
+          endTime: availabilityRule.end,
+          stockQuantity: parseInt(availabilityRule.stock) || null
+        }
+      });
+    }
+
+    if (aliases && Array.isArray(aliases)) {
+      await menuAliasService.saveAliases(id, req.tenantId, aliases);
+    }
 
     return res.json({ success: true, data: updated });
   } catch (err) {

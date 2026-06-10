@@ -70,8 +70,16 @@ router.get(
   "/:id",
   authMiddleware,
   tenantMiddleware,
-  allowRoles(ROLES.OWNER, ROLES.STAFF, ROLES.SUPERADMIN),
+  allowRoles(ROLES.OWNER, ROLES.STAFF, ROLES.SUPERADMIN, ROLES.AGENT),
   controller.getCallDetails
+);
+
+router.post(
+  "/:id/transfer",
+  authMiddleware,
+  tenantMiddleware,
+  allowRoles(ROLES.OWNER, ROLES.STAFF, ROLES.SUPERADMIN, ROLES.AGENT),
+  controller.transfer
 );
 
 module.exports = router;

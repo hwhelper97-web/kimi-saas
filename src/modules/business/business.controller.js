@@ -122,17 +122,17 @@ exports.create = async (req, res) => {
     if (businessType === "appointment") {
       await prisma.user.createMany({
         data: [
-          { email: `barber_${business.id.substring(0,6)}@nexton.ai`, password: hashedPassword, role: "BARBER", tenantId: newTenant.id },
-          { email: `stylist_${business.id.substring(0,6)}@nexton.ai`, password: hashedPassword, role: "STYLIST", tenantId: newTenant.id },
-          { email: `therapist_${business.id.substring(0,6)}@nexton.ai`, password: hashedPassword, role: "THERAPIST", tenantId: newTenant.id },
+          { email: `barber_${business.id.substring(0,6)}@naxton.ai`, password: hashedPassword, role: "BARBER", tenantId: newTenant.id },
+          { email: `stylist_${business.id.substring(0,6)}@naxton.ai`, password: hashedPassword, role: "STYLIST", tenantId: newTenant.id },
+          { email: `therapist_${business.id.substring(0,6)}@naxton.ai`, password: hashedPassword, role: "THERAPIST", tenantId: newTenant.id },
         ]
       });
     } else {
       await prisma.user.createMany({
         data: [
-          { email: `chef_${business.id.substring(0,6)}@nexton.ai`, password: hashedPassword, role: "HEAD_CHEF", tenantId: newTenant.id },
-          { email: `kitchen_${business.id.substring(0,6)}@nexton.ai`, password: hashedPassword, role: "KITCHEN_STAFF", tenantId: newTenant.id },
-          { email: `manager_${business.id.substring(0,6)}@nexton.ai`, password: hashedPassword, role: "MANAGER", tenantId: newTenant.id },
+          { email: `chef_${business.id.substring(0,6)}@naxton.ai`, password: hashedPassword, role: "HEAD_CHEF", tenantId: newTenant.id },
+          { email: `kitchen_${business.id.substring(0,6)}@naxton.ai`, password: hashedPassword, role: "KITCHEN_STAFF", tenantId: newTenant.id },
+          { email: `manager_${business.id.substring(0,6)}@naxton.ai`, password: hashedPassword, role: "MANAGER", tenantId: newTenant.id },
         ]
       });
     }
@@ -171,6 +171,7 @@ exports.getCurrent = async (req, res) => {
       where: whereClause,
       include: {
         menuItems: { include: { sizes: true, addons: true } },
+        tenant: true,
       },
     });
 
@@ -191,7 +192,7 @@ exports.getCurrent = async (req, res) => {
 =============================== */
 exports.updateCurrent = async (req, res) => {
   try {
-    const { businessId } = req.query;
+    const businessId = req.params.id || req.query.businessId;
 
     const whereClause = req.user.role === "SUPERADMIN" ? {} : { tenantId: req.tenantId };
     if (businessId) whereClause.id = businessId;
@@ -206,6 +207,21 @@ exports.updateCurrent = async (req, res) => {
 
     let { name, phoneNumber, address, city, country, timings, currency, taxRate, logoUrl, aiVoice, aiVoiceId, aiPersonality, timezone, appointmentDuration, openTime, closeTime } = req.body;
     console.log(`[Business Update] ID: ${business.id} | Voice: ${aiVoice} | Personality: ${aiPersonality} | Timezone: ${timezone}`);
+
+    // 1. Feature Gate: White Labeling (Logo/Branding updates)
+    const { hasFeature } = require("../../constants/plans");
+    const isBrandingChange = req.file || logoUrl || req.body.aiName;
+    
+    if (isBrandingChange) {
+        const tenant = await prisma.tenant.findUnique({ where: { id: business.tenantId }, select: { plan: true } });
+        if (tenant && !hasFeature(tenant.plan, "WHITE_LABEL_READY")) {
+            // If they are trying to change branding but don't have the feature, we only allow it if it's the FIRST time (setup) or if they are SuperAdmin
+            if (req.user.role !== "SUPERADMIN" && business.logoUrl) {
+                console.warn(`[BILLING] White-label attempt blocked for tenant ${business.tenantId}`);
+                return res.status(403).json({ success: false, error: "Custom branding is only available on Prime and Enterprise plans.", code: "FEATURE_LOCKED" });
+            }
+        }
+    }
 
     // If a file was uploaded, use its path
     if (req.file) {
@@ -234,6 +250,11 @@ exports.updateCurrent = async (req, res) => {
         ...(openTime !== undefined && { openTime }),
         ...(closeTime !== undefined && { closeTime }),
         ...(appointmentDuration !== undefined && { appointmentDuration: parseInt(appointmentDuration) }),
+        ...(req.body.slotInterval !== undefined && { slotInterval: parseInt(req.body.slotInterval) }),
+        ...(req.body.bufferTime !== undefined && { bufferTime: parseInt(req.body.bufferTime) }),
+        ...(req.body.breakStartTime !== undefined && { breakStartTime: req.body.breakStartTime }),
+        ...(req.body.breakEndTime !== undefined && { breakEndTime: req.body.breakEndTime }),
+        ...(req.body.maxBookingsPerSlot !== undefined && { maxBookingsPerSlot: parseInt(req.body.maxBookingsPerSlot) }),
         ...(req.body.orderSmsEnabled !== undefined && { orderSmsEnabled: req.body.orderSmsEnabled === 'true' || req.body.orderSmsEnabled === true }),
         ...(req.body.deliveryAvailable !== undefined && { deliveryAvailable: req.body.deliveryAvailable === 'true' || req.body.deliveryAvailable === true }),
         ...(req.body.deliveryRadius !== undefined && { deliveryRadius: parseFloat(req.body.deliveryRadius) || 0 }),
@@ -243,6 +264,14 @@ exports.updateCurrent = async (req, res) => {
       },
     });
 
+    // Persistent Tenant-wide Branding Sync
+    if (logoUrl) {
+      await prisma.tenant.update({
+        where: { id: business.tenantId },
+        data: { logoUrl }
+      });
+    }
+
     return res.json({ success: true, data: updated });
   } catch (error) {
     console.error("[Business] updateCurrent error:", error);
@@ -251,87 +280,8 @@ exports.updateCurrent = async (req, res) => {
 };
 
 async function initializeDefaultServices(tenantId, businessId, subType) {
-  const templates = {
-    "Barber Shop": [
-      { name: "Haircut", price: 20, category: "Grooming", serviceDuration: 30 },
-      { name: "Beard Trim", price: 10, category: "Grooming", serviceDuration: 15 },
-      { name: "Hair Wash", price: 5, category: "Grooming", serviceDuration: 10 },
-      { name: "Facial", price: 25, category: "Skin Care", serviceDuration: 30 },
-      { name: "Hair Coloring", price: 50, category: "Treatments", serviceDuration: 60 },
-      { name: "Head Massage", price: 15, category: "Relaxation", serviceDuration: 20 },
-      { name: "Kids Haircut", price: 12, category: "Grooming", serviceDuration: 20 }
-    ],
-    "Beauty Salon": [
-      { name: "Hair Styling", price: 60, category: "Hair", serviceDuration: 60 },
-      { name: "Hair Coloring", price: 150, category: "Hair", serviceDuration: 120 },
-      { name: "Makeup", price: 80, category: "Makeup", serviceDuration: 90 },
-      { name: "Manicure", price: 30, category: "Nails", serviceDuration: 45 },
-      { name: "Pedicure", price: 35, category: "Nails", serviceDuration: 45 },
-      { name: "Bridal Package", price: 500, category: "Premium", serviceDuration: 240 },
-      { name: "Waxing", price: 40, category: "Body", serviceDuration: 30 },
-      { name: "Facial", price: 80, category: "Skin", serviceDuration: 60 }
-    ],
-    "Spa Center": [
-      { name: "Full Body Massage", price: 80, category: "Massage", serviceDuration: 60 },
-      { name: "Hot Stone Massage", price: 120, category: "Therapy", serviceDuration: 90 },
-      { name: "Steam Bath", price: 30, category: "Relaxation", serviceDuration: 30 },
-      { name: "Aromatherapy", price: 90, category: "Therapy", serviceDuration: 60 },
-      { name: "Couple Spa", price: 250, category: "Premium", serviceDuration: 120 },
-      { name: "Foot Massage", price: 30, category: "Relaxation", serviceDuration: 30 },
-      { name: "Sauna", price: 40, category: "Relaxation", serviceDuration: 45 }
-    ],
-    "Dental Clinic": [
-      { name: "Dental Checkup", price: 50, category: "Exam", serviceDuration: 30 },
-      { name: "Teeth Cleaning", price: 100, category: "Hygiene", serviceDuration: 45 },
-      { name: "Root Canal", price: 500, category: "Surgery", serviceDuration: 90 },
-      { name: "Teeth Whitening", price: 300, category: "Esthetics", serviceDuration: 60 },
-      { name: "Braces Consultation", price: 150, category: "Consult", serviceDuration: 45 },
-      { name: "Tooth Extraction", price: 200, category: "Surgery", serviceDuration: 45 },
-      { name: "Dental Filling", price: 150, category: "Procedure", serviceDuration: 30 }
-    ],
-    "Medical Clinic": [
-      { name: "General Checkup", price: 60, category: "Primary Care", serviceDuration: 30 },
-      { name: "Blood Test", price: 40, category: "Lab", serviceDuration: 15 },
-      { name: "Ultrasound", price: 150, category: "Imaging", serviceDuration: 45 },
-      { name: "Specialist Consultation", price: 200, category: "Specialist", serviceDuration: 45 },
-      { name: "Vaccination", price: 50, category: "Preventive", serviceDuration: 15 }
-    ]
-  };
-
-  // Add aliases for legacy/other names
-  templates["Hair salons / barbershops"] = templates["Barber Shop"];
-  templates["Spas & massage therapy"] = templates["Spa Center"];
-  templates["Doctors / clinics"] = templates["Medical Clinic"];
-  templates["Dentists"] = templates["Dental Clinic"];
-
-  const services = templates[subType];
-  if (!services) return;
-
-  // Create Categories Unique
-  const categoryNames = [...new Set(services.map(s => s.category))];
-  const categoryMap = {};
-
-  for (const catName of categoryNames) {
-    const cat = await prisma.menuCategory.create({
-      data: { name: catName, businessId, tenantId }
-    });
-    categoryMap[catName] = cat.id;
-  }
-
-  // Create Services
-  for (const s of services) {
-    await prisma.menuItem.create({
-      data: {
-        name: s.name,
-        price: s.price,
-        pricingType: s.pricingType || "FIXED",
-        serviceDuration: s.serviceDuration || 30,
-        categoryId: categoryMap[s.category],
-        businessId,
-        tenantId
-      }
-    });
-  }
+  const { seedDefaultServices } = require("../../services/appointment-seeder.service");
+  await seedDefaultServices(businessId, tenantId, subType);
 }
 
 /* ===============================
@@ -342,7 +292,7 @@ exports.getAllBusinesses = async (req, res) => {
     const whereClause = req.user.role === "SUPERADMIN" ? {} : { tenantId: req.tenantId };
     const businesses = await prisma.business.findMany({
       where: whereClause,
-      select: { id: true, name: true, type: true },
+      select: { id: true, name: true, type: true, logoUrl: true },
     });
 
     return res.json({ success: true, data: businesses });
@@ -412,5 +362,25 @@ exports.remove = async (req, res) => {
   } catch (error) {
     console.error("[Business] remove error:", error);
     return res.status(500).json({ success: false, error: "Deletion failed: Secure cleanup could not be completed." });
+  }
+};
+
+/* ===============================
+   RENDER LIVE DEBUG TERMINAL
+=============================== */
+exports.renderTerminal = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const business = await prisma.business.findUnique({
+      where: { id },
+      select: { id: true, name: true }
+    });
+
+    if (!business) return res.status(404).send("Business not found");
+
+    return res.render("live-terminal", { business });
+  } catch (error) {
+    console.error("[Terminal] Render Error:", error);
+    res.status(500).send("Internal Server Error");
   }
 };

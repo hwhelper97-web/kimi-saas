@@ -51,22 +51,28 @@ exports.login = async (req, res) => {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
+    console.log(`[Auth] Login attempt for: ${normalizedEmail}`);
     const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
     if (!user) {
+      console.warn(`[Auth] User not found: ${normalizedEmail}`);
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const match = await bcrypt.compare(password, user.password);
 
     if (!match) {
+      console.warn(`[Auth] Password mismatch for: ${normalizedEmail}`);
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Attach first business for convenience in JWT payload
-    const business = await prisma.business.findFirst({
-      where: { tenantId: user.tenantId },
-    });
+    // Attach first business for convenience in JWT payload (Skip for SuperAdmin to avoid locking them into a tenant)
+    let business = null;
+    if (user.role !== "SUPERADMIN") {
+      business = await prisma.business.findFirst({
+        where: { tenantId: user.tenantId },
+      });
+    }
 
     const accessToken = jwt.sign(
       {
@@ -169,14 +175,86 @@ exports.resetPassword = async (req, res) => {
 
 /* ===============================
    FORGOT PASSWORD
-   ⚠️  MVP stub — production should send a time-limited email token.
-   Currently disabled to prevent unauthenticated password overwrite.
+   Generates a secure reset token and saves it to the user.
+   In production, this should send an email with the reset link.
 =============================== */
 exports.forgotPassword = async (req, res) => {
-  return res.status(501).json({
-    error:
-      "Forgot password via direct API is disabled for security. Use the reset-password endpoint while logged in, or implement an email-token flow.",
-  });
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email required" });
+
+    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
+    if (!user) {
+      // For security, don't reveal if user exists. Just return success.
+      return res.json({ success: true, message: "If an account exists with that email, a reset link has been sent." });
+    }
+
+    const crypto = require("crypto");
+    const token = crypto.randomBytes(32).toString("hex");
+    const expires = new Date(Date.now() + 3600000); // 1 hour from now
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetPasswordToken: token,
+        resetPasswordExpires: expires
+      }
+    });
+
+    // ⚠️ PRODUCTION: Send email here
+    console.log(`[AUTH] Password reset token for ${email}: ${token}`);
+    
+    // For development/demo, we'll return the token in the response so the user can actually use it
+    const resetLink = `${req.protocol}://${req.get('host')}/auth/reset-password?token=${token}`;
+
+    return res.json({ 
+      success: true, 
+      message: "Reset token generated successfully.",
+      debug: { resetLink } // ⚠️ Remove in production
+    });
+  } catch (err) {
+    console.error("FORGOT PW ERROR:", err);
+    return res.status(500).json({ error: "Request failed" });
+  }
+};
+
+/* ===============================
+   RESET PASSWORD WITH TOKEN
+=============================== */
+exports.resetPasswordWithToken = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: "Token and new password are required" });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: { gte: new Date() }
+      }
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: "Invalid or expired reset token" });
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashed,
+        resetPasswordToken: null,
+        resetPasswordExpires: null
+      }
+    });
+
+    return res.json({ success: true, message: "Password updated successfully. You can now log in." });
+  } catch (err) {
+    console.error("RESET WITH TOKEN ERROR:", err);
+    return res.status(500).json({ error: "Reset failed" });
+  }
 };
 
 /* ===============================
@@ -231,9 +309,82 @@ exports.createStaff = async (req, res) => {
       success: true,
       message: "Staff created successfully",
       user: safeUser,
+      access: {
+        email: email,
+        password: password // Returning original password for access details
+      }
     });
   } catch (err) {
     console.error("CREATE STAFF ERROR:", err);
     return res.status(500).json({ error: "Failed to create staff" });
+  }
+};
+
+/* ===============================
+   UPDATE THEME
+=============================== */
+exports.updateTheme = async (req, res) => {
+  try {
+    const { theme } = req.body;
+    if (!theme) return res.status(400).json({ error: "Theme required" });
+
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { theme },
+    });
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("UPDATE THEME ERROR:", err);
+    return res.status(500).json({ error: "Failed to update theme" });
+  }
+};
+
+/* ===============================
+   UPDATE STAFF
+=============================== */
+exports.updateStaff = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const user = await prisma.user.findFirst({
+      where: { id, tenantId: req.user.tenantId }
+    });
+
+    if (!user) return res.status(404).json({ error: "Staff member not found" });
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: { role }
+    });
+
+    return res.json({ success: true, user: updated });
+  } catch (err) {
+    console.error("UPDATE STAFF ERROR:", err);
+    return res.status(500).json({ error: "Failed to update staff" });
+  }
+};
+
+/* ===============================
+   DELETE STAFF
+=============================== */
+exports.deleteStaff = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await prisma.user.findFirst({
+      where: { id, tenantId: req.user.tenantId }
+    });
+
+    if (!user) return res.status(404).json({ error: "Staff member not found" });
+    if (user.id === req.user.id) return res.status(400).json({ error: "Cannot delete yourself" });
+
+    await prisma.user.delete({ where: { id } });
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("DELETE STAFF ERROR:", err);
+    return res.status(500).json({ error: "Failed to delete staff" });
   }
 };

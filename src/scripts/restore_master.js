@@ -13,11 +13,11 @@ async function restoreMasterData() {
     if (!fs.existsSync(configDir)) fs.mkdirSync(configDir, { recursive: true });
 
     const platformConfig = {
-      projectName: 'Nexton AI',
+      projectName: 'Naxton AI',
       logoUrl: '/syed_master_logo.png'
     };
     fs.writeFileSync(configPath, JSON.stringify(platformConfig, null, 2));
-    console.log('✅ Platform Config Restored (Nexton AI)');
+    console.log('✅ Platform Config Restored (Naxton AI)');
 
     // 2. Create the Master Tenant
     const subdomain = 'newyorkpizzapastamenu.com';

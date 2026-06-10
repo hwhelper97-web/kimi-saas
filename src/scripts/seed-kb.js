@@ -63,7 +63,7 @@ async function seedKB() {
         tenantId,
         businessId,
         aiEnabled: true,
-        aiName: "Nexton AI",
+        aiName: "Naxton AI",
         aiSystemPrompt: "You are a helpful support agent for " + business.name + ". Use the KB articles to answer questions accurately."
       }
     });

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Call Debug Terminal | Naxton AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --terminal-bg: #0a0a0a;
+            --border-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --info-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --ai-color: #8b5cf6;
+            --tool-color: #ec4899;
+            --dim-text: #666;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            height: 60px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #fff;
+        }
+
+        .logo span { color: var(--info-color); }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        /* Main Layout */
+        main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar Stats */
+        .sidebar {
+            width: 300px;
+            border-right: 1px solid var(--border-color);
+            background: #080808;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .stat-card {
+            background: #0c0c0c;
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--dim-text);
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Terminal Area */
+        .terminal-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--terminal-bg);
+            position: relative;
+        }
+
+        .terminal-header {
+            padding: 12px 20px;
+            background: #0f0f0f;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+
+        .terminal-logs {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            display: flex;
+            gap: 12px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.3s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .log-time { color: var(--dim-text); flex-shrink: 0; width: 85px; }
+        .log-type {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            width: 65px;
+            flex-shrink: 0;
+        }
+
+        .log-message { word-break: break-all; }
+
+        /* Types */
+        .type-info { color: var(--info-color); }
+        .type-success { color: var(--success-color); }
+        .type-warning { color: var(--warning-color); }
+        .type-error { color: var(--error-color); }
+        .type-ai { color: var(--ai-color); }
+        .type-tool { color: var(--tool-color); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #333; }
+
+        /* HUD Overlay */
+        .hud-overlay {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            pointer-events: none;
+        }
+
+        .connection-quality {
+            background: rgba(0,0,0,0.8);
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        NAXTON <span>AI TERMINAL</span>
+    </div>
+    <div class="status-badge" id="socketStatus">
+        <div class="status-dot"></div>
+        CONNECTED
+    </div>
+</header>
+
+<main>
+    <div class="sidebar">
+        <div class="stat-card">
+            <span class="stat-label">Active Conversation</span>
+            <div class="stat-value" id="convId">N/A</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Call Duration</span>
+            <div class="stat-value" id="callDuration">00:00</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">System Health</span>
+            <div class="stat-value" style="color: var(--success-color)">OPTIMAL</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Business Context</span>
+            <div class="stat-value" style="font-size: 14px" id="bizName">Loading...</div>
+        </div>
+    </div>
+
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <span style="font-size: 11px; margin-left: 8px; color: var(--dim-text)">debug@naxton-ai:~# live-logs --follow</span>
+        </div>
+        <div class="terminal-logs" id="terminalLogs">
+            <div class="log-entry">
+                <span class="log-time">[SYSTEM]</span>
+                <span class="log-type type-info">INIT</span>
+                <span class="log-message">Naxton Advanced AI Debug Terminal v2.4 initialized. Awaiting voice stream...</span>
+            </div>
+        </div>
+
+        <div class="hud-overlay">
+            <div class="connection-quality">
+                <span style="color: var(--dim-text)">Latency</span>
+                <span id="latencyValue">42ms</span>
+                <div style="width: 1px; height: 12px; background: #333"></div>
+                <span style="color: var(--dim-text)">Buffer</span>
+                <span>Stable</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    // 🛡️ Authentication Helper
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    const token = getCookie('token');
+    const socket = io({
+        auth: { token: token }
+    });
+    
+    const terminalLogs = document.getElementById('terminalLogs');
+    const convIdDisplay = document.getElementById('convId');
+    const callDurationDisplay = document.getElementById('callDuration');
+    const bizNameDisplay = document.getElementById('bizName');
+
+    // Get Business ID from URL path: /business/:id/terminal
+    const pathParts = window.location.pathname.split('/');
+    const businessId = pathParts[2];
+
+    // Join business room
+    socket.emit('join_business', businessId);
+
+    function addLog(type, message, time = null) {
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        
+        const timestamp = time || new Date().toLocaleTimeString('en-GB', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        
+        entry.innerHTML = `
+            <span class="log-time">[${timestamp}]</span>
+            <span class="log-type type-${type}">${type}</span>
+            <span class="log-message">${message}</span>
+        `;
+        
+        terminalLogs.appendChild(entry);
+        terminalLogs.scrollTop = terminalLogs.scrollHeight;
+
+        if (terminalLogs.children.length > 300) {
+            terminalLogs.removeChild(terminalLogs.firstChild);
+        }
+    }
+
+    socket.on('call_debug', (data) => {
+        if (data.callSid) {
+            convIdDisplay.innerText = data.callSid.substring(0, 12) + "...";
+        }
+        addLog(data.type, data.message);
+    });
+
+    let callStartTime = null;
+    let durationInterval = null;
+
+    socket.on('call_started', (data) => {
+        addLog('success', "Incoming call connected. Establishing AI environment...");
+        if (data.business) bizNameDisplay.innerText = data.business;
+        callStartTime = Date.now();
+        if (durationInterval) clearInterval(durationInterval);
+        durationInterval = setInterval(() => {
+            const secs = Math.floor((Date.now() - callStartTime) / 1000);
+            const mins = Math.floor(secs / 60);
+            const remainingSecs = secs % 60;
+            callDurationDisplay.innerText = `${mins.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
+        }, 1000);
+    });
+
+    socket.on('call_ended', (data) => {
+        addLog('warning', `Call ended. Duration: ${data.duration}s. Releasing AI session.`);
+        if (durationInterval) clearInterval(durationInterval);
+    });
+
+    socket.on('call_transcribed', (data) => {
+        const type = data.role === 'user' ? 'info' : 'ai';
+        const prefix = data.role === 'user' ? 'Customer: ' : 'AI: ';
+        addLog(type, prefix + data.text);
+    });
+
+    socket.on('connect_error', () => {
+        document.getElementById('socketStatus').style.color = 'var(--error-color)';
+        document.getElementById('socketStatus').innerHTML = '<div class="status-dot"></div> DISCONNECTED';
+    });
+
+    socket.on('connect', () => {
+        document.getElementById('socketStatus').style.color = 'var(--success-color)';
+        document.getElementById('socketStatus').innerHTML = '<div class="status-dot"></div> CONNECTED';
+    });
+</script>
+</body>
+</html>

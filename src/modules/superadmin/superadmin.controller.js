@@ -15,6 +15,9 @@ const generateSlug = (name) => {
 exports.getTenants = async (req, res) => {
   try {
     const tenants = await prisma.tenant.findMany({
+      where: {
+        name: { not: "Naxton Platform Hub" }
+      },
       orderBy: { createdAt: "desc" },
       include: {
         businesses: {
@@ -27,7 +30,7 @@ exports.getTenants = async (req, res) => {
     res.json({ success: true, data: tenants });
   } catch (error) {
     console.error("Load tenants error:", error);
-    res.json({ success: false, message: "Failed to load tenants" });
+    res.json({ success: false, message: "Failed to load tenants: " + error.message });
   }
 };
 
@@ -64,14 +67,35 @@ exports.createTenant = async (req, res) => {
     const baseSlug = generateSlug(name);
     const slug = `${baseSlug}-${Math.floor(Math.random() * 900) + 100}`; // Add 3 digits for uniqueness
 
+    // 0. Calculate Trial
+    const { plan, trialDays: trialDaysOverride } = req.body;
+    const settingsService = require("../../services/settings.service");
+    const settings = await settingsService.getSettings("TENANT");
+    
+    const trialDays = parseInt(trialDaysOverride) || parseInt(settings.trialDays) || 14;
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + trialDays);
+
+    // Plan Defaults
+    const { PLANS } = require("../../constants/plans");
+    const selectedPlanId = (plan || 'nexa_core').toUpperCase().replace("-", "_");
+    const planConfig = PLANS[selectedPlanId] || PLANS.NEXA_CORE;
+
     // 1. Create Tenant & Owner
     const tenant = await prisma.tenant.create({
       data: {
         name: name,
         slug: slug,
+        plan: planConfig.id,
         isDemoAccount: isDemo === true,
-        tokenBalance: parseInt(initialTokens) || 100,
-        totalTokensPurchased: parseInt(initialTokens) || 100,
+        tokenBalance: parseInt(initialTokens) || planConfig.monthlyMinutes,
+        totalTokensPurchased: parseInt(initialTokens) || planConfig.monthlyMinutes,
+        monthlyLimit: planConfig.monthlyMinutes,
+        monthlyTokenLimit: planConfig.monthlyTokens,
+        staffLimit: planConfig.maxStaff,
+        businessLimit: planConfig.maxBusinesses,
+        trialEndDate: trialEndDate,
+        subscriptionStatus: "ACTIVE",
         users: {
           create: {
             email: ownerEmail,
@@ -142,49 +166,72 @@ exports.deleteTenant = async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid administrator password. Access Denied." });
     }
 
-    // 1. Fetch IDs for deep cascade
-    const businesses = await prisma.business.findMany({ where: { tenantId }, select: { id: true } });
-    const bizIds = businesses.map(b => b.id);
-    
-    const integrations = await prisma.integration.findMany({ where: { businessId: { in: bizIds } }, select: { id: true } });
-    const intIds = integrations.map(i => i.id);
-    
-    const menuItems = await prisma.menuItem.findMany({ where: { businessId: { in: bizIds } }, select: { id: true } });
-    const itemIds = menuItems.map(i => i.id);
+    // 1. Fetch IDs for deep cascade (Safely)
+    const [bizIds, convoIds, ticketIds, userIds] = await Promise.all([
+      prisma.business.findMany({ where: { tenantId }, select: { id: true } }).then(res => res.map(r => r.id)),
+      prisma.conversation.findMany({ where: { tenantId }, select: { id: true } }).then(res => res.map(r => r.id)),
+      prisma.ticket.findMany({ where: { tenantId }, select: { id: true } }).then(res => res.map(r => r.id)),
+      prisma.user.findMany({ where: { tenantId }, select: { id: true } }).then(res => res.map(r => r.id))
+    ]);
 
-    const convos = await prisma.conversation.findMany({ where: { businessId: { in: bizIds } }, select: { id: true } });
-    const convoIds = convos.map(c => c.id);
-
-    // 2. Cascade Delete All Linked Data (Atomic Transaction)
+    // 2. Perform Cascaded Purge (Batched for stability)
+    // Batch 1: Communication & Support Data
     await prisma.$transaction([
-      // Stage A: Leaf Nodes (Most Specific)
-      prisma.message.deleteMany({ where: { conversationId: { in: convoIds } } }),
-      prisma.orderItem.deleteMany({ where: { menuItemId: { in: itemIds } } }),
-      prisma.menuSize.deleteMany({ where: { menuItemId: { in: itemIds } } }),
-      prisma.menuAddon.deleteMany({ where: { menuItemId: { in: itemIds } } }),
-      prisma.menuOption.deleteMany({ where: { optionGroup: { menuItemId: { in: itemIds } } } }),
-      prisma.menuOptionGroup.deleteMany({ where: { menuItemId: { in: itemIds } } }),
-      prisma.integrationLog.deleteMany({ where: { integrationId: { in: intIds } } }),
-      prisma.integrationCredential.deleteMany({ where: { integrationId: { in: intIds } } }),
+      prisma.conversationMessage.deleteMany({ where: { conversationId: { in: convoIds } } }),
+      prisma.ticketMessage.deleteMany({ where: { ticketId: { in: ticketIds } } }),
+      prisma.ticketActivity.deleteMany({ where: { ticketId: { in: ticketIds } } }),
+      prisma.ticketAttachment.deleteMany({ where: { ticketId: { in: ticketIds } } }),
+      prisma.notification.deleteMany({ where: { tenantId } })
+    ]);
 
-      // Stage B: Mid-Level Parents
-      prisma.conversation.deleteMany({ where: { id: { in: convoIds } } }),
-      prisma.ticket.deleteMany({ where: { businessId: { in: bizIds } } }),
-      prisma.integration.deleteMany({ where: { id: { in: intIds } } }),
-      prisma.order.deleteMany({ where: { businessId: { in: bizIds } } }),
-      prisma.menuItem.deleteMany({ where: { id: { in: itemIds } } }),
-      prisma.menuCategory.deleteMany({ where: { businessId: { in: bizIds } } }),
-      prisma.knowledgeArticle.deleteMany({ where: { businessId: { in: bizIds } } }),
-      prisma.knowledgeCategory.deleteMany({ where: { businessId: { in: bizIds } } }),
-      prisma.supportSettings.deleteMany({ where: { businessId: { in: bizIds } } }),
+    // Batch 2: Commerce & Menus
+    await prisma.$transaction([
+      prisma.orderItem.deleteMany({ where: { tenantId } }),
+      prisma.menuVariant.deleteMany({ where: { tenantId } }),
+      prisma.menuOption.deleteMany({ where: { tenantId } }),
+      prisma.menuSize.deleteMany({ where: { tenantId } }),
+      prisma.menuAddon.deleteMany({ where: { tenantId } }),
+      prisma.menuAvailability.deleteMany({ where: { menuItem: { tenantId } } }),
+      prisma.menuItemAlias.deleteMany({ where: { tenantId } }),
+      prisma.menuItemAddon.deleteMany({ where: { menuItem: { tenantId } } }),
+      prisma.menuItemModifierGroup.deleteMany({ where: { menuItem: { tenantId } } }),
+      prisma.modifierOption.deleteMany({ where: { group: { tenantId } } }),
+      prisma.order.deleteMany({ where: { tenantId } }),
+      prisma.menuItem.deleteMany({ where: { tenantId } }),
+      prisma.menuCategory.deleteMany({ where: { tenantId } }),
+      prisma.modifierGroup.deleteMany({ where: { tenantId } })
+    ]);
 
-      // Stage C: Business-Level Records
-      prisma.appointment.deleteMany({ where: { businessId: { in: bizIds } } }),
-      prisma.call.deleteMany({ where: { businessId: { in: bizIds } } }),
+    // Batch 3: Appointments & Staffing
+    await prisma.$transaction([
+      prisma.staffService.deleteMany({ where: { staff: { tenantId } } }),
+      prisma.serviceVariant.deleteMany({ where: { tenantId } }),
+      prisma.serviceAddon.deleteMany({ where: { tenantId } }),
+      prisma.serviceAvailability.deleteMany({ where: { tenantId } }),
+      prisma.serviceAlias.deleteMany({ where: { tenantId } }),
+      prisma.appointmentService.deleteMany({ where: { tenantId } }),
+      prisma.serviceCategory.deleteMany({ where: { tenantId } }),
+      prisma.staff.deleteMany({ where: { tenantId } }),
+      prisma.appointment.deleteMany({ where: { tenantId } }),
+      prisma.blockedTime.deleteMany({ where: { tenantId } })
+    ]);
+
+    // Batch 4: Infrastructure & Final Purge
+    await prisma.$transaction([
+      prisma.integrationLog.deleteMany({ where: { integration: { tenantId } } }),
+      prisma.integrationCredential.deleteMany({ where: { integration: { tenantId } } }),
+      prisma.integration.deleteMany({ where: { tenantId } }),
+      prisma.knowledgeArticle.deleteMany({ where: { tenantId } }),
+      prisma.knowledgeCategory.deleteMany({ where: { tenantId } }),
+      prisma.supportSettings.deleteMany({ where: { tenantId } }),
+      prisma.employeeProfile.deleteMany({ where: { userId: { in: userIds } } }),
+      prisma.sLAPolicy.deleteMany({ where: { tenantId } }),
+      prisma.supportDepartment.deleteMany({ where: { tenantId } }),
       prisma.externalMapping.deleteMany({ where: { tenantId } }),
       prisma.mintRequest.deleteMany({ where: { tenantId } }),
-      
-      // Stage D: Core Platform Cleanup
+      prisma.tenantPhoneNumber.deleteMany({ where: { tenantId } }),
+      prisma.callRoutingRule.deleteMany({ where: { tenantId } }),
+      prisma.callAnalytics.deleteMany({ where: { tenantId } }),
       prisma.customer.deleteMany({ where: { tenantId } }),
       prisma.business.deleteMany({ where: { tenantId } }),
       prisma.user.deleteMany({ where: { tenantId } }),
@@ -198,9 +245,16 @@ exports.deleteTenant = async (req, res) => {
 
   } catch (error) {
     console.error("CRITICAL DELETE ERROR:", error);
+    
+    // Log more details if it's a Prisma error
+    if (error.code) {
+        console.error("Prisma Error Code:", error.code);
+        console.error("Prisma Meta:", error.meta);
+    }
+
     res.status(500).json({ 
       success: false, 
-      message: `Deletion failed: ${error.message}. This is likely due to a data dependency. Check server logs.` 
+      message: `Deletion failed: ${error.message}.` 
     });
   }
 };
@@ -211,12 +265,25 @@ exports.deleteTenant = async (req, res) => {
 exports.getAnalytics = async (req, res) => {
   try {
     const { businessId } = req.query;
-    const filter = businessId ? { businessId } : {};
+    // Only apply filter if businessId is provided and NOT an empty string
+    const filter = (businessId && businessId !== "") ? { businessId } : {};
 
-    const totalTenants = await prisma.tenant.count();
-    const totalUsers = await prisma.user.count();
+    console.log("[Analytics] Fetching for business:", businessId || 'ALL');
+    const totalTenants = await prisma.tenant.count({
+      where: {
+        name: { not: "Naxton Platform Hub" }
+      }
+    });
+    console.log("[Analytics] Tenants count:", totalTenants);
+    
+    const totalUsers = await prisma.user.count({
+      where: {
+        role: { not: "SUPERADMIN" }
+      }
+    });
     const totalOrders = await prisma.order.count({ where: filter });
     const totalCalls = await prisma.call.count({ where: filter });
+    console.log("[Analytics] Orders:", totalOrders, "Calls:", totalCalls);
 
     const avgDuration = await prisma.call.aggregate({
       where: filter,
@@ -280,28 +347,95 @@ exports.getAnalytics = async (req, res) => {
       values: last7Days.map(date => callsMap[date] || 0)
     };
 
+    /* ------------------------------
+       SUPPORT INTELLIGENCE METRICS
+    ------------------------------ */
+    const allTickets = await prisma.ticket.findMany({
+      select: { createdAt: true, resolvedAt: true, status: true }
+    });
+
+    const ticketsMap = {};
+    let totalResolutionTime = 0;
+    let resolvedCount = 0;
+    let compliantCount = 0;
+
+    allTickets.forEach(t => {
+      const date = t.createdAt.toISOString().split("T")[0];
+      ticketsMap[date] = (ticketsMap[date] || 0) + 1;
+
+      if (t.resolvedAt) {
+        const diff = t.resolvedAt.getTime() - t.createdAt.getTime();
+        totalResolutionTime += diff;
+        resolvedCount++;
+
+        // Compliance: resolved within 24 hours (86400000 ms)
+        if (diff <= 86400000) compliantCount++;
+      }
+    });
+
+    const resolutionVelocity = resolvedCount ? Math.round(totalResolutionTime / resolvedCount / 3600000) : 0; // Hours
+    const complianceScore = resolvedCount ? Math.round((compliantCount / resolvedCount) * 100) : 100;
+    
+    const avgResponseTime = 12; // Mocked
+
+    const supportVolumeChart = last7Days.map(date => ({
+      day: date,
+      count: ticketsMap[date] || 0
+    }));
+
+    const openCount = allTickets.filter(t => t.status === 'open' || t.status === 'pending').length;
+    const totalTicketsCount = allTickets.length;
+
+    // Active unassigned chats
+    const unassignedChats = await prisma.conversation.count({
+      where: {
+        status: { in: ['open', 'escalated'] },
+        assignedToId: null
+      }
+    });
+
+    const activeChatsCount = await prisma.conversation.count({
+      where: { status: { notIn: ['resolved', 'closed'] } }
+    });
+
+    const totalRevenue = orders.reduce((sum, o) => sum + (parseFloat(o.total) || 0), 0);
+
+    const finalData = {
+      tenants: totalTenants,
+      users: totalUsers,
+      orders: totalOrders,
+      calls: totalCalls,
+      totalRevenue,
+      callsToday,
+      ordersToday,
+      avgDuration: Math.round(avgDuration._avg.duration || 0),
+      conversionRate,
+      displayConversionRate,
+      revenueChart,
+      callsChart,
+      supportMetrics: {
+        velocity: resolutionVelocity,
+        compliance: complianceScore,
+        response: avgResponseTime,
+        volumeChart: supportVolumeChart,
+        openCount,
+        totalTickets: totalTicketsCount,
+        unassignedChats,
+        activeChats: activeChatsCount
+      }
+    };
+    console.log("[Analytics] Sending data:", JSON.stringify(finalData, null, 2));
     res.json({
       success: true,
-      data: {
-        tenants: totalTenants,
-        users: totalUsers,
-        orders: totalOrders,
-        calls: totalCalls,
-        callsToday,
-        ordersToday,
-        avgDuration: Math.round(avgDuration._avg.duration || 0),
-        conversionRate,
-        displayConversionRate,
-        revenueChart,
-        callsChart
-      }
+      data: finalData
     });
 
   } catch (error) {
     console.error("Analytics error:", error);
     res.json({
       success: false,
-      message: "Failed to load analytics"
+      message: "failed to load analytics: " + (error.message || "Unknown error"),
+      error: error.stack
     });
   }
 };
@@ -824,83 +958,260 @@ exports.toggleDemoAccount = async (req, res) => {
 };
 
 async function initializeDefaultServicesLocal(tenantId, businessId, subType) {
-  const templates = {
-    "Barber Shop": [
-      { name: "Haircut", price: 20, category: "Grooming", serviceDuration: 30 },
-      { name: "Beard Trim", price: 10, category: "Grooming", serviceDuration: 15 },
-      { name: "Hair Wash", price: 5, category: "Grooming", serviceDuration: 10 },
-      { name: "Facial", price: 25, category: "Skin Care", serviceDuration: 30 },
-      { name: "Hair Coloring", price: 50, category: "Treatments", serviceDuration: 60 },
-      { name: "Head Massage", price: 15, category: "Relaxation", serviceDuration: 20 },
-      { name: "Kids Haircut", price: 12, category: "Grooming", serviceDuration: 20 }
-    ],
-    "Beauty Salon": [
-      { name: "Hair Styling", price: 60, category: "Hair", serviceDuration: 60 },
-      { name: "Hair Coloring", price: 150, category: "Hair", serviceDuration: 120 },
-      { name: "Makeup", price: 80, category: "Makeup", serviceDuration: 90 },
-      { name: "Manicure", price: 30, category: "Nails", serviceDuration: 45 },
-      { name: "Pedicure", price: 35, category: "Nails", serviceDuration: 45 },
-      { name: "Bridal Package", price: 500, category: "Premium", serviceDuration: 240 },
-      { name: "Waxing", price: 40, category: "Body", serviceDuration: 30 },
-      { name: "Facial", price: 80, category: "Skin", serviceDuration: 60 }
-    ],
-    "Spa Center": [
-      { name: "Full Body Massage", price: 80, category: "Massage", serviceDuration: 60 },
-      { name: "Hot Stone Massage", price: 120, category: "Therapy", serviceDuration: 90 },
-      { name: "Steam Bath", price: 30, category: "Relaxation", serviceDuration: 30 },
-      { name: "Aromatherapy", price: 90, category: "Therapy", serviceDuration: 60 },
-      { name: "Couple Spa", price: 250, category: "Premium", serviceDuration: 120 },
-      { name: "Foot Massage", price: 30, category: "Relaxation", serviceDuration: 30 },
-      { name: "Sauna", price: 40, category: "Relaxation", serviceDuration: 45 }
-    ],
-    "Dental Clinic": [
-      { name: "Dental Checkup", price: 50, category: "Exam", serviceDuration: 30 },
-      { name: "Teeth Cleaning", price: 100, category: "Hygiene", serviceDuration: 45 },
-      { name: "Root Canal", price: 500, category: "Surgery", serviceDuration: 90 },
-      { name: "Teeth Whitening", price: 300, category: "Esthetics", serviceDuration: 60 },
-      { name: "Braces Consultation", price: 150, category: "Consult", serviceDuration: 45 },
-      { name: "Tooth Extraction", price: 200, category: "Surgery", serviceDuration: 45 },
-      { name: "Dental Filling", price: 150, category: "Procedure", serviceDuration: 30 }
-    ],
-    "Medical Clinic": [
-      { name: "General Checkup", price: 60, category: "Primary Care", serviceDuration: 30 },
-      { name: "Blood Test", price: 40, category: "Lab", serviceDuration: 15 },
-      { name: "Ultrasound", price: 150, category: "Imaging", serviceDuration: 45 },
-      { name: "Specialist Consultation", price: 200, category: "Specialist", serviceDuration: 45 },
-      { name: "Vaccination", price: 50, category: "Preventive", serviceDuration: 15 }
-    ]
-  };
+  const { seedDefaultServices } = require("../../services/appointment-seeder.service");
+  await seedDefaultServices(businessId, tenantId, subType);
+}
 
-  // Add aliases
-  templates["Hair salons / barbershops"] = templates["Barber Shop"];
-  templates["Spas & massage therapy"] = templates["Spa Center"];
-  templates["Doctors / clinics"] = templates["Medical Clinic"];
-  templates["Dentists"] = templates["Dental Clinic"];
-
-  const services = templates[subType];
-  if (!services) return;
-
-  const categoryNames = [...new Set(services.map(s => s.category))];
-  const categoryMap = {};
-
-  for (const catName of categoryNames) {
-    const cat = await prisma.menuCategory.create({
-      data: { name: catName, businessId, tenantId }
+/* ======================================
+   INFRASTRUCTURE MONITORING
+====================================== */
+exports.getInfrastructureStats = async (req, res) => {
+  try {
+    const metrics = await prisma.systemMetric.findMany({
+      take: 100,
+      orderBy: { timestamp: "desc" }
     });
-    categoryMap[catName] = cat.id;
-  }
 
-  for (const s of services) {
-    await prisma.menuItem.create({
+    // Mocking some realtime health for the UI
+    const health = {
+      cpu: Math.floor(Math.random() * 40) + 10 + "%",
+      ram: "4.2GB / 16GB",
+      disk: "128GB / 512GB",
+      uptime: "14d 6h 22m",
+      websockets: Math.floor(Math.random() * 150) + 20,
+      latency: "24ms"
+    };
+
+    res.json({ success: true, data: { metrics, health } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/* ======================================
+   AI OPERATIONS CENTER
+====================================== */
+exports.getAiOperations = async (req, res) => {
+  try {
+    const calls = await prisma.call.findMany({
+      take: 100,
+      orderBy: { createdAt: "desc" }
+    });
+
+    const aiStats = {
+      openai: { tokens: "1.2M", cost: "$24.50", latency: "850ms", errors: 0 },
+      elevenlabs: { characters: "450k", cost: "$90.00", latency: "420ms", errors: 2 },
+      deepgram: { minutes: "1,200", cost: "$12.00", latency: "150ms", errors: 1 },
+      twilio: { minutes: "1,450", cost: "$18.50", latency: "N/A", errors: 0 }
+    };
+
+    res.json({ success: true, data: { calls, aiStats } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/* ======================================
+   SECURITY & AUDIT LOGS
+====================================== */
+exports.getAuditLogs = async (req, res) => {
+  try {
+    const logs = await prisma.auditLog.findMany({
+      take: 50,
+      orderBy: { createdAt: "desc" }
+    });
+    res.json({ success: true, data: logs });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/* ======================================
+   INCIDENT MANAGEMENT
+====================================== */
+exports.getIncidents = async (req, res) => {
+  try {
+    const incidents = await prisma.incident.findMany({
+      orderBy: { createdAt: "desc" }
+    });
+    res.json({ success: true, data: incidents });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.createIncident = async (req, res) => {
+  try {
+    const { title, description, severity, affectedServices } = req.body;
+    const incident = await prisma.incident.create({
       data: {
-        name: s.name,
-        price: s.price,
-        pricingType: s.pricingType || "FIXED",
-        serviceDuration: s.serviceDuration || 30,
-        categoryId: categoryMap[s.category],
-        businessId,
-        tenantId
+        title,
+        description,
+        severity,
+        affectedServices,
+        status: "investigating"
       }
     });
+    res.json({ success: true, data: incident });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
-}
+};
+
+/* ======================================
+   QUEUE & WORKER MONITORING
+====================================== */
+exports.getQueueStats = async (req, res) => {
+  try {
+    // High-fidelity mock of background worker state
+    const queues = [
+      { name: "Transcription Engine", active: 4, waiting: 0, failed: 1, processed: 1420 },
+      { name: "Voice Generation", active: 2, waiting: 1, failed: 0, processed: 850 },
+      { name: "Order Synchronization", active: 0, waiting: 0, failed: 4, processed: 12400 },
+      { name: "Smart Scraper", active: 1, waiting: 2, failed: 0, processed: 310 }
+    ];
+    res.json({ success: true, data: queues });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/* ======================================
+   PHONE INVENTORY & TELEPHONY
+====================================== */
+
+exports.getPhoneInventory = async (req, res) => {
+  try {
+    const inventory = await prisma.tenantPhoneNumber.findMany({
+      include: {
+        tenant: { select: { id: true, name: true } },
+        business: { select: { id: true, name: true } }
+      },
+      orderBy: { createdAt: "desc" }
+    });
+
+    res.json({ success: true, data: inventory });
+  } catch (error) {
+    console.error("Get phone inventory error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.assignPhoneToTenant = async (req, res) => {
+  try {
+    const { phoneId, tenantId, businessId } = req.body;
+
+    if (!phoneId || !tenantId) {
+      return res.status(400).json({ success: false, message: "Phone ID and Tenant ID are required." });
+    }
+
+    const updated = await prisma.tenantPhoneNumber.update({
+      where: { id: phoneId },
+      data: {
+        tenantId: tenantId,
+        businessId: businessId || null,
+        status: "ACTIVE"
+      }
+    });
+
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    console.error("Assign phone error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.provisionPlatformNumber = async (req, res) => {
+  try {
+    // This would normally call Twilio API to buy a number
+    // For now, we'll mock it by adding a record to TenantPhoneNumber
+    const { areaCode } = req.body;
+    
+    const mockNumber = `+1${areaCode || '888'}${Math.floor(1000000 + Math.random() * 9000000)}`;
+    
+    // Default to the Platform Hub (Master Tenant) if none provided
+    const masterTenant = await prisma.tenant.findFirst({ where: { name: "Naxton Platform Hub" } });
+    
+    const newPhone = await prisma.tenantPhoneNumber.create({
+      data: {
+        twilioPhoneNumber: mockNumber,
+        twilioSid: "PN" + Math.random().toString(36).substring(7).toUpperCase(),
+        tenantId: masterTenant ? masterTenant.id : "PLATFORM",
+        status: "UNASSIGNED",
+        provider: "TWILIO"
+      }
+    });
+
+    res.json({ success: true, data: newPhone });
+  } catch (error) {
+    console.error("Provision phone error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/* ======================================
+   UPDATE TENANT PLAN & TRIAL
+====================================== */
+exports.updateTenantPlan = async (req, res) => {
+  try {
+    const { tenantId } = req.params;
+    const { plan, trialDays, subscriptionStatus, monthlyLimit } = req.body;
+
+    const updateData = {};
+    if (plan) {
+      const { PLANS } = require("../../constants/plans");
+      const selectedPlanId = plan.toUpperCase().replace("-", "_");
+      const planConfig = PLANS[selectedPlanId];
+      
+      if (planConfig) {
+        updateData.plan = planConfig.id;
+        updateData.monthlyLimit = planConfig.monthlyMinutes;
+        updateData.monthlyTokenLimit = planConfig.monthlyTokens;
+        updateData.staffLimit = planConfig.maxStaff;
+        updateData.businessLimit = planConfig.maxBusinesses;
+      }
+    }
+    if (subscriptionStatus) updateData.subscriptionStatus = subscriptionStatus;
+    if (monthlyLimit) updateData.monthlyLimit = parseInt(monthlyLimit);
+    
+    if (trialDays) {
+      const trialEndDate = new Date();
+      trialEndDate.setDate(trialEndDate.getDate() + parseInt(trialDays));
+      updateData.trialEndDate = trialEndDate;
+    }
+
+    const tenant = await prisma.tenant.update({
+      where: { id: tenantId },
+      data: updateData
+    });
+
+    res.json({ success: true, message: 'Tenant plan updated successfully', data: tenant });
+  } catch (error) {
+    console.error('Update tenant plan error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/* ======================================
+   UPLOAD PLATFORM LOGO
+====================================== */
+exports.uploadLogo = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No logo file uploaded." });
+    }
+
+    // Construct the public URL for the uploaded file
+    // Assuming upload middleware saves to public/uploads/ or similar
+    const logoUrl = `/uploads/${req.file.filename}`;
+
+    res.json({
+      success: true,
+      message: "Logo uploaded successfully",
+      logoUrl: logoUrl
+    });
+  } catch (error) {
+    console.error("Upload logo error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

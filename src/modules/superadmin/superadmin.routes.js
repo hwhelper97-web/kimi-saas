@@ -117,20 +117,28 @@ router.post(
   controller.uploadLogo
 );
 
-// Get Platform Settings
+const settingsController = require("./settings.controller");
+
+// Platform Settings (Extended)
 router.get(
   "/settings",
   authMiddleware,
   allowRoles(ROLES.SUPERADMIN),
-  controller.getSettings
+  settingsController.getAllSettings
 );
 
-// Update Platform Settings
+router.get(
+  "/settings/:group",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  settingsController.getSettingsByGroup
+);
+
 router.post(
   "/settings",
   authMiddleware,
   allowRoles(ROLES.SUPERADMIN),
-  controller.updateSettings
+  settingsController.updateSettings
 );
 
 // Get Mint Requests
@@ -165,4 +173,78 @@ router.post(
   controller.toggleDemoAccount
 );
 
-module.exports = router;
+// Update Tenant Plan/Trial
+router.put(
+  "/tenants/:tenantId/plan",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.updateTenantPlan
+);
+
+// --- NEW SYSTEM MONITORING ROUTES ---
+
+router.get(
+  "/infrastructure",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.getInfrastructureStats
+);
+
+router.get(
+  "/ai-ops",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.getAiOperations
+);
+
+router.get(
+  "/audit-logs",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.getAuditLogs
+);
+
+router.get(
+  "/incidents",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.getIncidents
+);
+
+router.post(
+  "/incidents",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.createIncident
+);
+
+router.get(
+  "/queues",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.getQueueStats
+);
+
+// --- TELEPHONY INVENTORY ---
+router.get(
+  "/inventory/phones",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.getPhoneInventory
+);
+
+router.post(
+  "/inventory/phones/assign",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.assignPhoneToTenant
+);
+
+router.post(
+  "/inventory/phones/provision",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.provisionPlatformNumber
+);
+
+module.exports = router;

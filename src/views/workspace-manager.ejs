@@ -1,0 +1,141 @@
+<div class="page-header">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="width: 48px; height: 48px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #a855f7;">
+            <i data-lucide="briefcase" style="width: 24px;"></i>
+        </div>
+        <div>
+            <h1 style="font-size: 1.5rem; font-weight: 800; color: white;">Executive Dashboard</h1>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Team performance, revenue metrics, and SLA compliance.</p>
+        </div>
+    </div>
+</div>
+
+<div class="apex-grid" style="grid-template-columns: repeat(4, 1fr); margin-top: 2rem;">
+    <div class="apex-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.05em;">TEAM PERFORMANCE</span>
+            <i data-lucide="trending-up" style="width: 14px; color: #10b981;"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 800; color: white;">94%</div>
+        <div style="font-size: 0.65rem; color: #10b981; margin-top: 0.25rem;">+12% from last month</div>
+    </div>
+    <div class="apex-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.05em;">AVG RESPONSE TIME</span>
+            <i data-lucide="clock" style="width: 14px; color: #00f2ff;"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 800; color: white;">1.8m</div>
+        <div style="font-size: 0.65rem; color: #10b981; margin-top: 0.25rem;">Well within SLA limits</div>
+    </div>
+    <div class="apex-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.05em;">CUSTOMER SAT</span>
+            <i data-lucide="heart" style="width: 14px; color: #ef4444;"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 800; color: white;">4.8/5.0</div>
+        <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.25rem;">Based on 840 surveys</div>
+    </div>
+    <div class="apex-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.05em;">TICKET VOLUME</span>
+            <i data-lucide="ticket" style="width: 14px; color: #f59e0b;"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 800; color: white;">128</div>
+        <div style="font-size: 0.65rem; color: #f87171; margin-top: 0.25rem;">+5% peak period today</div>
+    </div>
+</div>
+
+<div class="dashboard-main-grid" style="margin-top: 2rem;">
+    <div class="left-col">
+        <div class="apex-card">
+            <h3 class="card-title">Agent Productivity Matrix</h3>
+            <div style="margin-top: 1.5rem; overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <th style="text-align: left; padding: 0.75rem; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Agent Name</th>
+                            <th style="text-align: left; padding: 0.75rem; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Resolved</th>
+                            <th style="text-align: left; padding: 0.75rem; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Avg Time</th>
+                            <th style="text-align: left; padding: 0.75rem; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Rating</th>
+                            <th style="text-align: right; padding: 0.75rem; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem 0.75rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 24px; height: 24px; border-radius: 50%; background: #6366f1; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white;">SK</div>
+                                    <span style="font-size: 0.85rem; font-weight: 600;">Sarah Khan</span>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem 0.75rem; font-size: 0.85rem;">42</td>
+                            <td style="padding: 1rem 0.75rem; font-size: 0.85rem;">1.2m</td>
+                            <td style="padding: 1rem 0.75rem; font-size: 0.85rem; color: #f59e0b;">★★★★★</td>
+                            <td style="padding: 1rem 0.75rem; text-align: right;">
+                                <span style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700;">ACTIVE</span>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem 0.75rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 24px; height: 24px; border-radius: 50%; background: #a855f7; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white;">RJ</div>
+                                    <span style="font-size: 0.85rem; font-weight: 600;">Rahul J.</span>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem 0.75rem; font-size: 0.85rem;">38</td>
+                            <td style="padding: 1rem 0.75rem; font-size: 0.85rem;">1.5m</td>
+                            <td style="padding: 1rem 0.75rem; font-size: 0.85rem; color: #f59e0b;">★★★★☆</td>
+                            <td style="padding: 1rem 0.75rem; text-align: right;">
+                                <span style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700;">ACTIVE</span>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem 0.75rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 24px; height: 24px; border-radius: 50%; background: #ec4899; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white;">MD</div>
+                                    <span style="font-size: 0.85rem; font-weight: 600;">Maria D.</span>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem 0.75rem; font-size: 0.85rem;">12</td>
+                            <td style="padding: 1rem 0.75rem; font-size: 0.85rem;">4.2m</td>
+                            <td style="padding: 1rem 0.75rem; font-size: 0.85rem; color: #f59e0b;">★★★☆☆</td>
+                            <td style="padding: 1rem 0.75rem; text-align: right;">
+                                <span style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700;">ON BREAK</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="right-col">
+        <div class="apex-card">
+            <h3 class="card-title">Resource Allocations</h3>
+            <div style="height: 200px; display: flex; align-items: center; justify-content: center; position: relative;">
+                <div style="width: 120px; height: 120px; border-radius: 50%; border: 12px solid #6366f1; border-top-color: #a855f7; border-right-color: #00f2ff; transform: rotate(45deg);"></div>
+                <div style="position: absolute; text-align: center;">
+                    <div style="font-size: 1.25rem; font-weight: 800; color: white;">82%</div>
+                    <div style="font-size: 0.6rem; color: var(--text-muted);">Capacity</div>
+                </div>
+            </div>
+            <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
+                    <span style="display: flex; align-items: center; gap: 0.4rem;"><div style="width: 8px; height: 8px; border-radius: 50%; background: #6366f1;"></div> Support</span>
+                    <span style="font-weight: 700; color: white;">45%</span>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
+                    <span style="display: flex; align-items: center; gap: 0.4rem;"><div style="width: 8px; height: 8px; border-radius: 50%; background: #a855f7;"></div> Engineering</span>
+                    <span style="font-weight: 700; color: white;">32%</span>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
+                    <span style="display: flex; align-items: center; gap: 0.4rem;"><div style="width: 8px; height: 8px; border-radius: 50%; background: #00f2ff;"></div> Product</span>
+                    <span style="font-weight: 700; color: white;">23%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if (window.lucide) lucide.createIcons();
+</script>

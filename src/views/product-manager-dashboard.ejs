@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Strategy Hub — <%= projectName %></title>
+  <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/admin-apex.css" />
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    :root {
+      --product-primary: #a855f7; /* Violet */
+      --product-primary-rgb: 168, 85, 247;
+      --product-bg: #030712;
+      --product-card: #0f172a;
+      --product-border: rgba(255,255,255,0.06);
+    }
+
+    body[data-theme="dark"] {
+      --bg-app: var(--product-bg);
+      --bg-card: var(--product-card);
+      --border: var(--product-border);
+    }
+
+    .prod-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .prod-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      border-radius: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .prod-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--product-primary);
+      box-shadow: 0 15px 30px rgba(168, 85, 247, 0.1);
+    }
+
+    .roadmap-board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+
+    .roadmap-column {
+      background: rgba(255,255,255,0.02);
+      padding: 1.25rem;
+      border-radius: 1.25rem;
+      border: 1px dashed var(--border);
+      min-height: 400px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+      cursor: grab;
+    }
+
+    .section-container { display: none; }
+    .section-container.active { display: block; animation: fadeIn 0.4s ease; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+    .status-badge {
+      padding: 2px 8px; border-radius: 6px; font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="apex-layout">
+    <aside class="apex-sidebar">
+      <div class="sidebar-header">
+        <div class="logo-box" style="background: var(--product-primary);">
+          <i data-lucide="layers" style="color: #fff;"></i>
+        </div>
+        <div class="logo-text">
+          <h2 style="font-size: 1rem; font-weight: 800;">Strategy Hub</h2>
+          <p style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;">Product Management</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <p class="nav-group-label">Intelligence</p>
+        <a class="apex-nav-item active" id="nav-overview" onclick="switchView('overview')">
+          <i data-lucide="line-chart"></i>
+          <span>Growth Analytics</span>
+        </a>
+        <a class="apex-nav-item" id="nav-ai" onclick="switchView('ai')">
+          <i data-lucide="sparkles"></i>
+          <span>AI Usage Insights</span>
+        </a>
+        <a class="apex-nav-item" id="nav-tenants" onclick="switchView('tenants')">
+          <i data-lucide="layout-grid"></i>
+          <span>Tenant Adoption</span>
+        </a>
+
+        <p class="nav-group-label">Customer Voice</p>
+        <a class="apex-nav-item" id="nav-requests" onclick="switchView('requests')">
+          <i data-lucide="lightbulb"></i>
+          <span>Feature Requests</span>
+        </a>
+        <a class="apex-nav-item" id="nav-feedback" onclick="switchView('feedback')">
+          <i data-lucide="message-square"></i>
+          <span>User Feedback</span>
+        </a>
+
+        <p class="nav-group-label">Execution</p>
+        <a class="apex-nav-item" id="nav-roadmap" onclick="switchView('roadmap')">
+          <i data-lucide="map"></i>
+          <span>Product Roadmap</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer" style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border);">
+        <div style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 36px; height: 36px; border-radius: 12px; background: #334155; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white;">
+            <%= user.email.charAt(0).toUpperCase() %>
+          </div>
+          <div>
+            <p style="font-size: 0.8rem; font-weight: 700;">Product Lead</p>
+            <p style="font-size: 0.6rem; color: var(--product-primary); font-weight: 800;">STRATEGY</p>
+          </div>
+        </div>
+        <a class="apex-nav-item" onclick="logout()" style="color: #ef4444; cursor: pointer;">
+          <i data-lucide="log-out"></i>
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="apex-main">
+      <header class="apex-header">
+        <div class="header-search">
+          <i data-lucide="search"></i>
+          <input type="text" placeholder="Search features, requests, data..." />
+        </div>
+        <div class="header-actions">
+           <button class="action-btn" style="background: var(--product-primary); color: white; border: none; padding: 0.5rem 1rem; width: auto; border-radius: 0.75rem; font-weight: 700; font-size: 0.75rem;">
+            Export Report
+          </button>
+        </div>
+      </header>
+
+      <div class="apex-content">
+        
+        <!-- View: Overview -->
+        <div id="view-overview" class="section-container active">
+          <div style="margin-bottom: 2rem;">
+            <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2.25rem;">SaaS Growth Intelligence</h1>
+            <p style="color: var(--text-muted);">Tracking feature adoption and platform expansion metrics.</p>
+          </div>
+
+          <div class="prod-grid">
+            <div class="prod-card">
+              <h4 style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; margin-bottom: 0.75rem;">FEATURE ADOPTION</h4>
+              <div style="font-size: 2.25rem; font-weight: 800; font-family: 'Outfit'; color: var(--product-primary);"><%= stats.adoptionRate %></div>
+              <p style="font-size: 0.7rem; color: #10b981; font-weight: 700; margin-top: 0.5rem;">+5.2% MoM</p>
+            </div>
+            <div class="prod-card">
+              <h4 style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; margin-bottom: 0.75rem;">TENANT GROWTH</h4>
+              <div style="font-size: 2.25rem; font-weight: 800; font-family: 'Outfit';"><%= stats.tenants %></div>
+              <p style="font-size: 0.7rem; color: #10b981; font-weight: 700; margin-top: 0.5rem;">12 New this month</p>
+            </div>
+            <div class="prod-card">
+              <h4 style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; margin-bottom: 0.75rem;">OPEN REQUESTS</h4>
+              <div style="font-size: 2.25rem; font-weight: 800; font-family: 'Outfit';"><%= stats.requests %></div>
+              <p style="font-size: 0.7rem; color: #f59e0b; font-weight: 700; margin-top: 0.5rem;">3 High priority</p>
+            </div>
+            <div class="prod-card">
+              <h4 style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; margin-bottom: 0.75rem;">AI EFFICIENCY</h4>
+              <div style="font-size: 2.25rem; font-weight: 800; font-family: 'Outfit'; color: #10b981;"><%= stats.aiEfficiency %></div>
+              <p style="font-size: 0.7rem; color: #10b981; font-weight: 700; margin-top: 0.5rem;">Cost optimized</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+            <div class="prod-card">
+              <h3 style="font-family: 'Outfit'; font-size: 1rem; margin-bottom: 1.5rem;">Product Adoption Trend</h3>
+              <div style="height: 300px;"><canvas id="adoptionChart"></canvas></div>
+            </div>
+            <div class="prod-card">
+              <h3 style="font-family: 'Outfit'; font-size: 1rem; margin-bottom: 1.5rem;">Engagement by Feature</h3>
+              <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div style="font-size: 0.8rem;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>AI Voice Agents</span><span style="font-weight: 800;">85%</span></div>
+                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px;"><div style="width: 85%; height: 100%; background: var(--product-primary); border-radius: 10px;"></div></div>
+                </div>
+                <div style="font-size: 0.8rem;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>Live Chat Widgets</span><span style="font-weight: 800;">62%</span></div>
+                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px;"><div style="width: 62%; height: 100%; background: var(--product-primary); border-radius: 10px;"></div></div>
+                </div>
+                <div style="font-size: 0.8rem;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>Advanced Reports</span><span style="font-weight: 800;">41%</span></div>
+                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px;"><div style="width: 41%; height: 100%; background: var(--product-primary); border-radius: 10px;"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View: AI Analytics -->
+        <div id="view-ai" class="section-container">
+          <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">AI Feature Intelligence</h1>
+          <div class="prod-grid">
+            <div class="prod-card"><h4>TOTAL TOKENS</h4><p style="font-size: 1.5rem; font-weight: 800;"><%= aiStats.totalTokens %></p></div>
+            <div class="prod-card"><h4>AVG SUCCESS</h4><p style="font-size: 1.5rem; font-weight: 800; color: #10b981;"><%= aiStats.avgSuccessRate %></p></div>
+            <div class="prod-card"><h4>ACTIVE AGENTS</h4><p style="font-size: 1.5rem; font-weight: 800;"><%= aiStats.activeAgents %></p></div>
+          </div>
+          <div class="prod-card" style="height: 400px;"><canvas id="tokenUsageChart"></canvas></div>
+        </div>
+
+        <!-- View: Tenants -->
+        <div id="view-tenants" class="section-container">
+          <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Tenant Adoption</h1>
+          <div class="prod-grid">
+            <div class="prod-card"><h4>ACTIVE TENANTS</h4><p style="font-size: 1.5rem; font-weight: 800;">124</p></div>
+            <div class="prod-card"><h4>NEW THIS MONTH</h4><p style="font-size: 1.5rem; font-weight: 800; color: #10b981;">12</p></div>
+            <div class="prod-card"><h4>CHURN RATE</h4><p style="font-size: 1.5rem; font-weight: 800;">2.4%</p></div>
+          </div>
+          <div class="prod-card" style="height: 400px; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+            <div style="text-align: center;">
+              <i data-lucide="layout-grid" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.5;"></i>
+              <p>Tenant adoption matrix is being compiled...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- View: Feedback -->
+        <div id="view-feedback" class="section-container">
+          <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">User Feedback</h1>
+          <div class="prod-card">
+            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
+              <i data-lucide="message-square" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.5;"></i>
+              <p>Aggregating sentiment analysis from support tickets...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- View: Requests -->
+        <div id="view-requests" class="section-container">
+          <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Feature Requests</h1>
+          <div class="prod-card" style="padding: 0;">
+            <table class="apex-table">
+              <thead><tr><th>Request</th><th>Tenant</th><th>Date</th><th>Priority</th><th>Action</th></tr></thead>
+              <tbody id="request-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- View: Roadmap -->
+        <div id="view-roadmap" class="section-container">
+          <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem;">Product Roadmap</h1>
+          <div class="roadmap-board">
+            <div class="roadmap-column">
+               <h4 style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin-bottom: 1.25rem;">BACKLOG</h4>
+               <div id="roadmap-backlog"></div>
+            </div>
+            <div class="roadmap-column">
+               <h4 style="font-size: 0.75rem; font-weight: 800; color: #a855f7; margin-bottom: 1.25rem;">PLANNING</h4>
+               <div id="roadmap-planning"></div>
+            </div>
+            <div class="roadmap-column">
+               <h4 style="font-size: 0.75rem; font-weight: 800; color: #3b82f6; margin-bottom: 1.25rem;">IN PROGRESS</h4>
+               <div id="roadmap-in-progress"></div>
+            </div>
+            <div class="roadmap-column">
+               <h4 style="font-size: 0.75rem; font-weight: 800; color: #10b981; margin-bottom: 1.25rem;">DONE</h4>
+               <div id="roadmap-done"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    let charts = {};
+
+    function switchView(viewId) {
+      document.querySelectorAll('.section-container').forEach(v => v.classList.remove('active'));
+      const view = document.getElementById('view-' + viewId);
+      if (view) view.classList.add('active');
+
+      document.querySelectorAll('.apex-nav-item').forEach(n => n.classList.remove('active'));
+      const nav = document.getElementById('nav-' + viewId);
+      if (nav) nav.classList.add('active');
+      
+      loadViewData(viewId);
+      window.scrollTo(0,0);
+    }
+
+    async function loadViewData(viewId) {
+      switch(viewId) {
+        case 'overview': loadOverview(); break;
+        case 'ai': loadAIAnalytics(); break;
+        case 'requests': loadRequests(); break;
+        case 'roadmap': loadRoadmap(); break;
+      }
+    }
+
+    async function loadOverview() {
+      const res = await fetch('/product/api/analytics');
+      const { data } = await res.json();
+      initChart('adoptionChart', data.labels, data.adoption, 'Adoption %', '#a855f7');
+    }
+
+    async function loadAIAnalytics() {
+      initChart('tokenUsageChart', ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], [1.2, 1.4, 1.3, 1.6, 1.8, 1.7, 1.9], 'Tokens (Millions)', '#10b981');
+    }
+
+    async function loadRequests() {
+      const res = await fetch('/product/api/feature-requests');
+      const { data } = await res.json();
+      const body = document.getElementById('request-table-body');
+      body.innerHTML = data.map(r => `
+        <tr>
+          <td><div style="font-weight: 700;">${r.subject}</div><div style="font-size: 0.7rem; color: var(--text-muted);">ID: ${r.id.substring(0,8)}</div></td>
+          <td>${r.tenant?.name || 'N/A'}</td>
+          <td>${new Date(r.createdAt).toLocaleDateString()}</td>
+          <td><span class="status-badge" style="background: rgba(168, 85, 247, 0.1); color: var(--product-primary);">${r.priority}</span></td>
+          <td><button class="action-btn" style="padding: 0.4rem 0.8rem; font-size: 0.7rem;">Review</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadRoadmap() {
+      const res = await fetch('/product/api/roadmap');
+      const { data } = await res.json();
+      
+      const columns = {
+        'Backlog': document.getElementById('roadmap-backlog'),
+        'Planning': document.getElementById('roadmap-planning'),
+        'In Progress': document.getElementById('roadmap-in-progress'),
+        'Testing': document.getElementById('roadmap-in-progress'), // Grouping testing into in-progress for UI
+        'Done': document.getElementById('roadmap-done')
+      };
+
+      Object.values(columns).forEach(col => { if(col) col.innerHTML = ''; });
+
+      data.forEach(item => {
+        const col = columns[item.status] || columns['Backlog'];
+        col.innerHTML += `
+          <div class="feature-card">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+               <span class="status-badge" style="background: rgba(168,85,247,0.1); color: var(--product-primary);">${item.priority}</span>
+               <span style="font-size: 0.6rem; color: var(--text-muted);">${item.milestone}</span>
+            </div>
+            <h5 style="font-weight: 700; font-size: 0.85rem; line-height: 1.4;">${item.title}</h5>
+          </div>
+        `;
+      });
+    }
+
+    function initChart(id, labels, data, label, color) {
+      if (charts[id]) charts[id].destroy();
+      const ctx = document.getElementById(id).getContext('2d');
+      charts[id] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label, data, borderColor: color, backgroundColor: color + '20',
+            fill: true, tension: 0.4, pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+            x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      window.location.href = "/logout";
+    }
+
+    // Initial Load
+    switchView('overview');
+  </script>
+</body>
+</html>

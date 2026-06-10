@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support Hub — Level 1 Agent</title>
+  <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/admin-apex.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  
+  <style>
+    :root {
+      --agent-primary: #6366f1; /* Indigo */
+      --agent-primary-rgb: 99, 102, 241;
+      --agent-bg: #030712;
+      --agent-card: #0f172a;
+      --agent-border: rgba(255,255,255,0.06);
+    }
+
+    body[data-theme="dark"] {
+      --bg-app: var(--agent-bg);
+      --bg-card: var(--agent-card);
+      --border: var(--agent-border);
+    }
+
+    .agent-stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .agent-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      border-radius: 1.25rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .agent-stat-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--agent-primary);
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.1);
+    }
+
+    .inbox-layout {
+      display: grid;
+      grid-template-columns: 350px 1fr 300px;
+      gap: 1rem;
+      height: calc(100vh - 200px);
+      background: rgba(0,0,0,0.2);
+      border-radius: 1.5rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .inbox-sidebar {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    .inbox-content {
+      display: flex;
+      flex-direction: column;
+      background: rgba(15, 23, 42, 0.2);
+    }
+
+    .inbox-details {
+      border-left: 1px solid var(--border);
+      padding: 1.5rem;
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    .convo-item {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .convo-item:hover { background: rgba(255,255,255,0.03); }
+    .convo-item.active { background: rgba(99, 102, 241, 0.1); border-left: 4px solid var(--agent-primary); }
+
+    .chat-bubble {
+      max-width: 80%;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .bubble-customer { background: var(--bg-card); color: white; align-self: flex-start; border-bottom-left-radius: 0.2rem; }
+    .bubble-agent { background: var(--agent-primary); color: white; align-self: flex-end; border-bottom-right-radius: 0.2rem; }
+
+    .section-container { display: none; }
+    .section-container.active { display: block; animation: fadeIn 0.4s ease; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .status-pill {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    /* Themes */
+    body[data-theme="light"] {
+      --agent-bg: #f8fafc;
+      --agent-card: #ffffff;
+      --agent-border: rgba(0,0,0,0.06);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+    }
+    body[data-theme="indigo"] { --agent-primary: #6366f1; }
+    body[data-theme="emerald"] { --agent-primary: #10b981; }
+    body[data-theme="midnight"] { --agent-bg: #020617; --agent-card: #0f172a; --agent-primary: #3b82f6; }
+
+    .theme-dot {
+      width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;
+    }
+    .theme-dot.active { border-color: white; transform: scale(1.2); }
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="apex-layout">
+    <aside class="apex-sidebar">
+      <div class="sidebar-header">
+        <div class="logo-box" style="background: var(--agent-primary);">
+          <i data-lucide="headphones" style="color: #fff;"></i>
+        </div>
+        <div class="logo-text">
+          <h2 style="font-size: 1rem; font-weight: 800;">Support Hub</h2>
+          <p style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">L1 Support Agent</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <p class="nav-group-label">Customer Service</p>
+        <a class="apex-nav-item active" id="nav-overview" onclick="switchView('overview')">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Overview</span>
+        </a>
+        <a class="apex-nav-item" id="nav-inbox" onclick="switchView('inbox')">
+          <i data-lucide="message-square"></i>
+          <span>Live Chat Inbox</span>
+        </a>
+        <a class="apex-nav-item" id="nav-tickets" onclick="switchView('tickets')">
+          <i data-lucide="ticket"></i>
+          <span>My Tickets</span>
+        </a>
+
+        <p class="nav-group-label">Resources</p>
+        <a class="apex-nav-item" id="nav-kb" onclick="switchView('kb')">
+          <i data-lucide="book-open"></i>
+          <span>Knowledge Base</span>
+        </a>
+        <a class="apex-nav-item" id="nav-live-transcripts" onclick="switchView('live-transcripts')">
+          <i data-lucide="mic"></i>
+          <span>Live AI Transcripts</span>
+          <span id="live-call-count" class="priority-badge" style="background: #ef4444; color: white; display: none; margin-left: auto;">0</span>
+        </a>
+        <a class="apex-nav-item" id="nav-customers" onclick="switchView('customers')">
+          <i data-lucide="users"></i>
+          <span>Customer Profiles</span>
+        </a>
+
+        <p class="nav-group-label">Advanced</p>
+        <a class="apex-nav-item" id="nav-escalate" onclick="switchView('escalate')">
+          <i data-lucide="arrow-up-circle"></i>
+          <span>Escalation Center</span>
+        </a>
+
+        <p class="nav-group-label">Appearance</p>
+        <div style="padding: 0 1.25rem; display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+          <div class="theme-dot active" style="background: #030712;" onclick="setTheme('dark', this)" title="Dark Mode"></div>
+          <div class="theme-dot" style="background: #ffffff;" onclick="setTheme('light', this)" title="Light Mode"></div>
+          <div class="theme-dot" style="background: #6366f1;" onclick="setTheme('indigo', this)" title="Indigo Theme"></div>
+          <div class="theme-dot" style="background: #10b981;" onclick="setTheme('emerald', this)" title="Emerald Theme"></div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer" style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border);">
+        <div style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 36px; height: 36px; border-radius: 10px; background: #334155; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white;">
+            <%= user.email.charAt(0).toUpperCase() %>
+          </div>
+          <div>
+            <p style="font-size: 0.8rem; font-weight: 700;"><%= user.email.split('@')[0] %></p>
+            <p style="font-size: 0.6rem; color: #10b981; font-weight: 800;">ONLINE</p>
+          </div>
+        </div>
+        <a class="apex-nav-item" onclick="logout()" style="color: #ef4444; cursor: pointer;">
+          <i data-lucide="log-out"></i>
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="apex-main">
+      <header class="apex-header">
+        <div class="header-search">
+          <i data-lucide="search"></i>
+          <input type="text" placeholder="Search customers, tickets, articles..." />
+        </div>
+        <div class="header-actions">
+          <div style="display: flex; gap: 0.5rem; margin-right: 1rem;">
+            <button class="action-btn"><i data-lucide="bell"></i></button>
+            <button class="action-btn"><i data-lucide="help-circle"></i></button>
+          </div>
+          <div class="user-profile">
+            <div class="user-avatar" style="background: var(--agent-primary);"><span>LA</span></div>
+            <div style="padding-right: 0.75rem;">
+              <p style="font-size: 0.75rem; font-weight: 700;">Level 1 Agent</p>
+              <p style="font-size: 0.6rem; color: var(--text-muted);">Global Support</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="apex-content">
+        
+        <!-- View: Overview -->
+        <div id="view-overview" class="section-container active">
+          <div style="margin-bottom: 2rem;">
+            <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2.25rem; letter-spacing: -0.02em;">Support Overview</h1>
+            <p style="color: var(--text-muted);">Welcome back! Here's what's happening in your queue today.</p>
+          </div>
+
+          <div class="agent-stats-row">
+            <div class="agent-stat-card" onclick="switchView('tickets')" style="cursor: pointer;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Assigned Tickets</span>
+                <i data-lucide="ticket" style="color: var(--agent-primary);"></i>
+              </div>
+              <div style="font-size: 2.25rem; font-weight: 800; font-family: 'Outfit';"><%= stats.assignedTickets %></div>
+              <p style="font-size: 0.7rem; color: #f59e0b; font-weight: 700; margin-top: 0.5rem;"><i data-lucide="clock" style="width: 12px; display: inline-block;"></i> 2 Overdue</p>
+            </div>
+
+            <div class="agent-stat-card" onclick="switchView('inbox')" style="cursor: pointer;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Active Chats</span>
+                <i data-lucide="message-square" style="color: #10b981;"></i>
+              </div>
+              <div style="font-size: 2.25rem; font-weight: 800; font-family: 'Outfit';"><%= stats.activeChats %></div>
+              <p style="font-size: 0.7rem; color: #10b981; font-weight: 700; margin-top: 0.5rem;"><i data-lucide="users" style="width: 12px; display: inline-block;"></i> 3 Customers Waiting</p>
+            </div>
+
+            <div class="agent-stat-card">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Avg Response Time</span>
+                <i data-lucide="trending-up" style="color: #a855f7;"></i>
+              </div>
+              <div style="font-size: 2.25rem; font-weight: 800; font-family: 'Outfit';"><%= stats.avgResponseTime %></div>
+              <p style="font-size: 0.7rem; color: #10b981; font-weight: 700; margin-top: 0.5rem;"><i data-lucide="arrow-up" style="width: 12px; display: inline-block;"></i> 14% Faster than avg</p>
+            </div>
+
+            <div class="agent-stat-card">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Satisfaction (CSAT)</span>
+                <i data-lucide="star" style="color: #f59e0b;"></i>
+              </div>
+              <div style="font-size: 2.25rem; font-weight: 800; font-family: 'Outfit';"><%= stats.csat %></div>
+              <p style="font-size: 0.7rem; color: #10b981; font-weight: 700; margin-top: 0.5rem;"><i data-lucide="check" style="width: 12px; display: inline-block;"></i> High Performance</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+            <div class="agent-stat-card" style="padding: 0;">
+                <div style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01);">
+                  <h3 style="font-family: 'Outfit'; font-size: 1rem; font-weight: 800;">Recent Tickets Requiring Action</h3>
+                  <button onclick="switchView('tickets')" style="background: transparent; border: none; color: var(--agent-primary); font-size: 0.75rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">View All Tickets <i data-lucide="arrow-right" style="width: 14px;"></i></button>
+                </div>
+                <div style="padding: 1rem;">
+                  <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <% recentTickets.forEach(ticket => { %>
+                      <div class="ticket-row" onclick="switchView('tickets')" style="display: grid; grid-template-columns: 1.5fr 1.5fr 100px 100px; align-items: center; padding: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 1rem; cursor: pointer;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                          <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(var(--agent-primary-rgb), 0.1); color: var(--agent-primary); display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="file-text" style="width: 18px;"></i>
+                          </div>
+                          <div>
+                            <div style="font-weight: 800; color: white; margin-bottom: 2px;"><%= ticket.subject %></div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); font-family: monospace; letter-spacing: 0.05em;">#<%= ticket.id.substring(0,8).toUpperCase() %></div>
+                          </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                          <i data-lucide="building-2" style="width: 14px; color: var(--text-muted);"></i>
+                          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);"><%= ticket.tenant.name %></div>
+                        </div>
+                        <div style="text-align: center;">
+                          <span class="priority-badge" style="background: <%= ticket.priority === 'urgent' ? '#ef4444' : (ticket.priority === 'high' ? '#f97316' : '#f59e0b') %>20; color: <%= ticket.priority === 'urgent' ? '#ef4444' : (ticket.priority === 'high' ? '#f97316' : '#f59e0b') %>;"><%= ticket.priority.toUpperCase() %></span>
+                        </div>
+                        <div style="text-align: right;">
+                          <span class="status-pill" style="border-color: rgba(99, 102, 241, 0.2); background: rgba(99,102,241,0.05); color: var(--agent-primary);"><%= ticket.status.toUpperCase() %></span>
+                        </div>
+                      </div>
+                    <% }) %>
+                    <% if(recentTickets.length === 0) { %>
+                      <div style="padding: 4rem; text-align: center; color: var(--text-muted); background: rgba(255,255,255,0.01); border-radius: 1.5rem; border: 1px dashed var(--border);">
+                        <i data-lucide="check-circle" style="width: 48px; height: 48px; margin-bottom: 1rem; color: #10b981; opacity: 0.5;"></i>
+                        <p style="font-weight: 600;">Great job! Your queue is currently empty.</p>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+            </div>
+
+            <div class="agent-stat-card">
+              <h3 style="font-family: 'Outfit'; font-size: 1rem; margin-bottom: 1.5rem;">Quick Canned Responses</h3>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <button class="action-btn" onclick="showCannedResponses()" style="width: 100%; text-align: left; justify-content: flex-start; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 0.75rem;">Greeting & Intro</button>
+                <button class="action-btn" onclick="showCannedResponses()" style="width: 100%; text-align: left; justify-content: flex-start; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 0.75rem;">Request More Info</button>
+                <button class="action-btn" onclick="showCannedResponses()" style="width: 100%; text-align: left; justify-content: flex-start; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 0.75rem;">Common Billing Fix</button>
+                <button class="action-btn" onclick="showCannedResponses()" style="width: 100%; text-align: left; justify-content: flex-start; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 0.75rem;">Escalation Notice</button>
+                <button class="action-btn" onclick="showCannedResponses()" style="width: 100%; text-align: left; justify-content: flex-start; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 0.75rem;">Closing Ticket</button>
+              </div>
+              <button class="nav-item active" style="width: 100%; margin-top: 1.5rem; justify-content: center; background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border);">Manage Snippets</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- View: Inbox -->
+        <div id="view-inbox" class="section-container">
+          <div class="inbox-layout">
+            <div class="inbox-sidebar">
+              <div style="padding: 1.5rem; border-bottom: 1px solid var(--border);">
+                <h3 style="font-weight: 800; font-size: 1rem;">Support Inbox</h3>
+                <p style="font-size: 0.7rem; color: var(--text-muted);">3 Customers Waiting</p>
+              </div>
+              <div id="convo-list" style="overflow-y: auto;">
+                <!-- Conversations -->
+              </div>
+            </div>
+            
+            <div class="inbox-content">
+              <div id="chat-header" style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                   <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--agent-primary); display: flex; align-items: center; justify-content: center; font-weight: 800;">C</div>
+                   <div>
+                     <p id="active-customer-name" style="font-weight: 700; font-size: 0.9rem;">Select a conversation</p>
+                     <p id="active-customer-tenant" style="font-size: 0.65rem; color: var(--text-muted);"></p>
+                   </div>
+                </div>
+              <div style="display: flex; gap: 0.75rem;">
+                <button class="action-btn" title="Request Feedback" onclick="sendFeedbackRequest()" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
+                  <i data-lucide="star" style="width: 16px;"></i>
+                </button>
+                <button class="action-btn" title="Resolve Conversation" onclick="resolveAndFeedback()" style="background: rgba(99, 102, 241, 0.1); color: var(--agent-primary); border: 1px solid rgba(99, 102, 241, 0.2); gap: 6px; padding: 0 1rem; width: auto;">
+                  <i data-lucide="check-circle" style="width: 16px;"></i>
+                  <span style="font-size: 0.75rem; font-weight: 800;">RESOLVE</span>
+                </button>
+                <div style="width: 1px; background: var(--border); margin: 0 0.5rem;"></div>
+                <button class="action-btn"><i data-lucide="phone" style="width: 16px;"></i></button>
+                <button class="action-btn"><i data-lucide="video" style="width: 16px;"></i></button>
+              </div>
+              </div>
+              
+              <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column;">
+                <div style="text-align: center; color: var(--text-muted); margin-top: 10rem;">
+                  <i data-lucide="message-square" style="width: 48px; height: 48px; margin: 0 auto 1rem; opacity: 0.2;"></i>
+                  <p>Pick a chat to start assisting</p>
+                </div>
+              </div>
+              
+              <div style="padding: 1.5rem; background: rgba(0,0,0,0.2); border-top: 1px solid var(--border);">
+                  <div style="display: flex; gap: 1rem; margin-bottom: 0.75rem;">
+                    <button id="note-toggle" onclick="toggleNoteMode()" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-size: 0.65rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; display: flex; align-items: center; gap: 4px; cursor: pointer; transition: all 0.2s;">
+                      <i data-lucide="lock" style="width: 12px;"></i> PRIVATE NOTE
+                    </button>
+                    <div id="typing-status" style="font-size: 0.65rem; color: var(--text-muted); font-style: italic; display: none;">Customer is typing...</div>
+                  </div>
+                  <div id="composer-box" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 1rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 1rem; transition: border-color 0.2s;">
+                    <input type="text" id="chat-input" style="flex: 1; background: transparent; border: none; color: white; outline: none; padding: 0.75rem 0;" placeholder="Write a response..." disabled onkeypress="handleKeyPress(event)" oninput="handleTyping()">
+                    <button class="action-btn" title="AI Suggestion (Copilot)" onclick="getAISuggestion()"><i data-lucide="sparkles" style="width: 18px; color: var(--agent-primary);"></i></button>
+                    <button class="action-btn" title="Canned Responses" onclick="showCannedResponses()"><i data-lucide="zap" style="width: 18px;"></i></button>
+                    <button class="action-btn primary" id="send-btn" style="background: var(--agent-primary); color: white; border: none;" onclick="sendMessage()"><i data-lucide="send" style="width: 18px;"></i></button>
+                  </div>
+              </div>
+            </div>
+
+            <div class="inbox-details" style="width: 320px; border-left: 1px solid var(--border); overflow-y: auto; background: rgba(0,0,0,0.1);">
+              <div id="unified-details">
+                <div style="text-align: center; color: var(--text-muted); margin-top: 5rem; padding: 2rem;">
+                  <i data-lucide="users" style="width: 48px; height: 48px; margin: 0 auto 1rem; opacity: 0.1;"></i>
+                  <p style="font-size: 0.8rem;">Select a customer to view history and plan details.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View: KB -->
+        <div id="view-kb" class="section-container">
+          <div style="margin-bottom: 2rem;">
+            <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem;">Internal Help Library</h1>
+            <p style="color: var(--text-muted);">Quickly find solutions for common tenant issues.</p>
+          </div>
+          <div style="margin-bottom: 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <i data-lucide="search" style="color: var(--text-muted);"></i>
+            <input type="text" id="kb-search" placeholder="Search by topic, error code, or keyword..." style="flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 1rem;" onkeyup="filterKB()">
+          </div>
+          <div id="kb-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem;">
+            <!-- Articles -->
+          </div>
+        </div>
+
+        <div id="view-tickets" class="section-container">
+           <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem;">Assigned Tickets</h1>
+            <div style="display: flex; gap: 1rem;">
+              <select id="ticket-status-filter" onchange="loadTickets()" style="background: var(--bg-card); color: white; border: 1px solid var(--border); border-radius: 0.75rem; padding: 0.6rem 1.25rem; outline: none; font-size: 0.85rem; font-weight: 600;">
+                <option value="ALL">Filter Status: ALL</option>
+                <option value="OPEN">OPEN</option>
+                <option value="PENDING">PENDING</option>
+                <option value="ESCALATED">ESCALATED</option>
+                <option value="RESOLVED">RESOLVED</option>
+              </select>
+            </div>
+          </div>
+          <div class="agent-stat-card" style="padding: 0; overflow: hidden;">
+            <table class="apex-table" style="width: 100%; border-collapse: collapse;">
+              <thead style="background: rgba(255,255,255,0.02); text-align: left; border-bottom: 1px solid var(--border);">
+                <tr>
+                  <th style="padding: 1.25rem 1rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Subject / ID</th>
+                  <th style="padding: 1.25rem 1rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Tenant</th>
+                  <th style="padding: 1.25rem 1rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Customer</th>
+                  <th style="padding: 1.25rem 1rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Priority</th>
+                  <th style="padding: 1.25rem 1rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Status</th>
+                  <th style="padding: 1.25rem 1rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Updated</th>
+                </tr>
+              </thead>
+              <tbody id="agent-ticket-list"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- View: Customers -->
+        <div id="view-customers" class="section-container">
+           <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem;">Customer Directory</h1>
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.75rem; width: 300px;">
+              <i data-lucide="search" style="width: 16px; color: var(--text-muted);"></i>
+              <input type="text" id="customer-search" placeholder="Search by name or email..." style="background: transparent; border: none; color: white; outline: none; font-size: 0.85rem;" onkeyup="filterCustomers()">
+            </div>
+          </div>
+          
+          <div class="agent-stat-card" style="padding: 0; overflow: hidden;">
+            <table class="apex-table" style="width: 100%; border-collapse: collapse;">
+              <thead style="background: rgba(255,255,255,0.02); text-align: left; border-bottom: 1px solid var(--border);">
+                <tr>
+                  <th style="padding: 1.25rem 1rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Customer Name</th>
+                  <th style="padding: 1.25rem 1rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Primary Email</th>
+                  <th style="padding: 1.25rem 1rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Primary Tenant</th>
+                  <th style="padding: 1.25rem 1rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Tickets</th>
+                  <th style="padding: 1.25rem 1rem; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Joined</th>
+                </tr>
+              </thead>
+              <tbody id="agent-customer-list"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- View: Live Transcripts -->
+        <div id="view-live-transcripts" class="section-container">
+          <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Live AI Monitoring</h1>
+          <div style="display: flex; gap: 1.5rem; height: calc(100vh - 18rem);">
+            <!-- Active Calls List -->
+            <div style="width: 320px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 1rem; overflow: hidden; display: flex; flex-direction: column;">
+              <div style="padding: 1.25rem; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02);">
+                <h3 style="font-size: 0.9rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                  <span style="width: 8px; height: 8px; background: #ef4444; border-radius: 50%; display: inline-block; animation: pulse 2s infinite;"></span>
+                  ACTIVE AI SESSIONS
+                </h3>
+              </div>
+              <div id="active-calls-list" style="flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <div style="text-align: center; color: var(--text-muted); padding: 2rem; font-size: 0.8rem;">No active AI calls</div>
+              </div>
+            </div>
+
+            <!-- Transcript View -->
+            <div style="flex: 1; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 1rem; display: flex; flex-direction: column; overflow: hidden;">
+              <div id="transcript-header" style="padding: 1.25rem; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <h3 id="call-customer-name" style="font-size: 1rem; font-weight: 800;">Select a call to monitor</h3>
+                  <p id="call-metadata" style="font-size: 0.7rem; color: var(--text-muted);">Real-time AI interaction streaming</p>
+                </div>
+                <button class="action-btn" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.7rem;" onclick="rescueCall()">
+                  <i data-lucide="phone-forwarded" style="width: 14px; margin-right: 4px;"></i> TAKE OVER CALL
+                </button>
+              </div>
+              <div id="live-transcript-body" style="flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                <div style="text-align: center; color: var(--text-muted); margin-top: 5rem;">
+                  <i data-lucide="monitor-play" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.2;"></i>
+                  <p>Transcript will appear here in real-time</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View: Escalate -->
+        <div id="view-escalate" class="section-container">
+          <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Escalation Hub</h1>
+          <div style="max-width: 600px; margin: 0 auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: 2rem; padding: 2.5rem;">
+            <div style="text-align: center; margin-bottom: 2.5rem;">
+              <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); color: #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i data-lucide="shield-alert" style="width: 32px; height: 32px;"></i>
+              </div>
+              <h2 style="font-family: 'Outfit'; margin-bottom: 0.5rem;">Escalate Technical Issue</h2>
+              <p style="color: var(--text-muted);">Route this case to our engineering or billing teams for advanced intervention.</p>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; display: block;">Select Ticket to Escalate</label>
+                <select id="escalate-ticket-id" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 1rem; border-radius: 1rem; outline: none;">
+                  <option value="">-- Choose an active ticket --</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; display: block;">Select Target Team</label>
+                <select id="escalate-target" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 1rem; border-radius: 1rem; outline: none;">
+                  <option value="DEVELOPER">Engineering / Dev Ops</option>
+                  <option value="MANAGER">Billing & Accounts Manager</option>
+                  <option value="PRODUCT">Product / UX Team</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; display: block;">Internal Escalation Note</label>
+                <textarea id="escalate-note" rows="5" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 1rem; border-radius: 1rem; outline: none; resize: none;" placeholder="Explain why this requires escalation..."></textarea>
+              </div>
+              <button onclick="confirmEscalation()" class="nav-item active" style="width: 100%; justify-content: center; background: #ef4444; color: white; border: none; font-weight: 800; font-size: 1rem; padding: 1.25rem;">Confirm Escalation</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Canned Responses Modal -->
+  <div id="cannedModal" class="section-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center;">
+    <div style="background: var(--agent-card); width: 500px; border-radius: 2rem; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+      <div style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+        <h3 style="font-family: 'Outfit'; font-weight: 800;">Canned Responses</h3>
+        <button onclick="closeCanned()" style="background:transparent; border:none; color:white; font-size: 1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div style="padding: 1rem; max-height: 400px; overflow-y: auto;" id="canned-list">
+        <!-- Responses -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+    const socket = io({
+      auth: { token }
+    });
+    let currentConvoId = null;
+
+    function switchView(viewId) {
+      document.querySelectorAll('.section-container').forEach(v => v.classList.remove('active'));
+      const view = document.getElementById('view-' + viewId);
+      if (view) view.classList.add('active');
+
+      document.querySelectorAll('.apex-nav-item').forEach(n => n.classList.remove('active'));
+      const nav = document.getElementById('nav-' + viewId);
+      if (nav) nav.classList.add('active');
+      
+      if (viewId === 'inbox') loadConversations();
+      if (viewId === 'tickets') loadTickets();
+      if (viewId === 'kb') loadKB();
+      if (viewId === 'customers') loadCustomers();
+      if (viewId === 'escalate') loadEscalationOptions();
+      if (viewId === 'live-transcripts') updateCallUI();
+      window.scrollTo(0, 0);
+    }
+
+    async function loadTickets() {
+      const statusFilter = document.getElementById('ticket-status-filter').value;
+      const res = await fetch('/agent/api/tickets');
+      const { data } = await res.json();
+      
+      const filtered = statusFilter === 'ALL' ? data : data.filter(t => t.status.toUpperCase() === statusFilter);
+      
+      const body = document.getElementById('agent-ticket-list');
+      if (filtered.length === 0) {
+        body.innerHTML = '<tr><td colspan="6" style="padding: 4rem; text-align: center; color: var(--text-muted);">No tickets found matching this filter.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = filtered.map(t => {
+        const pColor = t.priority === 'urgent' ? '#ef4444' : (t.priority === 'high' ? '#f97316' : '#f59e0b');
+        const sColor = t.status === 'open' ? '#10b981' : (t.status === 'escalated' ? '#ef4444' : '#6366f1');
+        
+        return `
+          <tr class="ticket-row" onclick="selectTicket('${t.id}')" style="cursor: pointer;">
+            <td>
+              <div style="font-weight: 700; color: white; margin-bottom: 4px;">${t.subject}</div>
+              <div style="font-size: 0.65rem; color: var(--text-muted); font-family: monospace;">#${t.id.substring(0,8)}</div>
+            </td>
+            <td>
+              <div style="font-weight: 600;">${t.tenant.name}</div>
+              <div style="font-size: 0.65rem; color: var(--agent-primary); font-weight: 800; text-transform: uppercase; margin-top: 2px;">TENANT</div>
+            </td>
+            <td>
+              <div style="font-weight: 600;">${t.customer?.name || 'Unknown'}</div>
+              <div style="font-size: 0.65rem; color: var(--text-muted);">${t.customer?.email || ''}</div>
+            </td>
+            <td>
+              <span class="priority-badge" style="background: ${pColor}20; color: ${pColor};">${t.priority.toUpperCase()}</span>
+            </td>
+            <td>
+              <span class="status-pill" style="border-color: ${sColor}40; color: ${sColor}; background: ${sColor}05;">${t.status.toUpperCase()}</span>
+            </td>
+            <td>
+              <div style="font-size: 0.8rem; color: white; font-weight: 600;">${new Date(t.updatedAt).toLocaleDateString()}</div>
+              <div style="font-size: 0.65rem; color: var(--text-muted);">${new Date(t.updatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function loadConversations() {
+      const res = await fetch('/agent/api/conversations');
+      const { data } = await res.json();
+      const list = document.getElementById('convo-list');
+      list.innerHTML = data.map(c => `
+        <div class="convo-item ${currentConvoId === c.id ? 'active' : ''}" onclick="selectConvo('${c.id}', '${c.customer.name}', '${c.tenant.name}')">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+            <span style="font-weight: 800; font-size: 0.85rem;">${c.customer.name}</span>
+            <span style="font-size: 0.65rem; color: var(--text-muted);">${new Date(c.updatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.messages[0]?.body || 'New conversation started'}</p>
+          <div style="margin-top: 0.5rem;"><span class="kb-badge" style="background: rgba(99,102,241,0.1); color: var(--agent-primary);">${c.tenant.name}</span></div>
+        </div>
+      `).join('');
+    }
+
+    let currentViewType = 'CONVO'; // 'CONVO' or 'TICKET'
+
+    async function selectConvo(id, name, tenant) {
+      if (currentViewType === 'CONVO' && currentConvoId) socket.emit('leave-conversation', { conversationId: currentConvoId });
+      
+      currentConvoId = id;
+      currentViewType = 'CONVO';
+      document.getElementById('active-customer-name').innerText = name;
+      document.getElementById('active-customer-tenant').innerText = tenant;
+      document.getElementById('chat-input').disabled = false;
+      
+      // Join Room
+      socket.emit('join-conversation', { conversationId: id });
+      
+      renderConversationList(); // Update active UI
+      
+      const res = await fetch(`/api/support/conversations/${id}/messages`);
+      const { data } = await res.json();
+      const chatMessages = document.getElementById('chat-messages');
+      chatMessages.innerHTML = data.map(m => renderMessage(m)).join('');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Find the convo in our local list to get its status
+      const convo = allConversations.find(c => c.id === id);
+      renderDetails(convo);
+    }
+
+    async function selectTicket(id) {
+      currentConvoId = id;
+      currentViewType = 'TICKET';
+      switchView('inbox');
+      
+      const res = await fetch(`/api/support/tickets/${id}`);
+      const { data } = await res.json();
+      
+      document.getElementById('active-customer-name').innerText = data.subject;
+      document.getElementById('active-customer-tenant').innerText = data.tenant.name;
+      document.getElementById('chat-input').disabled = false;
+
+      const chatMessages = document.getElementById('chat-messages');
+      chatMessages.innerHTML = data.messages.map(m => renderMessage(m)).join('');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      renderDetails(data);
+    }
+
+    async function renderDetails(data = null) {
+      const container = document.getElementById('unified-details');
+      if (!data) {
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); margin-top: 5rem;">
+            <i data-lucide="info" style="width: 48px; opacity: 0.1; margin-bottom: 1rem;"></i>
+            <p style="font-size: 0.8rem;">Select a thread to view details</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      if (currentViewType === 'TICKET') {
+        container.innerHTML = `
+          <div style="padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 1rem; border: 1px solid var(--border);">
+            <h4 style="font-size: 0.8rem; margin-bottom: 1rem; font-weight: 800; color: var(--agent-primary);">TICKET STATUS</h4>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <select onchange="updateTicketStatus('${data.id}', this.value)" style="width: 100%; background: var(--agent-bg); border: 1px solid var(--border); color: white; padding: 0.5rem; border-radius: 0.5rem; font-size: 0.75rem;">
+                <option value="open" ${data.status === 'open' ? 'selected' : ''}>Open</option>
+                <option value="pending" ${data.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="in_progress" ${data.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                <option value="resolved" ${data.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                <option value="escalated" ${data.status === 'escalated' ? 'selected' : ''}>Escalated</option>
+              </select>
+              <select onchange="updateTicketPriority('${data.id}', this.value)" style="width: 100%; background: var(--agent-bg); border: 1px solid var(--border); color: white; padding: 0.5rem; border-radius: 0.5rem; font-size: 0.75rem;">
+                <option value="low" ${data.priority === 'low' ? 'selected' : ''}>Low Priority</option>
+                <option value="medium" ${data.priority === 'medium' ? 'selected' : ''}>Medium Priority</option>
+                <option value="high" ${data.priority === 'high' ? 'selected' : ''}>High Priority</option>
+                <option value="urgent" ${data.priority === 'urgent' ? 'selected' : ''}>Urgent Priority</option>
+              </select>
+            </div>
+          </div>
+          
+          <div style="padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 1rem; border: 1px solid var(--border);">
+            <h4 style="font-size: 0.8rem; margin-bottom: 1rem; font-weight: 800;">CUSTOMER CONTEXT</h4>
+            <div style="font-size: 0.75rem; color: var(--text-muted); display: grid; gap: 0.6rem;">
+              <div><span style="color: white; font-weight: 700;">Name:</span> ${data.customer?.name || 'Unknown'}</div>
+              <div><span style="color: white; font-weight: 700;">Email:</span> ${data.customer?.email || 'N/A'}</div>
+              <hr style="border: none; border-top: 1px solid var(--border); margin: 0.5rem 0;">
+              <div><span style="color: white; font-weight: 700;">Tenant:</span> ${data.tenant.name}</div>
+            </div>
+          </div>
+
+          <div style="flex: 1; min-height: 200px; display: flex; flex-direction: column;">
+            <h4 style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 1rem;">Activity Log</h4>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+              ${data.activities.slice(0,5).map(a => `
+                <div style="font-size: 0.65rem; border-left: 2px solid var(--border); padding-left: 1rem; position: relative;">
+                  <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--border); position: absolute; left: -5px; top: 4px;"></div>
+                  <div style="color: white; font-weight: 600;">${a.action}</div>
+                  <div style="color: var(--text-muted);">${new Date(a.createdAt).toLocaleString()}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (currentViewType === 'CONVO') {
+        container.innerHTML = `
+          <div style="padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 1rem; border: 1px solid var(--border);">
+            <h4 style="font-size: 0.8rem; margin-bottom: 1rem; font-weight: 800; color: var(--agent-primary);">CHAT STATUS</h4>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <select onchange="updateConversationStatus('${data.id}', this.value)" style="width: 100%; background: var(--agent-bg); border: 1px solid var(--border); color: white; padding: 0.5rem; border-radius: 0.5rem; font-size: 0.75rem;">
+                <option value="open" ${data.status === 'open' ? 'selected' : ''}>Open Interaction</option>
+                <option value="pending" ${data.status === 'pending' ? 'selected' : ''}>Pending Action</option>
+                <option value="resolved" ${data.status === 'resolved' ? 'selected' : ''}>Resolved / Closed</option>
+                <option value="escalated" ${data.status === 'escalated' ? 'selected' : ''}>Escalated to Manager</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 1rem; border: 1px solid var(--border);">
+            <h4 style="font-size: 0.8rem; margin-bottom: 1rem; font-weight: 800;">CUSTOMER CONTEXT</h4>
+            <div style="font-size: 0.75rem; color: var(--text-muted); display: grid; gap: 0.75rem;">
+               <div><span style="color: white; font-weight: 700;">Name:</span> ${data.customer.name}</div>
+               <div><span style="color: white; font-weight: 700;">Email:</span> ${data.customer.email || 'N/A'}</div>
+               <div><span style="color: white; font-weight: 700;">Contact:</span> ${data.customer.phone || 'N/A'}</div>
+               <hr style="border: none; border-top: 1px solid var(--border); margin: 0.5rem 0;">
+               <div>
+                 <span style="color: white; font-weight: 700;">Tenant Plan:</span> 
+                 <span class="priority-badge" style="background: rgba(99, 102, 241, 0.2); color: var(--agent-primary); border: 1px solid var(--agent-primary); font-size: 0.6rem;">${(data.tenant?.plan || 'nexa-core').toUpperCase()}</span>
+               </div>
+               <div><span style="color: white; font-weight: 700;">Billing Status:</span> <span style="color: #10b981;">${data.tenant?.subscriptionStatus || 'ACTIVE'}</span></div>
+               <hr style="border: none; border-top: 1px solid var(--border); margin: 0.5rem 0;">
+               <p style="font-size: 0.65rem;">Customer since ${new Date(data.customer.createdAt).toLocaleDateString()}</p>
+            </div>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
+
+    async function updateConversationStatus(id, status) {
+       await fetch(`/api/support/conversations/${id}`, {
+         method: 'PUT',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ status })
+       });
+       loadConversations(); // Reload list
+       selectConvo(id, document.getElementById('active-customer-name').innerText, document.getElementById('active-customer-tenant').innerText);
+    }
+
+    async function resolveAndFeedback() {
+      if (!currentConvoId || currentViewType !== 'CONVO') return;
+      if (!confirm("Mark this conversation as resolved and send a feedback request?")) return;
+      
+      // 1. Send Feedback Message
+      const feedbackMsg = "I'm marking this conversation as resolved. We value your feedback! How would you rate my service today? (Excellent / Good / Poor)";
+      socket.emit('send-message', {
+        conversationId: currentConvoId,
+        body: feedbackMsg,
+        senderType: 'AGENT'
+      });
+
+      // 2. Update Status
+      await updateConversationStatus(currentConvoId, 'resolved');
+      showToast("Conversation resolved & feedback requested", "success");
+    }
+
+    async function sendFeedbackRequest() {
+      if (!currentConvoId || currentViewType !== 'CONVO') return;
+      const feedbackMsg = "We'd love to hear your thoughts on our service! Please let us know if you have any feedback or suggestions.";
+      socket.emit('send-message', {
+        conversationId: currentConvoId,
+        body: feedbackMsg,
+        senderType: 'AGENT'
+      });
+      showToast("Feedback request sent to customer", "success");
+    }
+
+    async function updateTicketStatus(id, status) {
+       await fetch(`/api/support/tickets/${id}`, {
+         method: 'PUT',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ status })
+       });
+       selectTicket(id);
+    }
+
+    async function updateTicketPriority(id, priority) {
+       await fetch(`/api/support/tickets/${id}`, {
+         method: 'PUT',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ priority })
+       });
+       selectTicket(id);
+    }
+
+    function renderMessage(m) {
+      const isInternal = m.isInternal;
+      return `
+        <div class="chat-bubble ${m.senderType === 'CUSTOMER' ? 'bubble-customer' : 'bubble-agent'}" 
+             style="${isInternal ? 'background: rgba(245, 158, 11, 0.1); border: 1px dashed #f59e0b; color: #f59e0b; align-self: center; max-width: 90%;' : ''}">
+          ${isInternal ? '<span style="font-size: 0.6rem; font-weight: 800; display: block; margin-bottom: 4px;">PRIVATE NOTE</span>' : ''}
+          ${m.body}
+          <div style="font-size: 0.6rem; opacity: 0.6; margin-top: 4px; text-align: right;">${new Date(m.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+        </div>
+      `;
+    }
+
+    let isNoteMode = false;
+    function toggleNoteMode() {
+      isNoteMode = !isNoteMode;
+      const btn = document.getElementById('note-toggle');
+      const box = document.getElementById('composer-box');
+      const input = document.getElementById('chat-input');
+      
+      if (isNoteMode) {
+        btn.style.background = '#f59e0b';
+        btn.style.color = 'white';
+        box.style.borderColor = '#f59e0b';
+        input.placeholder = "Write an internal note (customers won't see this)...";
+      } else {
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--text-muted)';
+        box.style.borderColor = 'var(--border)';
+        input.placeholder = "Write a response...";
+      }
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') sendMessage();
+    }
+
+    let typingTimeout;
+    function handleTyping() {
+      if (!currentConvoId) return;
+      socket.emit('typing', { conversationId: currentConvoId, isTyping: true });
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        socket.emit('typing', { conversationId: currentConvoId, isTyping: false });
+      }, 2000);
+    }
+
+    let activeCalls = {};
+    let selectedCallSid = null;
+
+    socket.emit('join-monitoring', { room: 'agent-monitoring' });
+
+    socket.on('live-call-started', (call) => {
+      activeCalls[call.streamSid] = { ...call, transcript: [] };
+      updateCallUI();
+      // Show notification
+      showToast(`Incoming AI Call: ${call.streamSid.substring(0,8)}...`, 'info');
+    });
+
+    socket.on('live-call-ended', ({ streamSid }) => {
+      if (activeCalls[streamSid]) {
+        activeCalls[streamSid].ended = true;
+        setTimeout(() => {
+          delete activeCalls[streamSid];
+          if (selectedCallSid === streamSid) selectedCallSid = null;
+          updateCallUI();
+        }, 30000); // Keep for 30s after ending
+      }
+    });
+
+    socket.on('live-transcript-delta', (delta) => {
+      if (activeCalls[delta.streamSid]) {
+        activeCalls[delta.streamSid].transcript.push(delta);
+        if (selectedCallSid === delta.streamSid) {
+          appendTranscript(delta);
+        }
+      }
+    });
+
+    function updateCallUI() {
+      const list = document.getElementById('active-calls-list');
+      const countBadge = document.getElementById('live-call-count');
+      const sids = Object.keys(activeCalls);
+      
+      if (sids.length === 0) {
+        list.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 2rem; font-size: 0.8rem;">No active AI calls</div>';
+        countBadge.style.display = 'none';
+        return;
+      }
+
+      countBadge.innerText = sids.length;
+      countBadge.style.display = 'block';
+
+      list.innerHTML = sids.map(sid => {
+        const call = activeCalls[sid];
+        return `
+          <div class="convo-item ${selectedCallSid === sid ? 'active' : ''}" onclick="selectCall('${sid}')">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 800; font-size: 0.8rem;">Call: ${sid.substring(0,8)}...</span>
+              <span class="status-badge status-open" style="font-size: 0.55rem;">${call.ended ? 'ENDED' : 'LIVE'}</span>
+            </div>
+            <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 4px;">Started: ${new Date(call.startedAt).toLocaleTimeString()}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectCall(sid) {
+      selectedCallSid = sid;
+      const call = activeCalls[sid];
+      document.getElementById('call-customer-name').innerText = `Call Monitoring: ${sid.substring(0,12)}...`;
+      const body = document.getElementById('live-transcript-body');
+      body.innerHTML = '';
+      call.transcript.forEach(t => appendTranscript(t));
+      updateCallUI();
+    }
+
+    function appendTranscript(t) {
+      const body = document.getElementById('live-transcript-body');
+      const div = document.createElement('div');
+      const isAI = t.sender === 'AI';
+      div.className = `chat-bubble ${isAI ? 'bubble-agent' : 'bubble-customer'}`;
+      div.style.maxWidth = '85%';
+      div.style.fontSize = '0.85rem';
+      div.innerHTML = `
+        <span style="font-size: 0.6rem; font-weight: 800; display: block; margin-bottom: 2px; color: ${isAI ? 'var(--agent-primary)' : '#10b981'};">
+          ${isAI ? 'AI ASSISTANT' : 'CUSTOMER SPEECH'}
+        </span>
+        ${t.text}
+      `;
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+    }
+
+    async function rescueCall() {
+      if (!selectedCallSid) return;
+      const targetPhone = prompt("Enter your phone number to receive the transfer (or leave blank for default):");
+      if (targetPhone === null) return;
+      
+      try {
+        const res = await fetch(`/api/call/${selectedCallSid}/transfer`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to: targetPhone || '+15550000000' }) // Default or prompt
+        });
+        if (res.ok) showToast("Transfer initiated. Your phone should ring shortly.", "success");
+      } catch (e) {
+        showToast("Transfer failed", "error");
+      }
+    }
+
+    function showToast(msg, type = 'success') {
+      const toast = document.createElement('div');
+      toast.style.cssText = `position: fixed; bottom: 2rem; right: 2rem; background: ${type === 'error' ? '#ef4444' : 'var(--agent-primary)'}; color: white; padding: 1rem 2rem; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 10000; font-weight: 700; animation: slideIn 0.3s ease-out;`;
+      toast.innerText = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('chat-input');
+      const body = input.value.trim();
+      if (!body || !currentConvoId) return;
+
+      if (currentViewType === 'CONVO') {
+        // Use WebSocket for real-time delivery
+        socket.emit('send-message', {
+          conversationId: currentConvoId,
+          body,
+          senderType: 'AGENT',
+          isInternal: isNoteMode
+        });
+      } else {
+        // Use API for Ticket Messages
+        await fetch(`/api/support/tickets/${currentConvoId}/messages`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ body, isInternal: isNoteMode })
+        });
+        selectTicket(currentConvoId);
+      }
+
+      input.value = '';
+      if (isNoteMode) toggleNoteMode();
+    }
+
+    // WebSocket Listeners
+    socket.on('new-message', (message) => {
+      if (currentConvoId === message.conversationId) {
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.innerHTML += renderMessage(message);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+      loadConversations(); // Update list preview
+    });
+
+    socket.on('new-internal-message', (message) => {
+      if (currentConvoId === message.conversationId) {
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.innerHTML += renderMessage(message);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    });
+
+    socket.on('user-typing', ({ isTyping }) => {
+      document.getElementById('typing-status').style.display = isTyping ? 'block' : 'none';
+    });
+
+    socket.on('ticket-activity', (activity) => {
+      // Show desktop notification or subtle toast
+      console.log("Activity:", activity);
+    });
+
+    let allConversations = [];
+    async function loadConversations() {
+      const res = await fetch('/agent/api/conversations');
+      const { data } = await res.json();
+      allConversations = data;
+      renderConversationList();
+    }
+
+    function renderConversationList() {
+      const list = document.getElementById('convo-list');
+      list.innerHTML = allConversations.map(c => {
+        const lastMsg = c.messages[0]?.body || 'New conversation started';
+        const isEscalated = c.status === 'escalated';
+        return `
+          <div class="convo-item ${currentConvoId === c.id ? 'active' : ''}" onclick="selectConvo('${c.id}', '${c.customer.name}', '${c.tenant.name}')">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+              <span style="font-weight: 800; font-size: 0.85rem;">${c.customer.name}</span>
+              <span style="font-size: 0.65rem; color: var(--text-muted);">${new Date(c.updatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMsg}</p>
+            <div style="margin-top: 0.5rem; display: flex; gap: 4px;">
+              <span class="kb-badge" style="background: rgba(99,102,241,0.1); color: var(--agent-primary);">${c.tenant.name}</span>
+              ${isEscalated ? '<span class="priority-badge" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; font-size: 0.55rem; padding: 2px 6px;">ESCALATED</span>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function getAISuggestion() {
+      if (!currentConvoId) return;
+      const btn = document.querySelector('button[onclick="getAISuggestion()"]');
+      const icon = btn.querySelector('i');
+      icon.classList.add('animate-spin'); // Assuming Tailwind or adding CSS
+      
+      try {
+        const res = await fetch(`/api/support/ai/suggest/${currentConvoId}`);
+        const { suggestion } = await res.json();
+        document.getElementById('chat-input').value = suggestion;
+      } catch (e) {
+        console.error("AI Suggestion failed");
+      } finally {
+        icon.classList.remove('animate-spin');
+      }
+    }
+
+    const CANNED_RESPONSES = [
+      { title: "Greeting", text: "Hello! I'm here to help you with your inquiry. How can I assist you today?" },
+      { title: "Technical Issue", text: "I'm sorry to hear you're facing technical difficulties. Could you please provide more details or a screenshot of the error?" },
+      { title: "Billing Inquiry", text: "I can certainly look into your billing question. Let me verify your subscription details first." },
+      { title: "Escalation", text: "I've reviewed your case and I'm escalating this to our technical team for further investigation. You'll receive an update shortly." },
+      { title: "Closing", text: "Is there anything else I can help you with today? If not, I'll mark this ticket as resolved. Have a great day!" }
+    ];
+
+    function showCannedResponses() {
+      const modal = document.getElementById('cannedModal');
+      const list = document.getElementById('canned-list');
+      modal.style.display = 'flex';
+      
+      list.innerHTML = CANNED_RESPONSES.map(c => `
+        <div class="agent-row" onclick="insertCanned('${c.text.replace(/'/g, "\\'")}')" style="cursor: pointer; padding: 1.25rem; border-radius: 12px; margin-bottom: 0.5rem;">
+          <div style="flex:1">
+            <h4 style="font-weight: 800; font-size: 0.9rem; margin-bottom: 0.25rem;">${c.title}</h4>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">${c.text.substring(0, 80)}...</p>
+          </div>
+          <i data-lucide="chevron-right" style="width: 16px; opacity: 0.5;"></i>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function insertCanned(text) {
+      const input = document.getElementById('chat-input');
+      input.value = text;
+      closeCanned();
+      input.focus();
+    }
+
+    function closeCanned() {
+      document.getElementById('cannedModal').style.display = 'none';
+    }
+
+    async function confirmEscalation() {
+      const id = document.getElementById('escalate-ticket-id').value;
+      const type = document.getElementById('escalate-target').value;
+      const note = document.getElementById('escalate-note').value;
+
+      if (!id || !note) {
+        alert("Please select a ticket and provide an escalation note.");
+        return;
+      }
+
+      const res = await fetch(`/agent/api/tickets/${id}/escalate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, note })
+      });
+
+      if (res.ok) {
+        alert("Ticket escalated successfully!");
+        document.getElementById('escalate-note').value = '';
+        switchView('tickets');
+      }
+    }
+
+    async function loadEscalationOptions() {
+      const res = await fetch('/agent/api/tickets');
+      const { data } = await res.json();
+      const select = document.getElementById('escalate-ticket-id');
+      const activeTickets = data.filter(t => t.status !== 'resolved' && t.status !== 'escalated');
+      
+      select.innerHTML = '<option value="">-- Choose an active ticket --</option>' + 
+        activeTickets.map(t => `<option value="${t.id}">${t.subject} (${t.tenant.name})</option>`).join('');
+    }
+
+    function setTheme(theme, el) {
+      document.body.setAttribute('data-theme', theme);
+      document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    async function loadKB() {
+      const res = await fetch('/agent/api/knowledge');
+      const { data } = await res.json();
+      const list = document.getElementById('kb-list');
+      list.innerHTML = data.map(a => `
+        <div class="agent-stat-card" style="cursor: pointer;">
+          <div style="display: flex; gap: 8px; margin-bottom: 1rem;"><span class="kb-badge">${a.category.name}</span></div>
+          <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 0.75rem;">${a.title}</h4>
+          <p style="font-size: 0.75rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${a.content.replace(/<[^>]*>/g, '')}</p>
+        </div>
+      `).join('');
+    }
+
+    async function loadCustomers() {
+      const res = await fetch('/agent/api/customers');
+      const { data } = await res.json();
+      const body = document.getElementById('agent-customer-list');
+      
+      body.innerHTML = data.map(c => {
+        const initials = (c.name || c.email).substring(0, 2).toUpperCase();
+        return `
+          <tr class="ticket-row">
+            <td style="padding: 1.5rem 1rem;">
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, var(--agent-primary), #a855f7); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(var(--agent-primary-rgb), 0.2);">
+                  ${initials}
+                </div>
+                <div>
+                  <div style="font-weight: 800; color: white; font-size: 0.95rem;">${c.name || 'Anonymous User'}</div>
+                  <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-top: 2px;">CUSTOMER ID: #${c.id.substring(0,6)}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="mail" style="width: 14px; color: var(--text-muted);"></i>
+                <div style="color: var(--text-secondary); font-weight: 500;">${c.email}</div>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="briefcase" style="width: 14px; color: var(--agent-primary);"></i>
+                <div style="font-weight: 700; color: white;">${c.tenant.name}</div>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(16, 185, 129, 0.1); color: #10b981; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem;">
+                  ${c._count.tickets}
+                </div>
+                <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted);">TOTAL</div>
+              </div>
+            </td>
+            <td>
+              <div style="font-size: 0.85rem; font-weight: 600; color: white;">${new Date(c.createdAt).toLocaleDateString()}</div>
+              <div style="font-size: 0.65rem; color: var(--text-muted);">Joined System</div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function filterCustomers() {
+      const query = document.getElementById('customer-search').value.toLowerCase();
+      const rows = document.getElementById('agent-customer-list').children;
+      Array.from(rows).forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
+      });
+    }
+
+    function filterKB() {
+      const query = document.getElementById('kb-search').value.toLowerCase();
+      const cards = document.getElementById('kb-list').children;
+      Array.from(cards).forEach(card => {
+        card.style.display = card.innerText.toLowerCase().includes(query) ? '' : 'none';
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      window.location.href = "/logout";
+    }
+
+    // Initial Load
+    lucide.createIcons();
+  </script>
+</body>
+</html>

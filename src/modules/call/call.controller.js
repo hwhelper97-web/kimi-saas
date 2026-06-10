@@ -2,6 +2,7 @@ const prisma = require("../../config/prisma");
 const { getOpenAIVoice } = require("../../services/openai-tts");
 const service = require("./call.service");
 const { parseUserRequest } = require("../../services/openai");
+const routingService = require("../../services/routing.service");
 
 // ─── Per-call session store (CallSid-keyed) ───────────────────────────────────
 // Each entry is automatically deleted when the call completes or the TTL fires.
@@ -19,16 +20,13 @@ function touchSession(sessionKey, session) {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const normalizeBusinessType = (businessType = "") => {
-  const type = businessType.toLowerCase();
+  const type = (businessType || "").toLowerCase();
   if (
-    type.includes("restaurant") ||
-    type.includes("food") ||
-    type.includes("shop") ||
-    type.includes("store") ||
-    type.includes("order")
+    ["restaurant", "bakery", "cafe", "pizzeria", "food", "shop", "store", "order", "dish", "burger", "pizza", "sushi"].some(k => type.includes(k))
   ) {
     return "order";
   }
+  // Default to appointment for everything else (Salons, Clinics, etc.)
   return "appointment";
 };
 
@@ -62,34 +60,8 @@ const getOrCreateSession = (req) => {
   return { sessionKey, session };
 };
 
-const buildDateTime = (dateText = "", timeText = "") => {
-  const now = new Date();
-  const normalizedDateText = dateText.toLowerCase();
-  const normalizedTimeText = timeText.toLowerCase();
-  let baseDate = new Date(now);
-
-  if (normalizedDateText.includes("tomorrow")) {
-    baseDate.setDate(now.getDate() + 1);
-  } else if (!normalizedDateText.includes("today")) {
-    // Try a direct parse for anything else (e.g., "April 25")
-    const direct = new Date(dateText);
-    if (!isNaN(direct.getTime())) baseDate = direct;
-  }
-
-  const match = normalizedTimeText.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i);
-  let hours = 12;
-  let minutes = 0;
-
-  if (match) {
-    hours = parseInt(match[1], 10);
-    minutes = match[2] ? parseInt(match[2], 10) : 0;
-    if (match[3].toLowerCase() === "pm" && hours < 12) hours += 12;
-    if (match[3].toLowerCase() === "am" && hours === 12) hours = 0;
-  }
-
-  baseDate.setHours(hours, minutes, 0, 0);
-  return baseDate;
-};
+const dateService = require("../../services/date.service");
+const buildDateTime = dateService.buildDateTime;
 
 const parseDate = (dateString) => {
   const now = new Date();
@@ -227,29 +199,88 @@ exports.incoming = async (req, res) => {
 
   try {
     const body = req.body || {};
-    const toNumber = (body.To || "").replace(/[^0-9]/g, "").slice(-10);
-    const business = await prisma.business.findFirst({
-      where: { phoneNumber: { contains: toNumber } },
-      include: { tenant: true }
-    });
+    const toNumber = body.To || "";
+    const fromNumber = (body.From || "").replace(/[^0-9]/g, "").slice(-10);
 
+    // 🚀 1. ROUTING ENGINE: Check if call should go to AI or be Forwarded
+    const route = await routingService.getCallRoute(toNumber);
+    const business = route.business;
+    const config = route.config;
+
+    // 💳 1.5. BILLING CHECK: Ensure tenant is within limits
+    const billingService = require("../../services/billing.service");
+    const billingStatus = await billingService.canMakeCall(config?.tenantId || business?.tenantId);
+    if (!billingStatus.allowed && !req.body.isTest) {
+      console.log(`[BILLING] Call blocked for tenant ${config?.tenantId || business?.tenantId}: ${billingStatus.message}`);
+      return res.send(`
+<Response>
+  <Say voice="Polly.Joanna-Neural">We're sorry, this service is currently unavailable. Please try again later.</Say>
+  <Hangup/>
+</Response>
+      `.trim());
+    }
+
+    console.log(`[ROUTING] Incoming call to ${toNumber} -> Action: ${route.action}, Business: ${business?.name || 'Unknown'}`);
+
+    // 📊 2. TRACK ANALYTICS (Async)
+    if (config) {
+      (async () => {
+        try {
+          const today = new Date();
+          today.setHours(0,0,0,0);
+          await prisma.callAnalytics.upsert({
+            where: { tenantId_date: { tenantId: config.tenantId, date: today } },
+            create: { tenantId: config.tenantId, incomingCalls: 1 },
+            update: { incomingCalls: { increment: 1 } }
+          });
+        } catch (e) { console.error("[ANALYTICS] Failed to update incoming:", e.message); }
+      })();
+    }
+
+    // 📞 3. ACTION: FORWARDING (Business Hours / AI Toggle)
+    if (route.action === 'FORWARD' && route.destination) {
+      console.log(`[ROUTING] Forwarding call for ${business?.name} to ${route.destination}`);
+      
+      // Update Analytics for Transferred
+      if (config) {
+        prisma.callAnalytics.update({
+          where: { tenantId_date: { tenantId: config.tenantId, date: new Date(new Date().setHours(0,0,0,0)) } },
+          data: { transferredCalls: { increment: 1 } }
+        }).catch(() => {});
+      }
+
+      return res.send(`
+<Response>
+  <Say voice="Polly.Joanna-Neural">Please wait while we connect your call to the ${business?.name || 'business'}.</Say>
+  <Dial>${route.destination}</Dial>
+</Response>
+      `.trim());
+    }
+
+    // 🤖 4. ACTION: AI (Handle Streaming)
     if (body.CallSid) {
       const { startRecording } = require("../../services/twilio");
-      startRecording(req.body.CallSid).catch(() => {});
+      // Only record if explicitly enabled in config (default true)
+      if (config?.recordingEnabled !== false) {
+        startRecording(req.body.CallSid).catch(() => {});
+      }
     }
 
     if (!business) {
+      console.warn(`[ROUTING] No business context for ${toNumber}. Using generic greeting.`);
       return res.send(`
 <Response>
   <Gather input="speech" action="/api/call/process" method="POST" timeout="8" bargeIn="true">
-    <Say voice="Polly.Joanna-Neural">Hello! Thanks for calling Nexton. How can I help you today?</Say>
+    <Say voice="Polly.Joanna-Neural">Hello! Thanks for calling Naxton. How can I help you today?</Say>
   </Gather>
 </Response>`);
     }
 
-    // 🚀 ULTRA-FAST RESPONSE: Send TwiML to Twilio immediately
-    // All calls (including ElevenLabs Agents) must pass through our Node.js middleware
-    // because ElevenLabs requires Twilio media events to be translated into their specific JSON format.
+    // 💾 Preserve config in session for later use (e.g. transfer number)
+    session.phoneNumberId = config?.id;
+    session.transferNumber = config?.transferNumber;
+
+    // 🚀 START REALTIME STREAM
     const host = req.headers.host;
     const protocol = host.includes("ngrok-free.dev") ? "wss" : (req.protocol === "https" ? "wss" : "ws");
     const callerPhone = req.body.From || "Unknown";
@@ -265,7 +296,7 @@ exports.incoming = async (req, res) => {
 </Response>
     `.trim());
 
-    // ─── BACKGROUND PROCESSING ───
+    // ─── BACKGROUND CONTEXT PREP ───
     (async () => {
       try {
         session.businessId = business.id;
@@ -279,7 +310,7 @@ exports.incoming = async (req, res) => {
 
   } catch (error) {
     console.error("[CALL FATAL ERROR] Incoming handler failed:", error);
-    return res.send(`<Response><Say>Sorry, we're having a technical issue. Error: ${error.message}</Say><Hangup/></Response>`);
+    return res.send(`<Response><Say voice="Polly.Joanna-Neural">Sorry, we're having a technical issue. Please try again later.</Say><Hangup/></Response>`);
   }
 };
 
@@ -443,6 +474,7 @@ exports.process = async (req, res) => {
         const createdOrder = await prisma.order.create({
           data: {
             customerName: extraction.customerName || "Voice Customer",
+            customerPhone: extraction.customerPhone || req.body.From || "Unknown",
             total: orderTotal,
             tenantId: session.tenantId,
             businessId: session.businessId,
@@ -466,10 +498,13 @@ exports.process = async (req, res) => {
         await prisma.appointment.create({
           data: {
             customerName: extraction.customerName || "Voice Customer",
+            customerPhone: extraction.customerPhone || req.body.From || "Unknown",
             serviceName: extraction.serviceName || "General service",
-            date: appointmentDate,
+            appointmentTime: appointmentDate,
             tenantId: session.tenantId,
             businessId: session.businessId,
+            status: "CONFIRMED",
+            source: "AI"
           },
         });
 
@@ -477,7 +512,7 @@ exports.process = async (req, res) => {
           io.to(session.businessId).emit("new_appointment", {
             name: extraction.customerName || "Voice Customer",
             service: extraction.serviceName || "General service",
-            date: appointmentDate,
+            appointmentTime: appointmentDate,
           });
         }
       }
@@ -617,6 +652,8 @@ exports.testAI = async (req, res) => {
           date: parseDate(aiResult.date),
           businessId,
           tenantId: req.tenantId,
+          status: "CONFIRMED",
+          source: "AI"
         },
       });
     }
@@ -663,7 +700,24 @@ exports.getCallHistory = async (req, res) => {
       include: { business: true },
     });
 
-    return res.json({ success: true, data: calls });
+    // 🔗 Link orders to show status
+    const callIds = calls.map(c => c.id);
+    const orders = await prisma.order.findMany({
+      where: { callId: { in: callIds } },
+      select: { callId: true, status: true, customerPhone: true }
+    });
+
+    const data = calls.map(c => {
+      const order = orders.find(o => o.callId === c.id);
+      return {
+        ...c,
+        orderStatus: order ? order.status : null,
+        // Use order phone if available, fallback to call's fromNumber
+        customerPhone: (order && order.customerPhone && order.customerPhone !== 'Unknown') ? order.customerPhone : c.fromNumber
+      };
+    });
+
+    return res.json({ success: true, data });
   } catch (err) {
     console.error("[CALL] History error:", err);
     return res.status(500).json({ success: false, error: "Failed to load call history" });
@@ -739,5 +793,23 @@ exports.purchaseNumber = async (req, res) => {
   } catch (error) {
     console.error("[Call] purchaseNumber error:", error);
     return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.transfer = async (req, res) => {
+  try {
+    const { id } = req.params; // callSid or internal id
+    const { to } = req.body;
+    
+    if (!id || !to) {
+      return res.status(400).json({ error: "Call ID and destination are required" });
+    }
+
+    const twilioService = require("../../services/twilio");
+    await twilioService.transferCall(id, to);
+    
+    return res.json({ success: true, message: "Call transfer initiated" });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 };

@@ -45,6 +45,12 @@ exports.handleVoiceSupportStream = async (ws, req, io) => {
       case "start":
         streamSid = data.start.streamSid;
         console.log(`[Voice Support] Stream started: ${streamSid}`);
+        // Notify agents of a new live call
+        io.to("agent-monitoring").emit("live-call-started", { 
+          streamSid, 
+          from: "Customer", 
+          startedAt: new Date() 
+        });
         break;
       case "media":
         if (openAIWs.readyState === WebSocket.OPEN) {
@@ -57,6 +63,7 @@ exports.handleVoiceSupportStream = async (ws, req, io) => {
         break;
       case "stop":
         console.log("[Voice Support] Stream stopped");
+        io.to("agent-monitoring").emit("live-call-ended", { streamSid });
         openAIWs.close();
         break;
     }
@@ -80,6 +87,14 @@ exports.handleVoiceSupportStream = async (ws, req, io) => {
     if (response.type === "response.audio_transcript.done") {
       const prisma = require("../../config/prisma");
       console.log(`[Voice Support Transcript] ${response.transcript}`);
+      
+      // Emit to monitoring agents
+      io.to("agent-monitoring").emit("live-transcript-delta", {
+        streamSid,
+        text: response.transcript,
+        sender: "AI"
+      });
+
       // Persist transcript as a call log
       prisma.call.create({
         data: {
@@ -91,6 +106,15 @@ exports.handleVoiceSupportStream = async (ws, req, io) => {
           summary: "AI Support Voice Interaction"
         }
       }).catch(err => console.error("Failed to save call transcript:", err));
+    }
+    
+    // Also handle input transcript (customer speech)
+    if (response.type === "conversation.item.input_audio_transcription.completed") {
+       io.to("agent-monitoring").emit("live-transcript-delta", {
+        streamSid,
+        text: response.transcript,
+        sender: "CUSTOMER"
+      });
     }
   });
 

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support Operations Manager — <%= projectName %></title>
+  <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/admin-apex.css" />
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    :root {
+      --manager-primary: #10b981; /* Emerald */
+      --manager-primary-rgb: 16, 185, 129;
+      --manager-bg: #020617;
+      --manager-card: #0f172a;
+      --manager-border: rgba(255,255,255,0.06);
+    }
+
+    body[data-theme="dark"] {
+      --bg-app: var(--manager-bg);
+      --bg-card: var(--manager-card);
+      --border: var(--manager-border);
+    }
+
+    .manager-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      border-radius: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::after {
+      content: ""; position: absolute; top: 0; right: 0; width: 64px; height: 64px;
+      background: radial-gradient(circle at top right, rgba(var(--manager-primary-rgb), 0.1), transparent 70%);
+    }
+
+    .agent-row {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.2s;
+    }
+
+    .agent-row:hover { background: rgba(255,255,255,0.02); }
+
+    .status-indicator {
+      width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px;
+    }
+
+    .section-container { display: none; }
+    .section-container.active { display: block; animation: slideUp 0.4s ease; }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .sla-badge {
+      padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800;
+    }
+
+    /* Themes */
+    body[data-theme="light"] {
+      --manager-bg: #f8fafc;
+      --manager-card: #ffffff;
+      --manager-border: rgba(0,0,0,0.06);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+    }
+    body[data-theme="emerald"] { --manager-primary: #10b981; }
+    body[data-theme="indigo"] { --manager-primary: #6366f1; }
+    body[data-theme="midnight"] { --manager-bg: #020617; --manager-card: #0f172a; --manager-primary: #3b82f6; }
+
+    .theme-dot {
+      width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;
+    }
+    .theme-dot.active { border-color: white; transform: scale(1.2); }
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="apex-layout">
+    <aside class="apex-sidebar">
+      <div class="sidebar-header">
+        <div class="logo-box" style="background: var(--manager-primary);">
+          <i data-lucide="shield-check" style="color: #fff;"></i>
+        </div>
+        <div class="logo-text">
+          <h2 style="font-size: 1rem; font-weight: 800;">Manager Hub</h2>
+          <p style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;">Support Operations</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <p class="nav-group-label">Operations</p>
+        <a class="apex-nav-item active" id="nav-overview" onclick="switchView('overview')">
+          <i data-lucide="bar-chart-2"></i>
+          <span>Support Dashboard</span>
+        </a>
+        <a class="apex-nav-item" id="nav-performance" onclick="switchView('performance')">
+          <i data-lucide="users"></i>
+          <span>Team Performance</span>
+        </a>
+        <a class="apex-nav-item" id="nav-sla" onclick="switchView('sla')">
+          <i data-lucide="clock"></i>
+          <span>SLA Monitoring</span>
+        </a>
+
+        <p class="nav-group-label">Management</p>
+        <a class="apex-nav-item" id="nav-assignment" onclick="switchView('assignment')">
+          <i data-lucide="user-plus"></i>
+          <span>Ticket Assignment</span>
+        </a>
+        <a class="apex-nav-item" id="nav-escalations" onclick="switchView('escalations')">
+          <i data-lucide="alert-circle"></i>
+          <span>Escalation Queue</span>
+        </a>
+        <a class="apex-nav-item" id="nav-monitoring" onclick="switchView('monitoring')">
+          <i data-lucide="eye"></i>
+          <span>Live Monitoring</span>
+        </a>
+
+        <p class="nav-group-label">Content</p>
+        <a class="apex-nav-item" id="nav-kb" onclick="switchView('kb')">
+          <i data-lucide="book"></i>
+          <span>Knowledge Base</span>
+        </a>
+
+        <p class="nav-group-label">Appearance</p>
+        <div style="padding: 0 1.25rem; display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+          <div class="theme-dot active" style="background: #020617;" onclick="setTheme('dark', this)" title="Dark Mode"></div>
+          <div class="theme-dot" style="background: #ffffff;" onclick="setTheme('light', this)" title="Light Mode"></div>
+          <div class="theme-dot" style="background: #10b981;" onclick="setTheme('emerald', this)" title="Emerald Mode"></div>
+          <div class="theme-dot" style="background: #3b82f6;" onclick="setTheme('midnight', this)" title="Midnight Mode"></div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer" style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border);">
+        <div style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-weight: 800;">
+            <%= user.email.charAt(0).toUpperCase() %>
+          </div>
+          <div>
+            <p style="font-size: 0.8rem; font-weight: 700;">Support Lead</p>
+            <p style="font-size: 0.6rem; color: var(--manager-primary); font-weight: 800;">ADMINISTRATOR</p>
+          </div>
+        </div>
+        <a class="apex-nav-item" onclick="logout()" style="color: #ef4444; cursor: pointer;">
+          <i data-lucide="log-out"></i>
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="apex-main">
+      <header class="apex-header">
+        <div class="header-search">
+          <i data-lucide="search"></i>
+          <input type="text" placeholder="Search agents, tickets, escalations..." />
+        </div>
+        <div class="header-actions">
+           <div class="sla-pill" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.4rem 1rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 800;">
+            SLA COMPLIANCE: 94.5%
+          </div>
+          <button class="action-btn"><i data-lucide="file-text"></i></button>
+        </div>
+      </header>
+
+      <div class="apex-content">
+        
+        <!-- View: Overview -->
+        <div id="view-overview" class="section-container active">
+          <div style="margin-bottom: 2rem;">
+            <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2.25rem;">Support Operations</h1>
+            <p style="color: var(--text-muted);">Real-time monitoring of support ecosystem health.</p>
+          </div>
+
+          <div class="manager-grid">
+            <div class="stat-card">
+              <h4 style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; margin-bottom: 1rem;">OPEN TICKETS</h4>
+              <div style="font-size: 2.25rem; font-weight: 800; font-family: 'Outfit';"><%= stats.openTickets %></div>
+              <div style="margin-top: 0.5rem; font-size: 0.7rem; color: #ef4444; font-weight: 700;">+12% from yesterday</div>
+            </div>
+            <div class="stat-card">
+              <h4 style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; margin-bottom: 1rem;">ACTIVE CHATS</h4>
+              <div style="font-size: 2.25rem; font-weight: 800; font-family: 'Outfit';"><%= stats.activeChats %></div>
+              <div style="margin-top: 0.5rem; font-size: 0.7rem; color: #10b981; font-weight: 700;">4 Agents Online</div>
+            </div>
+            <div class="stat-card">
+              <h4 style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; margin-bottom: 1rem;">ESCALATED</h4>
+              <div style="font-size: 2.25rem; font-weight: 800; font-family: 'Outfit'; color: #ef4444;"><%= stats.escalated %></div>
+              <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--text-muted);">Requires review</div>
+            </div>
+            <div class="stat-card">
+              <h4 style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; margin-bottom: 1rem;">SLA COMPLIANCE</h4>
+              <div style="font-size: 2.25rem; font-weight: 800; font-family: 'Outfit'; color: #10b981;"><%= stats.slaCompliance %></div>
+              <div style="margin-top: 0.5rem; font-size: 0.7rem; color: #10b981; font-weight: 700;">Target: 95%</div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+            <div class="stat-card">
+              <h3 style="font-family: 'Outfit'; margin-bottom: 1.5rem; font-size: 1rem;">Weekly SLA Performance</h3>
+              <div style="height: 300px;"><canvas id="slaTrendChart"></canvas></div>
+            </div>
+            <div class="stat-card" style="padding: 0;">
+               <div style="padding: 1.5rem; border-bottom: 1px solid var(--border);"><h3 style="font-family: 'Outfit'; font-size: 1rem;">Team Availability</h3></div>
+               <div id="team-availability-list" style="padding: 0.5rem;">
+                 <!-- Populated by JS -->
+               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View: Performance -->
+        <div id="view-performance" class="section-container">
+          <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Team Performance Monitoring</h1>
+          <div class="stat-card" style="padding: 0;">
+            <table class="apex-table">
+              <thead><tr><th>Agent</th><th>Active Tickets</th><th>Active Chats</th><th>Avg Rating</th><th>Resolution Rate</th></tr></thead>
+              <tbody id="performance-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- View: SLA -->
+        <div id="view-sla" class="section-container">
+          <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">SLA Monitoring Center</h1>
+          <div class="manager-grid">
+             <div class="stat-card"><h4>FIRST RESPONSE</h4><div style="font-size: 1.5rem; font-weight: 800;">14m 20s</div><p style="font-size: 0.65rem; color: #10b981;">-2m from target</p></div>
+             <div class="stat-card"><h4>RESOLVE TIME</h4><div style="font-size: 1.5rem; font-weight: 800;">4h 12m</div><p style="font-size: 0.65rem; color: #f59e0b;">+12m over target</p></div>
+             <div class="stat-card"><h4>VIOLATIONS</h4><div style="font-size: 1.5rem; font-weight: 800; color: #ef4444;">3</div><p style="font-size: 0.65rem; color: #ef4444;">Last 24 hours</p></div>
+          </div>
+          <div class="stat-card" style="height: 400px;"><canvas id="slaDetailChart"></canvas></div>
+        </div>
+
+        <!-- View: Escalations -->
+        <div id="view-escalations" class="section-container">
+          <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Escalation Queue</h1>
+          <div id="escalation-list" style="display: grid; gap: 1rem;">
+             <!-- Escalations populated by JS -->
+          </div>
+        </div>
+
+        <!-- View: Monitoring -->
+        <div id="view-monitoring" class="section-container">
+          <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Live Support Monitoring</h1>
+          <div class="manager-grid" id="active-chats-grid">
+             <!-- Chats populated by JS -->
+          </div>
+        </div>
+
+        <!-- View: Assignment -->
+        <div id="view-assignment" class="section-container">
+          <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Ticket Assignment Center</h1>
+          <div style="display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem;">
+            <div class="stat-card" style="padding: 0;">
+              <div style="padding: 1rem; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02);"><h3>Unassigned Queue</h3></div>
+              <div id="unassigned-queue" style="max-height: 600px; overflow-y: auto;"></div>
+            </div>
+            <div class="stat-card">
+              <h3 style="margin-bottom: 1.5rem;">Load Balancing</h3>
+              <div id="load-balance-status"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View: Knowledge Base -->
+        <div id="view-kb" class="section-container">
+          <div style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 2rem; border: 1px solid var(--border);">
+            <div>
+              <h1 style="font-family: 'Outfit'; font-weight: 800; font-size: 2.25rem; margin-bottom: 0.5rem; letter-spacing: -0.02em;">Internal SOP Library</h1>
+              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-muted);">
+                 <i data-lucide="info" style="width: 14px;"></i>
+                 <p style="font-size: 0.85rem; font-weight: 500;">Operational training materials for Nexon Platform staff.</p>
+              </div>
+            </div>
+            <button class="action-btn" style="background: var(--manager-primary); color: white; border: none; padding: 1rem 2rem; border-radius: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; box-shadow: 0 15px 30px -5px rgba(var(--manager-primary-rgb), 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <i data-lucide="plus-circle" style="width: 20px;"></i> <span>Create New SOP</span>
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2.5rem;">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+              <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 1.25rem; padding: 1.5rem;">
+                <h4 style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 1.25rem; letter-spacing: 0.05em;">Categories</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                   <a href="#" style="padding: 0.75rem 1rem; background: rgba(var(--manager-primary-rgb), 0.1); color: var(--manager-primary); border-radius: 0.75rem; font-size: 0.85rem; font-weight: 700; text-decoration: none;">All Articles</a>
+                   <a href="#" style="padding: 0.75rem 1rem; color: var(--text-muted); border-radius: 0.75rem; font-size: 0.85rem; font-weight: 500; text-decoration: none;">Technical Ops</a>
+                   <a href="#" style="padding: 0.75rem 1rem; color: var(--text-muted); border-radius: 0.75rem; font-size: 0.85rem; font-weight: 500; text-decoration: none;">Billing & Finance</a>
+                   <a href="#" style="padding: 0.75rem 1rem; color: var(--text-muted); border-radius: 0.75rem; font-size: 0.85rem; font-weight: 500; text-decoration: none;">Customer Success</a>
+                </div>
+              </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+               <div id="kb-manager-list" style="display: grid; gap: 1rem;">
+                  <!-- Articles -->
+               </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    let slaChart = null;
+
+    function switchView(viewId) {
+      document.querySelectorAll('.section-container').forEach(v => v.classList.remove('active'));
+      const view = document.getElementById('view-' + viewId);
+      if (view) view.classList.add('active');
+
+      document.querySelectorAll('.apex-nav-item').forEach(n => n.classList.remove('active'));
+      const nav = document.getElementById('nav-' + viewId);
+      if (nav) nav.classList.add('active');
+      
+      loadViewData(viewId);
+      window.scrollTo(0,0);
+    }
+
+    async function loadViewData(viewId) {
+      switch(viewId) {
+        case 'overview': loadOverview(); break;
+        case 'performance': loadPerformance(); break;
+        case 'sla': loadSLA(); break;
+        case 'escalations': loadEscalations(); break;
+        case 'assignment': loadAssignment(); break;
+        case 'monitoring': loadMonitoring(); break;
+        case 'kb': loadKBManager(); break;
+      }
+    }
+
+    async function loadOverview() {
+      const res = await fetch('/manager/api/sla');
+      const { data } = await res.json();
+      initSLAChart(data);
+
+      const agentRes = await fetch('/manager/api/team-stats');
+      const { data: agents } = await agentRes.json();
+      const list = document.getElementById('team-availability-list');
+      list.innerHTML = agents.map(a => `
+        <div class="agent-row">
+          <div style="display: flex; align-items: center;">
+            <span class="status-indicator" style="background: #10b981;"></span>
+            <div style="font-size: 0.85rem; font-weight: 700;">${a.email.split('@')[0]}</div>
+          </div>
+          <div style="font-size: 0.7rem; color: var(--text-muted);">${a.chatCount} chats active</div>
+        </div>
+      `).join('');
+    }
+
+    async function loadPerformance() {
+      const res = await fetch('/manager/api/team-stats');
+      const { data } = await res.json();
+      const body = document.getElementById('performance-table-body');
+      body.innerHTML = data.map(a => `
+        <tr>
+          <td><div style="font-weight: 700;">${a.email}</div></td>
+          <td>${a.ticketCount}</td>
+          <td>${a.chatCount}</td>
+          <td><div style="display: flex; align-items: center; gap: 4px; color: #f59e0b;"><i data-lucide="star" style="width: 12px; fill: #f59e0b;"></i> ${a.csat}</div></td>
+          <td><div style="color: #10b981; font-weight: 800;">${a.resolutionRate}</div></td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    async function loadEscalations() {
+      const res = await fetch('/manager/api/escalations');
+      const { data } = await res.json();
+      
+      const agentRes = await fetch('/manager/api/team-stats');
+      const { data: agents } = await agentRes.json();
+
+      const container = document.getElementById('escalation-list');
+      if (data.length === 0) {
+        container.innerHTML = '<div style="padding: 4rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 1.5rem; color: var(--text-muted);"><i data-lucide="shield-check" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.2;"></i><p>No pending escalations. All systems clear.</p></div>';
+        return;
+      }
+
+      container.innerHTML = data.map(e => `
+        <div class="stat-card" style="padding: 1.5rem; display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 0.75rem;">
+              <span class="sla-badge" style="background: #ef444420; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">CRITICAL ESCALATION</span>
+              <h3 style="font-family: 'Outfit'; font-weight: 800; font-size: 1.1rem; color: white;">${e.subject}</h3>
+            </div>
+            <div style="display: flex; gap: 1.5rem; margin-bottom: 1rem;">
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted);">
+                <i data-lucide="user" style="width: 14px;"></i> From: <span style="color: white; font-weight: 700;">${e.assignedTo?.email.split('@')[0] || 'System'}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted);">
+                <i data-lucide="building-2" style="width: 14px;"></i> Tenant: <span style="color: white; font-weight: 700;">${e.tenant.name}</span>
+              </div>
+            </div>
+            <div style="background: rgba(239, 68, 68, 0.05); border-left: 3px solid #ef4444; padding: 0.75rem 1rem; border-radius: 4px;">
+              <p style="font-size: 0.8rem; color: #fda4af; font-weight: 500;">
+                <i data-lucide="message-square" style="width: 12px; display: inline-block; margin-right: 4px;"></i>
+                "${e.messages[0]?.body || 'No internal note provided.'}"
+              </p>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; min-width: 200px;">
+            <button onclick="managerResolveEscalation('${e.id}')" style="width: 100%; background: var(--manager-primary); color: white; border: none; padding: 0.75rem; border-radius: 0.75rem; font-weight: 800; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <i data-lucide="check-circle" style="width: 16px;"></i> Approve & Resolve
+            </button>
+            <div style="display: flex; gap: 0.5rem;">
+               <select onchange="assignTicket('${e.id}', this.value)" style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; padding: 0.6rem; border-radius: 0.75rem; font-size: 0.7rem; outline: none;">
+                 <option value="">Reassign Agent...</option>
+                 ${agents.map(a => `<option value="${a.id}">${a.email.split('@')[0]}</option>`).join('')}
+               </select>
+               <button class="action-btn" title="View History"><i data-lucide="history" style="width: 16px;"></i></button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    async function managerResolveEscalation(ticketId) {
+      const res = await fetch('/manager/api/resolve-escalation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketId })
+      });
+      if (res.ok) {
+        loadEscalations();
+        if (window.notify) window.notify("Escalation resolved", "Success");
+      }
+    }
+
+    async function loadAssignment() {
+       // Agents for dropdown
+       const agentRes = await fetch('/manager/api/team-stats');
+       const { data: agents } = await agentRes.json();
+       
+       // Unassigned tickets
+       const ticketRes = await fetch('/manager/api/unassigned');
+       const { data: tickets } = await ticketRes.json();
+
+       const queue = document.getElementById('unassigned-queue');
+       if (tickets.length === 0) {
+         queue.innerHTML = '<div style="padding: 3rem; text-align: center; color: var(--text-muted);">Queue is empty. All tickets assigned.</div>';
+       } else {
+         queue.innerHTML = tickets.map(t => `
+           <div class="agent-row" style="padding: 1.25rem;">
+             <div style="flex: 1;">
+               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.25rem;">
+                 <span style="font-size: 0.6rem; color: var(--manager-primary); font-weight: 800; text-transform: uppercase;">#${t.id.substring(0,8)}</span>
+                 <h4 style="font-weight: 700;">${t.subject}</h4>
+               </div>
+               <p style="font-size: 0.75rem; color: var(--text-muted);">Tenant: ${t.tenant.name} | Created: ${new Date(t.createdAt).toLocaleTimeString()}</p>
+             </div>
+             <div>
+               <select onchange="assignTicket('${t.id}', this.value)" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; padding: 0.4rem; border-radius: 6px; font-size: 0.75rem;">
+                 <option value="">Assign Agent...</option>
+                 ${agents.map(a => `<option value="${a.id}">${a.email.split('@')[0]}</option>`).join('')}
+               </select>
+             </div>
+           </div>
+         `).join('');
+       }
+
+       const status = document.getElementById('load-balance-status');
+       status.innerHTML = agents.map(a => `
+         <div style="margin-bottom: 1.5rem;">
+           <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.5rem;">
+             <span>${a.email.split('@')[0]}</span>
+             <span>${a.ticketCount}/10 Tickets</span>
+           </div>
+           <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+             <div style="width: ${(a.ticketCount/10)*100}%; height: 100%; background: var(--manager-primary); border-radius: 10px;"></div>
+           </div>
+         </div>
+       `).join('');
+    }
+
+    async function loadMonitoring() {
+      const res = await fetch('/manager/api/active-chats');
+      const { data: chats } = await res.json();
+      const grid = document.getElementById('active-chats-grid');
+      
+      if (chats.length === 0) {
+        grid.innerHTML = '<div style="grid-column: span 3; padding: 4rem; text-align: center; background: var(--bg-card); border-radius: 1.5rem; border: 1px solid var(--border); color: var(--text-muted);"><i data-lucide="message-square-off" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.2;"></i><p>No active support conversations at the moment.</p></div>';
+        return;
+      }
+
+      grid.innerHTML = chats.map(c => `
+        <div class="stat-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; border-top: 3px solid ${c.assignedTo ? 'var(--manager-primary)' : '#f59e0b'};">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: white;">
+                <i data-lucide="user" style="width: 18px;"></i>
+              </div>
+              <div>
+                <h4 style="font-family: 'Outfit'; font-weight: 800; font-size: 0.95rem; color: white;">${c.customer?.name || 'Customer'}</h4>
+                <div style="display: flex; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--text-muted);">
+                   <i data-lucide="building" style="width: 10px;"></i> ${c.tenant.name}
+                </div>
+              </div>
+            </div>
+            <span class="sla-badge" style="background: ${c.assignedTo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)'}; color: ${c.assignedTo ? '#10b981' : '#f59e0b'}; border: 1px solid currentColor;">
+              ${c.assignedTo ? 'ACTIVE' : 'WAITING'}
+            </span>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 12px; border: 1px solid var(--border); position: relative;">
+            <div style="font-size: 0.6rem; color: var(--text-muted); position: absolute; top: -8px; left: 12px; background: var(--manager-card); padding: 0 4px; font-weight: 800; text-transform: uppercase;">Latest Message</div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; font-style: italic;">
+              "${c.messages[0] ? c.messages[0].body.substring(0, 85) + '...' : 'Initiating conversation...'}"
+            </p>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+               <div style="width: 24px; height: 24px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 800; color: white;">
+                 ${(c.assignedTo?.email || 'W').charAt(0).toUpperCase()}
+               </div>
+               <div style="font-size: 0.7rem; color: var(--text-muted);">
+                  Assigned: <span style="color: ${c.assignedTo ? 'white' : '#f59e0b'}; font-weight: 700;">${c.assignedTo?.email.split('@')[0] || 'Unassigned'}</span>
+               </div>
+            </div>
+            <button onclick="observeChat('${c.id}')" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 0.75rem; font-size: 0.7rem; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="eye" style="width: 14px;"></i> Observe
+            </button>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function observeChat(chatId) {
+      if (window.notify) window.notify("Entering Observation Mode for chat #" + chatId.substring(0,6), "Info");
+      // Future: Open real-time chat monitor modal
+    }
+
+    async function assignTicket(ticketId, agentId) {
+      if (!agentId) return;
+      try {
+        const res = await fetch('/manager/api/assign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticketId, agentId })
+        });
+        const r = await res.json();
+        if (r.success) {
+          loadAssignment();
+          if (window.notify) window.notify("Ticket assigned successfully", "Success");
+        }
+      } catch (e) {
+        alert("Assignment failed");
+      }
+    }
+
+    function initSLAChart(data) {
+      if (slaChart) slaChart.destroy();
+      const ctx = document.getElementById('slaTrendChart').getContext('2d');
+      slaChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Compliance %',
+            data: data.compliance,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 80, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+            x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+
+    function loadSLA() {
+       // Similar to overview but with violations chart
+       const ctx = document.getElementById('slaDetailChart').getContext('2d');
+       new Chart(ctx, {
+         type: 'bar',
+         data: {
+           labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+           datasets: [{ label: 'Violations', data: [2, 1, 3, 0, 1, 2, 0], backgroundColor: '#ef4444' }]
+         },
+         options: { responsive: true, maintainAspectRatio: false }
+       });
+    }
+
+    async function loadKBManager() {
+      const res = await fetch('/agent/api/knowledge'); 
+      if (!res.ok) {
+        document.getElementById('kb-manager-list').innerHTML = '<div style="padding: 2rem; text-align: center; color: #ef4444;">Error loading articles. Access denied or server error.</div>';
+        return;
+      }
+      const { data: articles } = await res.json();
+      const list = document.getElementById('kb-manager-list');
+      
+      if (!articles || articles.length === 0) {
+        list.innerHTML = '<div style="padding: 3rem; text-align: center; color: var(--text-muted);">No articles found in this category.</div>';
+        return;
+      }
+
+      list.innerHTML = articles.map(a => `
+        <div class="stat-card" style="padding: 2.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--manager-primary); background: var(--bg-card); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1); border-radius: 1.5rem; transition: all 0.3s ease;">
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1.25rem;">
+              <span style="font-size: 0.7rem; color: var(--manager-primary); font-weight: 800; background: rgba(var(--manager-primary-rgb), 0.15); padding: 6px 16px; border-radius: 30px; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid rgba(var(--manager-primary-rgb), 0.3); shadow: 0 4px 6px -1px rgba(var(--manager-primary-rgb), 0.1);">${a.category.name}</span>
+              <h4 style="font-weight: 800; color: white; font-size: 1.35rem; font-family: 'Outfit'; letter-spacing: -0.01em;">${a.title}</h4>
+            </div>
+            <div style="display: flex; gap: 2rem; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;"><i data-lucide="calendar" style="width: 12px;"></i></div>
+                ${new Date(a.createdAt).toLocaleDateString()}
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); color: #10b981; display: flex; align-items: center; justify-content: center;"><i data-lucide="shield-check" style="width: 12px;"></i></div>
+                Verified Standard
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(59, 130, 246, 0.1); color: #3b82f6; display: flex; align-items: center; justify-content: center;"><i data-lucide="eye" style="width: 12px;"></i></div>
+                ${a.viewCount} Read Count
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 1.25rem;">
+            <button onclick="editSOP('${a.id}')" class="action-btn" style="width: 52px; height: 52px; border-radius: 16px; background: rgba(255,255,255,0.03); color: white; border: 1px solid var(--border); transition: all 0.3s; display: flex; align-items: center; justify-content: center;" title="Edit SOP Content">
+              <i data-lucide="file-edit" style="width: 20px;"></i>
+            </button>
+            <button onclick="deleteSOP('${a.id}')" class="action-btn" style="width: 52px; height: 52px; border-radius: 16px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); transition: all 0.3s; display: flex; align-items: center; justify-content: center;" title="Delete SOP Permanent">
+              <i data-lucide="trash-2" style="width: 20px;"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    async function deleteSOP(id) {
+      if (!confirm("Are you sure you want to permanently remove this SOP article? This action cannot be undone.")) return;
+      
+      try {
+        const res = await fetch(`/agent/api/articles/${id}`, { method: 'DELETE' }); // Need to add this endpoint
+        if (res.ok) {
+          loadKBManager();
+          if (window.notify) window.notify("SOP article deleted successfully", "Success");
+        }
+      } catch (e) {
+        alert("Deletion failed.");
+      }
+    }
+
+    function editSOP(id) {
+      if (window.notify) window.notify("Opening Advanced Editor for SOP #" + id.substring(0,6), "Info");
+    }
+
+    function setTheme(theme, el) {
+      document.body.setAttribute('data-theme', theme);
+      localStorage.setItem('manager-theme', theme);
+      document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+      if (el) el.classList.add('active');
+      else {
+        const dot = document.querySelector(`.theme-dot[onclick*="'${theme}'"]`);
+        if (dot) dot.classList.add('active');
+      }
+
+      const colors = {
+        'dark': '16, 185, 129',
+        'light': '16, 185, 129',
+        'emerald': '16, 185, 129',
+        'indigo': '99, 102, 241',
+        'midnight': '59, 130, 246'
+      };
+      document.documentElement.style.setProperty('--manager-primary-rgb', colors[theme] || '16, 185, 129');
+    }
+
+    function logout() {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      window.location.href = "/logout";
+    }
+
+    // Initial Load
+    const savedTheme = localStorage.getItem('manager-theme') || 'dark';
+    setTheme(savedTheme);
+    switchView('overview');
+  </script>
+</body>
+</html>

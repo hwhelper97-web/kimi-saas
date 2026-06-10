@@ -1,0 +1,347 @@
+<div class="dashboard-controls" style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+  <button class="apex-btn apex-btn-primary" onclick="openPhoneModal()">
+    <i data-lucide="plus"></i>
+    <span>Register Number</span>
+  </button>
+</div>
+
+<div class="apex-grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+  
+  <!-- ACTIVE NUMBERS LIST -->
+  <div class="apex-card" style="grid-column: span 2;">
+    <div class="card-header">
+      <h3 class="card-title">Business Numbers</h3>
+      <div class="status-badge" id="numbersCount" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.7rem; font-weight: 700;">0 Numbers Active</div>
+    </div>
+    
+    <div class="table-wrapper">
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="text-align: left; border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+            <th style="padding: 1rem;">Phone Number</th>
+            <th style="padding: 1rem;">Linked Business</th>
+            <th style="padding: 1rem;">Routing Status</th>
+            <th style="padding: 1rem;">AI Toggle</th>
+            <th style="padding: 1rem; text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="phoneNumbersTable">
+          <tr>
+            <td colspan="5" style="padding: 4rem; text-align: center;">
+              <div class="spin" style="width:24px; height:24px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; margin: 0 auto 1rem;"></div>
+              Scanning configurations...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ROUTING ANALYTICS -->
+  <div class="apex-card">
+    <div class="card-header">
+      <h3 class="card-title">Routing Analytics</h3>
+    </div>
+    <div style="padding: 1rem;">
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="stat-mini">
+          <span class="label">Total Inbound</span>
+          <span class="value" id="statInbound">0</span>
+        </div>
+        <div class="stat-mini">
+          <span class="label">AI Handled</span>
+          <span class="value" id="statAI">0</span>
+        </div>
+        <div class="stat-mini">
+          <span class="label">Transferred</span>
+          <span class="value" id="statTransferred">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PHONE CONFIG MODAL -->
+<div id="phoneModal" class="modal-overlay">
+  <div class="modal-container" style="max-width: 600px;">
+    <div class="modal-header">
+      <h3 id="phoneModalTitle">Configure Phone Number</h3>
+      <button class="close-modal" onclick="closeModal('phoneModal')">&times;</button>
+    </div>
+    
+    <form id="phoneForm" onsubmit="savePhoneConfig(event)">
+      <div class="apex-tabs" style="margin-bottom: 1.5rem; display: flex; border-bottom: 1px solid var(--border); gap: 1rem;">
+        <button type="button" class="tab-btn active" onclick="switchPhoneTab('general', event)">General</button>
+        <button type="button" class="tab-btn" onclick="switchPhoneTab('routing', event)">Routing</button>
+        <button type="button" class="tab-btn" onclick="switchPhoneTab('hours', event)">Hours</button>
+      </div>
+
+      <!-- General Tab -->
+      <div id="tab-general" class="tab-content-phone">
+        <div class="form-group">
+          <label>Business Number (BYON)</label>
+          <input type="text" id="businessPhoneNumber" class="form-control" placeholder="+1 234 567 8900" />
+          <p class="form-help" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Your existing business number that customers call.</p>
+        </div>
+        <div class="form-group">
+          <label>Assign to Business</label>
+          <select id="linkBusinessId" class="form-control">
+            <!-- Loaded dynamically -->
+          </select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+          <div class="form-check">
+            <input type="checkbox" id="aiEnabled" checked />
+            <label for="aiEnabled">AI Answering Enabled</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" id="recordingEnabled" checked />
+            <label for="recordingEnabled">Record AI Calls</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Routing Tab -->
+      <div id="tab-routing" class="tab-content-phone" style="display: none;">
+        <div class="form-group">
+          <label>Human Transfer Number</label>
+          <input type="text" id="transferNumber" class="form-control" placeholder="+1..." />
+          <p class="form-help" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Number to dial when AI can't help or user asks for a person.</p>
+        </div>
+        <div class="form-check" style="margin-bottom: 1.5rem;">
+          <input type="checkbox" id="forwardingEnabled" checked />
+          <label for="forwardingEnabled">Enable After-Hours Forwarding</label>
+        </div>
+        <div class="form-group">
+          <label>Fallback Number</label>
+          <input type="text" id="fallbackNumber" class="form-control" placeholder="+1..." />
+        </div>
+      </div>
+
+      <!-- Hours Tab -->
+      <div id="tab-hours" class="tab-content-phone" style="display: none;">
+        <div id="hoursList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <!-- Day rows injected here -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+        <button type="button" class="apex-btn apex-btn-secondary" onclick="closeModal('phoneModal')">Cancel</button>
+        <button type="submit" class="apex-btn apex-btn-primary">Save Configuration</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.stat-mini { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 0.75rem; border: 1px solid var(--border); }
+.stat-mini .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+.stat-mini .value { font-size: 1.25rem; font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono'; }
+.tab-btn { background: none; border: none; color: var(--text-muted); padding: 0.75rem 1.25rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+.form-check { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: var(--text-primary); cursor: pointer; }
+.form-check input { cursor: pointer; }
+.day-row { display: grid; grid-template-columns: 100px 1fr 1fr 80px; gap: 1rem; align-items: center; }
+.toggle { width: 40px; height: 20px; background: var(--bg-muted); border-radius: 20px; position: relative; cursor: pointer; transition: background 0.3s; border: 1px solid var(--border); }
+.toggle::after { content: ''; width: 14px; height: 14px; background: white; border-radius: 50%; position: absolute; left: 2px; top: 2px; transition: transform 0.3s; }
+.toggle.active { background: var(--success); border-color: var(--success); }
+.toggle.active::after { transform: translateX(20px); }
+</style>
+
+<script>
+(function() {
+  console.log("[Phone-Management] Initializing...");
+  if (window.lucide) lucide.createIcons();
+  
+  let editingConfigId = null;
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  const token = localStorage.getItem("accessToken") || window.token;
+
+  // Initialize Hours UI
+  const hoursList = document.getElementById('hoursList');
+  if (hoursList) {
+    hoursList.innerHTML = days.map(day => `
+      <div class="day-row">
+        <span style="text-transform: capitalize; font-weight: 600; font-size: 0.75rem;">${day}</span>
+        <input type="time" class="form-control h-open" data-day="${day}" value="09:00" />
+        <input type="time" class="form-control h-close" data-day="${day}" value="17:00" />
+        <div class="form-check">
+          <input type="checkbox" class="h-closed" data-day="${day}" />
+          <label style="font-size: 0.65rem; white-space: nowrap;">Closed</label>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.loadPhoneData = async function() {
+    const table = document.getElementById("phoneNumbersTable");
+    const bId = (typeof getBusinessId === 'function' ? getBusinessId() : localStorage.getItem("activeBusinessId"));
+
+    try {
+      // 1. Load Configs
+      const res = await fetch(`/api/phone/config?businessId=${bId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const result = await res.json();
+      
+      if (result.success && result.data.length > 0) {
+        document.getElementById('numbersCount').innerText = `${result.data.length} Numbers Active`;
+        table.innerHTML = result.data.map(p => `
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 1rem;">
+              <div style="font-weight: 700;">${p.twilioPhoneNumber}</div>
+              <div style="font-size: 0.7rem; color: var(--text-muted);">${p.businessPhoneNumber || 'No BYON linked'}</div>
+            </td>
+            <td style="padding: 1rem; font-size: 0.875rem;">${p.business?.name || 'Unlinked'}</td>
+            <td style="padding: 1rem;">
+              <span class="badge" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); font-size: 0.65rem;">
+                ${p.forwardingEnabled ? 'AUTO-FORWARD' : 'AI-ONLY'}
+              </span>
+            </td>
+            <td style="padding: 1rem;">
+              <div class="toggle ${p.aiEnabled ? 'active' : ''}" onclick="togglePhoneAI('${p.id}', ${p.aiEnabled})"></div>
+            </td>
+            <td style="padding: 1rem; text-align: right;">
+              <button class="apex-btn apex-btn-sm apex-btn-secondary" style="width:32px; height:32px; padding:0;" onclick='openPhoneModal(${JSON.stringify(p)})'>
+                <i data-lucide="edit-3" style="width:14px;"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } else {
+        table.innerHTML = '<tr><td colspan="5" style="padding: 4rem; text-align: center; color: var(--text-muted);"><i data-lucide="phone-off" style="width:32px; height:32px; opacity:0.3; margin-bottom:1rem;"></i><br/>No phone numbers configured.</td></tr>';
+      }
+
+      // 2. Load Analytics
+      const aRes = await fetch(`/api/phone/analytics?businessId=${bId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const aResult = await aRes.json();
+      if (aResult.success) {
+        document.getElementById('statInbound').innerText = aResult.data.incomingCalls || 0;
+        document.getElementById('statAI').innerText = aResult.data.aiHandledCalls || 0;
+        document.getElementById('statTransferred').innerText = aResult.data.transferredCalls || 0;
+      }
+
+      if (window.lucide) lucide.createIcons();
+    } catch (e) { 
+      console.error("[Phone-Management] Load Error:", e); 
+      table.innerHTML = '<tr><td colspan="5" style="padding: 4rem; text-align: center; color: var(--danger);">Failed to load configurations.</td></tr>';
+    }
+  };
+
+  window.openPhoneModal = async function(p = null) {
+    editingConfigId = p ? p.id : null;
+    document.getElementById('phoneModalTitle').innerText = p ? 'Update Configuration' : 'Register New Number';
+    
+    // Reset Form
+    document.getElementById('phoneForm').reset();
+
+    // Load businesses for select
+    const bRes = await fetch('/api/business/all', { headers: { Authorization: `Bearer ${token}` } });
+    const bData = await bRes.json();
+    const select = document.getElementById('linkBusinessId');
+    if (select) {
+      select.innerHTML = bData.data.map(b => `<option value="${b.id}" ${p && p.businessId === b.id ? 'selected' : ''}>${b.name}</option>`).join('');
+    }
+
+    if (p) {
+      document.getElementById('businessPhoneNumber').value = p.businessPhoneNumber || '';
+      document.getElementById('transferNumber').value = p.transferNumber || '';
+      document.getElementById('fallbackNumber').value = p.fallbackNumber || '';
+      document.getElementById('aiEnabled').checked = p.aiEnabled;
+      document.getElementById('recordingEnabled').checked = p.recordingEnabled;
+      document.getElementById('forwardingEnabled').checked = p.forwardingEnabled;
+      
+      // Load Hours
+      if (p.businessHours) {
+        const hours = typeof p.businessHours === 'string' ? JSON.parse(p.businessHours) : p.businessHours;
+        days.forEach(day => {
+          const h = hours[day];
+          if (h) {
+            const row = document.querySelector(`.day-row .h-open[data-day="${day}"]`).parentElement;
+            row.querySelector('.h-open').value = h.open || '09:00';
+            row.querySelector('.h-close').value = h.close || '17:00';
+            row.querySelector('.h-closed').checked = !!h.closed;
+          }
+        });
+      }
+    }
+
+    document.getElementById('phoneModal').classList.add('show');
+    switchPhoneTab('general');
+  };
+
+  window.switchPhoneTab = function(tab, event) {
+    if (event) event.preventDefault();
+    document.querySelectorAll('.tab-content-phone').forEach(c => c.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    const targetTab = document.getElementById(`tab-${tab}`);
+    if (targetTab) targetTab.style.display = 'block';
+    
+    if (event && event.target) {
+      event.target.classList.add('active');
+    }
+  };
+
+  window.savePhoneConfig = async function(e) {
+    e.preventDefault();
+    const hours = {};
+    days.forEach(day => {
+      const row = document.querySelector(`.day-row .h-open[data-day="${day}"]`).parentElement;
+      hours[day] = {
+        open: row.querySelector('.h-open').value,
+        close: row.querySelector('.h-close').value,
+        closed: row.querySelector('.h-closed').checked
+      };
+    });
+
+    const data = {
+      businessPhoneNumber: document.getElementById('businessPhoneNumber').value,
+      businessId: document.getElementById('linkBusinessId').value,
+      transferNumber: document.getElementById('transferNumber').value,
+      fallbackNumber: document.getElementById('fallbackNumber').value,
+      aiEnabled: document.getElementById('aiEnabled').checked,
+      recordingEnabled: document.getElementById('recordingEnabled').checked,
+      forwardingEnabled: document.getElementById('forwardingEnabled').checked,
+      businessHours: hours
+    };
+
+    const method = editingConfigId ? 'PUT' : 'POST';
+    const url = editingConfigId ? `/api/phone/config/${editingConfigId}` : '/api/phone/config';
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(data)
+      });
+
+      if (res.ok) {
+        if (typeof notify === 'function') notify("Configuration saved successfully", "Success");
+        closeModal('phoneModal');
+        loadPhoneData();
+      } else {
+        if (typeof notify === 'function') notify("Failed to save configuration", "Error");
+      }
+    } catch (err) {
+       if (typeof notify === 'function') notify("Network error while saving", "Error");
+    }
+  };
+
+  window.togglePhoneAI = async function(id, current) {
+    try {
+      const res = await fetch(`/api/phone/config/${id}/toggle-ai`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) loadPhoneData();
+    } catch (e) {}
+  };
+
+  // Initial load
+  loadPhoneData();
+})();
+</script>

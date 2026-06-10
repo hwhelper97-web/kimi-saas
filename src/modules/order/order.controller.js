@@ -37,13 +37,24 @@ exports.create = async (req, res) => {
         customerName,
         total: total || 0,
         tenantId: req.tenantId,
-        businessId
+        businessId,
+        notes: req.body.notes || null
       }
     });
 
+    // 🚀 Calculate displayId (#A001 style)
+    const displayId = `#A${String(order.orderNumber).padStart(3, '0')}`;
+    const orderWithDisplayId = { ...order, displayId };
+
+    // 🚀 Real-time Notification
+    const io = req.app.get("io");
+    if (io) {
+      io.to(businessId).emit("new_order", orderWithDisplayId);
+    }
+
     return res.json({
       success: true,
-      data: order
+      data: orderWithDisplayId
     });
   } catch (err) {
     console.error("ORDER CREATE ERROR:", err);
@@ -77,9 +88,15 @@ exports.getOrders = async (req, res) => {
       }
     });
 
+    // 🚀 Add human-readable displayId (#A001 style) using orderNumber
+    const formattedOrders = orders.map(o => ({
+      ...o,
+      displayId: `#A${String(o.orderNumber).padStart(3, '0')}`
+    }));
+
     return res.json({
       success: true,
-      data: orders
+      data: formattedOrders
     });
   } catch (err) {
     console.error("ORDER FETCH ERROR:", err);
@@ -117,9 +134,20 @@ exports.getOrderById = async (req, res) => {
       });
     }
 
+    // Calculate displayId
+    const seq = await prisma.order.count({
+      where: { 
+        businessId: order.businessId, 
+        createdAt: { lte: order.createdAt } 
+      }
+    });
+    
     return res.json({
       success: true,
-      data: order
+      data: {
+        ...order,
+        displayId: `#A${String(seq).padStart(3, '0')}`
+      }
     });
   } catch (err) {
     console.error("ORDER DETAIL ERROR:", err);

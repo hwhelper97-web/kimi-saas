@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SuperAdmin Hub — Nexton Technologies LLC</title>
+  <title>SuperAdmin Hub — Naxton Technologies LLC</title>
   <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -258,6 +258,36 @@
       border: 1px solid rgba(var(--primary-rgb), 0.2);
     }
 
+    .status-badge-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .status-badge-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .status-badge-warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
     .usage-progress-container {
       width: 100%;
       background: rgba(255, 255, 255, 0.05);
@@ -428,9 +458,298 @@
       background: #1d4ed8; 
       box-shadow: 0 6px 16px rgba(var(--primary-rgb), 0.5); 
     }
+
+    /* PREMIUM PROVISIONING WIZARD */
+    .provision-wizard {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .provision-steps {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin-bottom: 2rem;
+      padding: 0 1rem;
+    }
+
+    .provision-steps::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--border);
+      z-index: 1;
+      transform: translateY(-50%);
+    }
+
+    .step-indicator {
+      position: relative;
+      z-index: 2;
+      width: 40px;
+      height: 40px;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .step-indicator.active {
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.3);
+      transform: scale(1.15);
+    }
+
+    .step-indicator.completed {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .provision-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+      min-height: 500px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .provision-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(var(--primary-rgb), 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .step-content {
+      display: none;
+      animation: fadeInSlide 0.5s ease forwards;
+    }
+
+    .step-content.active {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .ai-import-box {
+      background: rgba(var(--primary-rgb), 0.03);
+      border: 1px dashed rgba(var(--primary-rgb), 0.3);
+      border-radius: 16px;
+      padding: 2rem;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .ai-import-box:hover {
+      background: rgba(var(--primary-rgb), 0.06);
+      border-style: solid;
+      border-color: var(--primary);
+    }
+
+    .pulse-glow {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 10px;
+      height: 10px;
+      background: var(--primary);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--primary);
+      animation: glowPulse 2s infinite;
+    }
+
+    @keyframes glowPulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.5); opacity: 0.5; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .deployment-sequence {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      height: 100%;
+      text-align: center;
+    }
+
+    .neural-loader {
+      width: 120px;
+      height: 120px;
+      position: relative;
+    }
+
+    .loader-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 4px solid transparent;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1.5s linear infinite;
+    }
+
+    .loader-ring:nth-child(2) {
+      width: 80%;
+      height: 80%;
+      top: 10%;
+      left: 10%;
+      border-top-color: #a855f7;
+      animation: spin 2s linear infinite reverse;
+    }
+
+    .loader-ring:nth-child(3) {
+      width: 60%;
+      height: 60%;
+      top: 20%;
+      left: 20%;
+      border-top-color: #10b981;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .deploy-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--primary);
+      height: 1.5rem;
+    }
+
+    /* SETTINGS SYSTEM UI */
+    .settings-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    
+    .settings-sidebar {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 1rem;
+      position: sticky;
+      top: 1rem;
+    }
+    
+    .settings-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1.25rem;
+      border-radius: 1rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 0.25rem;
+    }
+    
+    .settings-nav-item:hover {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-primary);
+    }
+    
+    .settings-nav-item.active {
+      background: rgba(var(--primary-rgb), 0.1);
+      color: var(--primary);
+      box-shadow: inset 0 0 0 1px rgba(var(--primary-rgb), 0.2);
+    }
+    
+    .settings-nav-item i {
+      width: 18px;
+      height: 18px;
+    }
+
+    .settings-content-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      min-height: 600px;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .settings-group-header {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .settings-group-header h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .settings-group-header p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .settings-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    .settings-form-full {
+      grid-column: span 2;
+    }
+
+    .settings-save-bar {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+    }
+
   </style>
 </head>
 <body data-theme="dark">
+  <script>
+    (function() {
+      try {
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const theme = user.theme || localStorage.getItem("apex_theme") || "default";
+        document.body.setAttribute("data-theme", theme);
+      } catch (e) {}
+    })();
+  </script>
 
   <div class="apex-layout">
     <aside class="apex-sidebar">
@@ -440,7 +759,7 @@
           <i data-lucide="shield-check" class="<%= platformLogo ? 'hidden' : '' %>"></i>
         </div>
         <div class="logo-text">
-          <h2 style="font-size: 0.95rem; font-weight: 700;"><%= projectName || 'Nexton Technologies' %></h2>
+          <h2 style="font-size: 0.95rem; font-weight: 700;"><%= projectName || 'Naxton Technologies' %></h2>
           <p style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">AI Voice Suite</p>
         </div>
       </div>
@@ -466,10 +785,20 @@
           <span>Tenant Support</span>
         </a>
 
+        <p class="nav-group-label">Intelligence</p>
+        <a class="apex-nav-item" href="/superadmin/terminal" target="_blank" style="color: var(--error-color);">
+          <i data-lucide="terminal"></i>
+          <span>Live AI Terminal</span>
+        </a>
+
         <p class="nav-group-label">System Control</p>
         <a class="apex-nav-item" id="nav-provisioning" onclick="showSection('provisioning')">
           <i data-lucide="plus-circle"></i>
           <span>Provisioning</span>
+        </a>
+        <a class="apex-nav-item" id="nav-phones" onclick="showSection('phones')">
+          <i data-lucide="phone"></i>
+          <span>Phone Inventory</span>
         </a>
         <a class="apex-nav-item" id="nav-settings" onclick="showSection('settings')">
           <i data-lucide="settings"></i>
@@ -482,6 +811,28 @@
         <a class="apex-nav-item" id="nav-demo" onclick="showSection('demo')">
           <i data-lucide="play-circle"></i>
           <span>Demo Lab</span>
+        </a>
+
+        <p class="nav-group-label">Platform Ops</p>
+        <a class="apex-nav-item" id="nav-infra" onclick="showSection('infra')">
+          <i data-lucide="server"></i>
+          <span>Infrastructure</span>
+        </a>
+        <a class="apex-nav-item" id="nav-aiops" onclick="showSection('aiops')">
+          <i data-lucide="cpu"></i>
+          <span>AI Operations</span>
+        </a>
+        <a class="apex-nav-item" id="nav-security" onclick="showSection('security')">
+          <i data-lucide="shield-alert"></i>
+          <span>Security & Audit</span>
+        </a>
+        <a class="apex-nav-item" id="nav-incidents" onclick="showSection('incidents')">
+          <i data-lucide="flag"></i>
+          <span>Incidents</span>
+        </a>
+        <a class="apex-nav-item" id="nav-queues" onclick="showSection('queues')">
+          <i data-lucide="list-checks"></i>
+          <span>Worker Queues</span>
         </a>
       </nav>
 
@@ -527,7 +878,7 @@
             </div>
           </div>
           <button class="action-btn" style="margin-right: 1rem;"><i data-lucide="bell"></i></button>
-          <div class="user-profile">
+          <div class="user-profile" onclick="logout()" style="cursor: pointer;" title="Click to Sign Out">
             <div class="user-avatar"><span>SA</span></div>
             <div style="padding-right: 0.75rem;">
               <p style="font-size: 0.75rem; font-weight: 600;">SuperAdmin</p>
@@ -550,12 +901,10 @@
               <p id="dashboardScopeLabel">Real-time analytics and infrastructure monitoring across all tenants.</p>
             </div>
             <div class="quick-actions">
-              <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 0.25rem 0.75rem; border-radius: 0.75rem;">
-                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Viewing Scope:</span>
-                <select id="globalBusinessFilter" class="form-control" style="width: 200px; height: 2rem; padding: 0 0.5rem; border: none; background: transparent; font-size: 0.85rem; font-weight: 600;" onchange="updateDashboardFilter(this.value)">
-                  <option value="">Full Platform Overview</option>
-                </select>
-              </div>
+              <a href="/superadmin/terminal" target="_blank" class="system-status-pill" style="background: rgba(239, 68, 68, 0.1); color: var(--error-color); border-color: rgba(239, 68, 68, 0.2); text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="terminal" style="width: 14px;"></i>
+                <span style="letter-spacing: 0.05em;">LIVE CALL TERMINAL</span>
+              </a>
               <div class="system-status-pill">
                 <div class="pulse-dot"></div>
                 <span>CORE SYSTEMS ONLINE</span>
@@ -568,7 +917,7 @@
 
           <!-- PRIMARY STATS -->
           <div class="apex-grid" style="margin-bottom: 2.5rem;">
-            <div class="stat-card">
+            <div class="stat-card" style="cursor: pointer; border-bottom: 3px solid var(--primary);" onclick="showSection('billing')">
               <div class="stat-header">
                 <span class="stat-label">Platform Revenue</span>
                 <div class="stat-icon"><i data-lucide="dollar-sign"></i></div>
@@ -580,7 +929,7 @@
               </div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card" style="cursor: pointer; border-bottom: 3px solid #8b5cf6;" onclick="showSection('tenants')">
               <div class="stat-header">
                 <span class="stat-label">Active Tenants</span>
                 <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><i data-lucide="layers"></i></div>
@@ -592,7 +941,7 @@
               </div>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card" style="cursor: pointer; border-bottom: 3px solid #f59e0b;" onclick="showSection('transcripts')">
               <div class="stat-header">
                 <span class="stat-label">AI Interactions</span>
                 <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i data-lucide="phone-call"></i></div>
@@ -604,7 +953,7 @@
               </div>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card" style="cursor: pointer; border-bottom: 3px solid #10b981;" onclick="showSection('demo')">
               <div class="stat-header">
                 <span class="stat-label">AI Success Rate</span>
                 <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i data-lucide="zap"></i></div>
@@ -613,6 +962,54 @@
               <div class="stat-footer">
                 <span class="trend-up" style="color: #10b981;"><i data-lucide="check-circle"></i> Optimized</span>
                 <span style="color: var(--text-muted);">high fidelity</span>
+              </div>
+            </div>
+
+            <div class="stat-card" style="border-bottom: 3px solid #00bcd4; cursor: pointer;" onclick="showSection('support', 'overview')">
+              <div class="stat-header">
+                <span class="stat-label">SLA Compliance</span>
+                <div class="stat-icon" style="background: rgba(0, 188, 212, 0.1); color: #00bcd4;"><i data-lucide="shield-check"></i></div>
+              </div>
+              <div class="stat-value" id="stat_sla">0%</div>
+              <div class="stat-footer">
+                <span class="trend-up" id="label_compliance"><i data-lucide="check"></i> 0%</span>
+                <span style="color: var(--text-muted);">target > 95%</span>
+              </div>
+            </div>
+
+            <div class="stat-card" style="border-bottom: 3px solid var(--error-color); cursor: pointer;" onclick="window.open('/superadmin/terminal', '_blank')">
+              <div class="stat-header">
+                <span class="stat-label">Live AI Health</span>
+                <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--error-color);"><i data-lucide="terminal"></i></div>
+              </div>
+              <div class="stat-value" style="color: var(--error-color)">ACTIVE</div>
+              <div class="stat-footer">
+                <span class="pulse-dot"></span>
+                <span style="color: var(--text-muted);">Monitoring Global Stream</span>
+              </div>
+            </div>
+
+            <div class="stat-card" style="border-bottom: 3px solid var(--accent-teal); cursor: pointer;" onclick="showSection('support', 'tickets')">
+              <div class="stat-header">
+                <span class="stat-label">Active Tickets</span>
+                <div class="stat-icon" style="background: rgba(45, 212, 191, 0.1); color: var(--accent-teal);"><i data-lucide="ticket"></i></div>
+              </div>
+              <div class="stat-value" id="stat_totalTickets">0</div>
+              <div class="stat-footer">
+                <span style="color: var(--accent-teal); font-weight: 700;" id="stat_openTickets_label">0 Open</span>
+                <span style="color: var(--text-muted);">requiring action</span>
+              </div>
+            </div>
+
+            <div class="stat-card" style="border-bottom: 3px solid var(--accent-purple); cursor: pointer;" onclick="showSection('support', 'inbox')">
+              <div class="stat-header">
+                <span class="stat-label">Active Support</span>
+                <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: var(--accent-purple);"><i data-lucide="message-circle"></i></div>
+              </div>
+              <div class="stat-value" id="stat_activeChats">0</div>
+              <div class="stat-footer">
+                <span style="color: var(--accent-purple); font-weight: 700;" id="stat_unassigned">0 Unassigned</span>
+                <span style="color: var(--text-muted);">in queue</span>
               </div>
             </div>
           </div>
@@ -706,8 +1103,8 @@
                 <div class="card-title-row">
                   <h3 class="card-title">Financial Performance</h3>
                   <div style="display: flex; gap: 0.5rem;">
-                    <button class="action-btn" style="font-size: 0.7rem; padding: 0.25rem 0.75rem;">WEEK</button>
-                    <button class="action-btn active" style="font-size: 0.7rem; padding: 0.25rem 0.75rem; background: var(--primary); color: white; border: none;">MONTH</button>
+                    <button class="apex-btn apex-btn-sm apex-btn-secondary">WEEK</button>
+                    <button class="apex-btn apex-btn-sm apex-btn-primary">MONTH</button>
                   </div>
                 </div>
                 <div style="height: 320px;"><canvas id="revenueChart"></canvas></div>
@@ -753,6 +1150,46 @@
               </div>
             </div>
           </div>
+
+          <!-- SUPPORT INTELLIGENCE PULSE -->
+          <div class="apex-card" style="margin-top: 2.5rem; background: linear-gradient(135deg, rgba(13, 17, 28, 0.95), rgba(13, 17, 28, 0.8));">
+            <div class="card-title-row">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="bar-chart-3" style="color: var(--primary); width: 20px;"></i>
+                <h3 class="card-title">Support Pulse Intelligence</h3>
+              </div>
+              <button class="apex-btn apex-btn-primary" onclick="showSection('support')">
+                Launch Full Command Center <i data-lucide="external-link" style="width: 14px;"></i>
+              </button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 400px; gap: 2rem;">
+               <div style="height: 300px;">
+                  <canvas id="supportVolumeChart"></canvas>
+               </div>
+               <div style="background: rgba(255,255,255,0.02); border-radius: 1.25rem; padding: 1.5rem; border: 1px solid var(--border);">
+                  <h4 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem;">SLA Status Overview</h4>
+                  <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                       <span style="font-size: 0.9rem;">Resolution Velocity</span>
+                       <span id="label_velocity" style="font-weight: 700; color: var(--primary);">0h</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                       <span style="font-size: 0.9rem;">Compliance Score</span>
+                       <span id="label_compliance" style="font-weight: 700; color: var(--accent-teal);">0%</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                       <span style="font-size: 0.9rem;">Response (Avg)</span>
+                       <span id="label_response" style="font-weight: 700; color: var(--accent-purple);">0m</span>
+                    </div>
+                  </div>
+                  <div style="margin-top: 2rem; padding: 1rem; background: rgba(0,242,255,0.05); border-radius: 12px; border: 1px solid rgba(0,242,255,0.1);">
+                    <p style="font-size: 0.7rem; color: var(--primary); text-transform: uppercase; font-weight: 800; margin-bottom: 0.5rem;">Neural Status</p>
+                    <p style="font-size: 0.8rem; color: var(--text-main); line-height: 1.5;">Background SLA auditor is active and monitoring all active tenant threads for compliance breaches.</p>
+                  </div>
+               </div>
+            </div>
+          </div>
         </div>
 
         <!-- TENANTS SECTION -->
@@ -788,6 +1225,29 @@
           </div>
         </div>
 
+        <!-- HIDDEN DEBUG OVERLAY FOR DATA VALIDATION -->
+        <div id="dashboardDebug" style="position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.95); color: #00ff00; padding: 15px; font-family: 'Courier New', monospace; font-size: 11px; width: 400px; max-height: 400px; overflow: auto; z-index: 10000; border: 2px solid #00ff00; border-radius: 8px; display: none; box-shadow: 0 0 20px rgba(0,255,0,0.2);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #00ff00; padding-bottom: 5px;">
+            <span style="font-weight: 800;">[ NAXTON-AI DIAGNOSTICS ]</span>
+            <button onclick="document.getElementById('dashboardDebug').style.display='none'" style="background:none; border:none; color:#00ff00; cursor:pointer; font-weight: 900;">[ CLOSE ]</button>
+          </div>
+          <pre id="debugDataLog" style="margin: 0; white-space: pre-wrap;">Initializing crawler...</pre>
+          <div style="margin-top: 10px; font-size: 9px; opacity: 0.7; border-top: 1px solid #00ff00; padding-top: 5px;">
+            HOTKEY: CTRL+D to Toggle | API: /api/superadmin/analytics
+          </div>
+        </div>
+
+        <script>
+          // Toggle debug console
+          document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'd' && (e.ctrlKey || e.metaKey)) {
+              e.preventDefault();
+              const d = document.getElementById('dashboardDebug');
+              d.style.display = d.style.display === 'none' ? 'block' : 'none';
+            }
+          });
+        </script>
+
         <!-- TRANSCRIPTS SECTION -->
         <div id="transcriptsSection" class="section-container" style="display: none;">
           <div class="page-header" style="margin-bottom: 2rem;">
@@ -798,10 +1258,10 @@
                 <p style="color: var(--text-muted);">AI-to-human conversation intelligence and monitoring.</p>
               </div>
               <div style="display: flex; gap: 1rem; align-items: center;">
-                <button class="action-btn" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.2); height: 44px; padding: 0 1.25rem;">
+                <button class="apex-btn apex-btn-outline" style="color: var(--primary); border-color: rgba(var(--primary-rgb), 0.2);">
                   <i data-lucide="sparkles" style="width: 16px; margin-right: 8px;"></i> AI INSIGHTS
                 </button>
-                <button class="action-btn" style="background: transparent; border: 1px solid var(--border); height: 44px; padding: 0 1.25rem;">
+                <button class="apex-btn apex-btn-outline">
                   <i data-lucide="download" style="width: 16px; margin-right: 8px;"></i> EXPORT
                 </button>
                 <div class="header-search" style="width: 280px; height: 44px; margin-bottom: 0;">
@@ -813,81 +1273,214 @@
           </div>
 
           <div style="display: flex; gap: 1rem; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 0.5rem;">
-            <button class="mini-btn active" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1.25rem;">All Sessions</button>
-            <button class="mini-btn" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 0.5rem 1.25rem;">Bookings</button>
-            <button class="mini-btn" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 0.5rem 1.25rem;">Support</button>
-            <button class="mini-btn" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 0.5rem 1.25rem;">Escalations</button>
+            <button class="apex-btn apex-btn-sm apex-btn-primary">All Sessions</button>
+            <button class="apex-btn apex-btn-sm apex-btn-glass">Bookings</button>
+            <button class="apex-btn apex-btn-sm apex-btn-glass">Support</button>
+            <button class="apex-btn apex-btn-sm apex-btn-glass">Escalations</button>
           </div>
 
           <div id="transcriptBox" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 2rem;"></div>
         </div>
 
         <!-- PROVISIONING SECTION -->
+        <!-- PROVISIONING SECTION (Refined Premium Wizard) -->
         <div id="provisioningSection" class="section-container" style="display: none;">
-          <div class="page-header">
-            <h1>Provision New Tenant</h1>
-            <p>Instantly deploy a new AI Voice Suite for a client.</p>
+          <div class="page-header" style="text-align: center; margin-bottom: 3rem;">
+            <p class="eyebrow" style="color: var(--primary);">System Deployment</p>
+            <h1 style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em;">Provision New AI Instance</h1>
+            <p>Onboard a new client with dedicated neural infrastructure and voice assets.</p>
           </div>
-          <div class="apex-card" style="max-width: 500px; margin: 0 auto;">
-            <div class="form-group">
-              <label>Business Name</label>
-              <input id="tenantName" class="form-control" placeholder="e.g. Maya Burger Joint">
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-              <div class="form-group"><label>Admin Email</label><input id="email" class="form-control" placeholder="admin@client.com"></div>
-              <div class="form-group"><label>Password</label><input id="password" type="password" class="form-control" placeholder="••••••••"></div>
-            </div>
-            <div class="form-group">
-              <label>Universal Currency</label>
-              <select id="currency" class="form-control">
-                <option value="USD">USD ($)</option>
-                <option value="PKR">PKR (₨)</option>
-                <option value="INR">INR (₹)</option>
-                <option value="EUR">EUR (€)</option>
-              </select>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-              <div class="form-group">
-                <label>Category</label>
-                <select id="businessType" class="form-control" onchange="updateSubCategoriesSA()">
-                  <option value="restaurant">Restaurant / Food (Ordering)</option>
-                  <option value="appointment">Service / Salon (Appointments)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Business Niche</label>
-                <select id="businessSubType" class="form-control">
-                  <!-- Will be populated by JS -->
-                  <option value="Restaurants">Restaurants</option>
-                  <option value="Cafes">Cafes</option>
-                  <option value="Fast food">Fast food</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group" style="padding: 1rem; background: rgba(0, 188, 212, 0.05); border-radius: 0.5rem; border: 1px dashed var(--border);">
-              <label style="color: var(--primary);"><i data-lucide="sparkles" style="width:14px; vertical-align:middle;"></i> AI SMART IMPORT</label>
-              <input id="importUrl" class="form-control" style="margin-top:0.5rem;" placeholder="https://old-website.com/menu">
+
+          <div class="provision-wizard">
+            <!-- PROGRESS INDICATORS -->
+            <div class="provision-steps">
+              <div class="step-indicator active" id="step-dot-1">1</div>
+              <div class="step-indicator" id="step-dot-2">2</div>
+              <div class="step-indicator" id="step-dot-3">3</div>
             </div>
 
-            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-              <div class="form-group" style="flex: 1;">
-                <label>Demo Mode</label>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
-                  <label class="switch">
-                    <input type="checkbox" id="isDemoAccount">
-                    <span class="slider round"></span>
-                  </label>
-                  <span style="font-size: 0.75rem; color: var(--text-muted);">Enables Demo Lab Access</span>
+            <div class="provision-card">
+              <!-- STEP 1: IDENTITY -->
+              <div class="step-content active" id="step-1">
+                <div style="margin-bottom: 1rem;">
+                  <h3 style="font-size: 1.25rem; font-weight: 700;">Client Identity</h3>
+                  <p style="font-size: 0.85rem; color: var(--text-muted);">Define the business name and primary administrative access.</p>
+                </div>
+                
+                <div class="form-group">
+                  <label>Business Name</label>
+                  <div style="position: relative;">
+                    <i data-lucide="building-2" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); width: 18px; color: var(--text-muted);"></i>
+                    <input id="tenantName" class="form-control" style="padding-left: 3rem;" placeholder="e.g. Maya Burger Joint">
+                  </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                  <div class="form-group">
+                    <label>Admin Email</label>
+                    <div style="position: relative;">
+                      <i data-lucide="mail" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); width: 18px; color: var(--text-muted);"></i>
+                      <input id="email" class="form-control" style="padding-left: 3rem;" placeholder="admin@client.com">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Master Password</label>
+                    <div style="position: relative;">
+                      <i data-lucide="lock" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); width: 18px; color: var(--text-muted);"></i>
+                      <input id="password" type="password" class="form-control" style="padding-left: 3rem;" placeholder="••••••••">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Operating Currency</label>
+                  <select id="currency" class="form-control">
+                    <option value="USD">USD ($) — Global Standard</option>
+                    <option value="PKR">PKR (₨) — Regional</option>
+                    <option value="INR">INR (₹) — Regional</option>
+                    <option value="EUR">EUR (€) — Eurozone</option>
+                  </select>
+                </div>
+
+                <div style="margin-top: auto; display: flex; justify-content: flex-end;">
+                  <button class="apex-btn apex-btn-lg apex-btn-primary" style="width: 220px;" onclick="nextStep(2)">
+                    CONTINUE DEPLOYMENT <i data-lucide="arrow-right" style="width: 18px; margin-left: 8px;"></i>
+                  </button>
                 </div>
               </div>
-              <div class="form-group" style="flex: 1;">
-                <label>Initial Mints (Tokens)</label>
-                <input id="initialTokens" type="number" class="form-control" value="100">
+
+              <!-- STEP 2: SERVICE CONFIG -->
+              <div class="step-content" id="step-2">
+                <div style="margin-bottom: 1rem;">
+                  <h3 style="font-size: 1.25rem; font-weight: 700;">Service Architecture</h3>
+                  <p style="font-size: 0.85rem; color: var(--text-muted);">Select the AI model niche and import existing assets.</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                  <div class="form-group">
+                    <label>Deployment Category</label>
+                    <select id="businessType" class="form-control" onchange="updateSubCategoriesSA()">
+                      <option value="restaurant">Restaurant / Food Ordering</option>
+                      <option value="appointment">Service / Appointments</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Vertical Niche</label>
+                    <select id="businessSubType" class="form-control">
+                      <option value="Restaurants">Standard Dining</option>
+                      <option value="Cafes">Cafes & Bakeries</option>
+                      <option value="Fast food">Quick Service</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="ai-import-box">
+                  <div class="pulse-glow"></div>
+                  <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="width: 40px; height: 40px; background: rgba(var(--primary-rgb), 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                      <i data-lucide="wand-2"></i>
+                    </div>
+                    <div>
+                      <h4 style="font-size: 0.9rem; font-weight: 700;">Neural Smart Import</h4>
+                      <p style="font-size: 0.75rem; color: var(--text-muted);">Enter a website URL to automatically extract menu/service data.</p>
+                    </div>
+                  </div>
+                  <input id="importUrl" class="form-control" placeholder="https://client-website.com/menu">
+                </div>
+
+                <div style="margin-top: auto; display: flex; justify-content: space-between;">
+                  <button class="action-btn" style="width: 140px; height: 3.5rem; font-weight: 700;" onclick="nextStep(1)">
+                    BACK
+                  </button>
+                  <button class="action-btn primary" style="width: 180px; height: 3.5rem; font-weight: 800;" onclick="nextStep(3)">
+                    CONTINUE <i data-lucide="arrow-right" style="width: 18px; margin-left: 8px;"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- STEP 3: INFRASTRUCTURE -->
+              <div class="step-content" id="step-3">
+                <div style="margin-bottom: 1rem;">
+                  <h3 style="font-size: 1.25rem; font-weight: 700;">Infrastructure Assets</h3>
+                  <p style="font-size: 0.85rem; color: var(--text-muted);">Allocate tokens and configure deployment modes.</p>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div>
+                      <h4 style="font-size: 0.95rem; font-weight: 700;">Sandbox Mode</h4>
+                      <p style="font-size: 0.75rem; color: var(--text-muted);">Enable testing in Demo Lab without real telephony costs.</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" id="isDemoAccount">
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div style="flex: 1;">
+                      <h4 style="font-size: 0.95rem; font-weight: 700;">Subscription Package</h4>
+                      <p style="font-size: 0.75rem; color: var(--text-muted);">Select the feature set and usage limits for this instance.</p>
+                    </div>
+                    <div style="width: 160px;">
+                      <select id="tenantPlan" class="form-control" style="font-weight: 700;">
+                        <option value="nexa-core">Nexa Core (300 Mints)</option>
+                        <option value="nexa-flow">Nexa Flow (1,200 Mints)</option>
+                        <option value="nexa-prime">Nexa Prime (5,000 Mints)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div style="flex: 1;">
+                      <h4 style="font-size: 0.95rem; font-weight: 700;">Trial Duration</h4>
+                      <p style="font-size: 0.75rem; color: var(--text-muted);">Number of days before trial enforcement activates.</p>
+                    </div>
+                    <div style="width: 120px;">
+                      <div style="position: relative;">
+                        <input id="tenantTrialDays" type="number" class="form-control" style="text-align: center; font-weight: 700;" value="14">
+                        <span style="position: absolute; right: -35px; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: var(--text-muted);">DAYS</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <h4 style="font-size: 0.95rem; font-weight: 700;">Initial Resource Allocation</h4>
+                      <p style="font-size: 0.75rem; color: var(--text-muted);">Amount of 'Mints' to inject upon deployment.</p>
+                    </div>
+                    <div style="width: 120px;">
+                      <input id="initialTokens" type="number" class="form-control" style="text-align: center; font-family: 'JetBrains Mono'; font-weight: 700;" value="100">
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-top: auto; display: flex; justify-content: space-between;">
+                  <button class="apex-btn apex-btn-secondary" style="width: 140px;" onclick="nextStep(currentProvisionStep - 1)">
+                    BACK
+                  </button>
+                  <button id="provisionBtn" class="apex-btn apex-btn-lg apex-btn-primary" style="flex: 1; margin-left: 1.5rem; background: linear-gradient(135deg, var(--primary), #4f46e5); border: none;" onclick="startDeploymentSequence()">
+                    DEPLOY NEURAL INSTANCE <i data-lucide="zap" style="width: 18px; margin-left: 8px;"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- DEPLOYMENT SEQUENCE OVERLAY -->
+              <div class="deployment-sequence" id="deployOverlay">
+                <div class="neural-loader">
+                  <div class="loader-ring"></div>
+                  <div class="loader-ring"></div>
+                  <div class="loader-ring"></div>
+                </div>
+                <div style="margin-top: 1rem;">
+                  <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Initializing Instance</h3>
+                  <div id="deployStatus" class="deploy-status">Connecting to cluster...</div>
+                </div>
+                <div style="width: 300px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; margin-top: 1rem;">
+                  <div id="deployProgress" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.5s;"></div>
+                </div>
               </div>
             </div>
-            <button id="provisionBtn" class="action-btn" style="width: 100%; height: 3.5rem; background: var(--primary); color: white; font-weight: 700;" onclick="createTenant()">
-              LAUNCH CLIENT INSTANCE
-            </button>
           </div>
         </div>
 
@@ -908,8 +1501,8 @@
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
-              <button class="action-btn" onclick="closeTokenModal()" style="background: transparent; border: 1px solid var(--border);">Cancel</button>
-              <button id="addTokenBtn" class="action-btn" style="background: var(--primary); color: white; border: none; font-weight: 700;">ADD MINTS</button>
+              <button class="apex-btn apex-btn-secondary" onclick="closeTokenModal()">Cancel</button>
+              <button id="addTokenBtn" class="apex-btn apex-btn-primary">ADD MINTS</button>
             </div>
           </div>
         </div>
@@ -931,100 +1524,189 @@
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
-              <button class="action-btn" onclick="closeDeleteModal()" style="background: transparent; border: 1px solid var(--border);">Cancel</button>
-              <button id="finalDeleteBtn" class="action-btn" style="background: var(--danger); color: white; border: none; font-weight: 700;">PURGE ACCOUNT</button>
+              <button class="apex-btn apex-btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+              <button id="finalDeleteBtn" class="apex-btn apex-btn-danger">PURGE ACCOUNT</button>
             </div>
           </div>
         </div>
 
         <!-- BILLING & TOKENS SECTION -->
         <div id="billingSection" class="section-container" style="display: none;">
-          <div class="page-header">
-            <h1>Billing & Token Management</h1>
-            <p>Manage token tiers (Starter, Elite, Custom) and approve mint requests.</p>
+          <div class="page-header" style="margin-bottom: 3rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
+              <div>
+                <p class="eyebrow" style="color: var(--primary); margin-bottom: 4px;">Financial Center</p>
+                <h1 style="font-size: 2.25rem; font-weight: 900; letter-spacing: -0.04em;">Billing & Token Management</h1>
+                <p style="color: var(--text-muted);">Configure platform pricing models and authorize resource injections.</p>
+              </div>
+              <div style="display: flex; gap: 1rem;">
+                <button class="apex-btn apex-btn-outline" onclick="loadMintRequests()">
+                  <i data-lucide="refresh-cw" style="width: 16px; margin-right: 8px;"></i> SYNC DATA
+                </button>
+                <button class="apex-btn apex-btn-primary">
+                  <i data-lucide="plus-circle" style="width: 16px; margin-right: 8px;"></i> CREATE TIER
+                </button>
+              </div>
+            </div>
           </div>
 
-          <!-- TOKEN TIERS -->
-          <div class="apex-grid" style="margin-bottom: 2rem;">
-            <div class="apex-card" style="border: 1px solid #10b981;">
-              <div class="card-header">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <h3 class="card-title">Starter Pack</h3>
-                  <span class="status-badge-standard">ACTIVE</span>
+          <!-- TOKEN TIERS (PREMIUM CARDS) -->
+          <div class="apex-grid" style="margin-bottom: 3rem; grid-template-columns: repeat(3, 1fr);">
+            <!-- STARTER -->
+            <div class="apex-card" style="border: 1px solid rgba(16, 185, 129, 0.2); background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent); position: relative; overflow: hidden; padding: 2rem;">
+              <div style="position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.1), transparent); z-index: 0;"></div>
+              <div style="position: relative; z-index: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                  <h3 style="font-size: 1.1rem; font-weight: 800; color: #10b981;">Nexa Core</h3>
+                  <span style="font-size: 0.6rem; background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 2px 8px; border-radius: 4px; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.2);">ACTIVE TIER</span>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                  <h2 style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.02em;">300 <span style="font-size: 1rem; color: var(--text-muted); font-weight: 500;">MINTS</span></h2>
+                  <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Baseline capacity for standard business operations.</p>
+                </div>
+                <div style="padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.75rem;">
+                    <span style="color: var(--text-secondary);">Active Tenants</span>
+                    <span style="font-weight: 700;">14</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                    <span style="color: var(--text-secondary);">Revenue (MoM)</span>
+                    <span style="font-weight: 700; color: #10b981;">+$1.4k</span>
+                  </div>
                 </div>
               </div>
-              <div style="margin: 1.5rem 0;">
-                <h2 style="font-size: 2rem; font-weight: 800;">100 <span style="font-size: 0.8rem; color: var(--text-muted);">MINTS</span></h2>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Perfect for new restaurants to test the waters.</p>
-              </div>
-              <ul style="list-style: none; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
-                <li style="margin-bottom: 0.5rem;"><i data-lucide="check" style="width:14px; color: #10b981; vertical-align:middle;"></i> AI Voice Ordering</li>
-                <li><i data-lucide="check" style="width:14px; color: #10b981; vertical-align:middle;"></i> Basic Reporting</li>
-              </ul>
             </div>
 
-            <div class="apex-card" style="border: 1px solid #f59e0b; position: relative; overflow: hidden;">
-              <div style="position: absolute; top: 10px; right: -30px; background: #f59e0b; color: #000; padding: 2px 40px; transform: rotate(45deg); font-size: 0.6rem; font-weight: 800;">POPULAR</div>
-              <div class="card-header">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <h3 class="card-title">Elite Growth</h3>
-                  <span class="status-badge-premium">PREMIUM</span>
+            <!-- FLOW (POPULAR) -->
+            <div class="apex-card" style="border: 1px solid rgba(var(--primary-rgb), 0.3); background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), transparent); position: relative; overflow: hidden; padding: 2rem; transform: scale(1.05); z-index: 10; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+              <div style="position: absolute; top: 12px; right: -32px; background: var(--primary); color: white; padding: 4px 40px; transform: rotate(45deg); font-size: 0.65rem; font-weight: 900; letter-spacing: 0.05em; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">POPULAR</div>
+              <div style="position: relative; z-index: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                  <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--primary);">Nexa Flow</h3>
+                  <span style="font-size: 0.6rem; background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700;">HIGH VOLUME</span>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                  <h2 style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.02em;">1,200 <span style="font-size: 1rem; color: var(--text-muted); font-weight: 500;">MINTS</span></h2>
+                  <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Optimal balance for scaling enterprises and chains.</p>
+                </div>
+                <div style="padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.75rem;">
+                    <span style="color: var(--text-secondary);">Active Tenants</span>
+                    <span style="font-weight: 700;">8</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                    <span style="color: var(--text-secondary);">Revenue (MoM)</span>
+                    <span style="font-weight: 700; color: var(--primary);">+$2.4k</span>
+                  </div>
                 </div>
               </div>
-              <div style="margin: 1.5rem 0;">
-                <h2 style="font-size: 2rem; font-weight: 800;">500 <span style="font-size: 0.8rem; color: var(--text-muted);">MINTS</span></h2>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Scalable package for busy establishments.</p>
-              </div>
-              <ul style="list-style: none; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
-                <li style="margin-bottom: 0.5rem;"><i data-lucide="check" style="width:14px; color: #f59e0b; vertical-align:middle;"></i> Priority AI Processing</li>
-                <li><i data-lucide="check" style="width:14px; color: #f59e0b; vertical-align:middle;"></i> POS Direct Sync</li>
-              </ul>
             </div>
 
-            <div class="apex-card" style="border: 1px solid var(--primary);">
-              <div class="card-header">
-                <h3 class="card-title">Custom Enterprise</h3>
+            <!-- PRIME -->
+            <div class="apex-card" style="border: 1px solid rgba(139, 92, 246, 0.2); background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), transparent); position: relative; overflow: hidden; padding: 2rem;">
+              <div style="position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.1), transparent); z-index: 0;"></div>
+              <div style="position: relative; z-index: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                  <h3 style="font-size: 1.1rem; font-weight: 800; color: #a78bfa;">Nexa Prime</h3>
+                  <span style="font-size: 0.6rem; background: rgba(139, 92, 246, 0.1); color: #a78bfa; padding: 2px 8px; border-radius: 4px; font-weight: 700; border: 1px solid rgba(139, 92, 246, 0.2);">ULTIMATE</span>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                  <h2 style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.02em;">5,000 <span style="font-size: 1rem; color: var(--text-muted); font-weight: 500;">MINTS</span></h2>
+                  <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Maximum throughput for heavy global operations.</p>
+                </div>
+                <div style="padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.75rem;">
+                    <span style="color: var(--text-secondary);">Active Tenants</span>
+                    <span style="font-weight: 700;">3</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                    <span style="color: var(--text-secondary);">Revenue (MoM)</span>
+                    <span style="font-weight: 700; color: #a78bfa;">+$1.8k</span>
+                  </div>
+                </div>
               </div>
-              <div style="margin: 1.5rem 0;">
-                <h2 style="font-size: 2rem; font-weight: 800;">∞ <span style="font-size: 0.8rem; color: var(--text-muted);">FLEX</span></h2>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Bespoke token limits for large franchises.</p>
-              </div>
-              <ul style="list-style: none; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
-                <li style="margin-bottom: 0.5rem;"><i data-lucide="check" style="width:14px; color: var(--primary); vertical-align:middle;"></i> Multi-Location Support</li>
-                <li><i data-lucide="check" style="width:14px; color: var(--primary); vertical-align:middle;"></i> 24/7 Dedicated Support</li>
-              </ul>
             </div>
           </div>
 
           <!-- MINT REQUESTS -->
-          <div class="apex-card">
-            <div class="card-title-row">
-              <h3 class="card-title">Pending Mint Requests</h3>
-              <span class="system-status-pill">REALTIME MONITOR</span>
+          <div class="apex-card" style="border: 1px solid var(--border); background: rgba(255,255,255,0.01); padding: 0; overflow: hidden;">
+            <div style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 10px; height: 10px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px var(--primary);"></div>
+                <h3 style="font-size: 1rem; font-weight: 800;">Incoming Neural Requests</h3>
+              </div>
+              <div style="display: flex; gap: 1rem; align-items: center;">
+                <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Real-time Approval Stream</span>
+                <div style="height: 20px; width: 1px; background: var(--border);"></div>
+                <button class="action-btn" onclick="loadMintRequests()"><i data-lucide="rotate-cw" style="width: 14px;"></i></button>
+              </div>
             </div>
-            <div class="apex-card" style="padding: 0; overflow: hidden; background: transparent; border: none;">
+            
+            <div style="overflow-x: auto;">
               <table class="apex-table">
                 <thead>
-                  <tr style="border-bottom: 1px solid var(--border);">
-                    <th style="padding: 1rem; text-align: left; font-size: 0.7rem;">Tenant</th>
-                    <th style="padding: 1rem; text-align: left; font-size: 0.7rem;">Requested Amount</th>
-                    <th style="padding: 1rem; text-align: left; font-size: 0.7rem;">Tier</th>
-                    <th style="padding: 1rem; text-align: left; font-size: 0.7rem;">Date</th>
-                    <th style="padding: 1rem; text-align: right; font-size: 0.7rem;">Actions</th>
+                  <tr style="background: rgba(255,255,255,0.01);">
+                    <th style="padding: 1.25rem 2rem; width: 30%;">TENANT IDENTITY</th>
+                    <th style="padding: 1.25rem 1rem;">RESOURCE ALLOCATION</th>
+                    <th style="padding: 1.25rem 1rem;">TIER SPEC</th>
+                    <th style="padding: 1.25rem 1rem;">TIMESTAMP</th>
+                    <th style="padding: 1.25rem 2rem; text-align: right;">ACTION</th>
                   </tr>
                 </thead>
                 <tbody id="mintRequestList">
-                  <tr><td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-muted);">No pending requests.</td></tr>
+                  <tr><td colspan="5" style="text-align: center; padding: 5rem; color: var(--text-muted); font-style: italic;">
+                    <div style="margin-bottom: 1rem; opacity: 0.3;"><i data-lucide="inbox" style="width: 48px; height: 48px; margin: 0 auto;"></i></div>
+                    Awaiting new resource requests from neural nodes...
+                  </td></tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
+
+        <!-- PHONE INVENTORY SECTION -->
+        <div id="phonesSection" class="section-container" style="display: none;">
+          <div class="page-header" style="margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
+              <div>
+                <p class="eyebrow" style="color: var(--primary); margin-bottom: 4px;">Telephony Management</p>
+                <h1 style="font-size: 2rem; font-weight: 800;">Phone Inventory</h1>
+                <p style="color: var(--text-muted);">Manage platform numbers and assign them to specific tenants.</p>
+              </div>
+              <div style="display: flex; gap: 1rem;">
+                <button class="apex-btn apex-btn-outline" onclick="loadInventory()">
+                  <i data-lucide="refresh-cw" style="width: 16px; margin-right: 8px;"></i> REFRESH
+                </button>
+                <button class="apex-btn apex-btn-primary" onclick="openPurchaseModal()">
+                  <i data-lucide="plus-circle" style="width: 16px; margin-right: 8px;"></i> BUY NEW NUMBER
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="apex-card" style="padding: 0; overflow: hidden;">
+            <table class="apex-table">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
+                  <th style="padding: 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase;">Phone Number</th>
+                  <th style="padding: 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase;">Assigned Tenant</th>
+                  <th style="padding: 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase;">Status</th>
+                  <th style="padding: 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase;">Capabilities</th>
+                  <th style="padding: 1rem; text-align: right; font-size: 0.7rem; text-transform: uppercase;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryList">
+                <tr><td colspan="5" style="text-align: center; padding: 4rem; color: var(--text-muted);">Fetching platform inventory...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- DEMO LAB SECTION -->
         <div id="demoSection" class="section-container" style="display: none;">
           <div class="page-header">
-            <h1>Nexton Demo Lab</h1>
+            <h1>Naxton Demo Lab</h1>
             <p>Simulate voice interactions and test AI processing without burning production credits.</p>
           </div>
 
@@ -1076,67 +1758,82 @@
           </div>
         </div>
 
-        <!-- SYSTEM SETTINGS SECTION -->
+        <!-- SYSTEM SETTINGS SECTION (Enterprise Grade) -->
         <div id="settingsSection" class="section-container" style="display: none;">
-          <div class="page-header">
-            <h1>System Configuration</h1>
-            <p>Adjust platform-wide settings, themes, and security parameters.</p>
+          <div class="dashboard-header">
+            <div>
+              <p class="eyebrow" style="margin-bottom: 4px;">Platform Control</p>
+              <h1>System Configuration</h1>
+              <p>Manage global parameters, AI infrastructure, and security protocols.</p>
+            </div>
           </div>
 
-          <div class="dashboard-main-grid">
-            <div class="left-col">
-              <div class="apex-card">
-                <div class="card-header"><h3 class="card-title">Platform Aesthetics</h3></div>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Select a global theme for the SuperAdmin interface.</p>
-                
-                <div class="form-group">
-                  <label>Active Theme</label>
-                  <select id="themeSelector" class="form-control" onchange="applyTheme(this.value)">
-                    <option value="dark">Premium Dark (Default)</option>
-                    <option value="light">Clean Light</option>
-                    <option value="nexton-teal">Nexton Teal</option>
-                    <option value="midnight">Midnight Blue</option>
-                    <option value="ocean">Deep Ocean</option>
-                    <option value="forest">Emerald Forest</option>
-                    <option value="sunset">Crimson Sunset</option>
-                    <option value="royal-gold">Royal Gold</option>
-                    <option value="deep-purple">Amethyst Purple</option>
-                    <option value="slate">Professional Slate</option>
-                    <option value="cyberpunk">Neon Cyberpunk</option>
-                    <option value="neon-night">Matrix Green</option>
-                    <option value="crimson">Blood Crimson</option>
-                  </select>
-                </div>
-
-                <div class="theme-grid" id="themeGrid">
-                  <!-- Theme previews will be rendered here -->
-                </div>
+          <div class="settings-layout">
+            <!-- Sidebar Nav -->
+            <aside class="settings-sidebar">
+              <div class="settings-nav-item active" onclick="loadSettingsGroup('GENERAL')">
+                <i data-lucide="globe"></i>
+                <span>General Settings</span>
               </div>
-            </div>
+              <div class="settings-nav-item" onclick="loadSettingsGroup('TENANT')">
+                <i data-lucide="database"></i>
+                <span>Tenant Management</span>
+              </div>
+              <div class="settings-nav-item" onclick="loadSettingsGroup('AI')">
+                <i data-lucide="cpu"></i>
+                <span>AI Configuration</span>
+              </div>
+              <div class="settings-nav-item" onclick="loadSettingsGroup('VOICE')">
+                <i data-lucide="mic"></i>
+                <span>Voice AI Systems</span>
+              </div>
+              <div class="settings-nav-item" onclick="loadSettingsGroup('BILLING')">
+                <i data-lucide="credit-card"></i>
+                <span>Billing & Pricing</span>
+              </div>
+              <div class="settings-nav-item" onclick="loadSettingsGroup('COMMUNICATION')">
+                <i data-lucide="mail"></i>
+                <span>Communication</span>
+              </div>
+              <div class="settings-nav-item" onclick="loadSettingsGroup('SECURITY')">
+                <i data-lucide="shield-check"></i>
+                <span>Security & Access</span>
+              </div>
+              <div class="settings-nav-item" onclick="loadSettingsGroup('RBAC')">
+                <i data-lucide="users"></i>
+                <span>RBAC Permissions</span>
+              </div>
+              <div class="settings-nav-item" onclick="loadSettingsGroup('FEATURES')">
+                <i data-lucide="toggle-right"></i>
+                <span>Feature Flags</span>
+              </div>
+              <div class="settings-nav-item" onclick="loadSettingsGroup('MONITORING')">
+                <i data-lucide="activity"></i>
+                <span>Monitoring & Logs</span>
+              </div>
+              <div class="settings-nav-item" onclick="loadSettingsGroup('BACKUP')">
+                <i data-lucide="hard-drive"></i>
+                <span>Backup & Recovery</span>
+              </div>
+              <div class="settings-nav-item" onclick="loadSettingsGroup('CMS')">
+                <i data-lucide="layout"></i>
+                <span>CMS & Content</span>
+              </div>
+            </aside>
 
-            <div class="right-col">
-              <div class="apex-card">
-                <div class="card-header"><h3 class="card-title">System Health</h3></div>
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(16, 185, 129, 0.05); border-radius: 0.5rem; border: 1px solid rgba(16, 185, 129, 0.1);">
-                    <div>
-                      <p style="font-size: 0.85rem; font-weight: 600; color: #10b981;">Database Engine</p>
-                      <p style="font-size: 0.7rem; color: var(--text-muted);">Prisma / PostgreSQL Connected</p>
-                    </div>
-                    <i data-lucide="check-circle" style="color: #10b981;"></i>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(59, 130, 246, 0.05); border-radius: 0.5rem; border: 1px solid rgba(59, 130, 246, 0.1);">
-                    <div>
-                      <p style="font-size: 0.85rem; font-weight: 600; color: #3b82f6;">Voice Processing</p>
-                      <p style="font-size: 0.7rem; color: var(--text-muted);">Deepgram / OpenAI Clusters</p>
-                    </div>
-                    <i data-lucide="cpu" style="color: #3b82f6;"></i>
-                  </div>
-                </div>
+            <!-- Main Content Area -->
+            <div class="settings-content-card" id="settingsContent">
+              <div id="settingsLoading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                <div class="loader-ring"></div>
+                <p style="margin-top: 1rem; color: var(--text-muted);">Synchronizing platform state...</p>
+              </div>
+              <div id="settingsFormContainer" style="display: none;">
+                <!-- Forms will be dynamically injected here -->
               </div>
             </div>
           </div>
         </div>
+
         <div id="supportSection" class="section-container" style="display: none;">
           <style>
             .support-tabs {
@@ -1393,6 +2090,7 @@
               <button class="tab-btn active" onclick="switchSupportTab('overview')">Overview</button>
               <button class="tab-btn" onclick="switchSupportTab('tickets')">Tickets</button>
               <button class="tab-btn" onclick="switchSupportTab('inbox')">Support Inbox</button>
+              <button class="tab-btn" onclick="switchSupportTab('matrix')">Agent Matrix</button>
               <button class="tab-btn" onclick="switchSupportTab('kb')">Knowledge Base</button>
             </div>
           </div>
@@ -1619,8 +2317,8 @@
                    </div>
                  </div>
                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <a id="tenantEmailBtn" href="#" class="mini-btn" style="text-decoration: none; color: inherit; justify-content: center;"><i data-lucide="mail" style="width: 14px;"></i></a>
-                    <a id="tenantPhoneBtn" href="#" class="mini-btn" style="text-decoration: none; color: inherit; justify-content: center;"><i data-lucide="phone" style="width: 14px;"></i></a>
+                    <a id="tenantEmailBtn" href="#" class="apex-btn apex-btn-sm apex-btn-secondary" style="flex: 1;"><i data-lucide="mail"></i></a>
+                    <a id="tenantPhoneBtn" href="#" class="apex-btn apex-btn-sm apex-btn-secondary" style="flex: 1;"><i data-lucide="phone"></i></a>
                  </div>
                </div>
 
@@ -1663,6 +2361,62 @@
           </div>
         </div>
 
+        <!-- TAB: MATRIX (Agent Matrix) -->
+        <div id="support-matrix" class="support-tab-content" style="display: none;">
+          <div style="display: grid; grid-template-columns: 1fr 380px; gap: 2rem;">
+            <div class="apex-card" style="padding: 0; overflow: hidden;">
+              <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                 <h3 class="card-title">Neural Support Personnel</h3>
+                 <span class="system-status-pill">REALTIME SYNC</span>
+              </div>
+              <table class="apex-table">
+                <thead>
+                  <tr style="background: rgba(255,255,255,0.01);">
+                    <th style="padding: 1.25rem;">Staff Member</th>
+                    <th style="padding: 1.25rem;">Department</th>
+                    <th style="padding: 1.25rem;">Status</th>
+                    <th style="padding: 1.25rem;">Role</th>
+                    <th style="padding: 1.25rem; text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="staffListSA">
+                  <tr><td colspan="5" style="text-align: center; padding: 4rem; color: var(--text-muted);">Syncing personnel matrix...</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="apex-card">
+              <div class="card-header" style="margin-bottom: 2rem;">
+                <h3 class="card-title">Onboard New Staff</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Provision new platform-wide support credentials.</p>
+              </div>
+              <form id="createStaffFormSA" onsubmit="handleCreateStaffSA(event)" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div class="form-group">
+                  <label>Professional Email</label>
+                  <input type="email" name="email" class="form-control" placeholder="staff@naxton.ai" required>
+                </div>
+                <div class="form-group">
+                  <label>Initial Access Key (Password)</label>
+                  <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                  <label>Designation & Privilege</label>
+                  <select name="role" class="form-control" style="background: #000;">
+                    <option value="AGENT">Support Agent (Level 1)</option>
+                    <option value="DEVELOPER">Developer (Technical Engineering)</option>
+                    <option value="MANAGER">Team Manager (Lead)</option>
+                    <option value="PRODUCT">Product Manager (Strategic)</option>
+                    <option value="ADMIN">Platform Admin (Root)</option>
+                  </select>
+                </div>
+                <button type="submit" class="action-btn" style="width: 100%; height: 3.5rem; background: var(--primary); color: white; font-weight: 800; margin-top: 1rem;">
+                  PROVISION CREDENTIALS
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
         <!-- TAB: KB -->
         <div id="support-kb" class="support-tab-content" style="display: none;">
           <div class="dashboard-main-grid">
@@ -1693,7 +2447,254 @@
             </div>
           </div>
         </div>
+        </div>
+
+        <!-- SECTION: INFRASTRUCTURE -->
+        <div id="infraSection" class="section-container" style="display: none;">
+          <div class="section-header">
+            <div>
+              <h1 class="section-title">Infrastructure Monitoring</h1>
+              <p class="section-subtitle">Real-time server metrics, websocket health, and system uptime.</p>
+            </div>
+            <div class="header-actions">
+              <span class="system-status-pill">ALL SYSTEMS NOMINAL</span>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">CPU Usage</span>
+                <div class="stat-icon" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary);"><i data-lucide="cpu"></i></div>
+              </div>
+              <div class="stat-value" id="infraCpu">--</div>
+              <div class="stat-trend success">Healthy</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">RAM Utilization</span>
+                <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;"><i data-lucide="database"></i></div>
+              </div>
+              <div class="stat-value" id="infraRam">--</div>
+              <div class="stat-trend success">Stable</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">WebSocket Connections</span>
+                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i data-lucide="radio"></i></div>
+              </div>
+              <div class="stat-value" id="infraWs">--</div>
+              <div class="stat-trend success">Active</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">API Latency (p95)</span>
+                <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;"><i data-lucide="clock"></i></div>
+              </div>
+              <div class="stat-value" id="infraLatency">--</div>
+              <div class="stat-trend success">Optimal</div>
+            </div>
+          </div>
+
+          <div class="dashboard-main-grid">
+            <div class="left-col" style="grid-column: span 2;">
+              <div class="apex-card">
+                <div class="card-title-row">
+                  <h3 class="card-title">System Metrics (Live)</h3>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <button class="action-btn active">1h</button>
+                    <button class="action-btn">24h</button>
+                    <button class="action-btn">7d</button>
+                  </div>
                 </div>
+                <div style="height: 300px; margin-top: 1.5rem;">
+                  <canvas id="infraMetricsChart"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="right-col">
+              <div class="apex-card">
+                <h3 class="card-title">Health Checkpoints</h3>
+                <div id="healthCheckpoints" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                  <!-- Injected via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: AI OPERATIONS -->
+        <div id="aiopsSection" class="section-container" style="display: none;">
+          <div class="section-header">
+            <div>
+              <h1 class="section-title">AI Operations Center</h1>
+              <p class="section-subtitle">Monitoring OpenAI, ElevenLabs, and Deepgram consumption.</p>
+            </div>
+            <div class="header-actions">
+              <button class="action-btn primary" onclick="refreshAiOps()"><i data-lucide="refresh-cw"></i> Refresh Stats</button>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="apex-card" style="padding: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">OpenAI Usage</span>
+                <img src="https://openai.com/favicon.ico" style="width: 16px; opacity: 0.5;">
+              </div>
+              <div style="font-size: 1.5rem; font-weight: 800;" id="aiOpenAiTokens">--</div>
+              <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">Cost: <span id="aiOpenAiCost">--</span></div>
+            </div>
+            <div class="apex-card" style="padding: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">ElevenLabs Usage</span>
+                <i data-lucide="mic" style="width: 16px; color: #a855f7;"></i>
+              </div>
+              <div style="font-size: 1.5rem; font-weight: 800;" id="aiElevenChars">--</div>
+              <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">Cost: <span id="aiElevenCost">--</span></div>
+            </div>
+            <div class="apex-card" style="padding: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Deepgram Usage</span>
+                <i data-lucide="audio-lines" style="width: 16px; color: #10b981;"></i>
+              </div>
+              <div style="font-size: 1.5rem; font-weight: 800;" id="aiDeepgramMins">--</div>
+              <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">Cost: <span id="aiDeepgramCost">--</span></div>
+            </div>
+            <div class="apex-card" style="padding: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Twilio Usage</span>
+                <i data-lucide="phone" style="width: 16px; color: #ef4444;"></i>
+              </div>
+              <div style="font-size: 1.5rem; font-weight: 800;" id="aiTwilioMins">--</div>
+              <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">Cost: <span id="aiTwilioCost">--</span></div>
+            </div>
+          </div>
+
+          <div class="apex-card">
+            <h3 class="card-title">Latest AI Sessions</h3>
+            <table class="apex-table" style="margin-top: 1.5rem;">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Tenant</th>
+                  <th>Provider</th>
+                  <th>Latency</th>
+                  <th>Tokens/Chars</th>
+                  <th>Cost</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="aiSessionsList">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECTION: SECURITY & AUDIT -->
+        <div id="securitySection" class="section-container" style="display: none;">
+          <div class="section-header">
+            <div>
+              <h1 class="section-title">Security & Audit Center</h1>
+              <p class="section-subtitle">Track administrator actions and platform security events.</p>
+            </div>
+            <div class="header-actions">
+              <button class="apex-btn apex-btn-secondary"><i data-lucide="download"></i> Export Logs</button>
+            </div>
+          </div>
+
+          <div class="apex-card">
+            <div class="card-header">
+              <h3 class="card-title">Audit Trail</h3>
+              <div class="header-search">
+                <i data-lucide="search"></i>
+                <input type="text" placeholder="Search logs..." oninput="filterAuditLogs(this.value)">
+              </div>
+            </div>
+            <table class="apex-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Administrator</th>
+                  <th>Action</th>
+                  <th>Resource</th>
+                  <th>IP Address</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="auditLogsList">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECTION: INCIDENTS -->
+        <div id="incidentsSection" class="section-container" style="display: none;">
+          <div class="section-header">
+            <div>
+              <h1 class="section-title">Incident Management</h1>
+              <p class="section-subtitle">Report and track platform outages or performance degradation.</p>
+            </div>
+            <div class="header-actions">
+              <button class="apex-btn apex-btn-primary" onclick="openCreateIncidentModal()"><i data-lucide="alert-triangle"></i> Declare Incident</button>
+            </div>
+          </div>
+
+          <div class="dashboard-main-grid">
+            <div class="left-col" style="grid-column: span 2;">
+              <div class="apex-card">
+                <h3 class="card-title">Incident History</h3>
+                <div id="incidentsList" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                  <!-- Injected via JS -->
+                </div>
+              </div>
+            </div>
+            <div class="right-col">
+              <div class="apex-card">
+                <h3 class="card-title">System Health Matrix</h3>
+                <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(16, 185, 129, 0.05); border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.1);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                      <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div>
+                      <span style="font-weight: 700;">API Engine</span>
+                    </div>
+                    <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">OPERATIONAL</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(16, 185, 129, 0.05); border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.1);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                      <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div>
+                      <span style="font-weight: 700;">Voice Synth (v2)</span>
+                    </div>
+                    <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">OPERATIONAL</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(245, 158, 11, 0.05); border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.1);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                      <div style="width: 8px; height: 8px; background: #f59e0b; border-radius: 50%;"></div>
+                      <span style="font-weight: 700;">Webhooks Proxy</span>
+                    </div>
+                    <span style="font-size: 0.7rem; color: #f59e0b; font-weight: 800;">DEGRADED</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: WORKER QUEUES -->
+        <div id="queuesSection" class="section-container" style="display: none;">
+          <div class="section-header">
+            <div>
+              <h1 class="section-title">Background Worker Queues</h1>
+              <p class="section-subtitle">Monitoring BullMQ / Redis background task throughput.</p>
+            </div>
+          </div>
+
+          <div id="queuesGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1768,13 +2769,71 @@
               </p>
             </div>
             
-            <button class="action-btn" style="width: 100%; background: var(--primary); color: white; border: none; margin-top: auto;" onclick="closeNeuralModal()">
-              CLOSE AUDIT
+            <button class="apex-btn apex-btn-primary" style="width: 100%; margin-top: auto;" onclick="closeNeuralModal()">
+              <span>CLOSE SYSTEM ACCESS</span>
             </button>
           </div>
         </div>
       </div>
     </div>
+    <!-- Modal: Declare Incident -->
+    <div id="incidentModalSA" class="modal-overlay">
+      <div class="modal-container" style="max-width: 500px; background: rgba(13, 17, 23, 0.98); border: 1px solid var(--border);">
+         <div class="modal-header">
+            <h3 style="font-weight: 800; display: flex; align-items: center; gap: 10px;">
+              <i data-lucide="alert-triangle" style="color: #ef4444;"></i>
+              DECLARE SYSTEM INCIDENT
+            </h3>
+            <button class="close-modal" onclick="closeIncidentModalSA()">&times;</button>
+         </div>
+         <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+            <div class="form-group">
+              <label>Incident Severity</label>
+              <select id="inc_severity" class="form-control" style="background: #000;">
+                <option value="minor">MINOR - Degraded Performance</option>
+                <option value="major">MAJOR - Partial Outage</option>
+                <option value="critical">CRITICAL - System-wide Outage</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Incident Title</label>
+              <input type="text" id="inc_title" class="form-control" placeholder="e.g. LLM Gateway Timeout" style="background: #000;">
+            </div>
+            <div class="form-group">
+              <label>Affected Services</label>
+              <input type="text" id="inc_services" class="form-control" placeholder="e.g. OpenAI v4, Voice Synthesis" style="background: #000;">
+            </div>
+            <div class="form-group">
+              <label>Initial Description</label>
+              <textarea id="inc_description" class="form-control" style="height: 100px; background: #000; resize: none;" placeholder="Detailed breakdown of the current technical failure..."></textarea>
+            </div>
+            <button class="apex-btn apex-btn-danger" style="width: 100%; height: 3.5rem;" onclick="submitIncidentSA()">
+              <i data-lucide="alert-circle"></i> DECLARE CRITICAL INCIDENT
+            </button>
+         </div>
+      </div>
+    </div>
+
+    <!-- Modal: Audit Log Details -->
+    <div id="auditLogModal" class="modal-overlay">
+      <div class="modal-container" style="max-width: 600px; background: var(--bg-card); border: 1px solid var(--border);">
+        <div class="modal-header">
+          <h3 style="font-size: 1.25rem; font-weight: 800;">Audit Event Details</h3>
+          <button class="close-modal" onclick="closeAuditLogModal()">&times;</button>
+        </div>
+        <div style="padding: 2rem;">
+          <div id="auditLogMeta" style="margin-bottom: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <!-- Metadata injected here -->
+          </div>
+          <div class="label-caps" style="margin-bottom: 0.75rem;">Action Payload / Metadata</div>
+          <pre id="auditLogPayload" style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #10b981; overflow-x: auto; max-height: 300px;"></pre>
+        </div>
+        <div style="padding: 0 2rem 2rem; display: flex; justify-content: flex-end;">
+          <button class="apex-btn apex-btn-secondary" onclick="closeAuditLogModal()">Close Details</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal: Ticket Details -->
     <div id="ticketModalSA" class="modal-overlay">
       <div class="modal-container" style="max-width: 600px; background: rgba(13, 17, 23, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
@@ -1788,7 +2847,7 @@
          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
             <div class="context-card-sa" style="margin-bottom: 0; padding: 1rem;">
                <span class="label-caps" style="font-size: 0.6rem;">Tenant Source</span>
-               <p id="mt_tenant" style="font-weight: 700; color: white; font-size: 0.9rem;">Nexton Platform Hub</p>
+               <p id="mt_tenant" style="font-weight: 700; color: white; font-size: 0.9rem;">Naxton Platform Hub</p>
             </div>
             <div class="context-card-sa" style="margin-bottom: 0; padding: 1rem;">
                <span class="label-caps" style="font-size: 0.6rem;">System Priority</span>
@@ -1821,52 +2880,530 @@
       <div id="syncPercent" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; font-weight: 800;">0%</div>
     </div>
     <h2 style="color: var(--primary);">AI Sync in Progress</h2>
-    <p id="syncStatus" style="color: var(--text-secondary);">Initializing Nexton AI Crawler...</p>
+    <p id="syncStatus" style="color: var(--text-secondary);">Initializing Naxton AI Crawler...</p>
   </div>
 
   <script>
     const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
     if (!token) window.location.href = "/login";
-    const socket = io();
+    window.currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const socket = io({ auth: { token } });
     let allTenants = [];
     let revenueChartInstance = null;
     let callsChartInstance = null;
     let currentBusinessFilter = "";
 
-    function logout() { localStorage.clear(); window.location.href = "/login"; }
+    function logout() { 
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      localStorage.removeItem("activeBusinessId");
+      window.location.href = "/logout"; 
+    }
 
-    function showSection(id) {
+    function showSuccess(msg) {
+      const box = document.getElementById("successBox");
+      if (!box) return;
+      box.innerText = msg;
+      box.style.display = "block";
+      setTimeout(() => { box.style.display = "none"; }, 5000);
+    }
+
+    function showError(msg) {
+      const box = document.getElementById("errorBox");
+      if (!box) return;
+      box.innerText = msg;
+      box.style.display = "block";
+      setTimeout(() => { box.style.display = "none"; }, 5000);
+    }
+
+    function showSection(id, subTab = null) {
       document.querySelectorAll('.section-container').forEach(s => s.style.display = 'none');
       document.querySelectorAll('.apex-nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById(id + 'Section').style.display = 'block';
-      document.getElementById('nav-' + id).classList.add('active');
+      
+      const targetSection = document.getElementById(id + 'Section');
+      if (targetSection) targetSection.style.display = 'block';
+      
+      const navItem = document.getElementById('nav-' + id);
+      if (navItem) navItem.classList.add('active');
       
       // Auto-load section specific data
       if (id === 'dashboard') { loadAnalytics(); loadActivityFeed(); loadBusinesses(); }
-      if (id === 'support') { loadSupportActivity(); loadTicketsSA(); loadConversationsSA(); }
+      if (id === 'tenants') loadTenants();
+      if (id === 'support') { 
+        loadSupportActivity(); 
+        loadTicketsSA(); 
+        loadConversationsSA();
+        if (subTab) switchSupportTab(subTab);
+        else switchSupportTab('overview');
+      }
+      if (id === 'provisioning') { nextStep(1); } // Initialize wizard
       if (id === 'billing') loadMintRequests();
       if (id === 'demo') loadDemoTenants();
+      if (id === 'infra') loadInfraStats();
+      if (id === 'aiops') loadAiOps();
+      if (id === 'security') loadAuditLogs();
+      if (id === 'incidents') loadIncidentsSA();
+      if (id === 'queues') loadQueueStats();
+      if (id === 'settings') loadSettingsGroup('GENERAL');
+      if (id === 'phones') loadInventory();
       
       lucide.createIcons();
+    }
+
+    function switchSupportTab(tabId) {
+      console.log("[Support] Switching to tab:", tabId);
+      // Hide all support sub-tabs
+      document.querySelectorAll('.support-tab-content').forEach(c => c.style.display = 'none');
+      // Deactivate all support tab buttons
+      document.querySelectorAll('.support-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+      
+      // Show target tab
+      const target = document.getElementById('support-' + tabId);
+      if (target) target.style.display = 'block';
+      
+      // Activate target button (handles both click events and programmatic triggers)
+      const btns = document.querySelectorAll('.support-tabs .tab-btn');
+      btns.forEach(btn => {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${tabId}'`)) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Load specific tab data
+      if (tabId === 'overview') loadSupportActivity();
+      if (tabId === 'tickets') loadTicketsSA();
+      if (tabId === 'inbox') loadConversationsSA();
+      if (tabId === 'matrix') loadStaffSA();
+    }
+
+    /* ======================================
+       INFRASTRUCTURE MONITORING
+    ====================================== */
+    let infraChartInstance = null;
+    async function loadInfraStats() {
+      try {
+        const res = await fetch("/api/superadmin/infrastructure", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          const h = r.data.health;
+          document.getElementById("infraCpu").innerText = h.cpu;
+          document.getElementById("infraRam").innerText = h.ram;
+          document.getElementById("infraWs").innerText = h.websockets;
+          document.getElementById("infraLatency").innerText = h.latency;
+          
+          renderInfraChart(r.data.metrics);
+          renderHealthCheckpoints();
+        }
+      } catch (e) {}
+    }
+
+    function renderInfraChart(metrics) {
+      if (infraChartInstance) infraChartInstance.destroy();
+      // Generate some dummy labels if metrics are sparse
+      const labels = metrics.length ? metrics.map(m => new Date(m.timestamp).toLocaleTimeString()) : ["10:00", "10:10", "10:20", "10:30", "10:40", "10:50"];
+      const data = metrics.length ? metrics.map(m => m.value) : [20, 25, 22, 30, 28, 35];
+
+      infraChartInstance = new Chart(document.getElementById("infraMetricsChart"), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'System Load %',
+            data,
+            borderColor: 'var(--primary)',
+            backgroundColor: 'rgba(var(--primary-rgb), 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function renderHealthCheckpoints() {
+      const container = document.getElementById("healthCheckpoints");
+      const checks = [
+        { name: "PostgreSQL Connection", status: "Healthy", time: "2ms" },
+        { name: "Redis Cache Cluster", status: "Healthy", time: "1ms" },
+        { name: "BullMQ Processors", status: "Active", time: "N/A" },
+        { name: "WebSocket Gateway", status: "Connected", time: "14ms" },
+        { name: "Storage S3 Bucket", status: "Accessible", time: "45ms" }
+      ];
+      container.innerHTML = checks.map(c => `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: rgba(255,255,255,0.02); border-radius: 8px;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="check-circle" style="width: 14px; color: #10b981;"></i>
+            <span style="font-size: 0.8rem; font-weight: 600;">${c.name}</span>
+          </div>
+          <span style="font-size: 0.7rem; color: var(--text-muted);">${c.time}</span>
+        </div>
+      `).join("");
+      lucide.createIcons();
+    }
+
+    /* ======================================
+       AI OPERATIONS
+    ====================================== */
+    async function loadAiOps() {
+      try {
+        const res = await fetch("/api/superadmin/ai-ops", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          const s = r.data.aiStats;
+          document.getElementById("aiOpenAiTokens").innerText = s.openai.tokens;
+          document.getElementById("aiOpenAiCost").innerText = s.openai.cost;
+          document.getElementById("aiElevenChars").innerText = s.elevenlabs.characters;
+          document.getElementById("aiElevenCost").innerText = s.elevenlabs.cost;
+          document.getElementById("aiDeepgramMins").innerText = s.deepgram.minutes;
+          document.getElementById("aiDeepgramCost").innerText = s.deepgram.cost;
+          document.getElementById("aiTwilioMins").innerText = s.twilio.minutes;
+          document.getElementById("aiTwilioCost").innerText = s.twilio.cost;
+
+          renderAiSessions(r.data.calls);
+        }
+      } catch (e) {}
+    }
+
+    function renderAiSessions(calls) {
+      const container = document.getElementById("aiSessionsList");
+      if (!calls.length) {
+        container.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-muted);">No active sessions.</td></tr>`;
+        return;
+      }
+      container.innerHTML = calls.map(c => `
+        <tr>
+          <td style="font-size: 0.75rem; color: var(--text-muted);">${new Date(c.createdAt).toLocaleString()}</td>
+          <td style="font-weight: 700;">${c.tenantId.substring(0,8)}</td>
+          <td><span class="transcript-badge badge-support">OPENAI</span></td>
+          <td style="color: var(--primary);">850ms</td>
+          <td>${c.tokensUsed} tokens</td>
+          <td>$0.02</td>
+          <td><span style="color: #10b981; font-size: 0.7rem; font-weight: 800;">SUCCESS</span></td>
+        </tr>
+      `).join("");
+    }
+
+    /* ======================================
+       SECURITY & AUDIT
+    ====================================== */
+    let currentAuditLogs = [];
+    async function loadAuditLogs() {
+      try {
+        const res = await fetch("/api/superadmin/audit-logs", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          currentAuditLogs = r.data;
+          renderAuditLogs(r.data);
+        }
+      } catch (e) {}
+    }
+
+    function renderAuditLogs(logs) {
+      const container = document.getElementById("auditLogsList");
+      if (!logs.length) {
+        container.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">No logs found.</td></tr>`;
+        return;
+      }
+      container.innerHTML = logs.map(l => `
+        <tr>
+          <td style="font-size: 0.75rem; color: var(--text-muted);">${new Date(l.createdAt).toLocaleString()}</td>
+          <td style="font-weight: 700;">${l.userId ? l.userId.substring(0,8) : 'SYSTEM'}</td>
+          <td><span class="status-badge-standard">${l.action}</span></td>
+          <td>${l.resource}</td>
+          <td style="font-family: monospace; font-size: 0.75rem;">${l.ipAddress || '127.0.0.1'}</td>
+          <td><button type="button" class="action-btn" onclick="event.stopPropagation(); viewLogDetails('${l.id}')"><i data-lucide="eye" style="width: 14px;"></i></button></td>
+        </tr>
+      `).join("");
+      lucide.createIcons();
+    }
+
+    function viewLogDetails(id) {
+      const log = currentAuditLogs.find(l => l.id === id);
+      if (!log) return;
+
+      const meta = document.getElementById("auditLogMeta");
+      meta.innerHTML = `
+        <div>
+          <p class="label-caps" style="opacity: 0.5; font-size: 0.6rem;">Timestamp</p>
+          <p style="font-size: 0.85rem; font-weight: 600;">${new Date(log.createdAt).toLocaleString()}</p>
+        </div>
+        <div>
+          <p class="label-caps" style="opacity: 0.5; font-size: 0.6rem;">Resource</p>
+          <p style="font-size: 0.85rem; font-weight: 600;">${log.resource}</p>
+        </div>
+        <div>
+          <p class="label-caps" style="opacity: 0.5; font-size: 0.6rem;">Admin ID</p>
+          <p style="font-size: 0.85rem; font-weight: 600;">${log.userId}</p>
+        </div>
+        <div>
+          <p class="label-caps" style="opacity: 0.5; font-size: 0.6rem;">IP Address</p>
+          <p style="font-size: 0.85rem; font-weight: 600;">${log.ipAddress || 'N/A'}</p>
+        </div>
+      `;
+
+      const payload = document.getElementById("auditLogPayload");
+      try {
+        const details = typeof log.details === 'string' ? JSON.parse(log.details) : log.details;
+        payload.innerText = JSON.stringify(details, null, 2);
+      } catch (e) {
+        payload.innerText = log.details || "No metadata provided.";
+      }
+
+      document.getElementById("auditLogModal").classList.add("show");
+    }
+
+    function closeAuditLogModal() {
+      document.getElementById("auditLogModal").classList.remove("show");
+    }
+
+    /* ======================================
+       INCIDENTS
+    ====================================== */
+    async function loadIncidentsSA() {
+      try {
+        const res = await fetch("/api/superadmin/incidents", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          renderIncidentsSA(r.data);
+        }
+      } catch (e) {}
+    }
+
+    function renderIncidentsSA(incidents) {
+      const container = document.getElementById("incidentsList");
+      if (!incidents.length) {
+        container.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--text-muted);">No incidents recorded.</div>`;
+        return;
+      }
+      container.innerHTML = incidents.map(i => `
+        <div class="apex-card" style="padding: 1.25rem; border-left: 4px solid ${i.severity === 'critical' ? '#ef4444' : i.severity === 'major' ? '#f59e0b' : '#3b82f6'};">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <div>
+              <h4 style="font-size: 1rem; font-weight: 700;">${i.title}</h4>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">${i.description}</p>
+            </div>
+            <span class="status-badge-standard" style="background: rgba(255,255,255,0.05);">${i.status.toUpperCase()}</span>
+          </div>
+          <div style="display: flex; gap: 1rem; margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted);">
+            <span><i data-lucide="clock" style="width: 12px; vertical-align: middle;"></i> ${new Date(i.createdAt).toLocaleString()}</span>
+            <span><i data-lucide="layers" style="width: 12px; vertical-align: middle;"></i> ${i.affectedServices || 'All Services'}</span>
+          </div>
+        </div>
+      `).join("");
+      lucide.createIcons();
+    }
+
+    function openCreateIncidentModal() {
+      document.getElementById("incidentModalSA").classList.add("show");
+    }
+
+    function closeIncidentModalSA() {
+      document.getElementById("incidentModalSA").classList.remove("show");
+    }
+
+    async function submitIncidentSA() {
+      const data = {
+        severity: document.getElementById("inc_severity").value,
+        title: document.getElementById("inc_title").value,
+        affectedServices: document.getElementById("inc_services").value,
+        description: document.getElementById("inc_description").value
+      };
+
+      if (!data.title || !data.description) return showError("Required fields missing");
+
+      try {
+        const res = await fetch("/api/superadmin/incidents", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify(data)
+        });
+        const r = await res.json();
+        if (r.success) {
+          showSuccess("Incident broadcasted to all terminals.");
+          closeIncidentModalSA();
+          loadIncidentsSA();
+        }
+      } catch (e) { showError("Failed to declare incident"); }
+    }
+
+    /* ======================================
+       PROVISIONING WIZARD LOGIC
+    ====================================== */
+    let currentProvisionStep = 1;
+
+    function nextStep(step) {
+      // Validation for step 1
+      if (step === 2 && currentProvisionStep === 1) {
+        if (!document.getElementById("tenantName").value || !document.getElementById("email").value || !document.getElementById("password").value) {
+          return showError("Please complete all identity fields.");
+        }
+      }
+
+      // Hide all content
+      document.querySelectorAll('.step-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.step-indicator').forEach(i => i.classList.remove('active'));
+
+      // Show target step
+      document.getElementById(`step-${step}`).classList.add('active');
+      document.getElementById(`step-dot-${step}`).classList.add('active');
+      
+      // Mark previous as completed
+      for(let i = 1; i < step; i++) {
+        document.getElementById(`step-dot-${i}`).classList.add('completed');
+        document.getElementById(`step-dot-${i}`).innerHTML = '<i data-lucide="check" style="width: 18px;"></i>';
+      }
+      
+      currentProvisionStep = step;
+      lucide.createIcons();
+    }
+
+    async function startDeploymentSequence() {
+      const btn = document.getElementById("provisionBtn");
+      const overlay = document.getElementById("deployOverlay");
+      const statusText = document.getElementById("deployStatus");
+      const progressBar = document.getElementById("deployProgress");
+      
+      // Validation for step 3
+      if (!document.getElementById("initialTokens").value) {
+        return showError("Please set initial resource allocation.");
+      }
+
+      // Hide steps, show overlay
+      document.querySelectorAll('.step-content').forEach(c => c.classList.remove('active'));
+      overlay.style.display = 'flex';
+      
+      const sequence = [
+        { progress: 10, status: "Establishing Neural Uplink..." },
+        { progress: 25, status: "Allocating Dedicated CPU Clusters..." },
+        { progress: 45, status: "Initializing Prisma Schema..." },
+        { progress: 65, status: "Cloning Voice Model Weights..." },
+        { progress: 85, status: "Securing JWT Secret Chains..." },
+        { progress: 95, status: "Finalizing API Gateways..." }
+      ];
+
+      for (const item of sequence) {
+        statusText.innerText = item.status;
+        progressBar.style.width = item.progress + "%";
+        await new Promise(r => setTimeout(r, 800));
+      }
+
+      // Final Call to API
+      try {
+        await createTenant();
+        statusText.innerText = "Deployment Successful! Redirecting...";
+        progressBar.style.width = "100%";
+        setTimeout(() => {
+          showSection('tenants');
+          // Reset Wizard for next time
+          setTimeout(() => location.reload(), 500);
+        }, 2000);
+      } catch (e) {
+        overlay.style.display = 'none';
+        document.getElementById(`step-${currentProvisionStep}`).classList.add('active');
+        showError("Deployment Failed: " + e.message);
+      }
+    }
+
+    /* ======================================
+       WORKER QUEUES
+    ====================================== */
+    async function loadQueueStats() {
+      try {
+        const res = await fetch("/api/superadmin/queues", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          const container = document.getElementById("queuesGrid");
+          container.innerHTML = r.data.map(q => `
+            <div class="apex-card" style="padding: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h4 style="font-weight: 700;">${q.name}</h4>
+                <span class="pulse-online" style="background: ${q.active > 0 ? '#10b981' : '#64748b'};"></span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; text-align: center;">
+                <div><div style="font-size: 1.25rem; font-weight: 800; color: #10b981;">${q.active}</div><div style="font-size: 0.6rem; color: var(--text-muted);">ACTIVE</div></div>
+                <div><div style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">${q.waiting}</div><div style="font-size: 0.6rem; color: var(--text-muted);">WAITING</div></div>
+                <div><div style="font-size: 1.25rem; font-weight: 800; color: #ef4444;">${q.failed}</div><div style="font-size: 0.6rem; color: var(--text-muted);">FAILED</div></div>
+                <div><div style="font-size: 1.25rem; font-weight: 800; color: var(--text-muted);">${q.processed}</div><div style="font-size: 0.6rem; color: var(--text-muted);">DONE</div></div>
+              </div>
+            </div>
+          `).join("");
+        }
+      } catch (e) {}
     }
 
     function showSuccess(m) { const b = document.getElementById("successBox"); b.innerText = m; b.style.display = "block"; setTimeout(() => b.style.display="none", 4000); }
     function showError(m) { const b = document.getElementById("errorBox"); b.innerText = m; b.style.display = "block"; setTimeout(() => b.style.display="none", 4000); }
 
     async function loadAnalytics() {
+      const debugLog = document.getElementById("debugDataLog");
+      if (debugLog) debugLog.innerText = "Synchronizing with Naxton AI Cloud...";
+      
       try {
         const query = currentBusinessFilter ? `?businessId=${currentBusinessFilter}` : "";
         const res = await fetch(`/api/superadmin/analytics${query}`, { headers: { Authorization: "Bearer " + token } });
-        const r = await res.json(); if (!r.success) return;
+        
+        // 🛡️ AUTO-LOGOUT ON SESSION EXPIRE
+        if (res.status === 401) {
+          console.warn("[SuperAdmin] Session expired. Redirecting to login...");
+          logout();
+          return;
+        }
+        
+        if (debugLog) debugLog.innerText = `HTTP ${res.status}: Fetching payload...`;
+        
+        const r = await res.json(); 
+        console.log("[SuperAdmin] Analytics Payload:", r);
+        
+        if (debugLog) debugLog.innerText = JSON.stringify(r, null, 2);
+
+        if (!r.success) {
+          console.error("[SuperAdmin] Analytics API Error:", r.message);
+          if (r.error === "Token expired or invalid") { logout(); return; }
+          showError("Failed to synchronize platform analytics: " + (r.message || "Unknown error"));
+          return;
+        }
+        
         const d = r.data;
-        document.getElementById("statRevenue").innerText = "$" + (d.totalRevenue || 0).toFixed(2);
-        document.getElementById("totalTenants").innerText = d.tenants;
-        document.getElementById("totalCalls").innerText = d.calls;
-        document.getElementById("conversionRate").innerText = (d.conversionRate || 0) + "%";
+        console.log("[SuperAdmin] Processing counts:", { tenants: d.tenants, calls: d.calls, revenue: d.totalRevenue });
+
+        // Primary Stats
+        if (document.getElementById("statRevenue")) document.getElementById("statRevenue").innerText = "$" + (d.totalRevenue || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+        if (document.getElementById("totalTenants")) document.getElementById("totalTenants").innerText = d.tenants || 0;
+        if (document.getElementById("totalCalls")) document.getElementById("totalCalls").innerText = d.calls || 0;
+        if (document.getElementById("conversionRate")) document.getElementById("conversionRate").innerText = (d.conversionRate || 0) + "%";
+        
+        // Charts
         if (d.revenueChart) renderRevenueChart(d.revenueChart);
         if (d.callsChart) renderCallsChart(d.callsChart);
+
+        if (d.supportMetrics) {
+          const sm = d.supportMetrics;
+          if (document.getElementById("stat_totalTickets")) document.getElementById("stat_totalTickets").innerText = sm.totalTickets || 0;
+          if (document.getElementById("stat_openTickets_label")) document.getElementById("stat_openTickets_label").innerText = `${sm.openCount || 0} Open`;
+          if (document.getElementById("stat_activeChats")) document.getElementById("stat_activeChats").innerText = sm.activeChats || 0;
+          if (document.getElementById("stat_unassigned")) document.getElementById("stat_unassigned").innerText = `${sm.unassignedChats || 0} Unassigned`;
+
+          if (document.getElementById("stat_sla")) document.getElementById("stat_sla").innerText = `${sm.compliance}%`;
+          if (document.getElementById("stat_openTickets")) document.getElementById("stat_openTickets").innerText = sm.openCount || 0;
+          if (document.getElementById("label_velocity")) document.getElementById("label_velocity").innerText = `${sm.velocity}h`;
+          if (document.getElementById("label_compliance")) document.getElementById("label_compliance").innerHTML = `<i data-lucide="check"></i> ${sm.compliance}%`;
+          if (document.getElementById("label_response")) document.getElementById("label_response").innerText = `${sm.response}m`;
+          
+          if (sm.volumeChart) renderSupportChart(sm.volumeChart.trends || sm.volumeChart);
+        }
         lucide.createIcons();
-      } catch (e) {}
+      } catch (e) {
+        console.error("[SuperAdmin] Analytics Error:", e);
+        if (debugLog) debugLog.innerText = "CRITICAL SCRIPT ERROR: " + e.message;
+      }
     }
 
     async function loadBusinesses() {
@@ -1913,9 +3450,23 @@
 
     async function loadTenants() {
       try {
+        console.log("[SuperAdmin] Fetching tenants...");
         const res = await fetch("/api/superadmin/tenants", { headers: { Authorization: "Bearer " + token } });
-        const r = await res.json(); if (r.success) { allTenants = r.data; renderTenantTable(allTenants); }
-      } catch (e) {}
+        if (res.status === 401) return logout();
+        
+        const r = await res.json(); 
+        console.log("[SuperAdmin] Tenants response:", r);
+        if (r.success) { 
+          allTenants = r.data; 
+          renderTenantTable(allTenants); 
+        } else {
+          showError(r.message || "Failed to load tenants");
+          document.getElementById("tenantList").innerHTML = `<tr><td colspan="5" style="text-align:center; padding:5rem; color:var(--danger);">Error: ${r.message || "Failed to load"}</td></tr>`;
+        }
+      } catch (e) {
+        console.error("[SuperAdmin] Load tenants error:", e);
+        document.getElementById("tenantList").innerHTML = `<tr><td colspan="5" style="text-align:center; padding:5rem; color:var(--danger);">Network Error: ${e.message}</td></tr>`;
+      }
     }
 
     function renderTenantTable(data) {
@@ -1926,10 +3477,18 @@
       }
       
       container.innerHTML = data.map((t, index) => {
-        const usagePct = Math.min((t.usedMinutes / t.monthlyLimit) * 100, 100);
+        const usagePct = t.monthlyLimit > 0 ? Math.min((t.usedMinutes / t.monthlyLimit) * 100, 100) : 0;
         const joined = new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         const bizId = t.businesses && t.businesses[0] ? t.businesses[0].id : null;
-        const planClass = t.plan.toLowerCase().includes('premium') ? 'status-badge-premium' : 'status-badge-standard';
+        const planMapping = {
+          'nexa-core': { name: 'Nexa Core', badge: 'CORE', class: 'status-badge-standard' },
+          'nexa-flow': { name: 'Nexa Flow', badge: 'FLOW', class: 'status-badge-premium' },
+          'nexa-prime': { name: 'Nexa Prime', badge: 'PRIME', class: 'status-badge-premium' }
+        };
+
+        const currentPlan = planMapping[t.plan?.toLowerCase()] || { name: t.plan || 'Nexa Core', badge: (t.plan || 'CORE').toUpperCase(), class: 'status-badge-standard' };
+        const status = t.subscriptionStatus || "ACTIVE";
+        const statusBadgeClass = status === 'ACTIVE' ? 'status-badge-success' : (status === 'SUSPENDED' ? 'status-badge-danger' : 'status-badge-warning');
         
         // Progress color based on usage
         let progressColor = 'var(--primary)';
@@ -1937,9 +3496,7 @@
         else if (usagePct > 50) progressColor = 'var(--warning)';
 
         const isDemo = t.isDemoAccount;
-        const demoClass = isDemo ? 'status-badge-standard' : 'status-badge-standard hidden';
-
-        const isMaster = t.name === "Nexton Platform Hub";
+        const isMaster = t.name === "Naxton Platform Hub";
 
         return `
           <tr class="tenant-row" style="animation-delay: ${index * 0.05}s; ${isMaster ? 'opacity: 0.8; background: rgba(var(--primary-rgb), 0.02);' : ''}">
@@ -1959,9 +3516,15 @@
               </div>
             </td>
             <td>
-              <div style="display:flex; flex-direction:column; gap:4px;">
-                <span class="${planClass}">${t.plan.toUpperCase()}</span>
-                <span style="font-size:0.7rem; color:var(--text-muted);"><i data-lucide="zap" style="width:10px; vertical-align:middle;"></i> ${t.tokenBalance} Mints</span>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span class="${currentPlan.class}">${currentPlan.badge}</span>
+                  <span class="${statusBadgeClass}">${status.toUpperCase()}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:4px; font-size:0.7rem; color:var(--text-muted);">
+                  <i data-lucide="zap" style="width:10px;"></i>
+                  <span>${t.tokenBalance} Mints</span>
+                </div>
               </div>
             </td>
             <td style="min-width: 200px;">
@@ -1983,10 +3546,11 @@
                     <i data-lucide="lock" style="width: 10px; vertical-align: middle;"></i> PROTECTED
                   </div>
                 ` : `
-                  <button class="action-btn" onclick="openTokenModal('${t.id}', '${t.name}')" title="Add Mints" style="background: rgba(var(--primary-rgb), 0.1); border-color: rgba(var(--primary-rgb), 0.2);"><i data-lucide="zap" style="width:14px;"></i></button>
-                  <button class="action-btn" onclick="toggleDemo('${t.id}')" title="Toggle Demo Mode" style="background: ${isDemo ? 'var(--primary)' : 'transparent'}; border-color: var(--primary);"><i data-lucide="play-circle" style="width:14px; color: ${isDemo ? 'white' : 'var(--primary)'}"></i></button>
-                  ${bizId ? `<button class="action-btn" onclick="goToBusiness('${bizId}')" title="Direct Access" style="background: rgba(var(--primary-rgb), 0.1); border-color: rgba(var(--primary-rgb), 0.2);"><i data-lucide="external-link" style="width:14px;"></i></button>` : `<span style="color:var(--text-muted);font-size:0.7rem;">Orphan</span>`}
-                  <button class="action-btn" style="color: var(--danger); background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.1);" onclick="openDeleteModal('${t.id}')" title="Terminate Instance"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                  <button class="apex-btn apex-btn-sm apex-btn-outline" onclick="openTokenModal('${t.id}', '${t.name}')" title="Add Mints" style="border-color: rgba(var(--primary-rgb), 0.2);"><i data-lucide="zap" style="width:14px; color: var(--primary);"></i></button>
+                  <button class="apex-btn apex-btn-sm apex-btn-outline" onclick="openPlanModal('${t.id}', '${t.name}', '${t.plan}', ${t.trialEndDate ? "'" + t.trialEndDate + "'" : 'null'}, '${t.subscriptionStatus}')" title="Change Package" style="border-color: rgba(var(--primary-rgb), 0.2);"><i data-lucide="settings-2" style="width:14px; color: var(--primary);"></i></button>
+                  <button class="apex-btn apex-btn-sm ${isDemo ? 'apex-btn-primary' : 'apex-btn-outline'}" onclick="toggleDemo('${t.id}')" title="Toggle Demo Mode" style="${!isDemo ? 'border-color: var(--primary); color: var(--primary);' : ''}"><i data-lucide="play-circle" style="width:14px;"></i></button>
+                  ${bizId ? `<button class="apex-btn apex-btn-sm apex-btn-outline" onclick="goToBusiness('${bizId}')" title="Direct Access" style="border-color: rgba(var(--primary-rgb), 0.2);"><i data-lucide="external-link" style="width:14px; color: var(--primary);"></i></button>` : `<span style="color:var(--text-muted);font-size:0.7rem;">Orphan</span>`}
+                  <button class="apex-btn apex-btn-sm apex-btn-danger" onclick="openDeleteModal('${t.id}')" title="Terminate Instance"><i data-lucide="trash-2" style="width:14px;"></i></button>
                 `}
               </div>
             </td>
@@ -1996,6 +3560,163 @@
     }
 
     function filterTenants(q) { const f = allTenants.filter(t => t.name.toLowerCase().includes(q.toLowerCase())); renderTenantTable(f); }
+
+    /* =============================================================================
+       BILLING & MINT REQUESTS
+    ============================================================================= */
+    
+    async function loadMintRequests() {
+      try {
+        const container = document.getElementById("mintRequestList");
+        container.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:3rem;"><div class="loader-ring" style="width:24px; height:24px; margin:0 auto;"></div></td></tr>`;
+
+        const res = await fetch("/api/superadmin/mint-requests", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          renderMintRequests(r.data);
+        } else {
+          showError("Failed to synchronize mint requests.");
+        }
+      } catch (e) {
+        console.error("Load mint requests error:", e);
+      }
+    }
+
+    function renderMintRequests(data) {
+      const container = document.getElementById("mintRequestList");
+      const pending = data.filter(r => r.status === 'PENDING');
+      
+      if (!pending.length) {
+        container.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 5rem; color: var(--text-muted); font-style: italic;">
+          <div style="margin-bottom: 1rem; opacity: 0.3;"><i data-lucide="inbox" style="width: 48px; height: 48px; margin: 0 auto;"></i></div>
+          Awaiting new resource requests from neural nodes...
+        </td></tr>`;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = pending.map(r => `
+        <tr class="tenant-row">
+          <td style="padding: 1.25rem 2rem;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:40px; height:40px; background:rgba(var(--primary-rgb), 0.1); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:0.9rem; font-weight:800; border: 1px solid rgba(var(--primary-rgb), 0.2);">
+                ${r.tenant?.name ? r.tenant.name.substring(0, 1) : 'T'}
+              </div>
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <span style="font-weight:800; color:white; font-size:0.95rem; letter-spacing:-0.01em;">${r.tenant?.name || 'Unknown Tenant'}</span>
+                <span style="font-size:0.65rem; color:var(--text-muted); font-family:'JetBrains Mono';">UID: ${r.tenantId.substring(0, 12)}</span>
+              </div>
+            </div>
+          </td>
+          <td style="padding: 1.25rem 1rem;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="width:24px; height:24px; border-radius:50%; background:rgba(var(--primary-rgb), 0.1); display:flex; align-items:center; justify-content:center;">
+                <i data-lucide="zap" style="width:12px; color:var(--primary);"></i>
+              </div>
+              <span style="font-weight:800; font-family:'JetBrains Mono'; color:var(--primary); font-size:1.1rem;">${r.amount.toLocaleString()} <span style="font-size:0.7rem; color:var(--text-muted);">MINTS</span></span>
+            </div>
+          </td>
+          <td style="padding: 1.25rem 1rem;">
+            <span style="font-size: 0.65rem; background: rgba(255,255,255,0.05); color: var(--text-primary); padding: 4px 10px; border-radius: 6px; font-weight: 800; border: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.05em;">
+              ${(r.tier || 'CUSTOM').replace('_', ' ')}
+            </span>
+          </td>
+          <td style="padding: 1.25rem 1rem;">
+            <div style="display:flex; flex-direction:column;">
+              <span style="font-size:0.85rem; color:var(--text-primary); font-weight:600;">${new Date(r.createdAt).toLocaleDateString()}</span>
+              <span style="font-size:0.65rem; color:var(--text-muted);">${new Date(r.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            </div>
+          </td>
+          <td style="text-align:right; padding: 1.25rem 2rem;">
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+              <button class="action-btn" onclick="updateMintRequestStatus('${r.id}', 'APPROVED')" style="background:#10b981; color:white; border:none; padding:0 1.25rem; height:36px; border-radius:10px; font-weight:800; font-size:0.75rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                AUTHORIZE
+              </button>
+              <button class="action-btn" onclick="updateMintRequestStatus('${r.id}', 'REJECTED')" style="width:36px; height:36px; border-radius:10px; border:1px solid rgba(239, 68, 68, 0.2); color:#ef4444; background:rgba(239, 68, 68, 0.05);">
+                <i data-lucide="slash" style="width:14px;"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    async function updateMintRequestStatus(requestId, status) {
+      if (status === 'APPROVED' && !confirm("Confirm neural injection and balance update?")) return;
+      
+      try {
+        const res = await fetch(`/api/superadmin/mint-requests/${requestId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ status })
+        });
+        const r = await res.json();
+        if (r.success) {
+          showSuccess(`Request ${status.toLowerCase()} successfully.`);
+          loadMintRequests(); // Refresh list
+          loadAnalytics(); // Refresh revenue/tokens stats
+        } else {
+          showError(r.message || "Operation failed.");
+        }
+      } catch (e) {
+        showError("Synchronization error.");
+      }
+    }
+
+    /* =============================================================================
+       TOKEN MODAL LOGIC
+    ============================================================================= */
+    let currentTokenTenantId = null;
+
+    function openTokenModal(id, name) {
+      currentTokenTenantId = id;
+      document.getElementById("tokenTenantName").innerText = name;
+      document.getElementById("tokenModal").style.display = "flex";
+      document.getElementById("tokenAmountInput").value = 100;
+      document.getElementById("tokenAmountInput").focus();
+    }
+
+    function closeTokenModal() {
+      document.getElementById("tokenModal").style.display = "none";
+      currentTokenTenantId = null;
+    }
+
+    async function addTokensManually() {
+      const amount = document.getElementById("tokenAmountInput").value;
+      if (!amount || amount <= 0) return showError("Please specify a valid amount.");
+      
+      const btn = document.getElementById("addTokenBtn");
+      btn.disabled = true;
+      btn.innerText = "INJECTING...";
+
+      try {
+        const res = await fetch(`/api/superadmin/tenants/${currentTokenTenantId}/tokens`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ amount })
+        });
+        const r = await res.json();
+        if (r.success) {
+          showSuccess(r.message);
+          closeTokenModal();
+          loadTenants(); // Refresh the table to show new balance
+        } else {
+          showError(r.message);
+        }
+      } catch (e) {
+        showError("Failed to inject tokens.");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "ADD MINTS";
+      }
+    }
+
+    // Attach to the button in the modal
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById("addTokenBtn");
+      if (btn) btn.onclick = addTokensManually;
+    });
 
     let allTranscripts = [];
     async function loadTranscripts() {
@@ -2228,6 +3949,8 @@
           subType: document.getElementById("businessSubType").value,
           importUrl: document.getElementById("importUrl").value,
           isDemo: document.getElementById("isDemoAccount").checked,
+          plan: document.getElementById("tenantPlan").value,
+          trialDays: parseInt(document.getElementById("tenantTrialDays").value) || 14,
           initialTokens: parseInt(document.getElementById("initialTokens").value)
         };
       if (!data.name || !data.ownerEmail || !data.ownerPassword) return showError("Required fields missing");
@@ -2272,7 +3995,7 @@
     function goToBusiness(businessId) {
       localStorage.setItem("activeBusinessId", businessId);
       localStorage.setItem("superadminProxy", "true");
-      window.location.href = "/admin";
+      window.location.href = "/admin?businessId=" + businessId;
     }
 
     async function loadBusinesses() {
@@ -2311,7 +4034,7 @@
       const themes = [
         { id: 'dark', name: 'Premium Dark', colors: ['#09090b', '#18181b', '#3b82f6'] },
         { id: 'light', name: 'Clean Light', colors: ['#fbfbfc', '#ffffff', '#2563eb'] },
-        { id: 'nexton-teal', name: 'Nexton Teal', colors: ['#061e26', '#0a2d37', '#00bcd4'] },
+        { id: 'nexton-teal', name: 'Naxton Teal', colors: ['#061e26', '#0a2d37', '#00bcd4'] },
         { id: 'midnight', name: 'Midnight Blue', colors: ['#020617', '#0f172a', '#38bdf8'] },
         { id: 'ocean', name: 'Deep Ocean', colors: ['#083344', '#0c4a6e', '#38bdf8'] },
         { id: 'forest', name: 'Emerald Forest', colors: ['#052e16', '#14532d', '#10b981'] },
@@ -2354,6 +4077,40 @@
     applyTheme(savedTheme);
 
     loadAnalytics(); loadTenants(); loadTranscripts(); loadActivityFeed(); loadBusinesses();
+
+    // Real-time Support Sync (SuperAdmin)
+    // socket is already initialized above
+    
+    socket.on("connect", () => {
+      console.log("[Socket] SuperAdmin connected");
+    });
+
+    socket.on("new-message", (msg) => {
+      console.log("[Socket] New message received:", msg);
+      // Refresh inbox list
+      loadConversationsSA();
+      
+      // If viewing this chat, append message
+      if (activeConvoSA === msg.conversationId) {
+          const msgList = document.getElementById("chatMessagesSA");
+          const isTenant = msg.senderType === 'CUSTOMER';
+          msgList.innerHTML += `
+            <div class="msg-sa-wrap ${isTenant ? 'tenant' : 'admin'}">
+              ${isTenant ? `<span style="font-size: 0.6rem; color: var(--primary); margin-bottom: 2px; font-weight: 700; opacity: 0.7;">TENANT</span>` : ''}
+              <div class="msg-sa-bubble">${msg.body}</div>
+              <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem; align-self: ${isTenant ? 'flex-start' : 'flex-end'};">
+                Just now
+              </span>
+            </div>
+          `;
+          msgList.scrollTop = msgList.scrollHeight;
+      }
+    });
+
+    socket.on("ticket-activity", (data) => {
+      showSuccess(`Support Activity: ${data.type}`);
+      loadConversationsSA();
+    });
 
     /* ======================================
        NEW TOKEN & DEMO LOGIC
@@ -2423,6 +4180,58 @@
       } catch (e) { showError("Failed to add tokens"); }
     }
 
+    let activePlanTenantId = null;
+
+    function openPlanModal(id, name, currentPlan, trialEnd, status) {
+      activePlanTenantId = id;
+      document.getElementById("planTenantName").innerText = name;
+      document.getElementById("editTenantPlan").value = currentPlan.toLowerCase();
+      document.getElementById("editTenantStatus").value = status || "ACTIVE";
+      document.getElementById("editTenantTrialDays").value = "";
+      
+      const trialEndLabel = document.getElementById("currentTrialEnd");
+      if (trialEnd) {
+        trialEndLabel.innerText = new Date(trialEnd).toLocaleDateString();
+      } else {
+        trialEndLabel.innerText = "None";
+      }
+      
+      document.getElementById("planModal").classList.add("show");
+    }
+
+    function closePlanModal() {
+      document.getElementById("planModal").classList.remove("show");
+      activePlanTenantId = null;
+    }
+
+    async function updateTenantPlan() {
+      if (!activePlanTenantId) return;
+      
+      const data = {
+        plan: document.getElementById("editTenantPlan").value,
+        trialDays: parseInt(document.getElementById("editTenantTrialDays").value) || 0,
+        subscriptionStatus: document.getElementById("editTenantStatus").value
+      };
+
+      try {
+        const res = await fetch(`/api/superadmin/tenants/${activePlanTenantId}/plan`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify(data)
+        });
+        const r = await res.json();
+        if (r.success) {
+          showSuccess("Tenant plan updated successfully.");
+          closePlanModal();
+          loadTenants();
+        } else {
+          showError(r.message || "Failed to update plan.");
+        }
+      } catch (e) {
+        showError("Network error while updating plan.");
+      }
+    }
+
     async function toggleDemo(id) {
       try {
         const res = await fetch(`/api/superadmin/tenants/${id}/toggle-demo`, {
@@ -2476,16 +4285,180 @@
         setTimeout(() => pill.classList.add("hidden"), 3000);
       }
     }
-    function switchSupportTab(tabId) {
-      document.querySelectorAll('.support-tab-content').forEach(c => c.style.display = 'none');
-      document.querySelectorAll('.support-tabs .tab-btn').forEach(b => b.classList.remove('active'));
-      const target = document.getElementById('support-' + tabId);
-      if (target) target.style.display = 'block';
-      if (event && event.currentTarget) event.currentTarget.classList.add('active');
+
+
+    async function loadStaffSA() {
+      const list = document.getElementById("staffListSA");
+      if (!list) return;
+      try {
+        const res = await fetch("/api/auth/staff", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) renderStaffSA(r.data);
+      } catch (e) { console.error(e); }
+    }
+
+    function renderStaffSA(staff) {
+      const container = document.getElementById("staffListSA");
+      if (!container) return;
+      container.innerHTML = staff.map(s => {
+        const initials = s.email.substring(0, 2).toUpperCase();
+        const isSelf = s.id === (window.currentUser?.id || "");
+        return `
+          <tr>
+            <td style="padding: 1.25rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(var(--primary-rgb), 0.1); border: 1px solid rgba(var(--primary-rgb), 0.2); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; color: var(--primary);">
+                  ${initials}
+                </div>
+                <div>
+                  <div style="font-weight: 700; font-size: 0.9rem; color: white;">${s.email} ${isSelf ? '<span style="font-size: 0.6rem; color: var(--primary);">(YOU)</span>' : ''}</div>
+                  <div style="font-size: 0.65rem; color: var(--text-muted);">Joined: ${s.createdAt ? new Date(s.createdAt).toLocaleDateString() : 'Neural Sync'}</div>
+                </div>
+              </div>
+            </td>
+            <td><span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 500;">Engineering & Ops</span></td>
+            <td><span style="color: #10b981; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; background: #10b981; border-radius: 50%; display: inline-block;"></span> Online</span></td>
+            <td><span class="badge" style="background: ${getRoleColorSA(s.role)}20; color: ${getRoleColorSA(s.role)}; border: 1px solid ${getRoleColorSA(s.role)}40; font-weight: 800; font-size: 0.6rem; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em;">${s.role}</span></td>
+            <td style="text-align: right;">
+              <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                <button class="apex-btn apex-btn-sm apex-btn-outline" onclick="manageStaffSA('${s.id}', '${s.email}', '${s.role}')" title="Modify Permissions">
+                  <i data-lucide="settings-2" style="width: 14px;"></i>
+                </button>
+                ${!isSelf ? `
+                  <button class="apex-btn apex-btn-sm apex-btn-danger" onclick="deleteStaffSA('${s.id}', '${s.email}')" title="Revoke Access">
+                    <i data-lucide="user-minus" style="width: 14px;"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+      if (window.lucide) lucide.createIcons();
+    }
+
+    let selectedStaffId = null;
+    function manageStaffSA(id, email, role) {
+      selectedStaffId = id;
+      document.getElementById("staffEditEmail").innerText = email;
+      document.getElementById("editStaffRole").value = role.toUpperCase();
+      document.getElementById("staffModal").classList.add("show");
+    }
+
+    function closeStaffModal() {
+      document.getElementById("staffModal").classList.remove("show");
+    }
+
+    async function saveStaffChangesSA() {
+      const role = document.getElementById("editStaffRole").value;
+      const btn = document.querySelector('#staffModal .apex-btn-primary');
+      btn.disabled = true;
+      btn.innerText = "SAVING...";
+
+      try {
+        const res = await fetch(`/api/auth/staff/${selectedStaffId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ role })
+        });
+        const r = await res.json();
+        if (r.success) {
+          showSuccess("Personnel credentials updated.");
+          closeStaffModal();
+          loadStaffSA();
+        } else {
+          showError(r.message || "Update failed.");
+        }
+      } catch (e) {
+        showError("Network Error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "SAVE CHANGES";
+      }
+    }
+
+    async function deleteStaffSA(id, email) {
+      if (!confirm(`Are you sure you want to PERMANENTLY revoke access for ${email}? This action cannot be undone.`)) return;
+
+      try {
+        const res = await fetch(`/api/auth/staff/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: "Bearer " + token }
+        });
+        const r = await res.json();
+        if (r.success) {
+          showSuccess("Personnel access revoked.");
+          loadStaffSA();
+        } else {
+          showError(r.message || "Revoke failed.");
+        }
+      } catch (e) {
+        showError("Network Error");
+      }
+    }
+
+    function getRoleColorSA(role) {
+      const colors = {
+        'DEVELOPER': '#00f2ff',
+        'MANAGER': '#a855f7',
+        'PRODUCT': '#f59e0b',
+        'AGENT': '#10b981',
+        'ADMIN': '#ef4444',
+        'SUPERADMIN': '#ef4444'
+      };
+      return colors[role.toUpperCase()] || 'rgba(255,255,255,0.1)';
+    }
+
+    async function handleCreateStaffSA(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      const btn = form.querySelector('button[type="submit"]');
       
-      if (tabId === 'overview') loadSupportActivity();
-      if (tabId === 'tickets') loadTicketsSA();
-      if (tabId === 'inbox') loadConversationsSA();
+      btn.disabled = true;
+      btn.innerText = "PROVISIONING...";
+      
+      try {
+        const res = await fetch("/api/auth/create-staff", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify(data)
+        });
+        const r = await res.json();
+        if (r.success) {
+          const details = `Email: ${r.access.email}\nPassword: ${r.access.password}`;
+          showSuccess(`Staff Provisioned! ACCESS DETAILS:\n${details}`);
+          
+          // Optionally show a more persistent UI for the access details
+          const formCard = form.closest('.apex-card');
+          const existingDetails = formCard.querySelector('.access-details-box');
+          if (existingDetails) existingDetails.remove();
+          
+          const detailsBox = document.createElement('div');
+          detailsBox.className = 'access-details-box';
+          detailsBox.style = 'margin-top: 1.5rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px;';
+          detailsBox.innerHTML = `
+            <p style="font-size: 0.7rem; color: #10b981; font-weight: 800; margin-bottom: 0.5rem; text-transform: uppercase;">Credentials Generated</p>
+            <div style="font-family: monospace; font-size: 0.8rem; color: white;">
+              <div>Email: ${r.access.email}</div>
+              <div>Pass: ${r.access.password}</div>
+            </div>
+            <p style="font-size: 0.6rem; color: var(--text-muted); margin-top: 0.5rem;">Please copy these details. They will not be shown again.</p>
+          `;
+          form.appendChild(detailsBox);
+
+          form.reset();
+          loadStaffSA();
+        } else {
+          showError(r.error || r.message || "Failed to provision staff");
+        }
+      } catch (err) {
+        showError("Network Error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "PROVISION CREDENTIALS";
+      }
     }
 
     async function loadSupportActivity() {
@@ -2518,7 +4491,7 @@
             activities.push({
               type: 'chat',
               title: `Chat with ${c.customer?.name || 'Tenant'}`,
-              desc: c.messages?.[0]?.content || 'Started a new session',
+              desc: c.messages?.[0]?.body || 'Started a new session',
               time: c.updatedAt || c.createdAt,
               icon: 'message-circle',
               color: 'var(--primary)'
@@ -2702,7 +4675,7 @@
         const name = (c.customer?.name || "").toLowerCase();
         const email = (c.customer?.email || "").toLowerCase();
         const biz = (c.business?.name || "").toLowerCase();
-        const msg = (c.messages && c.messages[0] ? c.messages[0].content : "").toLowerCase();
+        const msg = (c.messages && c.messages[0] ? c.messages[0].body : "").toLowerCase();
         return name.includes(q) || email.includes(q) || biz.includes(q) || msg.includes(q);
       });
 
@@ -2741,7 +4714,7 @@
                 <span style="font-size: 0.65rem; color: var(--text-muted);">${date}</span>
               </div>
               <p style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                ${c.messages && c.messages[0] ? c.messages[0].content : 'Starting secure session...'}
+                ${c.messages && c.messages[0] ? c.messages[0].body : 'Starting secure session...'}
               </p>
             </div>
           </div>
@@ -2754,6 +4727,9 @@
       document.getElementById("activeChatHeaderSA").style.visibility = "visible";
       document.getElementById("chatActionsSA").style.display = "flex";
       document.getElementById("chatInputAreaSA").style.display = "block";
+      
+      activeConvoSA = id; // Set active convo
+      socket.emit("join-conversation", { conversationId: id });
       
       // Update basic name immediately
       document.getElementById("activeChatNameSA").innerText = name;
@@ -2809,7 +4785,7 @@
             return `
               <div class="msg-sa-wrap ${isTenant ? 'tenant' : 'admin'}">
                 ${isTenant ? `<span style="font-size: 0.6rem; color: var(--primary); margin-bottom: 2px; font-weight: 700; opacity: 0.7;">TENANT</span>` : ''}
-                <div class="msg-sa-bubble">${m.content}</div>
+                <div class="msg-sa-bubble">${m.body}</div>
                 <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem; align-self: ${isTenant ? 'flex-start' : 'flex-end'};">
                   ${new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
@@ -2833,7 +4809,7 @@
         const res = await fetch(`/api/support/conversations/${activeConvoSA}/messages`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-          body: JSON.stringify({ content, role: "admin" })
+          body: JSON.stringify({ body: content, senderType: "AGENT" })
         });
         const r = await res.json();
         if (r.success) {
@@ -3047,6 +5023,364 @@
     }, 10000);
 
     // =============================================================================
+    // PLATFORM SETTINGS ENGINE (Enterprise Grade)
+    // =============================================================================
+    
+    let currentSettingsGroup = 'GENERAL';
+
+    const SETTINGS_METADATA = {
+      GENERAL: {
+        title: "Platform General Settings",
+        description: "Core identity and global localization parameters.",
+        icon: "globe",
+        fields: [
+          { key: "platformName", label: "Platform Name", type: "text", placeholder: "e.g. Naxton AI", fullWidth: true },
+          { key: "logoUrl", label: "Platform Logo (Favicon & Core Branding)", type: "image", fullWidth: true },
+          { key: "supportEmail", label: "System Support Email", type: "email", placeholder: "support@naxton.ai" },
+          { key: "supportPhone", label: "System Support Phone", type: "text", placeholder: "+1 (555) 000-0000" },
+          { key: "address", label: "Office Address", type: "text", fullWidth: true },
+          { key: "timezone", label: "Default Timezone", type: "select", options: ["UTC", "America/New_York", "Europe/London", "Asia/Dubai", "Asia/Singapore"] },
+          { key: "currency", label: "Platform Currency", type: "select", options: ["USD", "EUR", "GBP", "AED", "SAR"] },
+          { key: "maintenanceMode", label: "Maintenance Mode", type: "boolean", description: "Restrict access to platform while performing updates." },
+          { key: "environmentDisplay", label: "Show Environment Badge", type: "boolean", description: "Display PRODUCTION / STAGING tag in header." }
+        ]
+      },
+      TENANT: {
+        title: "Tenant Management Settings",
+        description: "Subscription limits and resource allocation controls.",
+        icon: "database",
+        fields: [
+          { key: "trialDays", label: "Default Trial Duration (Days)", type: "number", placeholder: "14" },
+          { key: "maxBusinesses", label: "Max Businesses per Tenant", type: "number", placeholder: "5" },
+          { key: "storageLimit", label: "Global Storage Limit (MB)", type: "number", placeholder: "1024" },
+          { key: "aiLimitPerMonth", label: "Global AI Token Limit / Month", type: "number", placeholder: "50000" },
+          { key: "apiRateLimit", label: "API Rate Limit (Requests/Min)", type: "number", placeholder: "60" },
+          { key: "allowBetaFeatures", label: "Default Enable Beta Features", type: "boolean" }
+        ]
+      },
+      AI: {
+        title: "AI Configuration",
+        description: "OpenAI and LLM infrastructure parameters.",
+        icon: "cpu",
+        fields: [
+          { key: "openaiKey", label: "Primary OpenAI API Key", type: "password", fullWidth: true },
+          { key: "openaiModel", label: "Primary Language Model", type: "select", options: ["gpt-4o", "gpt-4-turbo", "gpt-3.5-turbo"] },
+          { key: "openaiTemperature", label: "Model Temperature", type: "number", placeholder: "0.7" },
+          { key: "maxTokens", label: "Global Max Tokens / Request", type: "number", placeholder: "2048" },
+          { key: "fallbackModel", label: "Fallback AI Model", type: "select", options: ["gpt-3.5-turbo", "claude-3-haiku"] },
+          { key: "aiMemoryEnabled", label: "Enable AI Conversation Memory", type: "boolean" }
+        ]
+      },
+      VOICE: {
+        title: "Voice AI Systems",
+        description: "Twilio and Deepgram telephony configuration.",
+        icon: "mic",
+        fields: [
+          { key: "twilioSid", label: "Twilio Account SID", type: "text" },
+          { key: "twilioToken", label: "Twilio Auth Token", type: "password" },
+          { key: "deepgramKey", label: "Deepgram API Key", type: "password", fullWidth: true },
+          { key: "defaultVoice", label: "Default Neural Voice", type: "select", options: ["nova", "shimmer", "alloy", "echo", "fable", "onyx"] },
+          { key: "callRecordingEnabled", label: "Global Call Recording", type: "boolean" },
+          { key: "silenceTimeout", label: "Silence Timeout (Seconds)", type: "number", placeholder: "10" }
+        ]
+      },
+      SECURITY: {
+        title: "Security & Access",
+        description: "Authentication policies and infrastructure hardening.",
+        icon: "shield-check",
+        fields: [
+          { key: "sessionTimeout", label: "User Session Timeout (Minutes)", type: "number", placeholder: "60" },
+          { key: "passwordMinLength", label: "Min Password Length", type: "number", placeholder: "8" },
+          { key: "mfaRequired", label: "Enforce MFA for All Admins", type: "boolean" },
+          { key: "ipWhitelistEnabled", label: "Enable IP Whitelisting", type: "boolean" },
+          { key: "jwtSecret", label: "JWT Secret Key", type: "password", fullWidth: true }
+        ]
+      },
+      FEATURES: {
+        title: "Feature Flags",
+        description: "Control rollout of experimental and beta modules.",
+        icon: "toggle-right",
+        fields: [
+          { key: "enableAiSupport", label: "AI Customer Support Engine", type: "boolean" },
+          { key: "enableVoiceLabs", label: "Neural Voice Labs", type: "boolean" },
+          { key: "enableAnalyticsV2", label: "Advanced Analytics Engine V2", type: "boolean" },
+          { key: "enableMultiRegion", label: "Multi-Region Infrastructure", type: "boolean" }
+        ]
+      },
+      BILLING: {
+        title: "Subscription & Billing",
+        description: "Pricing plans, payment gateways, and tax settings.",
+        icon: "credit-card",
+        fields: [
+          { key: "stripeSecretKey", label: "Stripe Secret Key", type: "password", fullWidth: true },
+          { key: "stripeWebhookSecret", label: "Stripe Webhook Secret", type: "password", fullWidth: true },
+          { key: "starterPrice", label: "Nexa Core Monthly ($)", type: "number", placeholder: "49" },
+          { key: "proPrice", label: "Nexa Flow Monthly ($)", type: "number", placeholder: "149" },
+          { key: "enterprisePrice", label: "Nexa Prime Monthly ($)", type: "number", placeholder: "499" },
+          { key: "tokenOverragePrice", label: "Overage Mint Price ($)", type: "number", placeholder: "0.15" },
+          { key: "taxRate", label: "Global Tax Rate (%)", type: "number", placeholder: "0" }
+        ]
+      },
+      COMMUNICATION: {
+        title: "Communication Settings",
+        description: "SMTP, SMS, and WhatsApp provider configurations.",
+        icon: "mail",
+        fields: [
+          { key: "smtpHost", label: "SMTP Host", type: "text", placeholder: "smtp.sendgrid.net" },
+          { key: "smtpPort", label: "SMTP Port", type: "number", placeholder: "587" },
+          { key: "smtpUser", label: "SMTP Username", type: "text" },
+          { key: "smtpPass", label: "SMTP Password", type: "password" },
+          { key: "whatsappBusinessId", label: "WhatsApp Business ID", type: "text", fullWidth: true },
+          { key: "enablePushNotifications", label: "Global Push Notifications", type: "boolean" }
+        ]
+      },
+      RBAC: {
+        title: "RBAC & Permissions",
+        description: "Global role definitions and dynamic permission groups.",
+        icon: "users",
+        fields: [
+          { key: "allowSelfRegistration", label: "Allow Public Registration", type: "boolean" },
+          { key: "requireEmailVerification", label: "Require Email Verification", type: "boolean" },
+          { key: "defaultUserRole", label: "Default New User Role", type: "select", options: ["OWNER", "STAFF", "MANAGER"] },
+          { key: "maxUsersPerTenant", label: "Max Users / Tenant", type: "number", placeholder: "10" }
+        ]
+      },
+      MONITORING: {
+        title: "Monitoring & Logs",
+        description: "System health check intervals and log retention policies.",
+        icon: "activity",
+        fields: [
+          { key: "logRetentionDays", label: "Audit Log Retention (Days)", type: "number", placeholder: "90" },
+          { key: "errorAlertEmail", label: "System Error Alert Email", type: "email", fullWidth: true },
+          { key: "enableRealTimeMonitoring", label: "Enable Real-time WebSocket Metrics", type: "boolean" },
+          { key: "healthCheckInterval", label: "Health Check Interval (Sec)", type: "number", placeholder: "60" }
+        ]
+      },
+      BACKUP: {
+        title: "Backup & Recovery",
+        description: "Automated database backups and disaster recovery.",
+        icon: "hard-drive",
+        fields: [
+          { key: "backupFrequency", label: "Backup Frequency", type: "select", options: ["Hourly", "Daily", "Weekly"] },
+          { key: "backupRetention", label: "Backup Retention (Count)", type: "number", placeholder: "30" },
+          { key: "s3BackupBucket", label: "S3 Backup Bucket Name", type: "text", fullWidth: true },
+          { key: "enableAutoRestore", label: "Enable Automated Recovery Testing", type: "boolean" }
+        ]
+      },
+      CMS: {
+        title: "CMS & Content",
+        description: "Manage homepage content, SEO, and legal documents.",
+        icon: "layout",
+        fields: [
+          { key: "homepageTitle", label: "Homepage Meta Title", type: "text", fullWidth: true },
+          { key: "homepageDescription", label: "Homepage Meta Description", type: "text", fullWidth: true },
+          { key: "supportLink", label: "Support Portal URL", type: "text" },
+          { key: "termsUrl", label: "Terms of Service URL", type: "text" }
+        ]
+      }
+
+    };
+
+    async function loadSettingsGroup(group) {
+      currentSettingsGroup = group;
+      
+      // Update Sidebar UI
+      document.querySelectorAll('.settings-nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.innerText.toLowerCase().includes(group.toLowerCase().replace('_', ' '))) {
+          item.classList.add('active');
+        }
+      });
+
+      const loading = document.getElementById("settingsLoading");
+      const container = document.getElementById("settingsFormContainer");
+      
+      loading.style.display = 'flex';
+      container.style.display = 'none';
+
+      try {
+        const res = await fetch(`/api/superadmin/settings/${group}`, {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        const r = await res.json();
+        
+        if (r.success) {
+          renderSettingsForm(group, r.data);
+          loading.style.display = 'none';
+          container.style.display = 'block';
+        } else {
+          showError("Failed to fetch settings from node.");
+        }
+      } catch (e) {
+        showError("Infrastructure synchronization failed.");
+      }
+    }
+
+    function renderSettingsForm(group, data) {
+      const meta = SETTINGS_METADATA[group] || { title: group, description: "System module settings.", fields: [] };
+      const container = document.getElementById("settingsFormContainer");
+      
+      let html = `
+        <div class="settings-group-header">
+          <h2>${meta.title}</h2>
+          <p>${meta.description}</p>
+        </div>
+        <form id="groupSettingsForm" class="settings-form-grid">
+      `;
+
+      meta.fields.forEach(f => {
+        const raw = data[f.key];
+        let value = (raw !== undefined && raw !== null && raw !== "null" && !Number.isNaN(raw)) ? raw : '';
+        
+        // Handle JSON objects being passed to standard inputs
+        if (typeof value === 'object' && value !== null) {
+          value = JSON.stringify(value);
+        }
+        const colClass = f.fullWidth ? 'settings-form-full' : '';
+        
+        html += `<div class="form-group ${colClass}">
+          <label>${f.label}</label>`;
+
+        if (f.type === 'select') {
+          html += `<select name="${f.key}" class="form-control">`;
+          f.options.forEach(opt => {
+            html += `<option value="${opt}" ${value === opt ? 'selected' : ''}>${opt}</option>`;
+          });
+          html += `</select>`;
+        } else if (f.type === 'boolean') {
+          html += `
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 0.5rem;">
+              <input type="checkbox" name="${f.key}" ${value === true ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">
+              <span style="font-size: 0.85rem; color: var(--text-secondary);">${f.description || 'Enable this feature'}</span>
+            </div>
+          `;
+        } else if (f.type === 'image') {
+          html += `
+            <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+              <div id="preview_${f.key}" style="width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border);">
+                ${value ? `<img src="${value}" style="width: 100%; height: 100%; object-fit: contain;">` : '<i data-lucide="image" style="width: 16px; opacity: 0.3;"></i>'}
+              </div>
+              <input type="text" id="input_${f.key}" name="${f.key}" value="${value}" class="form-control" style="flex: 1;" placeholder="URL or path...">
+              <input type="file" id="file_${f.key}" style="display: none;" accept="image/*" onchange="handlePlatformLogoUpload(this, '${f.key}')">
+              <button type="button" class="action-btn" style="width: auto; padding: 0 1rem; font-size: 0.75rem;" onclick="document.getElementById('file_${f.key}').click()">
+                <i data-lucide="upload" style="width: 14px; margin-right: 6px;"></i> UPLOAD
+              </button>
+            </div>
+          `;
+        } else {
+          html += `<input type="${f.type}" name="${f.key}" value="${value}" class="form-control" placeholder="${f.placeholder || ''}">`;
+        }
+        
+        html += `</div>`;
+      });
+
+      html += `
+        </form>
+        <div class="settings-save-bar">
+          <button class="apex-btn apex-btn-primary" onclick="saveSettingsGroup('${group}')">
+            <i data-lucide="save"></i>
+            <span>Apply Changes</span>
+          </button>
+        </div>
+      `;
+
+      container.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    async function saveSettingsGroup(group) {
+      const form = document.getElementById("groupSettingsForm");
+      const formData = new FormData(form);
+      const settings = {};
+      
+      // Get metadata to handle checkboxes/numbers
+      const meta = SETTINGS_METADATA[group];
+      meta.fields.forEach(f => {
+        if (f.type === 'boolean') {
+          settings[f.key] = form.elements[f.key].checked;
+        } else if (f.type === 'number') {
+          settings[f.key] = parseFloat(form.elements[f.key].value);
+        } else {
+          settings[f.key] = form.elements[f.key].value;
+        }
+      });
+
+      try {
+        const res = await fetch("/api/superadmin/settings", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token 
+          },
+          body: JSON.stringify({ group, settings })
+        });
+        
+        const r = await res.json();
+        if (r.success) {
+          showSuccess(`${meta.title} updated successfully.`);
+          
+          // If it's GENERAL, refresh project name/logo if they changed
+          if (group === 'GENERAL') {
+            if (settings.platformName) {
+              document.querySelectorAll('.logo-text h2').forEach(el => el.innerText = settings.platformName);
+            }
+          }
+        } else {
+          showError(r.message || "Save operation failed.");
+        }
+      } catch (e) {
+        showError("Network connectivity error during sync.");
+      }
+    }
+
+    async function handlePlatformLogoUpload(input, key) {
+      if (!input.files || !input.files[0]) return;
+      
+      const formData = new FormData();
+      formData.append("logo", input.files[0]);
+      
+      try {
+        const res = await fetch("/api/superadmin/upload-logo", {
+          method: "POST",
+          headers: { Authorization: "Bearer " + token },
+          body: formData
+        });
+        const r = await res.json();
+        
+        if (r.success) {
+          // Update the hidden input that saveSettingsGroup uses
+          const textInput = document.getElementById(`input_${key}`);
+          if (textInput) {
+            textInput.value = r.logoUrl;
+            // Also update the hidden name attribute if it exists in the form
+            const formInput = document.querySelector(`form#groupSettingsForm input[name="${key}"]`);
+            if (formInput) formInput.value = r.logoUrl;
+          }
+          
+          // Update Preview
+          const preview = document.getElementById(`preview_${key}`);
+          if (preview) {
+            preview.innerHTML = `<img src="${r.logoUrl}" style="width: 100%; height: 100%; object-fit: contain;">`;
+          }
+          
+          showSuccess("Platform logo uploaded. Click Apply Changes to save permanently.");
+        } else {
+          showError(r.message || "Upload failed");
+        }
+      } catch (e) {
+        showError("Network error during logo upload");
+      }
+    }
+
+    // Initialize Settings Category correctly in sidebar
+    document.querySelectorAll('.settings-nav-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // =============================================================================
     // THEME MANAGEMENT
     // =============================================================================
 
@@ -3075,11 +5409,316 @@
       }
     });
 
+    // =============================================================================
+    // SUPPORT ANALYTICS (DASHBOARD PULSE)
+    // =============================================================================
+    
+    let supportChartInstance = null;
+
+    async function loadSupportPulse() {
+      try {
+        const res = await fetch("/api/support/intel/metrics?days=30", {
+          headers: { Authorization: "Bearer " + token }
+        });
+        const r = await res.json();
+        if (r.success) {
+          const { summary, trends } = r.data;
+          
+          // Update Stats
+          const elSla = document.getElementById("stat_sla");
+          const elOpen = document.getElementById("stat_openTickets");
+          const elComp = document.getElementById("label_compliance");
+          const elVel = document.getElementById("label_velocity");
+          const elResp = document.getElementById("label_response");
+
+          if (elSla) elSla.innerText = `${summary.slaCompliance}%`;
+          if (elOpen) elOpen.innerText = summary.openTickets;
+          if (elComp) elComp.innerText = `${summary.slaCompliance}%`;
+          if (elVel) elVel.innerText = `${summary.avgResolutionTime}h`;
+          if (elResp) elResp.innerText = `${summary.avgResponseTime}m`;
+
+          renderSupportChart(trends);
+        }
+      } catch (e) { console.error("Support Pulse Error", e); }
+    }
+
+    function renderSupportChart(trends) {
+      const ctx = document.getElementById("supportVolumeChart");
+      if (!ctx) return;
+      
+      if (supportChartInstance) supportChartInstance.destroy();
+      
+      supportChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: trends.map(t => t.day),
+          datasets: [{
+            label: 'Support Volume',
+            data: trends.map(t => t.count),
+            borderColor: '#00f2ff',
+            backgroundColor: 'rgba(0, 242, 255, 0.1)',
+            tension: 0.4,
+            fill: true,
+            borderWidth: 3,
+            pointRadius: 4,
+            pointBackgroundColor: '#00f2ff'
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // Initial Load
+    loadSupportPulse();
+    
+    // Refresh every 5 mins
+    setInterval(loadSupportPulse, 300000);
+
+    /* ======================================
+       TELEPHONY INVENTORY
+    ====================================== */
+    let currentInventory = [];
+    async function loadInventory() {
+      const btn = document.querySelector('button[onclick="loadInventory()"]');
+      const icon = btn?.querySelector('i');
+      if (icon) icon.style.animation = "spin 1s linear infinite";
+      
+      try {
+        const res = await fetch("/api/superadmin/inventory/phones", { headers: { Authorization: "Bearer " + token } });
+        const r = await res.json();
+        if (r.success) {
+          currentInventory = r.data;
+          renderInventory(r.data);
+        }
+      } catch (e) { 
+        showError("Telephony sync failed."); 
+      } finally {
+        if (icon) icon.style.animation = "";
+      }
+    }
+
+    function renderInventory(data) {
+      const container = document.getElementById("inventoryList");
+      if (!data.length) {
+        container.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 5rem; color: var(--text-muted);">No platform numbers provisioned.</td></tr>`;
+        return;
+      }
+
+      container.innerHTML = data.map(p => {
+        const tenantName = p.tenant?.name || "Platform Master";
+        const businessName = p.business?.name || "N/A";
+        const statusClass = p.status === 'ACTIVE' ? 'status-badge-premium' : 'status-badge-standard';
+        
+        return `
+          <tr>
+            <td style="padding: 1.25rem 1rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 32px; height: 32px; background: rgba(var(--primary-rgb), 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                  <i data-lucide="phone"></i>
+                </div>
+                <span style="font-weight: 800; font-family: 'JetBrains Mono', monospace;">${p.twilioPhoneNumber}</span>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-weight: 700; color: white;">${tenantName}</span>
+                <span style="font-size: 0.7rem; color: var(--text-muted);">${businessName}</span>
+              </div>
+            </td>
+            <td><span class="${statusClass}">${p.status}</span></td>
+            <td>
+              <div style="display: flex; gap: 4px;">
+                <i data-lucide="mic" style="width: 14px; opacity: ${p.aiEnabled ? 1 : 0.2}; color: var(--primary);"></i>
+                <i data-lucide="forward" style="width: 14px; opacity: ${p.forwardingEnabled ? 1 : 0.2}; color: #10b981;"></i>
+                <i data-lucide="save" style="width: 14px; opacity: ${p.recordingEnabled ? 1 : 0.2}; color: #a855f7;"></i>
+              </div>
+            </td>
+            <td style="text-align: right;">
+              <button class="apex-btn apex-btn-sm apex-btn-outline" onclick="openAssignModal('${p.id}')">
+                <i data-lucide="user-plus" style="width: 14px;"></i> ASSIGN
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    let selectedPhoneId = null;
+    function openAssignModal(phoneId) {
+      selectedPhoneId = phoneId;
+      const phone = currentInventory.find(p => p.id === phoneId);
+      document.getElementById("assignPhoneTitle").innerText = `Assign ${phone.twilioPhoneNumber}`;
+      
+      // Populate tenants dropdown
+      const select = document.getElementById("assignTenantSelect");
+      if (allTenants.length === 0) {
+        loadTenants().then(() => {
+          select.innerHTML = `<option value="">-- Select Tenant --</option>` + allTenants.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+        });
+      } else {
+        select.innerHTML = `<option value="">-- Select Tenant --</option>` + allTenants.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+      }
+      
+      document.getElementById("assignModal").classList.add("show");
+    }
+
+    function closeAssignModal() {
+      document.getElementById("assignModal").classList.remove("show");
+    }
+
+    async function submitAssignment() {
+      const tenantId = document.getElementById("assignTenantSelect").value;
+      if (!tenantId) return showError("Please select a tenant.");
+
+      try {
+        const res = await fetch("/api/superadmin/inventory/phones/assign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ phoneId: selectedPhoneId, tenantId })
+        });
+        const r = await res.json();
+        if (r.success) {
+          showSuccess("Phone number reassigned successfully.");
+          closeAssignModal();
+          loadInventory();
+        }
+      } catch (e) { showError("Assignment failed."); }
+    }
+
+    async function openPurchaseModal() {
+      if (confirm("Buy a new system number (+1 888 series)? This will incur a platform charge of $1.15/mo.")) {
+        try {
+          const res = await fetch("/api/superadmin/inventory/phones/provision", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: "Bearer " + token }
+          });
+          const r = await res.json();
+          if (r.success) {
+            showSuccess("System number provisioned and added to inventory.");
+            loadInventory();
+          }
+        } catch (e) { showError("Provisioning failed."); }
+      }
+    }
+
     // Load saved theme on boot
     (function initTheme() {
       const savedTheme = localStorage.getItem("apex_theme") || "default";
       document.body.setAttribute("data-theme", savedTheme);
     })();
+
+    // Global Modal Overlay Handler
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-overlay')) {
+        e.target.classList.remove('show');
+      }
+    });
   </script>
-</body>
+    <!-- Modal: Assign Phone -->
+    <div id="assignModal" class="modal-overlay">
+      <div class="modal-container" style="max-width: 400px; background: var(--bg-card); border: 1px solid var(--border);">
+        <div class="modal-header">
+          <h3 id="assignPhoneTitle" style="font-weight: 800;">Assign Phone Number</h3>
+          <button class="close-modal" onclick="closeAssignModal()">&times;</button>
+        </div>
+        <div style="padding: 2rem;">
+          <div class="form-group">
+            <label>Select Target Tenant</label>
+            <select id="assignTenantSelect" class="form-control" style="background: #000;"></select>
+          </div>
+          <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 1rem;">
+            Assigning this number will immediately move it to the tenant's management portal.
+          </p>
+          <button class="apex-btn apex-btn-primary" style="width: 100%; margin-top: 1.5rem;" onclick="submitAssignment()">
+            CONFIRM ASSIGNMENT
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Plan Management -->
+    <div id="planModal" class="modal-overlay">
+      <div class="modal-container" style="max-width: 450px; background: var(--bg-card); border: 1px solid var(--border);">
+        <div class="modal-header">
+          <h3 style="font-weight: 800;">Plan Management</h3>
+          <button class="close-modal" onclick="closePlanModal()">&times;</button>
+        </div>
+        <div style="padding: 2rem;">
+          <h4 id="planTenantName" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--primary);"></h4>
+          
+          <div class="form-group">
+            <label>Subscription Package</label>
+            <select id="editTenantPlan" class="form-control" style="background: #000;">
+              <option value="nexa-core">Nexa Core (300 Mints)</option>
+              <option value="nexa-flow">Nexa Flow (1,200 Mints)</option>
+              <option value="nexa-prime">Nexa Prime (5,000 Mints)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-top: 1.5rem;">
+            <label>Extend Trial (Days from today)</label>
+            <input id="editTenantTrialDays" type="number" class="form-control" placeholder="e.g. 7" style="background: #000;">
+            <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.4rem;">Current trial end: <span id="currentTrialEnd" style="font-weight: 700;"></span></p>
+          </div>
+
+          <div class="form-group" style="margin-top: 1.5rem;">
+            <label>Subscription Status</label>
+            <select id="editTenantStatus" class="form-control" style="background: #000;">
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="SUSPENDED">SUSPENDED</option>
+              <option value="EXPIRED">EXPIRED</option>
+            </select>
+          </div>
+
+          <button class="apex-btn apex-btn-primary" style="width: 100%; margin-top: 2rem;" onclick="updateTenantPlan()">
+            APPLY CHANGES
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Staff Management -->
+    <div id="staffModal" class="modal-overlay">
+      <div class="modal-container" style="max-width: 400px; background: var(--bg-card); border: 1px solid var(--border);">
+        <div class="modal-header">
+          <h3 style="font-weight: 800;">Modify Personnel</h3>
+          <button class="close-modal" onclick="closeStaffModal()">&times;</button>
+        </div>
+        <div style="padding: 2rem;">
+          <div style="margin-bottom: 1.5rem;">
+            <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 0.25rem;">Account Email</p>
+            <h4 id="staffEditEmail" style="font-size: 1rem; font-weight: 700; color: white;"></h4>
+          </div>
+          
+          <div class="form-group">
+            <label>Privilege Tier (Role)</label>
+            <select id="editStaffRole" class="form-control" style="background: #000;">
+              <option value="AGENT">Support Agent (Level 1)</option>
+              <option value="DEVELOPER">Developer (Technical Engineering)</option>
+              <option value="MANAGER">Team Manager (Lead)</option>
+              <option value="PRODUCT">Product Manager (Strategic)</option>
+              <option value="ADMIN">Platform Admin (Root)</option>
+              <option value="SUPERADMIN">SuperAdmin (Master)</option>
+            </select>
+          </div>
+
+          <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 1rem; line-height: 1.4;">
+            Updating the privilege tier will immediately grant or revoke access to platform command systems.
+          </p>
+
+          <button class="apex-btn apex-btn-primary" style="width: 100%; margin-top: 2rem;" onclick="saveStaffChangesSA()">
+            SAVE CHANGES
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

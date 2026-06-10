@@ -1,15 +1,20 @@
 const WebSocket = require("ws");
 const prisma = require("../../config/prisma");
+const menuAliasService = require("../../services/menu-alias.service");
 const { createDeepgram } = require("../../services/deepgram");
 const { getAIResponse } = require("../../services/openai");
 const { getElevenLabsAudio } = require("../../services/elevenlabs");
 const IntegrationManager = require("../integrations/core/IntegrationManager");
 
-const normalizeBusinessType = (type = "") => {
-  const t = type.toLowerCase();
-  if (["restaurant", "bakery", "cafe", "pizzeria", "food", "shop", "store"].some(k => t.includes(k))) return "order";
-  if (["salon", "spa", "clinic", "doctor", "dentist", "appointment", "service"].some(k => t.includes(k))) return "appointment";
-  return "order"; // fallback
+const normalizeBusinessType = (businessType = "") => {
+  const type = (businessType || "").toLowerCase();
+  if (
+    ["restaurant", "bakery", "cafe", "pizzeria", "food", "shop", "store", "order", "dish", "burger", "pizza", "sushi"].some(k => type.includes(k))
+  ) {
+    return "order";
+  }
+  // Default to appointment for everything else (Salons, Clinics, etc.)
+  return "appointment";
 };
 
 const isOrderBusiness = (type = "") => normalizeBusinessType(type) === "order";
@@ -226,7 +231,8 @@ async function handleMediaStream(ws, req, io) {
                   appointmentTime: extracted.date ? new Date(extracted.date) : new Date(),
                   businessId: businessContext.id,
                   tenantId: businessContext.tenantId,
-                  status: "PENDING"
+                  status: "CONFIRMED",
+                  source: "AI"
                 }
               });
               io.to(businessId).emit("new_appointment", appointment);
@@ -584,6 +590,8 @@ async function handleMediaStream(ws, req, io) {
  * 🚀 handleV2AgentEngine (ElevenLabs Direct Bridge)
  * This provides the 'Zero Latency' experience by bridging Twilio directly to ElevenLabs ConvAI.
  */
+const bizCache = new Map();
+
 async function handleV2AgentEngine(ws, req, io) {
   const businessId = req.url.split("/").pop().split("?")[0];
   let streamSid = null;
@@ -596,244 +604,530 @@ async function handleV2AgentEngine(ws, req, io) {
   let aiSpeakTimer = null;
   let aiEndTime = 0;
   let canStream = false;
-  let fromNumber = "unknown"; // 📞 CALLER IDENTITY: Initialized early to prevent ReferenceError
-  let audioBuffer = []; // 📦 BUFFER: Store audio events that arrive before streamSid
+  let fromNumber = "unknown"; 
+  let audioBuffer = []; 
+  let variableData = {}; 
+  let routingConfig = null;
+  let elWs = null;
+  let business = null;
+  let globalSettings = null;
+  let isApptBiz = false;
+  let isOrderBiz = false;
 
-  // 1. Get Business Context
-  const business = await prisma.business.findUnique({
+  console.log(`[V2_DEBUG] Initializing stream for business: ${businessId}`);
+
+  // 🚀 1. FAST-PATH: Fetch only what we need for the handshake (Always fresh from DB)
+  const quickBizPromise = (async () => {
+    const biz = await prisma.business.findUnique({
+      where: { id: businessId },
+      select: { type: true, aiVoiceId: true, aiVoice: true, name: true, tenantId: true }
+    });
+    if (biz) bizCache.set(businessId, biz); // Still update cache for other uses
+    return biz;
+  })();
+
+  // 🚀 2. DEEP-PATH: Fetch menu/slots in background
+  const businessPromise = prisma.business.findUnique({
     where: { id: businessId },
-    include: { tenant: true, menuCategories: { include: { items: true } }, menuItems: true }
+    include: { 
+      tenant: true, 
+      menuCategories: { include: { items: { include: { aliases: true } } } }, 
+      menuItems: { include: { aliases: true } },
+      serviceCategories: { include: { services: { include: { aliases: true } } } },
+      appointmentServices: { include: { aliases: true } }
+    }
+  }).then(b => {
+    if (b) bizCache.set(businessId, { type: b.type, aiVoiceId: b.aiVoiceId, name: b.name });
+    return b;
+  }).catch(err => {
+    console.error(`[V2_FATAL] Business Lookup failed: ${err.message}`);
+    return null;
   });
 
-  if (!business) {
-    console.error(`[V2] Business ${businessId} not found`);
-    return ws.close();
-  }
+// 🚀 SHARED SESSION MAP (Accessed by Webhooks)
+const convToBiz = new Map();
+exports.convToBiz = convToBiz;
 
-  // 🍕 PREPARE LIVE DATA (Menu for Restaurants, Services for Appointments)
-  const isApptBiz = normalizeBusinessType(business.type) === "appointment";
-  const isOrderBiz = normalizeBusinessType(business.type) === "order";
-  
-  const contextText = business.menuCategories.map(cat => {
-    const prods = cat.items.map(p => `- ${p.name}: $${p.price}`).join("\n");
-    return `### ${cat.name}\n${prods}`;
-  }).join("\n\n");
+  const globalSettingsPromise = prisma.globalAiSettings.findUnique({ where: { id: "global" } });
 
-  const variableData = {
-    businessId: business.id,
-    business_name: business.name || "the business",
-    business_type: business.type || "service",
-    address: business.address || "our local branch",
-    current_date: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
-    current_time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-    caller_phone: fromNumber || "unknown",
-    caller_appointments: "None",
-    delivery_radius: business.deliveryRadius || 5,
-    pickup_available: business.takeawayAvailable ? "Available" : "Not available",
-    takeaway_available: business.takeawayAvailable ? "Available" : "Not available",
-    delivery_available: business.deliveryAvailable ? "Available" : "Not available",
-    dinein_available: business.dineInAvailable ? "Available" : "Not available",
-    reservations_enabled: business.reservationsEnabled ? "Available" : "Not available",
-    agent_name: business.aiName || "Sarah",
-    business_hours: business.openTime + " to " + business.closeTime,
-    business_days: business.timings || "Monday to Friday",
-    business_website: business.website || "N/A",
-    business_email: business.email || "N/A",
-    business_phone: business.phoneNumber || "N/A",
-    timezone: business.timezone || "UTC",
-    walkin_policy: business.walkinPolicy || "Walk-ins are welcome but appointments are preferred.",
-    late_policy: business.latePolicy || "Please arrive on time. We hold appointments for 15 minutes.",
-    cancellation_policy: business.cancellationPolicy || "Please notify us 24 hours in advance for cancellations.",
-    business_notes: business.notes || "None",
-    industry_mode: business.type === "restaurant" ? "RESTAURANT" : "SALON",
-    business_address: business.address || "N/A",
-    orders: "No recent orders",
-    business_settings: "Standard enterprise settings",
-    delivery_settings: `Radius: ${business.deliveryRadius || 5}km`,
-    store_status: "Open",
-    item_availability: "All items in stock",
-    staff_members: "Professional Staff",
-    appointment_rules: "Book at least 1 hour in advance",
-    booking_policies: "Standard booking",
-    availability: "Slots available today",
-    calendar: "Current calendar active",
-    appointments: "No conflicting bookings",
-    operating_hours: business.openTime + " to " + business.closeTime,
-    holiday_schedule: "None",
-    special_events: "None"
-  };
+  // 🚀 2. START ELEVENLABS HANDSHAKE IMMEDIATELY (ZERO WAIT)
+  let elHandshakePromise = (async () => {
+    try {
+      const [qBiz, settings] = await Promise.all([quickBizPromise, globalSettingsPromise]);
+      if (!qBiz) return null;
 
-  const agentIntro = `Hello, I am ${variableData.agent_name} from ${variableData.business_name}.`;
-
-  if (isApptBiz) {
-    variableData.services = contextText;
-    variableData.menu = "N/A (This is an appointment business)";
-    variableData.instructions = `
-# IDENTITY
-You are ${variableData.agent_name}, an elite AI virtual receptionist and appointment coordinator for ${variableData.business_name}.
-You are highly professional, warm, intelligent, calm under pressure, and exceptionally organized.
-
-# BUSINESS INFORMATION
-Business Name: ${variableData.business_name}
-Business Type: ${variableData.business_type}
-Address: ${variableData.address}
-Phone: ${variableData.business_phone}
-Hours: ${variableData.business_hours}
-Days: ${variableData.business_days}
-Services: ${variableData.services}
-Policies: Walk-in: ${variableData.walkin_policy}, Late: ${variableData.late_policy}, Cancel: ${variableData.cancellation_policy}
-
-# VOICE & STYLE
-- Natural, human-like, conversational.
-- Use brief acknowledgements like "Absolutely", "Got it", "One moment".
-- NEVER interrupt. Speak clearly and slowly.
-
-# PRIMARY RESPONSIBILITIES
-- Booking, rescheduling, and cancelling appointments.
-- For NEW bookings, you MUST ask: "Is the number you're calling from (${variableData.caller_phone}) the best way to reach you?".
-- Collect: Service, Date, Time, Customer Name, and Phone.
-- Confirm all details before finalizing.
-
-# DATA ACCESS
-LIVE SERVICES: ${variableData.services}
-LIVE APPOINTMENTS: ${variableData.caller_appointments}
-
-# MULTILINGUAL
-Respond in the language the customer uses (Urdu, Spanish, Arabic, etc.).
-
-# CALL CLOSING
-"Perfect. Your appointment has been successfully booked. We look forward to seeing you. Thank you for calling ${variableData.business_name}. Have a wonderful day."
-    `.trim();
-  } else {
-    variableData.menu = contextText;
-    variableData.services = "N/A (This is a restaurant business)";
-    variableData.instructions = `
-# IDENTITY
-You are ${variableData.agent_name}, an elite AI virtual receptionist and ordering assistant for ${variableData.business_name}.
-You are warm, intelligent, professional, and exceptionally helpful.
-
-# BUSINESS INFORMATION
-Business Name: ${variableData.business_name}
-Address: ${variableData.address}
-Hours: ${variableData.business_hours}
-Days: ${variableData.business_days}
-Delivery Radius: ${variableData.delivery_radius}km
-Pickup: ${variableData.takeaway_available}
-Delivery: ${variableData.delivery_available}
-Dine-In: ${variableData.dinein_available}
-
-# VOICE & STYLE
-- Natural, human-like, conversational.
-- Pause between menu items. NEVER interrupt.
-
-# PRIMARY RESPONSIBILITIES
-- Taking food orders accurately.
-- Ask for Name and confirm if ${variableData.caller_phone} is the best contact number.
-- For Delivery: MUST collect address first and check if within ${variableData.delivery_radius}km.
-- For Pickup/Dine-in: Collect Name and confirm Number.
-- Repeat FULL order clearly before finalizing.
-
-# LIVE MENU DATA
-${variableData.menu}
-
-# MULTILINGUAL
-Respond in the language the customer uses (Urdu, Spanish, Arabic, etc.).
-
-# CALL CLOSING
-"Perfect. Your order has been confirmed. Thank you for calling ${variableData.business_name}. Have a wonderful day."
-    `.trim();
-  }
-
-  // 2. Connect to ElevenLabs Conversational AI
-  const defaultOrderingAgent = "agent_9401kqqj87jzf9mrmfwsprqh3frh";
-  const defaultAppointmentAgent = "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g";
-  
-  const isCustomAgent = !!business.aiVoiceId;
-  const agentId = isCustomAgent ? business.aiVoiceId : (isApptBiz ? defaultAppointmentAgent : defaultOrderingAgent);
-  const elUrl = `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${agentId}`;
-  
-  const headers = { 
-    "Origin": (process.env.BASE_URL || "https://nexton.ai").replace("http://", "https://")
-  };
-  
-  // Always inject the platform API key if available, to support private agents
-  if (process.env.ELEVENLABS_API_KEY) {
-    headers["xi-api-key"] = process.env.ELEVENLABS_API_KEY;
-  }
-  
-  const elWs = new WebSocket(elUrl, { headers });
-
-  console.log(`[V2] Opening ElevenLabs WebSocket for Agent: ${agentId}`);
-
-  elWs.on("open", () => {
-    console.log(`[V2] SUCCESS: Connected to ElevenLabs Agent: ${agentId}`);
-    
-    // 🚀 INITIATION HANDSHAKE: Send IMMEDIATELY on open
-    // We use dynamic_variables so the user retains FULL CONTROL of their prompt in the ElevenLabs Dashboard.
-    // They can use {{menu}} and {{business_name}} in their prompt.
-    elWs.send(JSON.stringify({
-      type: "conversation_initiation_client_data",
-      dynamic_variables: variableData,
-      conversation_config_override: {
-        agent: {
-          prompt: {
-            prompt: `
-              You are ${variableData.agent_name}, a helpful assistant for ${variableData.business_name}.
-              Today is ${variableData.current_date}.
-              
-              BUSINESS DETAILS:
-              Type: ${variableData.business_type}
-              Location: ${variableData.address}
-              
-              MENU/SERVICES:
-              ${isApptBiz ? variableData.services : variableData.menu}
-              
-              INSTRUCTIONS:
-              ${variableData.instructions}
-              
-              GUIDELINES:
-              - Be extremely concise and natural.
-              - Match the customer's language.
-              - For Appointments: Verify if {{caller_phone}} is the best contact number. Only ask for a new one if they say no.
-              - Always ask for the customer's NAME.
-              - If the order/appointment is 100% finished and details confirmed, say goodbye.
-            `.trim()
-          }
-        },
-        turn_detection: {
-          type: "server_vad",
-          server_vad: {
-            threshold: 0.4, // ⚡ MORE SENSITIVE: Trigger faster
-            prefix_padding_ms: 200,
-            silence_duration_ms: 400 // ⚡ ULTRA-FAST: Respond after 400ms of silence
-          }
-        }
+      const isAppt = normalizeBusinessType(qBiz.type) === "appointment";
+      const defaultOrderingAgent = "agent_9401kqqj87jzf9mrmfwsprqh3frh";
+      const defaultAppointmentAgent = "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g";
+      
+      let agentId = isAppt ? defaultAppointmentAgent : defaultOrderingAgent;
+      if (settings) {
+        const assignedSlot = isAppt ? settings.apptAgentSlot : settings.orderAgentSlot;
+        if (assignedSlot && settings[`${assignedSlot}Id`]) agentId = settings[`${assignedSlot}Id`];
       }
-    }));
 
-    canStream = true;
-    console.log(`[V2] Handshake settled. Listening instantly.`);
-  });
+      // 🛡️ SECURITY & STABILITY: Only use aiVoiceId if it looks like a real ElevenLabs ID (28 chars after 'agent_')
+      // Placeholder slugs like 'agent_appt_sophie_luxe' will fallback to the default verified agent.
+      if (qBiz.aiVoiceId && qBiz.aiVoiceId.startsWith("agent_") && qBiz.aiVoiceId.length > 30) {
+        agentId = qBiz.aiVoiceId;
+      }
 
-  elWs.on("error", (err) => {
-    console.error(`[V2] ElevenLabs WebSocket Error:`, err.message);
-  });
+      console.log(`[V2_HANDSHAKE] Connecting to ElevenLabs: agent_id=${agentId}`);
+      logToTerminal(businessId, 'info', `Initiating ElevenLabs ConvAI Handshake (Agent: ${agentId})`);
 
-  // ─── FROM ELEVENLABS ───
-  elWs.on("message", async (msg) => {
+      return new Promise((resolve, reject) => {
+        const headers = { 
+          "Origin": (process.env.BASE_URL || "https://naxton.ai").replace("http://", "https://"),
+          "xi-api-key": process.env.ELEVENLABS_API_KEY
+        };
+        const elWs = new WebSocket(`wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${agentId}`, { headers });
+        
+        const timeout = setTimeout(() => {
+          logToTerminal(businessId, 'error', "ElevenLabs Handshake Timed Out (10s)");
+          reject(new Error("Handshake timeout"));
+        }, 10000);
+
+        elWs.on("open", () => {
+          clearTimeout(timeout);
+          console.log(`[V2_SOCKET] ElevenLabs connected for ${businessId}`);
+          logToTerminal(businessId, 'success', "ElevenLabs WebSocket Connected.");
+          resolve(elWs);
+        });
+
+        elWs.on("error", (err) => {
+          clearTimeout(timeout);
+          logToTerminal(businessId, 'error', `ElevenLabs Socket Error: ${err.message}`);
+          reject(err);
+        });
+      });
+    } catch (err) {
+      console.error("[V2_EL_EARLY_FAIL]", err.message);
+      return null;
+    }
+  })();
+
+  // 🚀 3. ATTACH TWILIO LISTENER
+  ws.on("message", async (msg) => {
     try {
       const data = JSON.parse(msg.toString());
-
-      if (data.type === "conversation_initiation_metadata") {
-        const convId = data.conversation_initiation_metadata_event?.conversation_id;
-        if (convId && businessId) {
-          convToBiz.set(convId, businessId);
-          console.log(`[V2] Mapped Conversation: ${convId} -> Business: ${businessId}`);
+      switch (data.event) {
+        case "start":
+          streamSid = data.start.streamSid;
+          callSid = data.start.callSid;
+          fromNumber = (data.start.from || "").replace(/[^0-9]/g, "").slice(-10);
           
-          // Cleanup after 1 hour
-          setTimeout(() => convToBiz.delete(convId), 60 * 60 * 1000);
+          if (activeStreams.has(callSid)) {
+            console.warn(`[V2] Duplicate stream detected for ${callSid}.`);
+            return;
+          }
+          activeStreams.set(callSid, ws);
+          
+          console.log(`[V2] Call started: ${callSid} from ${fromNumber}`);
+          logToTerminal(businessId, 'info', `Incoming call received from ${fromNumber}. (StreamSid: ${streamSid})`);
+          
+          // Start preparing greeting as soon as Twilio starts
+          triggerAiGreeting(fromNumber); 
+          break;
+
+        case "media":
+          if (elWs && elWs.readyState === WebSocket.OPEN && canStream) {
+            const muLawBuffer = Buffer.from(data.media.payload, 'base64');
+            const pcmBuffer = Buffer.alloc(muLawBuffer.length * 4); 
+            for (let i = 0; i < muLawBuffer.length; i++) {
+              let pcmSample = decodeMulaw(muLawBuffer[i]);
+              pcmBuffer.writeInt16LE(pcmSample, i * 4);
+              pcmBuffer.writeInt16LE(pcmSample, (i * 4) + 2);
+            }
+            elWs.send(JSON.stringify({ type: "user_audio_chunk", user_audio_chunk: pcmBuffer.toString('base64') }));
+          }
+          break;
+
+        case "stop":
+          console.log(`[V2] Call stopped.`);
+          if (elWs && elWs.readyState === WebSocket.OPEN) elWs.close();
+          break;
+      }
+    } catch (e) { console.error("[V2_TWILIO_ERR]", e.message); }
+  });
+
+  // 🚀 Helper for Real-time Terminal Logging
+  function logToTerminal(businessId, type, message, data = {}) {
+    if (!businessId) return;
+    const logData = {
+      timestamp: new Date().toISOString(),
+      type, // 'info', 'success', 'warning', 'error', 'ai', 'tool'
+      message,
+      data,
+      callSid,
+      businessId
+    };
+    io.to(businessId).emit("call_debug", logData);
+    io.to("superadmin").emit("call_debug", logData);
+  }
+
+  async function triggerAiGreeting(callerPhone = "Unknown") {
+    try {
+      const [biz, settings, wsEl] = await Promise.all([businessPromise, globalSettingsPromise, elHandshakePromise]);
+      if (!biz || !wsEl) return;
+      elWs = wsEl;
+      business = biz;
+      globalSettings = settings;
+
+      if (!elWs.hasHandlersAttached) {
+        setupElevenLabsHandlers(elWs);
+        elWs.hasHandlersAttached = true;
+      }
+
+      logToTerminal(business.id, 'ai', `Voice Bridge Activated: Using ElevenLabs Agent [${business.aiVoiceId || 'Sarah_Default'}]`);
+
+      isApptBiz = normalizeBusinessType(business.type) === "appointment";
+      isOrderBiz = !isApptBiz;
+      
+      // 🚀 1. MASTER PROMPT CONFIGURATION
+      const bizType = (business.subType || "").toLowerCase();
+      const isMedical = bizType.includes("clinic") || bizType.includes("medical") || bizType.includes("dental");
+      
+      const termService = isMedical ? "treatments" : "services";
+      const termStaff = isMedical ? "practitioners" : "stylists";
+
+      const masterApptPrompt = `
+You are ${business.aiName || "Sarah"}, the professional receptionist for ${business.name}.
+
+# STRICT OPERATIONAL RULES:
+- PHONE VERIFICATION: When you need a contact number, first say: "I see you're calling from {{caller_phone}}. Is this the best number to reach you if we need to contact you about your appointment?"
+  - If they say YES, use '{{caller_phone}}'.
+  - If they say NO, then ask for their preferred mobile number.
+1. ${termService.toUpperCase()} MENU: You must ONLY suggest ${termService} from the official menu provided in context. Always state the exact price.
+2. AVAILABILITY: NEVER suggest a time slot from memory. ALWAYS call the 'check_availability' tool.
+3. BOOKING: When a user confirms a time, call 'book_appointment'. You must have their Name and the Service ID.
+4. IDENTITY: You represent ${business.name}. Be warm, calm, and professional.
+- DATES: Today is {{current_date}}. ALWAYS use the current year (2026) for all bookings.
+
+# DATA CONTEXT:
+- Your Business ID: {{business_id}}
+- Current Date: {{current_date}}
+- Business Hours: {{business_settings}}
+- Available Services: {{services}}
+- Availability Status: {{availability}}
+
+# TOOL CALL RULES:
+- You MUST ALWAYS pass the exact Business ID '{{business_id}}' as the 'businessId' parameter in every tool call.
+`;
+
+      // 🚀 1.5 PRE-HYDRATE PROMPT
+      const slotService = require("../../services/slot.service");
+      const { getBusinessDates } = require("../../services/date.service");
+      const { todayStr, tomorrowStr } = getBusinessDates(business.timezone || "UTC");
+      
+      const [tSlots, tmSlots, services, staff] = await Promise.all([
+        slotService.getSlotsForDate(business.tenantId, business.id, todayStr), 
+        slotService.getSlotsForDate(business.tenantId, business.id, tomorrowStr),
+        prisma.appointmentService.findMany({ 
+          where: { businessId: business.id, isActive: true },
+          include: { category: true }
+        }),
+        prisma.staff.findMany({ where: { businessId: business.id, isActive: true } })
+      ]);
+      
+      const formatAvail = (s) => s.filter(x => x.available).slice(0, 8).map(x => x.time).join(", ");
+      const availString = `Today: ${formatAvail(tSlots) || "Fully booked"}. Tomorrow: ${formatAvail(tmSlots) || "Many slots available."}`;
+      
+      const vData = {
+        business_id: business.id,
+        business_name: business.name,
+        agent_name: business.aiName || "Sarah",
+        services: services.map(s => `${s.name} ($${s.price})`).join(", "),
+        availability: availString,
+        staff_members: staff.map(s => s.name).join(", "),
+        business_settings: `Hours: ${business.openTime}-${business.closeTime}, Timezone: ${business.timezone || 'UTC'}.`,
+        current_date: new Intl.DateTimeFormat('en-US', { 
+          weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+          hour: '2-digit', minute: '2-digit', timeZone: business.timezone || 'UTC'
+        }).format(new Date()),
+        caller_phone: callerPhone
+      };
+
+      // 🍕 Build Restaurant-specific Menu Context strings
+      const menuByCategoryLines = [];
+      const menuDetailsLines = [];
+
+      for (const cat of (business.menuCategories || [])) {
+        if (cat.items && cat.items.length > 0) {
+          const catItemNames = cat.items.map(item => item.name).join(", ");
+          menuByCategoryLines.push(`* Category: ${cat.name} (Items: ${catItemNames})`);
+          
+          for (const item of cat.items) {
+            menuDetailsLines.push(`- ${item.name} (${cat.name}): Price: $${item.price}, Ingredients/Description: ${item.description || 'None'}`);
+          }
         }
       }
+
+      const menuStr = `MENU CATEGORIES & ITEMS (Refer to this to know what items are in each category. NEVER read this entire list at once. List category names first, then up to 4 items when requested):
+${menuByCategoryLines.join("\n")}
+
+MENU DETAILS (Refer to this ONLY when asked specifically about an item's ingredients, toppings, description, or price):
+${menuDetailsLines.join("\n")}`;
+
+      const menuCategoriesStr = (business.menuCategories || []).map(c => c.name).join(", ");
+      const itemAvailabilityStr = (business.menuItems || []).map(i => `${i.name}: ${i.isAvailable ? 'Available' : 'Out of stock'}`).join("\n");
+
+      // 📅 Build Appointment-specific Calendar strings
+      const bookedAppointments = Array.isArray(business.appointments) && business.appointments.length > 0
+        ? business.appointments.map(a => {
+            const d = new Date(a.appointmentTime);
+            return new Intl.DateTimeFormat('en-US', { 
+              weekday: 'short', month: 'short', day: 'numeric', 
+              hour: '2-digit', minute: '2-digit', 
+              timeZone: business.timezone || 'UTC' 
+            }).format(d);
+          }).join(" | ")
+        : "None";
+
+      // 🚀 Perform Dynamic Prompt Template Substitution
+      let promptTemplate = isApptBiz 
+        ? (globalSettings?.apptPrompt || masterApptPrompt) 
+        : (globalSettings?.orderPrompt || "You are a professional assistant.");
+
+      promptTemplate = promptTemplate
+        .replace(/{{business_id}}/g, business.id)
+        .replace(/{{system_business_id}}/g, business.id)
+        .replace(/{{business_name}}/g, business.name)
+        .replace(/{{agent_name}}/g, business.aiName || "Sarah")
+        .replace(/{{current_date}}/g, vData.current_date)
+        .replace(/{{caller_phone}}/g, vData.caller_phone)
+        .replace(/{{business_settings}}/g, vData.business_settings)
+        .replace(/{{business_type}}/g, business.type)
+        .replace(/{{business_address}}/g, business.address || "our physical location")
+        .replace(/{{business_phone}}/g, business.phoneNumber)
+        .replace(/{{business_hours}}/g, `Open from ${business.openTime} to ${business.closeTime}`)
+        .replace(/{{business_days}}/g, business.timings || "Every day")
+        .replace(/{{delivery_available}}/g, business.deliveryAvailable ? "Yes" : "No")
+        .replace(/{{pickup_available}}/g, business.takeawayAvailable ? "Yes" : "No")
+        .replace(/{{dinein_available}}/g, business.dineInAvailable ? "Yes" : "No")
+        .replace(/{{delivery_radius}}/g, `${business.deliveryRadius || 5} miles`);
+
+      if (isApptBiz) {
+        promptTemplate = promptTemplate
+          .replace(/{{services}}/g, vData.services)
+          .replace(/{{availability}}/g, vData.availability)
+          .replace(/{{staff_members}}/g, vData.staff_members)
+          .replace(/{{calendar}}/g, bookedAppointments);
+      } else {
+        promptTemplate = promptTemplate
+          .replace(/{{menu}}/g, menuStr)
+          .replace(/{{menu_categories}}/g, menuCategoriesStr)
+          .replace(/{{item_availability}}/g, itemAvailabilityStr);
+      }
+
+      const finalPrompt = promptTemplate;
+
+      const firstMsg = isApptBiz 
+        ? `Hello, thank you for calling ${business.name}. This is ${business.aiName || "Sarah"}. How can I help you today?`
+        : `Thank you for calling ${business.name}. This is ${business.aiName || "Sarah"}. How may I assist you today?`;
+
+      // 🚀 2. INSTANT GREETING (Zero Latency Path)
+      const initiationData = {
+        type: "conversation_initiation_client_data",
+        dynamic_variables: {
+          business_id: business.id,
+          system_business_id: business.id,
+          business_name: business.name,
+          agent_name: business.aiName || "Sarah",
+          current_date: vData.current_date,
+          caller_phone: vData.caller_phone,
+          business_settings: vData.business_settings,
+          business_type: business.type,
+          business_address: business.address || "our physical location",
+          business_phone: business.phoneNumber,
+          business_hours: `Open from ${business.openTime} to ${business.closeTime}`,
+          business_days: business.timings || "Every day",
+          delivery_available: business.deliveryAvailable ? "Yes" : "No",
+          pickup_available: business.takeawayAvailable ? "Yes" : "No",
+          dinein_available: business.dineInAvailable ? "Yes" : "No",
+          delivery_radius: `${business.deliveryRadius || 5} miles`,
+          menu: menuStr,
+          menu_categories: menuCategoriesStr,
+          item_availability: itemAvailabilityStr,
+          services: vData.services,
+          availability: vData.availability,
+          staff_members: vData.staff_members,
+          calendar: bookedAppointments
+        },
+        conversation_config_override: {
+          agent: {
+            prompt: { prompt: finalPrompt },
+            first_message: firstMsg,
+            tools: isApptBiz ? [
+              {
+                type: "client",
+                name: "get_salon_services",
+                description: "Get the list of available services, their prices, and durations.",
+                parameters: { 
+                  type: "object", 
+                  properties: {
+                    businessId: { type: "string", description: "The Business ID: {{business_id}}" }
+                  },
+                  required: ["businessId"]
+                }
+              },
+              {
+                type: "client",
+                name: "check_salon_availability",
+                description: "Check available time slots for a specific service on a specific date.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    businessId: { type: "string", description: "The Business ID: {{business_id}}" },
+                    serviceId: { type: "string", description: "The ID of the service." },
+                    date: { type: "string", description: "The date in YYYY-MM-DD format. ALWAYS use the year 2026." }
+                  },
+                  required: ["businessId", "date"]
+                }
+              },
+              {
+                type: "client",
+                name: "book_salon_appointment",
+                description: "Create a new appointment booking.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    businessId: { type: "string", description: "The Business ID: {{business_id}}" },
+                    serviceId: { type: "string", description: "The ID of the service." },
+                    customerName: { type: "string", description: "Full name of the customer." },
+                    customerPhone: { type: "string", description: "Mobile number of the customer. Use '{{caller_phone}}' if they confirmed it is best." },
+                    date: { type: "string", description: "The date in YYYY-MM-DD format. ALWAYS use the year 2026." },
+                    time: { type: "string", description: "The time in HH:mm format." }
+                  },
+                  required: ["businessId", "serviceId", "customerName", "customerPhone", "date", "time"]
+                }
+              }
+            ] : [
+              {
+                type: "client",
+                name: "get_menu",
+                description: "Get the live menu, items, prices, and categories of the restaurant.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    businessId: { type: "string", description: "The Business ID: {{business_id}}" }
+                  },
+                  required: ["businessId"]
+                }
+              },
+              {
+                type: "client",
+                name: "create_order",
+                description: "Create a new food or product order for the customer.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    customerName: { type: "string", description: "Name of the customer." },
+                    items: {
+                      type: "array",
+                      description: "List of menu items being ordered.",
+                      items: {
+                        type: "object",
+                        properties: {
+                          name: { type: "string", description: "The name of the menu item." },
+                          quantity: { type: "integer", description: "The quantity of this item." }
+                        },
+                        required: ["name", "quantity"]
+                      }
+                    },
+                    notes: { type: "string", description: "Special instructions or notes for the order." }
+                  },
+                  required: ["items"]
+                }
+              }
+            ]
+          }
+        }
+      };
+
+      if (business.aiVoice && business.aiVoice.startsWith('eleven_')) {
+        initiationData.conversation_config_override.tts = {
+          voice_id: business.aiVoice.replace('eleven_', '')
+        };
+      }
+
+      elWs.send(JSON.stringify(initiationData));
+      canStream = true;
+      console.log(`[V2] INSTANT GREETING SENT to ElevenLabs for ${business.name}`);
+      logToTerminal(business.id, 'info', `AI Handshake initiated for ${business.name}.`);
+
+      // 🚀 3. PERSISTENT LOGGING & REAL-TIME SYNC
+      callRecord = await prisma.call.create({
+        data: { 
+          twilioSid: callSid, 
+          businessId: business.id, 
+          tenantId: business.tenantId, 
+          fromNumber: fromNumber || "Voice", 
+          toNumber: business.phoneNumber || "Reception", 
+          outcome: "active" 
+        }
+      });
+
+      const startData = { 
+        id: callRecord.id, 
+        from: fromNumber || "Voice Customer", 
+        status: "active", 
+        businessId: business.id, 
+        businessName: business.name 
+      };
+      
+      io.to(business.id).emit("call_started", startData);
+      io.to("superadmin").emit("call_started", startData);
+      
+      console.log(`[V2] AI SESSION READY for ${business.name}. Call ID: ${callRecord.id}`);
+
+    } catch (err) { console.error("[V2_GREET_FAIL]", err.message); }
+  }
+
+  function setupElevenLabsHandlers(targetWs) {
+    targetWs.on("error", (err) => {
+      console.error(`[V2_ELEVENLABS_ERROR] Business: ${businessId} | Error:`, err.message);
+    });
+
+    targetWs.on("close", (code, reason) => {
+      console.warn(`[V2_ELEVENLABS_CLOSE] Business: ${businessId} | Code: ${code} | Reason: ${reason || "No reason provided"}`);
+      if (ws.readyState === WebSocket.OPEN) ws.close();
+    });
+
+    // 🚀 LISTEN FOR AI EVENTS
+    targetWs.on("message", async (msg) => {
+      try {
+        const data = JSON.parse(msg.toString());
+        console.log(`[EL_RAW] ${data.type}`);
+        
+        // 🧪 DEBUG_RAW: Log all non-audio messages
+        if (data.type !== "audio") {
+          console.log(`[EL_V2_MESSAGE] Type: ${data.type}`, JSON.stringify(data));
+        }
+
+        // 🔗 MAPPING HANDSHAKE
+        if (data.type === "conversation_initiation_metadata" || data.type === "metadata" || data.conversation_id) {
+          const convId = data.conversation_id || 
+                         data.conversation_initiation_metadata?.conversation_id || 
+                         data.metadata?.conversation_id;
+                         
+          if (convId && businessId) {
+            if (!convToBiz.has(convId)) {
+              convToBiz.set(convId, businessId);
+              console.log(`[V2_MAPPING] SUCCESS: ${convId} -> ${businessId}`);
+              
+              // Notify SuperAdmin Terminal
+              io.to("superadmin").emit("call_debug", {
+                timestamp: new Date().toISOString(),
+                type: 'success',
+                message: `[MAPPING] Session ${convId} linked to Business ${businessId}`,
+                businessId: businessId
+              });
+              
+              // Cleanup after 2 hours (7,200,000 ms)
+              setTimeout(() => convToBiz.delete(convId), 2 * 60 * 60 * 1000);
+            }
+          }
+        }
       
       if (data.type === "audio") {
         isAiSpeaking = true; // 🛡️ LOCK: AI is now talking
@@ -841,19 +1135,32 @@ Respond in the language the customer uses (Urdu, Spanish, Arabic, etc.).
         
         const payload = data.audio || data.audio_event?.audio_base_64;
         if (!payload) return;
-
+        
         if (!streamSid) {
           console.log(`[V2] Buffering initial audio event (Waiting for streamSid)`);
           audioBuffer.push(payload);
+          logToTerminal(businessId, 'info', "AI generated early audio. Buffering...");
           return;
         }
 
-        if (ws.readyState === WebSocket.OPEN && payload) {
-          const pcmBuffer = Buffer.from(payload, 'base64');
+        // 🚀 FLUSH BUFFERED AUDIO
+        if (audioBuffer.length > 0) {
+          console.log(`[V2] Flushing ${audioBuffer.length} buffered audio chunks`);
+          logToTerminal(businessId, 'info', `Flushing ${audioBuffer.length} buffered audio chunks...`);
+          const temp = [...audioBuffer];
+          audioBuffer = [];
+          for (const p of temp) processAndSendAudio(p);
+        }
+
+        processAndSendAudio(payload);
+
+        function processAndSendAudio(audioPayload) {
+          if (ws.readyState !== WebSocket.OPEN) return;
+          
+          const pcmBuffer = Buffer.from(audioPayload, 'base64');
           
           // ⚡ DIGITAL TRANSFORMER: 16-bit PCM (16kHz) -> 8-bit mu-law (8kHz)
-          // ElevenLabs V2 natively streams 16kHz. We take every other sample.
-          const stride = 4; // 2 bytes per sample * 2 = 4 bytes
+          const stride = 4; 
           const muLawBuffer = Buffer.alloc(Math.floor(pcmBuffer.length / stride));
           
           for (let i = 0; i < muLawBuffer.length; i++) {
@@ -861,26 +1168,20 @@ Respond in the language the customer uses (Urdu, Spanish, Arabic, etc.).
             muLawBuffer[i] = encodeMulaw(pcmSample);
           }
 
-          const CHUNK_SIZE = 640; // ⚡ 80ms chunks (Lower overhead than 20ms)
+          const CHUNK_SIZE = 320; // ⚡ 40ms chunks for better sound clarity and lower jitter
           for (let i = 0; i < muLawBuffer.length; i += CHUNK_SIZE) {
             const chunk = muLawBuffer.slice(i, i + CHUNK_SIZE);
             if (ws.readyState !== WebSocket.OPEN) break;
             ws.send(JSON.stringify({ event: "media", streamSid, media: { payload: chunk.toString('base64') } }));
           }
 
-          // ⏱️ PRECISION TIMING: Calculate exactly how long this audio takes to play in Twilio
           const chunkDurationMs = (muLawBuffer.length / 8000) * 1000;
-          
           const now = Date.now();
           if (!aiEndTime || aiEndTime < now) aiEndTime = now;
           aiEndTime += chunkDurationMs;
-
-          const timeRemaining = aiEndTime - now;
           
           if (aiSpeakTimer) clearTimeout(aiSpeakTimer);
-          aiSpeakTimer = setTimeout(() => { 
-            isAiSpeaking = false; 
-          }, timeRemaining + 400);
+          aiSpeakTimer = setTimeout(() => { isAiSpeaking = false; }, (aiEndTime - now) + 400);
         }
       }
       if (data.type === "interruption") {
@@ -893,153 +1194,180 @@ Respond in the language the customer uses (Urdu, Spanish, Arabic, etc.).
       }
 
       if (data.type === "user_transcript") {
-         const event = data.user_transcript_event || data.transcript_event || data;
+         const event = data.user_transcription_event || data.user_transcript_event || data.transcript_event || data;
          const text = event.user_transcript || event.text || event.transcript;
-         if (text && text.trim().length > 1 && !text.includes("???")) {
-           transcript += `User: ${text}\n`;
-           messages.push({ role: "user", content: text });
-           io.to(businessId).emit("call_transcribed", { callSid, text, role: "user" });
-         }
+          if (text && text.trim().length > 1 && !text.includes("???")) {
+            transcript += `User: ${text}\n`;
+            messages.push({ role: "user", content: text });
+            const transData = { callSid, text, role: "user", businessId };
+            io.to(businessId).emit("call_transcribed", transData);
+            io.to("superadmin").emit("call_transcribed", transData);
+          }
       }
 
       if (data.type === "agent_response") {
          const event = data.agent_response_event || data.transcript_event || data;
          const text = event.agent_response || event.text || event.transcript;
          if (text) {
-           transcript += `Assistant: ${text}\n`;
+           transcript += `AI: ${text}\n`;
            messages.push({ role: "assistant", content: text });
-           io.to(businessId).emit("call_transcribed", { callSid, text, role: "assistant" });
+           const transData = { callSid, text, role: "ai", businessId };
+           io.to(businessId).emit("call_transcribed", transData);
+           io.to("superadmin").emit("call_transcribed", transData);
+           logToTerminal(businessId, 'ai', text);
+           if (text.toUpperCase().includes("TRANSFER_CALL") && routingConfig?.transferNumber) {
+             require("../../services/twilio").transferCall(callSid, routingConfig.transferNumber);
+           }
          }
+      }
+
+      // 🛠️ TOOL CALL HANDLER
+      if (data.type === "client_tool_call") {
+        const { tool_name, parameters, call_id } = data.client_tool_call;
+        console.log(`[V2_TOOL] Executing: ${tool_name}`, parameters);
+        logToTerminal(businessId, 'tool', `AI calling tool: ${tool_name}`);
+
+        const aiTools = require("../../services/ai-tools.service");
+        let result = { success: false, error: "Tool not found" };
+
+        try {
+          if (tool_name === "get_salon_services" || tool_name === "get_services") {
+            result = await aiTools.getBusinessServices(businessId, business.tenantId);
+          } else if (tool_name === "get_menu" || tool_name === "get_restaurant_menu") {
+            result = await aiTools.getBusinessMenu(businessId);
+          } else if (tool_name === "check_salon_availability" || tool_name === "check_availability") {
+            result = await aiTools.getAvailableSlots(businessId, business.tenantId, parameters.serviceId, parameters.date);
+          } else if (tool_name === "book_salon_appointment" || tool_name === "book_appointment") {
+            // Parse date/time into appointmentTime if needed
+            const date = parameters.date;
+            const time = parameters.time || parameters.appointmentTime;
+            const apptTime = (date && time) ? new Date(`${date}T${time}:00`) : parameters.appointmentTime;
+
+            result = await aiTools.bookAppointment({
+              ...parameters,
+              appointmentTime: apptTime,
+              businessId,
+              tenantId: business.tenantId,
+              customerPhone: fromNumber,
+              callId: callRecord?.id,
+              source: "AI"
+            });
+
+            if (result.success) {
+               console.log(`[V2_TOOL] Booking Success! Emitting to dashboard and updating call status.`);
+               
+               // 1. Update Call Outcome for Analytics
+               await prisma.call.updateMany({
+                 where: { businessId, outcome: "active" },
+                 data: { outcome: "success", actionTaken: `Booked ${result.booking?.service?.name || 'Appointment'}` }
+               });
+
+               // 2. Notify Dashboard Layers
+               const data = result.booking;
+               io.to(businessId).emit("new_appointment", data);
+               io.to(`tenant_${business.tenantId}`).emit("new_appointment", data);
+               io.to("superadmin").emit("new_appointment", data);
+            }
+          } 
+          else if (tool_name === "create_order" || tool_name === "create-order") {
+             // Proxy to createOrder logic
+             const { customerName, items, notes } = parameters;
+             
+             // Reuse createOrder-like logic here or call a service
+             const orderController = require("../webhooks/webhooks.controller");
+             // We can mock req/res or just extract the logic
+             // For simplicity, let's just use the logic directly here
+             
+             const business = await prisma.business.findUnique({ where: { id: businessId } });
+             let total = 0;
+             const orderItems = [];
+
+             if (items && Array.isArray(items)) {
+               for (const item of items) {
+                 const menuItem = await prisma.menuItem.findFirst({
+                   where: { 
+                     OR: [
+                       { id: item.id || "" },
+                       { name: { contains: item.name || "", mode: 'insensitive' } }
+                     ],
+                     businessId
+                   }
+                 });
+                 if (menuItem) {
+                   const qty = parseInt(item.quantity) || 1;
+                   const price = menuItem.price * qty;
+                   total += price;
+                   orderItems.push({
+                     menuItemId: menuItem.id,
+                     quantity: qty,
+                     unitPrice: menuItem.price,
+                     totalPrice: price,
+                     tenantId: business.tenantId
+                   });
+                 }
+               }
+             }
+
+             if (business.taxRate) total *= (1 + (business.taxRate / 100));
+
+             const order = await prisma.order.create({
+               data: {
+                 businessId,
+                 tenantId: business.tenantId,
+                 customerName: customerName || "Voice Guest",
+                 total,
+                 notes,
+                 status: "pending",
+                 source: "AI",
+                 items: { create: orderItems }
+               },
+               include: { items: { include: { menuItem: true } } }
+             });
+
+             const displayId = `#A${String(order.orderNumber).padStart(3, '0')}`;
+             const finalOrder = { ...order, displayId };
+
+             result = { success: true, message: "Order placed", order: finalOrder };
+
+             // 1. Update Call Outcome
+             await prisma.call.updateMany({
+               where: { businessId, outcome: "active" },
+               data: { outcome: "success", actionTaken: `Placed Order ${displayId}` }
+             });
+
+             // 2. Notify Dashboard
+             io.to(businessId).emit("new_order", finalOrder);
+             io.to(`tenant_${business.tenantId}`).emit("new_order", finalOrder);
+             io.to("superadmin").emit("new_order", finalOrder);
+          }
+
+          // Send response back to ElevenLabs
+          targetWs.send(JSON.stringify({
+            type: "tool_response",
+            tool_call_id: call_id,
+            output: JSON.stringify(result)
+          }));
+          
+          logToTerminal(businessId, 'success', `Tool ${tool_name} returned success.`);
+        } catch (toolErr) {
+          console.error(`[V2_TOOL_ERR] ${tool_name}:`, toolErr.message);
+          targetWs.send(JSON.stringify({
+            type: "tool_response",
+            tool_call_id: call_id,
+            output: JSON.stringify({ success: false, error: toolErr.message })
+          }));
+        }
       }
     } catch (err) {
       console.error("[V2] Error parsing ElevenLabs message:", err.message);
     }
-  });
-  elWs.on("close", (code, reason) => {
-    console.log(`[V2] ElevenLabs WebSocket Closed | Code: ${code} | Reason: ${reason || "No reason provided"}`);
-    ws.close();
-  });
+    });
 
-  // ─── FROM TWILIO ───
-  ws.on("message", async (msg) => {
-    const data = JSON.parse(msg.toString());
-
-    switch (data.event) {
-      case "start":
-        streamSid = data.start.streamSid;
-        callSid = data.start.callSid;
-        fromNumber = (data.start.from || "").replace(/[^0-9]/g, "").slice(-10);
-        variableData.caller_phone = fromNumber;
-
-        // 🛡️ SINGLE VOICE LOCKDOWN: Reject duplicate streams for the same CallSid
-        if (activeStreams.has(callSid)) {
-          console.warn(`[V2] Duplicate stream detected for ${callSid}. Rejecting second voice.`);
-          return ws.close(); 
-        }
-        activeStreams.set(callSid, ws);
-        
-        // Fetch Caller Appointments for RECOGNITION
-        if (fromNumber && isApptBiz) {
-          const cAppts = await prisma.appointment.findMany({
-            where: { 
-              businessId: business.id, 
-              customerPhone: { contains: fromNumber },
-              appointmentTime: { gte: new Date() },
-              status: { not: "CANCELLED" }
-            }
-          });
-          if (cAppts.length > 0) {
-             variableData.caller_appointments = cAppts.map(a => `${a.serviceName} at ${new Date(a.appointmentTime).toLocaleString()}`).join(", ");
-             // Force refresh of dynamic variables if elWs is already open
-             if (elWs.readyState === WebSocket.OPEN) {
-               elWs.send(JSON.stringify({
-                 type: "client_data_update",
-                 dynamic_variables: variableData
-               }));
-             }
-          }
-        }
-        
-        // 🚀 ALWAYS sync the caller phone to ElevenLabs once known
-        if (elWs.readyState === WebSocket.OPEN) {
-          elWs.send(JSON.stringify({
-            type: "client_data_update",
-            dynamic_variables: variableData
-          }));
-        }
-
-        console.log(`[V2] Call started. From: ${fromNumber}. StreamSid: ${streamSid}. CallSid: ${callSid}`);
-
-        // 🚀 FLUSH BUFFER: Play any audio that arrived early (like the greeting)
-        if (audioBuffer.length > 0) {
-          console.log(`[V2] Flushing ${audioBuffer.length} buffered audio events to Twilio`);
-          audioBuffer.forEach(payload => {
-            const pcmBuffer = Buffer.from(payload, 'base64');
-            const stride = 4;
-            const muLawBuffer = Buffer.alloc(Math.floor(pcmBuffer.length / stride));
-            for (let i = 0; i < muLawBuffer.length; i++) {
-              const pcmSample = pcmBuffer.readInt16LE(i * stride);
-              muLawBuffer[i] = encodeMulaw(pcmSample);
-            }
-            const CHUNK_SIZE = 640;
-            for (let i = 0; i < muLawBuffer.length; i += CHUNK_SIZE) {
-              const chunk = muLawBuffer.slice(i, i + CHUNK_SIZE);
-              if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ event: "media", streamSid, media: { payload: chunk.toString('base64') } }));
-              }
-            }
-          });
-          audioBuffer = [];
-        }
-        
-        // Create/Update Call Record
-        callRecord = await prisma.call.findFirst({ where: { twilioSid: callSid } });
-        if (!callRecord) {
-           callRecord = await prisma.call.create({
-             data: {
-               twilioSid: callSid,
-               businessId: business.id,
-               tenantId: business.tenantId,
-               fromNumber: fromNumber || "Unknown",
-               toNumber: business.phoneNumber || "Unknown"
-             }
-           });
-        }
-        break;
-
-      case "media":
-        // 🎙️ BARGE-IN ENABLED: We stream audio to ElevenLabs continuously so the AI can hear interruptions.
-        // Twilio's 'inbound_track' prevents echo, allowing native ElevenLabs AEC to handle speakerphone.
-        if (elWs.readyState === WebSocket.OPEN && canStream) {
-          const muLawBuffer = Buffer.from(data.media.payload, 'base64');
-          
-          // ⚡ USER VOICE TRANSLATOR: 8-bit mu-law (8kHz) -> 16-bit PCM (16kHz)
-          // 1. Decode to 16-bit PCM
-          // 2. Upsample (Duplicate each sample: 8kHz -> 16kHz)
-          const pcmBuffer = Buffer.alloc(muLawBuffer.length * 4); 
-          
-          for (let i = 0; i < muLawBuffer.length; i++) {
-            let pcmSample = decodeMulaw(muLawBuffer[i]);
-            
-            // Sample 1
-            pcmBuffer.writeInt16LE(pcmSample, i * 4);
-            // Sample 2 (Duplicate for upsampling)
-            pcmBuffer.writeInt16LE(pcmSample, (i * 4) + 2);
-          }
-
-          elWs.send(JSON.stringify({
-            type: "user_audio_chunk",
-            user_audio_chunk: pcmBuffer.toString('base64')
-          }));
-        }
-        break;
-
-      case "stop":
-        console.log(`[V2] Call stopped.`);
-        elWs.close();
-        break;
-    }
-  });
+    targetWs.on("close", (code, reason) => {
+      console.warn(`[V2_ELEVENLABS_CLOSE] Business: ${businessId} | Code: ${code} | Reason: ${reason || "No reason provided"}`);
+      if (ws.readyState === WebSocket.OPEN) ws.close();
+    });
+  }
 
   ws.on("close", async () => {
     console.log("[V2] Twilio connection closed");
@@ -1047,109 +1375,180 @@ Respond in the language the customer uses (Urdu, Spanish, Arabic, etc.).
     if (elWs.readyState === WebSocket.OPEN) elWs.close();
 
     // 🏁 FINAL PROCESSING (Orders & Summaries)
-    if (callRecord && messages.length > 0) {
-      const duration = Math.round((Date.now() - startTime) / 1000);
-      const fullTranscript = messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\n");
+    try {
+      if (callRecord && messages.length > 0) {
+        const duration = Math.round((Date.now() - startTime) / 1000);
+        const fullTranscript = messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\n");
 
-      const { summarizeCall } = require("../../services/openai");
-      const analysis = await summarizeCall(fullTranscript);
+        const { summarizeCall, parseUserRequest } = require("../../services/openai");
+        const analysis = await summarizeCall(fullTranscript);
 
-      await prisma.call.update({
-        where: { id: callRecord.id },
-        data: {
-          duration,
-          transcript: fullTranscript,
-          customerName: analysis.name || "Voice Customer",
-          summary: analysis.summary || "No summary available",
-          sentiment: analysis.sentiment,
-          language: analysis.language
-        }
-      });
+        // 🛡️ RECORD USAGE
+        const billingService = require("../../services/billing.service");
+        await billingService.recordCallUsage(callRecord.tenantId, duration).catch(() => null);
 
-      // 🍕 ORDER EXTRACTION (For Restaurants)
-      if (isOrderBiz) {
-        const { parseUserRequest } = require("../../services/openai");
-        const extracted = await parseUserRequest(fullTranscript, {
-          businessType: business.type,
-          menuItems: business.menuItems.map(i => i.name)
+        await prisma.call.update({
+          where: { id: callRecord.id },
+          data: {
+            duration,
+            transcript: fullTranscript,
+            customerName: analysis.name || "Voice Customer",
+            summary: analysis.summary || "No summary available",
+            sentiment: analysis.sentiment,
+            language: analysis.language
+          }
         });
 
-        if (extracted && extracted.orderItems.length > 0 && extracted.status !== 'cancelled') {
-          let total = 0;
-          const itemsToCreate = [];
-          for (const item of extracted.orderItems) {
-            const match = business.menuItems.find(i => i.name.toLowerCase().includes(item.name.toLowerCase()));
-            if (match) {
-              total += (match.price * (item.quantity || 1));
-              itemsToCreate.push({
-                menuItemId: match.id,
-                quantity: item.quantity || 1,
-                tenantId: business.tenantId,
-                unitPrice: match.price
-              });
-            }
-          }
-
-          if (itemsToCreate.length > 0) {
-            const order = await prisma.order.create({
-              data: {
-                customerName: (extracted.customerName && extracted.customerName !== "Unknown") ? extracted.customerName : (analysis.name !== "Unknown" ? analysis.name : "Voice Customer"),
-                total: total,
-                businessId: business.id,
-                tenantId: business.tenantId,
-                callId: callRecord.id,
-                items: { create: itemsToCreate }
-              },
-              include: { items: { include: { menuItem: true } } }
-            });
-            io.to(businessId).emit("new_order", order);
-
-            // 🚀 POS INJECTION (Clover / Toast)
-            try {
-              const connectedIntegrations = await prisma.integration.findMany({ 
-                where: { businessId: business.id, status: "CONNECTED" } 
-              });
-              for (const integration of connectedIntegrations) {
-                const adapter = await IntegrationManager.getProviderInstance(business.id, integration.provider);
-                if (adapter) {
-                  await adapter.pushOrder(order);
-                }
-              }
-            } catch (posErr) {
-              console.error("[POS_INJECTION_FAILED]", posErr.message);
-            }
-          }
-        }
-      }
-
-      // 📅 APPOINTMENT EXTRACTION (For Salons / Appointments)
-      if (isApptBiz) {
-        const { parseUserRequest } = require("../../services/openai");
-        const extracted = await parseUserRequest(fullTranscript, {
-          businessType: "appointment"
-        });
-
-        if (extracted && (extracted.serviceName || extracted.intent === 'appointment') && extracted.status !== 'cancelled') {
-          let apptDate = new Date(extracted.date);
-          if (isNaN(apptDate.getTime())) apptDate = new Date(); // Fallback to now if date is invalid
-
-          const appointment = await prisma.appointment.create({
-            data: {
-              customerName: extracted.customerName || analysis.name || "Voice Customer",
-              customerPhone: callRecord.fromNumber || extracted.customerPhone || "Unknown",
-              serviceName: extracted.serviceName || "General Service",
-              appointmentTime: apptDate,
-              businessId: business.id,
-              tenantId: business.tenantId,
-              callId: callRecord.id,
-              status: "PENDING"
-            }
+        // 🍕 ORDER EXTRACTION (For Restaurants)
+        if (isOrderBiz) {
+          const extracted = await parseUserRequest(fullTranscript, {
+            businessType: business.type,
+            menuItems: (business.menuItems || []).map(i => i.name)
           });
-          io.to(businessId).emit("new_appointment", appointment);
-        }
-      }
 
-      io.to(businessId).emit("call_ended", { callSid, duration });
+          if (extracted && extracted.orderItems && extracted.orderItems.length > 0 && extracted.status === 'confirmed') {
+            let total = 0;
+            const itemsToCreate = [];
+            for (const item of extracted.orderItems) {
+              // 🤖 Enhanced fuzzy matching
+              const matchData = await menuAliasService.matchItem(business.id, item.name);
+              let match = null;
+              if (matchData) {
+                match = matchData.item;
+              } else {
+                const iName = item.name.toLowerCase();
+                match = (business.menuItems || []).find(m => {
+                  const mName = m.name.toLowerCase();
+                  return mName.includes(iName) || iName.includes(mName);
+                });
+              }
+              
+              if (match) {
+                total += (match.price * (item.quantity || 1));
+                itemsToCreate.push({
+                  menuItemId: match.id,
+                  quantity: item.quantity || 1,
+                  tenantId: business.tenantId,
+                  unitPrice: match.price
+                });
+              } else {
+                // 🛡️ If AI found an item but we can't link it to a DB ID, put it in notes so kitchen sees it!
+                const unmatchedNote = `${item.quantity || 1}x ${item.name} (Unmatched Item)`;
+                extracted.notes = (extracted.notes ? extracted.notes + " | " : "") + unmatchedNote;
+              }
+            }
+
+            if (itemsToCreate.length > 0) {
+              // 🚀 Combine item-level notes into a single string for the kitchen
+              let combinedNotes = extracted.notes || "";
+              extracted.orderItems.forEach(oi => {
+                if (oi.notes) {
+                  combinedNotes += (combinedNotes ? " | " : "") + `${oi.name}: ${oi.notes}`;
+                }
+              });
+
+              const order = await prisma.order.create({
+                data: {
+                  customerName: (extracted.customerName && extracted.customerName !== "Unknown") ? extracted.customerName : (analysis.name !== "Unknown" ? analysis.name : "Voice Customer"),
+                  customerPhone: fromNumber || "Unknown",
+                  total: total,
+                  businessId: business.id,
+                  tenantId: business.tenantId,
+                  callId: callRecord.id,
+                  notes: combinedNotes,
+                  items: { create: itemsToCreate }
+                },
+                include: { items: { include: { menuItem: true } } }
+              });
+
+              // 🚀 Calculate displayId for real-time UI (#A001 style)
+              const orderWithDisplay = { 
+                ...order, 
+                displayId: `#A${String(order.orderNumber).padStart(3, '0')}` 
+              };
+
+              io.to(businessId).emit("new_order", orderWithDisplay);
+              logToTerminal(businessId, 'success', `ORDER CREATED: ${orderWithDisplay.displayId} for ${orderWithDisplay.customerName}. Total: $${total.toFixed(2)}`);
+
+              // 🚀 POS INJECTION (Clover / Toast)
+              try {
+                const connectedIntegrations = await prisma.integration.findMany({ 
+                  where: { businessId: business.id, status: "CONNECTED" } 
+                });
+                for (const integration of connectedIntegrations) {
+                  const adapter = await IntegrationManager.getProviderInstance(business.id, integration.provider);
+                  if (adapter) {
+                    await adapter.pushOrder(order);
+                  }
+                }
+              } catch (posErr) {
+                console.error("[POS_INJECTION_FAILED]", posErr.message);
+              }
+            }
+          }
+        }
+
+        // 📅 APPOINTMENT EXTRACTION (For Salons / Appointments) - Fallback if tool wasn't called
+        if (isApptBiz) {
+          // Check if already created via tool call during conversation
+          const existingAppt = await prisma.appointment.findFirst({
+            where: { callId: callRecord.id }
+          });
+
+          if (!existingAppt) {
+            const extracted = await parseUserRequest(fullTranscript, {
+              businessType: "appointment"
+            });
+
+            if (extracted && (extracted.serviceName || extracted.intent === 'appointment') && extracted.status !== 'cancelled') {
+              let apptDate = new Date(extracted.date);
+              if (isNaN(apptDate.getTime())) {
+                  const dateService = require("../../services/date.service");
+                  apptDate = dateService.buildDateTime(extracted.date || "", extracted.time || "");
+              }
+
+              // 🛡️ YEAR ENFORCEMENT: Force to 2026 to avoid invisibility
+              if (!isNaN(apptDate.getTime()) && apptDate.getFullYear() !== 2026) {
+                apptDate.setFullYear(2026);
+              }
+
+              try {
+                // Fuzzy match service name to ID
+                const allServices = await prisma.appointmentService.findMany({
+                  where: { businessId: business.id, tenantId: business.tenantId }
+                });
+                const match = allServices.find(s => 
+                  s.name.toLowerCase().includes(extracted.serviceName.toLowerCase()) ||
+                  extracted.serviceName.toLowerCase().includes(s.name.toLowerCase())
+                );
+
+                const appointment = await appointmentService.createBooking({
+                  tenantId: business.tenantId,
+                  businessId: business.id,
+                  serviceId: match ? match.id : (allServices[0]?.id), // Fallback to first service or handle error
+                  customerName: extracted.customerName || analysis.name || "Voice Customer",
+                  customerPhone: fromNumber || extracted.customerPhone || "Unknown",
+                  appointmentTime: apptDate,
+                  callId: callRecord.id,
+                  source: "AI",
+                  notes: extracted.notes || "Automatically extracted from voice call summary."
+                });
+
+                io.to(businessId).emit("new_appointment", appointment);
+                logToTerminal(businessId, 'success', `APPOINTMENT EXTRACTED: ${appointment.service.name} for ${appointment.customerName}.`);
+              } catch (extrErr) {
+                console.error("[V2_EXTRACTION_ERR] Failed to save extracted appointment:", extrErr.message);
+              }
+            }
+          }
+        }
+
+        const endData = { callSid, duration, businessId: business.id };
+        io.to(businessId).emit("call_ended", endData);
+        io.to("superadmin").emit("call_ended", endData);
+      }
+    } catch (err) {
+      console.error("[V2_CLOSE_FATAL] Error in final processing:", err.message);
     }
   });
 }

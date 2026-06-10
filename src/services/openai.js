@@ -240,7 +240,7 @@ async function parseUserRequest(text, context = {}) {
   try {
     const businessType = normalizeBusinessType(context.businessType);
     const apiKey = getOpenAIKey();
-    const menuPreview = Array.isArray(context.menuItems) ? context.menuItems.slice(0, 20).join(", ") : "";
+    const menuPreview = Array.isArray(context.menuItems) ? context.menuItems.slice(0, 100).join(", ") : "";
 
     const data = await postJson(
       "https://api.openai.com/v1/chat/completions",
@@ -256,12 +256,12 @@ Today is ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'nume
 Return an object with: 
 - intent: 'appointment', 'order', or 'unknown'
 - serviceName: (string) the service they want (e.g., 'Checkup', 'Haircut')
-- date: (ISO string) the requested date and time. Calculate from Today's Date.
+- date: (ISO string) the requested date and time. Calculate from Today's Date. ALWAYS use the current year (${new Date().getFullYear()}) unless the user explicitly mentions a different year.
 - fulfillmentType: 'pickup' or 'delivery'
 - customerName: (string) the name they provided
 - customerPhone: (string) the phone number mentioned
 - orderItems: array of { name: string, quantity: number, notes: string }
-- status: 'confirmed', 'cancelled', or 'unknown' (Use 'cancelled' if the user explicitly cancels or changes their mind at the end).
+- status: 'confirmed', 'cancelled', or 'incomplete' (Use 'confirmed' ONLY if the customer finalized and explicitly confirmed they want to place/submit the order. Use 'incomplete' if the customer was just inquiring, hung up before confirming, or did not finish the order. Use 'cancelled' if they explicitly cancelled or changed their mind.)
 - notes: (string) any special requests or context.
 
 IMPORTANT: For APPOINTMENTS, ensure 'serviceName' and 'date' are extracted. Use MENU context for item matching.
@@ -285,6 +285,7 @@ MENU ITEMS: ${menuPreview}`,
       customerPhone: parsed.customerPhone || "",
       orderItems: Array.isArray(parsed.orderItems) ? parsed.orderItems : [],
       status: parsed.status || "unknown",
+      notes: parsed.notes || ""
     };
   } catch (err) {
     return { intent: "unknown", orderItems: [] };

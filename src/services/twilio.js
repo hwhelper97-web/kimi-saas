@@ -26,7 +26,7 @@ async function hangupCall(callSid) {
 async function startRecording(callSid) {
   if (!client) return;
   try {
-    const baseUrl = process.env.BASE_URL || "https://nexton.ai";
+    const baseUrl = process.env.BASE_URL || "https://naxton.ai";
     const recording = await client.calls(callSid).recordings.create({
       recordingStatusCallback: `${baseUrl}/api/call/recording`
     });
@@ -54,12 +54,12 @@ async function searchAvailableNumbers(areaCode = '212', countryCode = 'US') {
 async function purchaseAndConfigureNumber(phoneNumber, businessId) {
   if (!client) throw new Error("Twilio client not initialized");
   
-  const baseUrl = process.env.BASE_URL || "https://nexton.ai";
+  const baseUrl = process.env.BASE_URL || "https://naxton.ai";
   
   // 1. Purchase
   const purchased = await client.incomingPhoneNumbers.create({
     phoneNumber,
-    voiceUrl: `${baseUrl}/api/call/voice`,
+    voiceUrl: `${baseUrl}/api/call/incoming`,
     voiceMethod: 'POST',
     statusCallback: `${baseUrl}/api/call/status`,
     statusCallbackMethod: 'POST'
@@ -74,4 +74,22 @@ async function purchaseAndConfigureNumber(phoneNumber, businessId) {
   return purchased;
 }
 
-module.exports = { client, hangupCall, startRecording, searchAvailableNumbers, purchaseAndConfigureNumber };
+/**
+ * transferCall
+ * Redirects an active call to a new number.
+ */
+async function transferCall(callSid, toPhoneNumber) {
+  if (!client) return;
+  try {
+    const twiml = new twilio.twiml.VoiceResponse();
+    twiml.say({ voice: 'Polly.Joanna-Neural' }, 'Please hold while I connect you to a representative.');
+    twiml.dial(toPhoneNumber);
+    
+    await client.calls(callSid).update({ twiml: twiml.toString() });
+    console.log(`[Twilio] Call ${callSid} transferred to ${toPhoneNumber}`);
+  } catch (error) {
+    console.error(`[Twilio] Transfer failed for ${callSid}:`, error.message);
+  }
+}
+
+module.exports = { client, hangupCall, startRecording, searchAvailableNumbers, purchaseAndConfigureNumber, transferCall };

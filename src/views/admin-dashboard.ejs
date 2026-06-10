@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= typeof businessName !== 'undefined' ? businessName + ' — Nexton Technologies LLC' : 'Nexton Technologies LLC' %></title>
+  <title><%= typeof businessName !== 'undefined' ? businessName + ' — Naxton Technologies LLC' : 'Naxton Technologies LLC' %></title>
   <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -32,7 +32,7 @@
           <% } %>
         </div>
         <div class="logo-text">
-          <h2 style="font-size: 1rem; font-weight: 700;" id="brandLogoText"><%= typeof businessName !== 'undefined' ? businessName : (typeof projectName !== 'undefined' ? projectName : 'Nexton Technologies LLC') %></h2>
+          <h2 style="font-size: 1rem; font-weight: 700;" id="brandLogoText"><%= typeof businessName !== 'undefined' ? businessName : (typeof projectName !== 'undefined' ? projectName : 'Naxton Technologies LLC') %></h2>
           <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">AI Voice Suite</p>
         </div>
       </div>
@@ -66,7 +66,7 @@
             </select>
           </div>
           
-          <button class="action-btn">
+          <button class="apex-btn apex-btn-sm apex-btn-secondary" style="width: 2.5rem; height: 2.5rem; padding: 0;">
             <i data-lucide="bell"></i>
           </button>
           
@@ -122,7 +122,7 @@
                 <div class="card-header">
                   <h3 class="card-title">Revenue Growth</h3>
                   <div class="header-actions">
-                    <button class="action-btn" style="width: auto; padding: 0 0.75rem; font-size: 0.75rem;">Last 7 Days</button>
+                    <button class="apex-btn apex-btn-sm apex-btn-secondary">Last 7 Days</button>
                   </div>
                 </div>
                 <div style="height: 300px;">
@@ -172,7 +172,7 @@
       
       <!-- FIXED PLATFORM WATERMARK -->
       <div style="position: fixed; bottom: 1rem; right: 1.5rem; font-size: 0.65rem; color: var(--text-muted); z-index: 50; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; pointer-events: none;">
-        Software by Nexton Technologies LLC
+        Software by Naxton Technologies LLC
       </div>
     </main>
   </div>
@@ -188,7 +188,7 @@
   
   <audio id="notifySound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
   
-  <!-- NEXTON DEEP SYNC OVERLAY -->
+  <!-- NAXTON DEEP SYNC OVERLAY -->
   <div id="syncOverlay" class="modal-overlay" style="background: rgba(8, 51, 68, 0.95); backdrop-filter: blur(12px); display: none; opacity: 1; pointer-events: auto;">
     <div style="text-align: center; color: white; width: 100%; max-width: 500px;">
       <div style="position: relative; width: 200px; height: 200px; margin: 0 auto 3rem;">
@@ -204,7 +204,7 @@
       </div>
       
       <h2 id="syncStatus" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Initializing AI Crawler...</h2>
-      <p style="color: var(--text-muted); font-size: 0.875rem;">Nexton Deep Sync is building your database. Please stay on this page.</p>
+      <p style="color: var(--text-muted); font-size: 0.875rem;">Naxton Deep Sync is building your database. Please stay on this page.</p>
       
       <div style="margin-top: 3rem; display: flex; align-items: center; justify-content: center; gap: 1rem; color: var(--text-muted); font-size: 0.75rem;">
         <i data-lucide="shield-check" style="width: 14px; height: 14px; color: var(--success);"></i>
@@ -234,8 +234,8 @@
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
-        <button class="action-btn" style="background: var(--bg-muted); color: var(--text-primary); border: 1px solid var(--border); justify-content: center;" onclick="closeModal('securityModal')">Cancel</button>
-        <button id="securityConfirmBtn" class="action-btn" style="background: var(--error); color: white; border: none; justify-content: center; font-weight: 700;">CONFIRM DELETE</button>
+        <button class="apex-btn apex-btn-secondary" onclick="closeModal('securityModal')">Cancel</button>
+        <button id="securityConfirmBtn" class="apex-btn apex-btn-danger">CONFIRM DELETE</button>
       </div>
     </div>
   </div>
@@ -248,7 +248,5 @@
   </script>
 
   <!-- ElevenLabs ConvAI Widget -->
-  <elevenlabs-convai agent-id="agent_9401kqqj87jzf9mrmfwsprqh3frh"></elevenlabs-convai>
-  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
 </body>
 </html>

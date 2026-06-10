@@ -28,9 +28,17 @@ exports.registerTenantAdmin = async (data) => {
   const result = await prisma.$transaction(async (tx) => {
 
     // 1️⃣ Create Tenant
+    const settingsService = require("../../services/settings.service");
+    const settings = await settingsService.getSettings("TENANT");
+    const trialDays = parseInt(settings.trialDays) || 14;
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + trialDays);
+
     const tenant = await tx.tenant.create({
       data: {
         name: tenantName,
+        trialEndDate: trialEndDate,
+        subscriptionStatus: "ACTIVE", // Trial is active
       },
     });
 

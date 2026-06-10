@@ -33,7 +33,7 @@
           <div class="apex-card" style="display:flex; flex-direction:column; gap:1rem; border-left: 4px solid ${getStatusBorder(o.status || 'pending')};">
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
               <div>
-                <h4 style="margin-bottom:0.25rem;">Order #${o.id.substring(o.id.length - 6)}</h4>
+                <h4 style="margin-bottom:0.25rem;">Order ${o.displayId || '#' + o.id.substring(o.id.length - 6)}</h4>
                 <p style="font-size:0.75rem; color:var(--text-muted);">${new Date(o.createdAt).toLocaleString()}</p>
               </div>
               <span class="badge" style="background:${getStatusColor(o.status || 'pending')}20; color:${getStatusColor(o.status || 'pending')}; font-weight:700;">
@@ -42,12 +42,24 @@
             </div>
 
             <div style="padding:1rem; background:rgba(255,255,255,0.02); border-radius:0.5rem; border:1px solid var(--border);">
-              ${o.items && o.items.length > 0 ? o.items.map(i => `
-                <div style="display:flex; justify-content:space-between; font-size:0.875rem; margin-bottom:0.4rem;">
-                  <span><strong style="color:var(--primary);">${i.quantity}x</strong> ${i.menuItem?.name || 'Item'}</span>
-                  <span style="color:var(--text-secondary);">$${((i.unitPrice || 0) * i.quantity).toFixed(2)}</span>
-                </div>
-              `).join("") : '<p style="font-size:0.8rem; color:var(--text-muted);">No items listed.</p>'}
+              <p style="font-size:0.875rem; color:var(--text-primary); font-weight:600; margin-bottom:0.75rem;">${o.customerName || 'Guest'}</p>
+              
+              <div style="margin-bottom: 0.75rem;">
+                ${o.items && o.items.length > 0 ? o.items.map(i => `
+                  <div style="display:flex; justify-content:space-between; font-size:0.875rem; margin-bottom:0.4rem;">
+                    <span><strong style="color:var(--primary);">${i.quantity}x</strong> ${i.menuItem?.name || 'Item'}</span>
+                    <span style="color:var(--text-secondary);">$${((i.unitPrice || 0) * i.quantity).toFixed(2)}</span>
+                  </div>
+                `).join("") : '<p style="font-size:0.8rem; color:var(--text-muted);">No items listed.</p>'}
+              </div>
+
+              <div style="margin-top:0.75rem; padding:0.75rem; background:rgba(245,158,11,0.05); border-radius:0.4rem; border:1px dashed rgba(245,158,11,0.2);">
+                <p style="font-size:0.65rem; text-transform:uppercase; font-weight:800; color:#f59e0b; margin-bottom:0.25rem;">Special Instructions</p>
+                <p style="font-size:0.8rem; color:${o.notes ? 'white' : 'var(--text-muted)'};">
+                  ${o.notes || 'None'}
+                </p>
+              </div>
+
               <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px dashed var(--border); display:flex; justify-content:space-between; font-weight:700;">
                 <span>Total</span>
                 <span style="color:var(--primary); font-size:1.125rem;">$${(o.total || 0).toFixed(2)}</span>

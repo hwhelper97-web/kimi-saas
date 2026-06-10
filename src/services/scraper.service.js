@@ -41,7 +41,7 @@ exports.importBusinessData = async (businessId, url, io = null, manualMenuText =
       if (io) io.emit("import-progress", { businessId, message: msg, progress });
     };
 
-    emit("Initializing Nexton AI Crawler...", 5);
+    emit("Initializing Naxton AI Crawler...", 5);
 
     const apiKey = await getOpenAIKey();
     if (!apiKey) {

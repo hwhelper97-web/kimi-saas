@@ -6,6 +6,7 @@ const authMiddleware = require("../../middleware/auth.middleware");
 const { allowRoles } = require("../../middleware/role.middleware");
 const { ROLES } = require("../../constants/roles");
 const { tenantMiddleware } = require("../../middleware/tenant.middleware");
+const { billingGuard, checkResourceLimit } = require("../../middleware/billing.middleware");
 const rateLimit = require("express-rate-limit");
 
 /* =====================================================
@@ -35,8 +36,11 @@ router.post("/login", loginLimiter, controller.login);
 // Refresh access token
 router.post("/refresh", controller.refreshToken);
 
-// Forgot password (basic MVP)
+// Forgot password (request token)
 router.post("/forgot-password", controller.forgotPassword);
+
+// Reset password with token (public)
+router.post("/reset-password-with-token", controller.resetPasswordWithToken);
 
 
 
@@ -49,7 +53,7 @@ router.get(
   "/staff",
   authMiddleware,
   tenantMiddleware,
-  allowRoles(ROLES.OWNER),
+  allowRoles(ROLES.OWNER, ROLES.SUPERADMIN),
   controller.getStaff
 );
 
@@ -66,8 +70,36 @@ router.post(
   "/create-staff",
   authMiddleware,
   tenantMiddleware,
-  allowRoles(ROLES.OWNER),
+  billingGuard,
+  checkResourceLimit("STAFF"),
+  allowRoles(ROLES.OWNER, ROLES.SUPERADMIN),
   controller.createStaff
+);
+
+// Update theme (logged-in users)
+router.post(
+  "/update-theme",
+  authMiddleware,
+  tenantMiddleware,
+  controller.updateTheme
+);
+
+// Update staff (OWNER only)
+router.put(
+  "/staff/:id",
+  authMiddleware,
+  tenantMiddleware,
+  allowRoles(ROLES.OWNER, ROLES.SUPERADMIN),
+  controller.updateStaff
+);
+
+// Delete staff (OWNER only)
+router.delete(
+  "/staff/:id",
+  authMiddleware,
+  tenantMiddleware,
+  allowRoles(ROLES.OWNER, ROLES.SUPERADMIN),
+  controller.deleteStaff
 );
 
 module.exports = router;

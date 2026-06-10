@@ -5,7 +5,7 @@ async function fixPlatformHub() {
   console.log("🛠️ Repairing Platform Hub Infrastructure...");
   
   try {
-    const hub = await prisma.tenant.findFirst({ where: { name: "Nexton Platform Hub" } });
+    const hub = await prisma.tenant.findFirst({ where: { name: "Naxton Platform Hub" } });
     if (!hub) return console.log("❌ Hub not found.");
     
     // Check if business exists

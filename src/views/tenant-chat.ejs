@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Support Chat | Nexton AI</title>
+  <title>Support Chat | Naxton AI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -124,7 +124,7 @@
     <div class="brand">
       <div class="logo-circle">N</div>
       <div>
-        <h2 style="font-family: 'Outfit'; font-size: 1.1rem;">Nexton Support</h2>
+        <h2 style="font-family: 'Outfit'; font-size: 1.1rem;">Naxton Support</h2>
         <p style="font-size: 0.75rem; color: var(--text-muted);">AI Agent & Team Online</p>
       </div>
     </div>
@@ -138,7 +138,7 @@
   <main class="chat-container" id="chatBox">
     <!-- Welcome Message -->
     <div class="message ai">
-      Hello! I'm your Nexton AI support assistant. How can I help you with your platform or AI agents today?
+      Hello! I'm your Naxton AI support assistant. How can I help you with your platform or AI agents today?
     </div>
   </main>
 
@@ -172,14 +172,14 @@
       
       chatBox.innerHTML = '';
       if (messages.length === 0) {
-        chatBox.innerHTML = '<div class="message ai">Hello! I\'m your Nexton AI support assistant. How can I help you today?</div>';
+        chatBox.innerHTML = '<div class="message ai">Hello! I\'m your Naxton AI support assistant. How can I help you today?</div>';
         return;
       }
       
-      messages.reverse().forEach(msg => {
+      messages.forEach(msg => {
         const div = document.createElement("div");
         div.className = `message ${msg.senderType === 'CUSTOMER' ? 'user' : 'ai'}`;
-        div.textContent = msg.content;
+        div.textContent = msg.body;
         chatBox.appendChild(div);
       });
       chatBox.scrollTop = chatBox.scrollHeight;
@@ -202,7 +202,7 @@
         await fetch(`/api/support/conversations/${conversationId}/messages`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: text, role: "user" })
+          body: JSON.stringify({ body: text, senderType: "CUSTOMER" })
         });
         fetchMessages(); // Refresh to get AI response
       } catch (err) { console.error(err); }

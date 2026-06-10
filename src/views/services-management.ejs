@@ -1,111 +1,490 @@
-<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-bottom: 1.5rem;">
-  <button type="button" class="action-btn" onclick="openCategoryModal()" style="width:auto; padding:0 1rem; border-color:var(--border); font-weight:600; height:2.5rem;">
-    <i data-lucide="folder-plus" style="width:16px; margin-right:4px;"></i> New Service Category
-  </button>
-  <button type="button" class="action-btn" onclick="openItemModal()" style="width:auto; padding:0 1rem; background:var(--primary); color:white; border:none; font-weight:600; height:2.5rem;">
-    <i data-lucide="plus" style="width:16px; margin-right:4px;"></i> Add New Service
-  </button>
+<style>
+  #pageHeader { display: none !important; }
+</style>
+
+<div class="svc-premium-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; gap: 1.5rem; animation: slideInUp 0.5s ease-out;">
+  <div class="svc-premium-title">
+    <h1 style="font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-primary);">Service Menu: <%= business?.name || 'Loading...' %></h1>
+    <p style="color: var(--text-secondary); margin-top: 0.25rem; font-size: 1rem;">Manage premium <%= (business?.type || 'salon').toLowerCase() %> services professionally</p>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 1rem;">
+    <div class="header-search" style="width: 320px; background: var(--bg-card); border: 1px solid var(--border);">
+      <i data-lucide="search"></i>
+      <input type="text" id="serviceSearch" placeholder="Search services..." oninput="filterServices(this.value)" style="background: transparent; color: var(--text-primary);" />
+    </div>
+    
+
+    <button class="apex-btn apex-btn-primary" onclick="openServiceModal()" style="height: 58px; padding: 0 2rem; border-radius: 1.25rem; font-weight: 700; background: linear-gradient(135deg, var(--primary), #4f46e5); box-shadow: 0 12px 25px rgba(var(--primary-rgb), 0.25);">
+      + Add New Service
+    </button>
+  </div>
 </div>
 
-<div class="apex-grid" style="grid-template-columns: 280px 1fr; gap: 1.5rem; align-items: start;">
-  <div class="apex-card" style="padding: 1rem;">
-    <h3 class="card-title" style="margin-bottom:1rem; font-size:0.75rem; text-transform:uppercase; color:var(--text-muted);">Service Categories</h3>
-    <div id="serviceCategoryList" style="display:flex; flex-direction:column; gap:0.5rem;">
-      <div class="spin" style="width:16px; height:16px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; margin: 1rem auto;"></div>
+<div class="svc-premium-layout" style="display: grid; grid-template-columns: 320px 1fr; gap: 2rem; align-items: start;">
+  
+  <!-- SIDEBAR: Categories & Staff -->
+  <div class="svc-sidebar-card" style="background: var(--bg-card); border-radius: 2rem; padding: 1.5rem; border: 1px solid var(--border); box-shadow: var(--shadow-md); position: sticky; top: 1.5rem;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary);">Categories</h3>
+      <button class="action-btn" onclick="openServiceCategoryModal()" style="width: 38px; height: 38px; border-radius: 12px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: none; display: flex; align-items: center; justify-content: center;">
+        <i data-lucide="plus" style="width: 20px;"></i>
+      </button>
+    </div>
+
+    <div id="serviceCatList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <div class="spin" style="margin: 2rem auto;"></div>
+    </div>
+
+    <div style="margin-top: 3rem;">
+      <h4 style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem;">Staff Management</h4>
+      
+      <div id="staffQuickList" style="display: flex; flex-direction: column; gap: 1rem;">
+        <!-- Staff Injected -->
+      </div>
+
+      <button class="action-btn" style="width: 100%; height: 54px; border-radius: 1.125rem; border: 2px dashed var(--border); background: transparent; font-weight: 700; color: var(--text-muted); margin-top: 1.5rem;" onclick="openStaffModal()">
+        + Add Specialist
+      </button>
+    </div>
+
+    <!-- AI Insight Panel -->
+    <div style="background: linear-gradient(145deg, #0f172a, #1e293b); border-radius: 2rem; padding: 1.75rem; color: white; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); margin-top: 3rem;">
+      <div style="position: absolute; top: -20%; right: -20%; width: 140px; height: 140px; background: var(--primary); filter: blur(60px); opacity: 0.15;"></div>
+      
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; position: relative;">
+        <div style="width: 3rem; height: 3rem; background: rgba(255,255,255,0.05); border-radius: 1.25rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);">✨</div>
+        <h3 style="font-size: 1.25rem; font-weight: 800;">AI Insights</h3>
+      </div>
+      
+      <p style="color: #94a3b8; line-height: 1.6; font-size: 0.875rem; position: relative;">
+        Hair styling and massage bookings increased 28% this week. Consider promoting premium combo packages to boost revenue.
+      </p>
+      
+      <button class="apex-btn" style="width: 100%; margin-top: 1.5rem; height: 54px; background: linear-gradient(135deg, var(--primary), #4f46e5); color: white; border: none; font-weight: 800; border-radius: 1.125rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); position: relative; font-size: 0.85rem;">
+        Generate AI Promotions
+      </button>
     </div>
   </div>
 
-  <div style="display:flex; flex-direction:column; gap:1.5rem;">
-    <div class="apex-card">
-      <div class="card-header" style="margin-bottom:1.5rem;">
-        <div class="header-search" style="max-width: 400px; background:var(--bg-muted);">
-          <i data-lucide="search"></i>
-          <input type="text" id="serviceSearch" placeholder="Search services..." oninput="filterServices(this.value)" />
+  <!-- MAIN: Services Grid -->
+  <div id="servicesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem;">
+    <div style="grid-column: 1/-1; text-align: center; padding: 6rem; color: var(--text-muted);">
+      <div class="spin" style="margin: 0 auto 1.5rem; width: 40px; height: 40px;"></div>
+      <p style="font-size: 1.125rem;">Syncing your premium services...</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- 🚀 Service Modal -->
+<div id="serviceModal" class="modal-overlay">
+  <div class="modal-container" style="max-width: 700px; padding: 0; overflow: hidden; border-radius: 2rem;">
+    <div style="padding: 1.5rem 2.5rem; background: var(--bg-muted); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+      <h3 id="serviceModalTitle" style="font-weight: 800; font-size: 1.25rem;">Add New Service</h3>
+      <button onclick="closeModal('serviceModal')" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.75rem; transition: color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-muted)'">&times;</button>
+    </div>
+    
+    <div style="padding: 2.5rem; max-height: 75vh; overflow-y: auto;">
+      <form id="serviceForm" class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <input type="hidden" id="svcId" />
+        
+        <div class="form-group" style="grid-column: 1/-1;">
+          <label style="font-weight: 700; font-size: 0.9rem;">Service Name</label>
+          <input type="text" id="svcName" class="form-control" placeholder="e.g. Luxury Hair Styling" required style="height: 54px; border-radius: 1rem;" />
         </div>
-      </div>
-      <div id="servicesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-        <div style="grid-column: 1/-1; text-align:center; padding:4rem; color:var(--text-muted);">Select a category to manage services</div>
+        
+        <div class="form-group" style="grid-column: 1/-1;">
+          <label style="font-weight: 700; font-size: 0.9rem;">Description</label>
+          <textarea id="svcDesc" class="form-control" rows="3" placeholder="Describe the luxury experience..." style="border-radius: 1rem; padding: 1rem;"></textarea>
+        </div>
+
+        <div class="form-group" style="grid-column: 1/-1;">
+          <label style="font-weight: 700; font-size: 0.9rem;">Service Image</label>
+          <div style="display: flex; gap: 0.75rem;">
+            <input type="text" id="svcImage" class="form-control" placeholder="https://..." style="flex: 1; height: 54px; border-radius: 1rem;" />
+            <input type="file" id="svcImageFile" style="display: none;" accept="image/*" onchange="document.getElementById('svcImage').value = this.files[0].name" />
+            <button type="button" class="action-btn" style="width: auto; padding: 0 1.5rem; font-size: 0.875rem; border-radius: 1rem;" onclick="document.getElementById('svcImageFile').click()">
+              <i data-lucide="upload" style="width: 16px; margin-right: 8px;"></i> Upload
+            </button>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label style="font-weight: 700; font-size: 0.9rem;">Category</label>
+          <select id="svcCategory" class="form-control" required style="height: 54px; border-radius: 1rem;"></select>
+        </div>
+        
+        <div class="form-group">
+          <label style="font-weight: 700; font-size: 0.9rem;">Base Price ($)</label>
+          <input type="number" step="0.01" id="svcPrice" class="form-control" placeholder="0.00" required style="height: 54px; border-radius: 1rem;" />
+        </div>
+        
+        <div class="form-group">
+          <label style="font-weight: 700; font-size: 0.9rem;">Base Duration (Mins)</label>
+          <input type="number" id="svcDuration" class="form-control" placeholder="45" required style="height: 54px; border-radius: 1rem;" />
+        </div>
+        
+        <div class="form-group">
+          <label style="font-weight: 700; font-size: 0.9rem;">Prep Time (Mins)</label>
+          <input type="number" id="svcPrep" class="form-control" placeholder="15" style="height: 54px; border-radius: 1rem;" />
+        </div>
+
+        <div style="grid-column: 1/-1; display: flex; gap: 2rem; margin-top: 0.5rem; padding: 1.25rem; background: var(--bg-muted); border-radius: 1rem;">
+          <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; font-weight: 600;">
+            <input type="checkbox" id="svcPopular" style="width: 1.25rem; height: 1.25rem;" />
+            <span>Mark as Popular</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; font-weight: 600;">
+            <input type="checkbox" id="svcOnline" checked style="width: 1.25rem; height: 1.25rem;" />
+            <span>Enable Online Booking</span>
+          </label>
+        </div>
+
+        <!-- 🕒 Time-based Options (Variants) -->
+        <div class="form-group" style="grid-column: 1/-1; margin-top: 1rem; border: 1px solid var(--border); border-radius: 1.25rem; padding: 1.5rem; background: rgba(255,255,255,0.01);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <label style="color: white; font-weight: 800; font-size: 1rem; margin-bottom: 0;">Time-based Options (Variants)</label>
+            <button type="button" class="action-btn" style="width: auto; height: 32px; padding: 0 1rem; font-size: 0.75rem; border-color: var(--primary); color: var(--primary); border-radius: 0.75rem;" onclick="addServiceVariant()">
+              <i data-lucide="plus" style="width: 14px; margin-right: 6px;"></i> Add Tier
+            </button>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem;">Configure multiple durations and prices (e.g., 30m Express vs 60m Signature).</p>
+          <div id="variantContainer" style="display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Variants -->
+          </div>
+        </div>
+
+        <!-- 🤖 AI Aliases -->
+        <div class="form-group" style="grid-column: 1/-1; margin-top: 1rem; padding: 1.5rem; background: rgba(var(--primary-rgb), 0.08); border: 1px solid var(--primary); border-radius: 1.25rem;">
+          <label style="color: var(--primary); font-weight: 800; font-size: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.75rem;">
+            <i data-lucide="sparkles" style="width: 18px;"></i> AI Voice Recognition
+          </label>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">Add common names or phrases customers use to refer to this service during voice calls.</p>
+          <div id="aliasContainer" style="display: flex; flex-wrap: wrap; gap: 0.65rem;"></div>
+          <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+            <input type="text" id="newAliasInput" class="form-control" style="height: 42px; border-radius: 0.75rem; font-size: 0.875rem;" placeholder="e.g. Skin treatment, Gold mask..." />
+            <button type="button" class="apex-btn" style="width: auto; padding: 0 1.25rem; height: 42px; border-radius: 0.75rem;" onclick="addAliasTag()">Add</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div style="padding: 1.5rem 2.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 1rem;">
+      <button class="apex-btn" onclick="closeModal('serviceModal')" style="border-radius: 1.125rem; padding: 0 1.5rem;">Cancel</button>
+      <button class="apex-btn apex-btn-primary" onclick="saveService()" style="border-radius: 1.125rem; padding: 0 2rem; font-weight: 800;">Save Premium Service</button>
+    </div>
+  </div>
+</div>
+
+<!-- 👥 Staff Modal -->
+<div id="staffModal" class="modal-overlay">
+  <div class="modal-container" style="max-width: 500px; padding: 0; overflow: hidden; border-radius: 2rem;">
+    <div style="padding: 1.5rem 2.5rem; background: var(--bg-muted); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+      <h3 id="staffModalTitle" style="font-weight: 800; font-size: 1.25rem;">Add Specialist</h3>
+      <button onclick="closeModal('staffModal')" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.75rem;">&times;</button>
+    </div>
+    
+    <div style="padding: 2.5rem;">
+      <form id="staffForm" class="apex-grid" style="grid-template-columns: 1fr; gap: 1.5rem;">
+        <input type="hidden" id="staffId" />
+        
+        <div class="form-group">
+          <label style="font-weight: 700;">Full Name</label>
+          <input type="text" id="staffName" class="form-control" placeholder="e.g. Sarah Johnson" required style="height: 54px; border-radius: 1rem;" />
+        </div>
+        
+        <div class="form-group">
+          <label style="font-weight: 700;">Specialization / Role</label>
+          <input type="text" id="staffRole" class="form-control" placeholder="e.g. Senior Hair Specialist" style="height: 54px; border-radius: 1rem;" />
+        </div>
+
+        <div class="form-group">
+          <label style="font-weight: 700;">Email Address</label>
+          <input type="email" id="staffEmail" class="form-control" placeholder="sarah@naxton.ai" style="height: 54px; border-radius: 1rem;" />
+        </div>
+      </form>
+    </div>
+    
+    <div style="padding: 1.5rem 2.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 1rem;">
+      <button class="apex-btn" onclick="closeModal('staffModal')" style="border-radius: 1.125rem;">Cancel</button>
+      <button class="apex-btn apex-btn-primary" onclick="saveStaff()" style="border-radius: 1.125rem; font-weight: 800;">Save Specialist</button>
+    </div>
+  </div>
+</div>
+<!-- 📂 Category Modal -->
+<div id="categoryModal" class="modal-overlay">
+  <div class="modal-container" style="max-width: 500px; padding: 0; overflow: hidden; border-radius: 2rem;">
+    <div style="padding: 1.5rem 2.5rem; background: var(--bg-muted); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+      <h3 id="categoryModalTitle" style="font-weight: 800; font-size: 1.25rem;">Add Category</h3>
+      <button onclick="closeModal('categoryModal')" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.75rem;">&times;</button>
+    </div>
+    
+    <div style="padding: 2.5rem;">
+      <form id="categoryForm" class="apex-grid" style="grid-template-columns: 1fr; gap: 1.5rem;">
+        <div class="form-group">
+          <label style="font-weight: 700;">Category Name</label>
+          <input type="text" id="catName" class="form-control" placeholder="e.g. Hair Services" required style="height: 54px; border-radius: 1rem;" />
+        </div>
+        
+        <div class="form-group">
+          <label style="font-weight: 700;">Description</label>
+          <textarea id="catDesc" class="form-control" rows="3" placeholder="Brief description..." style="border-radius: 1rem; padding: 1rem;"></textarea>
+        </div>
+      </form>
+    </div>
+    
+    <div style="padding: 1.5rem 2.5rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+      <button id="deleteCatBtn" class="apex-btn" style="border-color: var(--danger); color: var(--danger); border-radius: 1.125rem; display: none;" onclick="deleteCategoryFromModal()">Delete</button>
+      <div style="display: flex; gap: 1rem; margin-left: auto;">
+        <button class="apex-btn" onclick="closeModal('categoryModal')" style="border-radius: 1.125rem;">Cancel</button>
+        <button class="apex-btn apex-btn-primary" onclick="saveServiceCategory()" style="border-radius: 1.125rem; font-weight: 800;">Save Category</button>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+@keyframes slideInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.service-card:hover {
+  transform: translateY(-8px) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.svc-category-item:hover:not(.active) {
+  background: rgba(var(--primary-rgb), 0.05) !important;
+  color: var(--primary) !important;
+  transform: translateX(4px);
+}
+
+.svc-category-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Custom Scrollbar for Modals */
+.modal-container ::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-container ::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+</style>
 
 <script>
 (function() {
   if (window.lucide) lucide.createIcons();
   
-  // Make these accessible to global admin-apex.js
-  window.allServiceCategories = [];
-  window.activeServiceCategoryId = null;
+  window.currentServices = [];
+  window.allCategories = [];
+  window.currentCategoryId = null;
+  window.currentAliases = [];
+  window.currentVariants = [];
 
-  window.loadServiceCategories = async function() {
-    const container = document.getElementById("serviceCategoryList");
-    if (!container) return;
+  const bId = "<%= business?.id %>" || getBusinessId();
+  const token = localStorage.getItem("accessToken");
+
+  window.openServiceCategoryModal = function(id = null) {
+    const cat = id ? window.allCategories.find(c => c.id === id) : null;
+    window.editingCategoryId = id;
+    
+    const modal = document.getElementById("categoryModal");
+    const title = document.getElementById("categoryModalTitle");
+    const nameInput = document.getElementById("catName");
+    const descInput = document.getElementById("catDesc");
+    const delBtn = document.getElementById("deleteCatBtn");
+    
+    if (title) title.innerText = id ? "Edit Category" : "Add New Category";
+    if (nameInput) nameInput.value = cat ? cat.name : "";
+    if (descInput) descInput.value = cat ? cat.description : "";
+    if (delBtn) delBtn.style.display = id ? "block" : "none";
+    
+    modal.classList.add("show");
+  };
+
+  window.saveServiceCategory = async function() {
+    const id = window.editingCategoryId;
+    const payload = {
+      name: document.getElementById("catName").value,
+      description: document.getElementById("catDesc").value,
+      businessId: bId
+    };
+
+    if (!payload.name) return notify("Category name is required", "Error");
+
     try {
-      const bId = (typeof getBusinessId === 'function' ? getBusinessId() : localStorage.getItem("activeBusinessId"));
-      if (!bId) {
-        console.warn("[Services] No active business ID found");
-        return;
+      const method = id ? 'PUT' : 'POST';
+      const url = id ? `/api/services/categories/${id}` : '/api/services/categories';
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(payload)
+      });
+      
+      const result = await res.json();
+      if (result.success) {
+        notify(`Category ${id ? 'updated' : 'added'}`, "Success");
+        closeModal('categoryModal');
+        loadServiceCategories();
+      } else {
+        notify(result.message || "Failed to save category", "Error");
       }
-      const res = await fetch(`/api/menu/categories?businessId=${bId}`, {
-        headers: { 'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token) }
+    } catch (err) { console.error(err); }
+  };
+
+  window.deleteCategoryFromModal = async function() {
+    const id = window.editingCategoryId;
+    if (!id) return;
+    if (!confirm("Are you sure? Services in this category will not be deleted, but the category itself will be removed.")) return;
+
+    try {
+      const res = await fetch(`/api/services/categories/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        notify("Category removed", "Success");
+        closeModal('categoryModal');
+        window.currentCategoryId = null;
+        loadServiceCategories();
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  // 📂 Categories (Existing function start)
+  window.loadServiceCategories = async function() {
+    try {
+      const bizRes = await fetch(`/api/business/current?businessId=${bId}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const bizResult = await bizRes.json();
+      if (bizResult.success && bizResult.data) {
+        const slug = bizResult.data.tenant?.slug || bizResult.data.tenant?.stripeId;
+        const viewBtn = document.getElementById("viewLiveMenuBtn");
+        if (viewBtn && slug) viewBtn.href = `/m/${slug}`;
+      }
+
+      const res = await fetch(`/api/services/categories?businessId=${bId}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
       });
       const result = await res.json();
       if (result.success) {
-        window.allServiceCategories = result.data;
-        container.innerHTML = result.data.map(c => `
-          <div class="apex-nav-item category-item ${window.activeServiceCategoryId === c.id ? 'active' : ''}" 
-               data-id="${c.id}" onclick="selectServiceCategory('${c.id}')">
-            <i data-lucide="layers" style="width:14px;"></i>
-            <span>${c.name}</span>
-            <div style="margin-left:auto; display:flex; align-items:center; gap:0.5rem;">
-               <i data-lucide="edit-2" style="width:12px; cursor:pointer;" onclick="event.stopPropagation(); openCategoryModal({id:'${c.id}', name:'${c.name}', description:'${c.description||''}'})"></i>
+        window.allCategories = result.data;
+        const container = document.getElementById("serviceCatList");
+        container.innerHTML = result.data.map(c => {
+          const count = c._count?.services || 0;
+          return `
+            <div class="svc-category-item ${window.currentCategoryId === c.id ? 'active' : ''}" 
+                 onclick="selectServiceCategory('${c.id}')"
+                 style="padding: 1.125rem; border-radius: 1.25rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.3s ease; font-weight: 700; margin-bottom: 0.75rem; 
+                 ${window.currentCategoryId === c.id ? 'background: linear-gradient(135deg, var(--primary), #4f46e5); color: white; box-shadow: 0 10px 20px rgba(var(--primary-rgb), 0.2);' : 'background: var(--bg-muted); color: var(--text-secondary);'}">
+              <span>${c.name}</span>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                 <div style="width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.7rem;">${count}</div>
+                 <i data-lucide="more-vertical" style="width: 14px; opacity: 0.5;" onclick="event.stopPropagation(); openServiceCategoryModal('${c.id}')"></i>
+              </div>
             </div>
-          </div>
-        `).join("");
+          `;
+        }).join("");
+        
+        if (result.data.length === 0) {
+          container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding: 1rem;">No categories yet.</p>';
+        }
+        
+        const select = document.getElementById("svcCategory");
+        if (select) {
+          select.innerHTML = '<option value="">Select Category</option>' + 
+            result.data.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+        }
+
         if (window.lucide) window.lucide.createIcons();
-        if (!window.activeServiceCategoryId && result.data.length) selectServiceCategory(result.data[0].id);
+        if (!window.currentCategoryId && result.data.length) selectServiceCategory(result.data[0].id);
       }
     } catch (err) { console.error(err); }
   };
 
   window.selectServiceCategory = function(id) {
-    window.activeServiceCategoryId = id;
-    document.querySelectorAll('.category-item').forEach(it => {
-      it.classList.toggle('active', it.dataset.id === id);
-    });
+    window.currentCategoryId = id;
+    loadServiceCategories(); // Refresh active state
     loadServices(id);
   };
 
   window.loadServices = async function(catId) {
     const grid = document.getElementById("servicesGrid");
-    if (!grid) return;
-    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:4rem;"><div class="spin"></div></div>';
+    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:6rem;"><div class="spin" style="margin:0 auto 1.5rem; width:48px; height:48px;"></div><p style="color:var(--text-muted); font-size:1.125rem;">Polishing your menu...</p></div>';
+    
     try {
-      const bId = (typeof getBusinessId === 'function' ? getBusinessId() : localStorage.getItem("activeBusinessId"));
-      const res = await fetch(`/api/menu/items?businessId=${bId}&categoryId=${catId}`, {
-        headers: { 'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token) }
-      });
+      const url = `/api/services?businessId=${bId}${catId ? `&categoryId=${catId}` : ''}`;
+      const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
       const result = await res.json();
+      
       if (result.success) {
+        window.currentServices = result.data;
+        if (!result.data.length) {
+          grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:6rem; color:var(--text-muted); font-size: 1.125rem;">No services discovered in this category yet.</div>';
+          return;
+        }
         grid.innerHTML = result.data.map(s => `
-          <div class="apex-card" style="padding:1.5rem; border-top: 4px solid var(--primary);">
-            <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
-              <div>
-                <h4 style="margin-bottom:0.25rem;">${s.name}</h4>
-                <div style="font-size:0.75rem; color:var(--text-muted);"><i data-lucide="clock" style="width:12px;"></i> ${s.serviceDuration || 30}m</div>
-              </div>
-              <div style="text-align:right;">
-                <div style="font-size:1.1rem; font-weight:800; color:var(--primary);">$${(s.price || 0).toFixed(2)}</div>
-                <div style="font-size:0.6rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">${s.pricingType || 'Fixed'}</div>
+          <div class="service-card" style="background: var(--bg-card); border-radius: 2rem; overflow: hidden; border: 1px solid var(--border); transition: all 0.35s ease; position: relative; box-shadow: var(--shadow-sm); display: flex; flex-direction: column;">
+            <div style="height: 240px; overflow: hidden; position: relative;">
+              ${s.imageUrl ? `
+                <img src="${s.imageUrl}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/img/placeholder-service.jpg'" />
+              ` : `
+                <div style="width: 100%; height: 100%; background: rgba(var(--primary-rgb), 0.05); display: flex; align-items: center; justify-content: center;">
+                  <i data-lucide="image" style="width: 48px; color: var(--primary); opacity: 0.15;"></i>
+                </div>
+              `}
+              
+              <div style="position: absolute; top: 1.25rem; left: 1.25rem; display: flex; gap: 0.75rem;">
+                <div style="background: rgba(var(--bg-card-rgb), 0.85); backdrop-filter: blur(12px); padding: 0.5rem 1rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 700; color: white; border: 1px solid rgba(255,255,255,0.1);">
+                  ${s.duration} mins
+                </div>
+                ${s.isPopular ? `
+                  <div style="background: #facc15; color: black; padding: 0.5rem 1rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 800; box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3);">
+                    Popular
+                  </div>
+                ` : ''}
               </div>
             </div>
-            <p style="font-size:0.8rem; height:3rem; overflow:hidden; color:var(--text-secondary);">${s.description || 'Professional service.'}</p>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);">
-              <span style="font-size:0.7rem; font-weight:700;">${s.isAvailable ? 'ACTIVE' : 'PAUSED'}</span>
-              <div style="display:flex; gap:0.5rem;">
-                <button class="action-btn" style="width:32px; height:32px;" onclick="editItem('${s.id}')"><i data-lucide="edit-3"></i></button>
-                <button class="action-btn" style="width:32px; height:32px;" onclick="deleteItem('${s.id}')"><i data-lucide="trash-2"></i></button>
+
+            <div style="padding: 1.75rem; flex: 1; display: flex; flex-direction: column;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
+                <div style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); font-size: 0.7rem; font-weight: 800; padding: 0.5rem 1rem; border-radius: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                  ${window.allCategories.find(c => c.id === s.categoryId)?.name || 'General'}
+                </div>
+              </div>
+
+              <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">${s.name}</h3>
+              <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-top: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                ${s.description || 'No description provided for this premium service.'}
+              </p>
+
+              <div style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                  <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.25rem;">STARTING AT</p>
+                  <p style="font-size: 2.25rem; font-weight: 900; color: var(--primary); letter-spacing: -0.05em;">$${(s.price||0).toFixed(0)}</p>
+                </div>
+                <div style="text-align: right;">
+                   <p style="font-size: 0.875rem; color: var(--success); font-weight: 700;">Available Today</p>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-top: 2rem;">
+                <button class="action-btn" style="width: auto !important; padding: 0 1.25rem; height: 52px; border-radius: 1.25rem; font-weight: 800; font-size: 0.85rem; background: var(--bg-muted); border: 1px solid var(--border);" onclick="editService('${s.id}')">
+                  Edit
+                </button>
+                <button class="action-btn" style="width: auto !important; padding: 0 1.25rem; height: 52px; border-radius: 1.25rem; font-weight: 800; font-size: 0.85rem; background: var(--bg-muted); border: 1px solid var(--border);" onclick="viewSlots('${s.id}')">
+                  Slots
+                </button>
+                <button class="action-btn" style="width: auto !important; padding: 0 1.25rem; height: 52px; border-radius: 1.25rem; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.08); color: var(--danger); font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;" onclick="deleteService('${s.id}')">
+                  Delete
+                </button>
               </div>
             </div>
           </div>
@@ -115,14 +494,275 @@
     } catch (err) { console.error(err); }
   };
 
-  window.filterServices = function(query) {
-    const q = query.toLowerCase();
-    document.querySelectorAll('#servicesGrid .apex-card').forEach(card => {
-      const name = card.querySelector('h4').innerText.toLowerCase();
-      card.style.display = name.includes(q) ? 'block' : 'none';
+  window.openServiceModal = function(svc = null) {
+    const modal = document.getElementById("serviceModal");
+    const form = document.getElementById("serviceForm");
+    form.reset();
+    window.currentAliases = [];
+    window.currentVariants = svc?.variants || [];
+    document.getElementById("svcId").value = svc?.id || "";
+    document.getElementById("serviceModalTitle").innerText = svc ? "Edit Premium Service" : "Add New Premium Service";
+    
+    if (svc) {
+      document.getElementById("svcName").value = svc.name;
+      document.getElementById("svcDesc").value = svc.description || "";
+      document.getElementById("svcCategory").value = svc.categoryId;
+      document.getElementById("svcPrice").value = svc.price;
+      document.getElementById("svcDuration").value = svc.duration;
+      document.getElementById("svcPrep").value = svc.preparationTime || 0;
+      document.getElementById("svcPopular").checked = !!svc.isPopular;
+      document.getElementById("svcOnline").checked = !!svc.allowOnlineBooking;
+      document.getElementById("svcImage").value = svc.imageUrl || "";
+      window.currentAliases = svc.aliases?.map(a => a.alias) || [];
+    } else {
+      if (window.currentCategoryId) document.getElementById("svcCategory").value = window.currentCategoryId;
+    }
+    
+    renderAliases();
+    renderServiceVariants();
+    modal.classList.add("show");
+  };
+
+  window.renderServiceVariants = function() {
+    const container = document.getElementById("variantContainer");
+    container.innerHTML = window.currentVariants.map((v, i) => `
+      <div class="variant-row" style="display: grid; grid-template-columns: 1fr 100px 100px 42px; gap: 0.75rem; align-items: center;">
+        <input type="text" class="form-control v-name" style="height: 42px; border-radius: 0.75rem; font-size: 0.85rem;" placeholder="e.g. 60 Minutes" value="${v.name || ''}" />
+        <input type="number" class="form-control v-price" style="height: 42px; border-radius: 0.75rem; font-size: 0.85rem;" placeholder="Price ($)" value="${v.price || ''}" />
+        <input type="number" class="form-control v-duration" style="height: 42px; border-radius: 0.75rem; font-size: 0.85rem;" placeholder="Mins" value="${v.duration || ''}" />
+        <button type="button" class="action-btn" style="width: 42px; height: 42px; border-color: var(--danger); color: var(--danger); padding:0; border-radius: 0.75rem;" onclick="removeServiceVariant(${i})">
+          <i data-lucide="trash-2" style="width: 16px;"></i>
+        </button>
+      </div>
+    `).join("");
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  window.addServiceVariant = function() {
+    window.currentVariants.push({ name: '', price: '', duration: '' });
+    renderServiceVariants();
+  };
+
+  window.removeServiceVariant = function(idx) {
+    window.currentVariants.splice(idx, 1);
+    renderServiceVariants();
+  };
+
+  window.renderAliases = function() {
+    const container = document.getElementById("aliasContainer");
+    container.innerHTML = window.currentAliases.map((a, i) => `
+      <div style="background: var(--primary); color: white; padding: 0.4rem 0.8rem; border-radius: 1rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 600;">
+        ${a}
+        <i data-lucide="x" style="width: 14px; cursor: pointer;" onclick="removeAlias(${i})"></i>
+      </div>
+    `).join("");
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  window.addAliasTag = function() {
+    const input = document.getElementById("newAliasInput");
+    const val = input.value.trim().toLowerCase();
+    if (val && !window.currentAliases.includes(val)) {
+      window.currentAliases.push(val);
+      renderAliases();
+      input.value = "";
+    }
+  };
+
+  window.removeAlias = function(idx) {
+    window.currentAliases.splice(idx, 1);
+    renderAliases();
+  };
+
+  window.saveService = async function() {
+    const id = document.getElementById("svcId").value;
+    const name = document.getElementById("svcName").value;
+    const categoryId = document.getElementById("svcCategory").value;
+    const price = document.getElementById("svcPrice").value;
+    const duration = document.getElementById("svcDuration").value;
+
+    if (!name || !categoryId || !price || !duration) {
+      alert("Please fill in all required fields (Name, Category, Price, Duration)");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("description", document.getElementById("svcDesc").value);
+    formData.append("categoryId", categoryId);
+    formData.append("price", price);
+    formData.append("duration", duration);
+    formData.append("preparationTime", document.getElementById("svcPrep").value);
+    formData.append("isPopular", document.getElementById("svcPopular").checked);
+    formData.append("allowOnlineBooking", document.getElementById("svcOnline").checked);
+    formData.append("imageUrl", document.getElementById("svcImage").value);
+    formData.append("businessId", bId);
+
+    const variants = [];
+    document.querySelectorAll(".variant-row").forEach(row => {
+      const vname = row.querySelector(".v-name").value;
+      const vprice = row.querySelector(".v-price").value;
+      const vduration = row.querySelector(".v-duration").value;
+      if (vname && vprice && vduration) variants.push({ name: vname, price: vprice, duration: vduration });
+    });
+    formData.append("variants", JSON.stringify(variants));
+
+    const file = document.getElementById("svcImageFile").files[0];
+    if (file) formData.append("image", file);
+
+    try {
+      const res = await fetch(id ? `/api/services/${id}` : '/api/services', {
+        method: id ? 'PUT' : 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+        body: formData
+      });
+      const result = await res.json();
+      if (result.success) {
+        // Aliases
+        for (const alias of window.currentAliases) {
+          await fetch('/api/services/alias', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ serviceId: result.data.id, alias })
+          });
+        }
+        alert(id ? "Service updated successfully!" : "New service added!");
+        closeModal('serviceModal');
+        loadServices(window.currentCategoryId);
+      } else {
+        alert("Error: " + (result.error || result.message || "Failed to save service"));
+      }
+    } catch (err) { 
+      console.error(err); 
+      alert("System error while saving service. Check console.");
+    }
+  };
+
+  window.editService = function(id) {
+    const svc = window.currentServices.find(s => s.id === id);
+    if (svc) openServiceModal(svc);
+  };
+
+  window.deleteService = async function(id) {
+    if (!confirm("Are you sure you want to delete this service?")) return;
+    try {
+      const res = await fetch(`/api/services/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) loadServices(window.currentCategoryId);
+    } catch (err) { console.error(err); }
+  };
+
+  window.filterServices = function(q) {
+    const term = q.toLowerCase();
+    document.querySelectorAll('.service-card').forEach(card => {
+      const text = card.innerText.toLowerCase();
+      card.style.display = text.includes(term) ? 'flex' : 'none';
     });
   };
 
+  // 👥 Staff
+  window.loadStaff = async function() {
+    const list = document.getElementById("staffQuickList");
+    try {
+      const res = await fetch(`/api/services/staff?businessId=${bId}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const result = await res.json();
+      if (result.success) {
+        window.allStaff = result.data;
+        list.innerHTML = result.data.map(s => `
+          <div class="svc-staff-card" style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-muted); border-radius: 1.25rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border);">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="width: 3rem; height: 3rem; border-radius: 1rem; background: linear-gradient(135deg, var(--primary), #4f46e5); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.125rem;">
+                ${s.name.split(' ').map(n => n[0]).join('')}
+              </div>
+              <div>
+                <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-primary);">${s.name}</div>
+                <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.25rem;">${s.role || 'Specialist'}</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+               <i data-lucide="edit-2" style="width: 16px; cursor: pointer; color: var(--text-muted);" onclick="editStaff('${s.id}')"></i>
+               <i data-lucide="trash-2" style="width: 16px; cursor: pointer; color: var(--danger);" onclick="deleteStaff('${s.id}')"></i>
+            </div>
+          </div>
+        `).join("");
+        if (result.data.length === 0) {
+          list.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:0.8rem;">No specialists assigned yet.</p>';
+        }
+        if (window.lucide) window.lucide.createIcons();
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  window.openStaffModal = function(staff = null) {
+    const modal = document.getElementById("staffModal");
+    const title = document.getElementById("staffModalTitle");
+    const form = document.getElementById("staffForm");
+    
+    form.reset();
+    document.getElementById("staffId").value = staff?.id || "";
+    title.innerText = staff ? "Edit Specialist" : "Add Specialist";
+    
+    if (staff) {
+      document.getElementById("staffName").value = staff.name || "";
+      document.getElementById("staffRole").value = staff.role || "";
+      document.getElementById("staffEmail").value = staff.email || "";
+    }
+    
+    modal.classList.add("show");
+  };
+
+  window.editStaff = function(id) {
+    const s = window.allStaff.find(x => x.id === id);
+    if (s) openStaffModal(s);
+  };
+
+  window.deleteStaff = async function(id) {
+    if (!confirm("Are you sure you want to remove this specialist?")) return;
+    try {
+      const res = await fetch(`/api/services/staff/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        notify("Specialist removed", "Success");
+        loadStaff();
+      } else {
+        notify("Failed to remove specialist", "Error");
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  window.saveStaff = async function() {
+    const id = document.getElementById("staffId").value;
+    const payload = {
+      name: document.getElementById("staffName").value,
+      role: document.getElementById("staffRole").value,
+      email: document.getElementById("staffEmail").value,
+      businessId: bId
+    };
+
+    try {
+      const res = await fetch(id ? `/api/services/staff/${id}` : '/api/services/staff', {
+        method: id ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        closeModal('staffModal');
+        loadStaff();
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  window.viewSlots = function(id) {
+    notify("Slot management feature coming soon!", "Info");
+  };
+
+  loadStaff();
   loadServiceCategories();
 })();
 </script>

@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>
-    <%= typeof businessName !=='undefined' ? businessName + ' — Nexton Technologies LLC' : 'Nexton Technologies LLC' %>
+    <%= typeof businessName !=='undefined' ? businessName + ' — Naxton Technologies LLC' : 'Naxton Technologies LLC' %>
   </title>
   <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
 
@@ -19,9 +19,19 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body data-theme="ocean">
+  <script>
+    (function() {
+      try {
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const theme = user.theme || localStorage.getItem("apex_theme") || "default";
+        document.body.setAttribute("data-theme", theme);
+      } catch (e) {}
+    })();
+  </script>
 
   <div class="apex-layout">
 
@@ -40,7 +50,7 @@
         <div class="logo-text">
           <h2 style="font-size: 1rem; font-weight: 700;" id="brandLogoText">
             <%= typeof businessName !=='undefined' ? businessName : (typeof projectName !=='undefined' ? projectName
-              : 'Nexton Technologies LLC' ) %>
+              : 'Naxton Technologies LLC' ) %>
           </h2>
           <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">AI
             Voice Suite</p>
@@ -194,7 +204,8 @@
             </div>
 
             <div class="right-col">
-              <div class="apex-card dashboard-live-card" style="height: 720px;">
+              <!-- LIVE AI OPERATIONS -->
+              <div class="apex-card dashboard-live-card" style="height: 350px; margin-bottom: 2rem;">
                 <div class="card-header" style="flex-shrink: 0;">
                   <h3 class="card-title">Live AI Operations</h3>
                   <span class="pulse-indicator"
@@ -207,16 +218,17 @@
                     Monitoring active streams...
                   </div>
                 </div>
+              </div>
 
-                <div style="margin-top: auto; padding-top: 1.5rem; border-top: 1px solid var(--border);">
-                  <div
-                    style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.5rem;">
-                    <span style="color: var(--text-muted);">Avg. Latency</span>
-                    <span style="color: var(--success); font-weight: 600;">840ms</span>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
-                    <span style="color: var(--text-muted);">AI Accuracy</span>
-                    <span style="color: var(--primary); font-weight: 600;">98.2%</span>
+              <!-- RECENT ACTIVITY WIDGET (Orders or Appointments) -->
+              <div class="apex-card" id="recentOrdersWidget" style="height: 350px; display: flex; flex-direction: column;">
+                <div class="card-header">
+                  <h3 class="card-title" id="recentActivityTitle">Recent Orders</h3>
+                  <i id="recentActivityIcon" data-lucide="shopping-bag" style="width: 16px; color: var(--primary);"></i>
+                </div>
+                <div id="dashboardOrdersList" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
+                   <div class="empty-state" style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.875rem;">
+                    Waiting for orders...
                   </div>
                 </div>
               </div>
@@ -230,25 +242,30 @@
       <!-- FIXED PLATFORM WATERMARK -->
       <div
         style="position: fixed; bottom: 1rem; right: 1.5rem; font-size: 0.65rem; color: var(--text-muted); z-index: 50; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; pointer-events: none;">
-        Software by Nexton Technologies LLC
+        Software by Naxton Technologies LLC
       </div>
     </main>
   </div>
 
   <!-- NOTIFICATIONS -->
   <div id="notificationBox" class="notification"
-    style="position: fixed; top: 1.5rem; right: 1.5rem; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: var(--bg-card); border: 1px solid var(--border); padding: 1rem 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow-md); z-index: 1000; display: flex; align-items: center; gap: 1rem;">
-    <div style="color: var(--primary);"><i data-lucide="bell"></i></div>
+    style="position: fixed; top: 1.5rem; right: 1.5rem; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: var(--bg-card); border: 1px solid var(--border); padding: 1.25rem 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow-xl); z-index: 9999; display: flex; align-items: center; gap: 1rem; backdrop-filter: blur(12px);">
+    <div id="notificationIcon" style="width: 40px; height: 40px; border-radius: 0.75rem; background: rgba(var(--primary-rgb), 0.1); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0;">
+      <i data-lucide="bell"></i>
+    </div>
     <div>
-      <h4 id="notificationTitle" style="font-size: 0.875rem; font-weight: 600;">Notification</h4>
+      <h4 id="notificationTitle" style="font-size: 0.875rem; font-weight: 700;">Notification</h4>
       <p id="notificationText" style="font-size: 0.75rem; color: var(--text-secondary);">Something happened.</p>
     </div>
+    <button onclick="document.getElementById('notificationBox').style.transform = 'translateX(120%)'" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.25rem; margin-left: auto;">
+      <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+    </button>
   </div>
 
-  <audio id="notifySound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
-    preload="auto"></audio>
+  <audio id="notifySound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+  <audio id="orderSound" src="https://assets.mixkit.co/active_storage/sfx/1066/1066-preview.mp3" preload="auto"></audio>
 
-  <!-- NEXTON DEEP SYNC OVERLAY -->
+  <!-- NAXTON DEEP SYNC OVERLAY -->
   <div id="syncOverlay" class="modal-overlay"
     style="background: rgba(8, 51, 68, 0.95); backdrop-filter: blur(12px); display: none; opacity: 1; pointer-events: auto;">
     <div style="text-align: center; color: white; width: 100%; max-width: 500px;">
@@ -269,7 +286,7 @@
 
       <h2 id="syncStatus" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Initializing AI
         Crawler...</h2>
-      <p style="color: var(--text-muted); font-size: 0.875rem;">Nexton Deep Sync is building your database. Please stay
+      <p style="color: var(--text-muted); font-size: 0.875rem;">Naxton Deep Sync is building your database. Please stay
         on this page.</p>
 
       <div
@@ -357,46 +374,167 @@
         <button class="close-modal" onclick="closeModal('itemModal')">&times;</button>
       </div>
       
-      <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
-        <div class="form-group" style="grid-column: 1 / -1;">
-          <label>Name</label>
-          <input type="text" id="itemName" class="form-control" placeholder="e.g. Premium Haircut" />
+      <!-- 🚀 Enterprise Menu Tabs -->
+      <div class="apex-tabs">
+        <div class="apex-tab-item active" onclick="switchTab('general', this)">
+          <i data-lucide="info" style="width: 14px;"></i> General
         </div>
-        <div class="form-group">
-          <label>Price ($)</label>
-          <input type="number" step="0.01" id="itemPrice" class="form-control" placeholder="0.00" />
+        <div class="apex-tab-item" onclick="switchTab('variants', this)">
+          <i data-lucide="layers" style="width: 14px;"></i> Variants
         </div>
-        <div class="form-group">
-          <label id="durationLabel">Duration / Prep Time (Min)</label>
-          <input type="number" id="itemDuration" class="form-control" value="30" />
+        <div class="apex-tab-item" onclick="switchTab('modifiers', this)">
+          <i data-lucide="settings-2" style="width: 14px;"></i> Modifiers
         </div>
-        <div class="form-group">
-          <label>Category</label>
-          <select id="itemCategory" class="form-control"></select>
+        <div class="apex-tab-item" onclick="switchTab('addons', this)">
+          <i data-lucide="plus-circle" style="width: 14px;"></i> Addons
         </div>
-        <div class="form-group">
-          <label>Pricing Type</label>
-          <select id="itemPricingType" class="form-control">
-            <option value="FIXED">Fixed Price</option>
-            <option value="VARIABLE">Starts At</option>
-            <option value="TIME_BASED">Per Hour</option>
-          </select>
+        <div class="apex-tab-item" onclick="switchTab('advanced', this)">
+          <i data-lucide="zap" style="width: 14px;"></i> Advanced & AI
         </div>
       </div>
 
-      <div class="form-group" style="margin-top: 1rem;">
-        <label>Description</label>
-        <textarea id="itemDesc" class="form-control" rows="3" placeholder="Tell your customers about this service..."></textarea>
+      <!-- Tab Content: General -->
+      <div id="tab-general" class="apex-tab-content active">
+        <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>Name</label>
+            <input type="text" id="itemName" class="form-control" placeholder="e.g. Premium Haircut" />
+          </div>
+          <div class="form-group">
+            <label>Base Price ($)</label>
+            <input type="number" step="0.01" id="itemPrice" class="form-control" placeholder="0.00" />
+          </div>
+          <div class="form-group">
+            <label id="durationLabel">Duration / Prep Time (Min)</label>
+            <input type="number" id="itemDuration" class="form-control" value="30" />
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="itemCategory" class="form-control"></select>
+          </div>
+          <div class="form-group">
+            <label>Pricing Type</label>
+            <select id="itemPricingType" class="form-control">
+              <option value="FIXED">Fixed Price</option>
+              <option value="VARIABLE">Starts At</option>
+              <option value="TIME_BASED">Per Hour</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 1rem;">
+          <label>Description</label>
+          <textarea id="itemDesc" class="form-control" rows="3" placeholder="Tell your customers about this service..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Item Image</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="itemImage" class="form-control" placeholder="https://..." style="flex: 1;" />
+            <input type="file" id="itemImageFile" style="display: none;" accept="image/*" onchange="document.getElementById('itemImage').value = this.files[0].name" />
+            <button type="button" class="action-btn" style="width: auto; padding: 0 1rem; font-size: 0.75rem;" onclick="document.getElementById('itemImageFile').click()">
+              <i data-lucide="upload" style="width: 14px; margin-right: 4px;"></i> Upload Local
+            </button>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border);">
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer;">
+            <input type="checkbox" id="itemIsVeg" /> Vegetarian
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer;">
+            <input type="checkbox" id="itemIsVegan" /> Vegan
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer;">
+            <input type="checkbox" id="itemIsPopular" /> Popular
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer;">
+            <input type="checkbox" id="itemIsNew" /> New
+          </label>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Item Image</label>
-        <div style="display: flex; gap: 0.5rem;">
-          <input type="text" id="itemImage" class="form-control" placeholder="https://..." style="flex: 1;" />
-          <input type="file" id="itemImageFile" style="display: none;" accept="image/*" onchange="document.getElementById('itemImage').value = this.files[0].name" />
-          <button type="button" class="action-btn" style="width: auto; padding: 0 1rem; font-size: 0.75rem;" onclick="document.getElementById('itemImageFile').click()">
-            <i data-lucide="upload" style="width: 14px; margin-right: 4px;"></i> Upload Local
+      <!-- Tab Content: Variants -->
+      <div id="tab-variants" class="apex-tab-content">
+        <label style="font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Sizes & Variants</label>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">Add different sizes like Small, Large, or variants with specific pricing.</p>
+        <div id="variantRepeater"></div>
+        <button type="button" class="action-btn" style="margin-top: 1rem; width: auto; padding: 0 1rem; border: 1px dashed var(--border);" onclick="addVariantRow()">
+          <i data-lucide="plus" style="width: 14px; margin-right: 4px;"></i> Add Size/Variant
+        </button>
+      </div>
+
+      <!-- Tab Content: Modifiers -->
+      <div id="tab-modifiers" class="apex-tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <label style="font-weight: 700; color: var(--text-primary);">Modifier Groups</label>
+          <button type="button" class="action-btn" style="width: auto; height: 28px; font-size: 0.7rem; padding: 0 0.75rem; background: var(--bg-muted);" onclick="openModifierGroupModal()">
+            <i data-lucide="plus" style="width: 12px; margin-right: 4px;"></i> Create New Group
           </button>
+        </div>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">Select the modifier groups that apply to this item (e.g. Spice Level, Extra Toppings).</p>
+        <div id="modifierGroupList" class="multi-select-box"></div>
+      </div>
+
+      <!-- Tab Content: Addons -->
+      <div id="tab-addons" class="apex-tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <label style="font-weight: 700; color: var(--text-primary);">Upsell Addons</label>
+          <button type="button" class="action-btn" style="width: auto; height: 28px; font-size: 0.7rem; padding: 0 0.75rem; background: var(--bg-muted);" onclick="openAddonModal()">
+            <i data-lucide="plus" style="width: 12px; margin-right: 4px;"></i> Create New Addon
+          </button>
+        </div>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">Select items to suggest as addons (e.g. Fries, Coke).</p>
+        <div id="addonList" class="multi-select-box"></div>
+      </div>
+
+      <!-- Tab Content: Advanced -->
+      <div id="tab-advanced" class="apex-tab-content">
+        <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Calories</label>
+            <input type="number" id="itemCalories" class="form-control" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label>Spicy Level (0-3)</label>
+            <input type="number" id="itemSpicyLevel" class="form-control" min="0" max="3" value="0" />
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>Allergens (Comma separated)</label>
+            <input type="text" id="itemAllergens" class="form-control" placeholder="e.g. Nuts, Dairy, Gluten" />
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--primary); font-weight: 700;">
+            <i data-lucide="mic" style="width: 16px;"></i>
+            AI Voice Aliases
+          </label>
+          <div id="aliasContainer" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; margin-top: 0.5rem;"></div>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="aliasInput" class="form-control" placeholder="Add variation..." style="flex: 1;" onkeydown="if(event.key==='Enter') addAliasTag()" />
+            <button type="button" class="action-btn" style="width: auto; padding: 0 1rem; border-color: var(--primary); color: var(--primary);" onclick="generateSuggestedAliases()">
+              <i data-lucide="sparkles" style="width: 14px; margin-right: 4px;"></i> Suggest
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+          <label style="font-weight: 700;">Availability Rules</label>
+          <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+            <div class="form-group">
+              <label>Start Time</label>
+              <input type="time" id="availStart" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>End Time</label>
+              <input type="time" id="availEnd" class="form-control" />
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label>Stock Quantity (Optional)</label>
+              <input type="number" id="itemStock" class="form-control" placeholder="Infinite" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -434,33 +572,15 @@
     </div>
   </div>
 
-  <!-- NOTIFICATION POPUP -->
-  <div id="notificationBox" style="position: fixed; bottom: 2rem; right: 2rem; width: 320px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: 1.25rem; box-shadow: var(--shadow-md); transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; backdrop-filter: blur(10px);">
-    <div style="display: flex; gap: 1rem; align-items: flex-start;">
-      <div id="notificationIcon" style="width: 40px; height: 40px; border-radius: 0.75rem; background: rgba(var(--primary-rgb), 0.1); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0;">
-        <i data-lucide="bell" style="width: 20px; height: 20px;"></i>
-      </div>
-      <div style="flex: 1;">
-        <h4 id="notificationTitle" style="font-size: 0.875rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text-primary);">Notification</h4>
-        <p id="notificationText" style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;"></p>
-      </div>
-      <button onclick="document.getElementById('notificationBox').style.transform = 'translateX(120%)'" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.25rem;">
-        <i data-lucide="x" style="width: 14px; height: 14px;"></i>
-      </button>
-    </div>
-  </div>
-  <audio id="notifySound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
   <!-- APP SCRIPT -->
-  <script src="/js/admin-apex.js"></script>
+  <script src="/js/admin-apex.js?v=<%= Date.now() %>"></script>
   <script>
     // Initialize Lucide icons
     lucide.createIcons();
   </script>
 
   <!-- ElevenLabs ConvAI Widget -->
-  <elevenlabs-convai agent-id="agent_9401kqqj87jzf9mrmfwsprqh3frh"></elevenlabs-convai>
-  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
 </body>
 
 </html>

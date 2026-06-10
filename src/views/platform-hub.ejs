@@ -1,84 +1,193 @@
-<div class="page-header">
-  <h1>AI Platform Hub</h1>
-  <p>Global oversight of your AI agents, telephony bridge, and connection status.</p>
-</div>
+<style>
+  .hub-container {
+    animation: slideUpFade 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
 
-<div class="apex-grid">
-  <div class="stat-card">
-    <div class="stat-header">
-      <span class="stat-label">System Status</span>
-      <div class="stat-icon"><i data-lucide="shield-check"></i></div>
-    </div>
-    <div class="stat-value">Operational</div>
-    <div class="stat-footer">
-      <span class="trend-up">99.9% Uptime</span>
+  .hub-header {
+    margin-bottom: 3.5rem;
+  }
+
+  .hub-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* 💎 Neural Stat Grid */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .neural-tile {
+    background: rgba(255, 255, 255, 0.01);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 2rem;
+    padding: 2.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .neural-tile:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: 0 20px 40px -10px rgba(0, 242, 255, 0.1);
+  }
+
+  .neural-tile::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle at 100% 0%, rgba(0, 242, 255, 0.05), transparent);
+    pointer-events: none;
+  }
+
+  .tile-icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--primary); margin-bottom: 1.5rem;
+  }
+
+  .tile-value {
+    font-size: 2.25rem; font-weight: 900; letter-spacing: -0.02em; color: white;
+    margin-bottom: 0.5rem;
+  }
+
+  /* 🎟 Agent Matrix Table */
+  .matrix-container {
+    background: rgba(255, 255, 255, 0.01);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 2.5rem;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  .matrix-table { width: 100%; border-collapse: collapse; }
+  .matrix-table th { 
+    padding: 1.5rem 2.5rem; text-align: left; font-size: 0.75rem; 
+    font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em;
+    color: #64748b; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .matrix-table td { padding: 1.5rem 2.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.95rem; }
+  .matrix-row:hover { background: rgba(255, 255, 255, 0.02); }
+
+  .status-ring {
+    width: 10px; height: 10px; border-radius: 50%;
+    position: relative;
+  }
+  .status-ring::after {
+    content: ''; position: absolute; inset: -3px; border-radius: 50%;
+    border: 1px solid currentColor; animation: pulse-ring 2s infinite;
+  }
+
+  @keyframes pulse-ring { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
+</style>
+
+<div class="hub-container">
+  <div class="hub-header">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+      <div>
+        <h1 class="hub-title">Neural Command Hub</h1>
+        <p style="color: #64748b; font-size: 1.1rem; font-weight: 500; margin-top: 0.5rem;">Orchestration of synthetic agents and telephony synapsis.</p>
+      </div>
+      <div style="background: rgba(255,255,255,0.03); padding: 0.75rem 1.5rem; border-radius: 1.25rem; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 0.75rem;">
+        <i data-lucide="activity" style="width: 16px; color: var(--primary);"></i>
+        <span style="font-size: 0.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: white;">Global Sync: Synchronized</span>
+      </div>
     </div>
   </div>
 
-  <div class="stat-card">
-    <div class="stat-header">
-      <span class="stat-label">Active Agents</span>
-      <div class="stat-icon"><i data-lucide="bot"></i></div>
+  <div class="stat-grid">
+    <div class="neural-tile">
+      <div class="tile-icon"><i data-lucide="shield-check"></i></div>
+      <div class="tile-value">99.9%</div>
+      <p style="color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Infrastructure Uptime</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem; color: #10b981; font-weight: 800; font-size: 0.75rem;">
+        <div class="status-ring" style="background: currentColor;"></div> Operational
+      </div>
     </div>
-    <div class="stat-value">4</div>
-    <div class="stat-footer">
-      <span>Sarah V2, Alex, Maya, Roy</span>
+
+    <div class="neural-tile">
+      <div class="tile-icon"><i data-lucide="bot"></i></div>
+      <div class="tile-value">04</div>
+      <p style="color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Active Synapse Agents</p>
+      <div style="margin-top: 1.5rem; font-size: 0.75rem; font-weight: 800; color: white; display: flex; gap: 0.5rem;">
+        <span style="background: rgba(255,255,255,0.05); padding: 0.25rem 0.6rem; border-radius: 0.5rem;">Sarah V2</span>
+        <span style="background: rgba(255,255,255,0.05); padding: 0.25rem 0.6rem; border-radius: 0.5rem;">Alex</span>
+        <span style="background: rgba(255,255,255,0.05); padding: 0.25rem 0.6rem; border-radius: 0.5rem;">Maya</span>
+      </div>
+    </div>
+
+    <div class="neural-tile">
+      <div class="tile-icon"><i data-lucide="phone-forwarded"></i></div>
+      <div class="tile-value" style="color: var(--primary);">ACTIVE</div>
+      <p style="color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Telephony Bridge</p>
+      <div style="margin-top: 1.5rem; font-size: 0.75rem; font-weight: 800; color: var(--primary);">
+        Twilio Neural Proxy: Linked
+      </div>
     </div>
   </div>
 
-  <div class="stat-card">
-    <div class="stat-header">
-      <span class="stat-label">Telephony Bridge</span>
-      <div class="stat-icon"><i data-lucide="phone-forwarded"></i></div>
+  <div class="matrix-container">
+    <div style="padding: 2.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="font-size: 1.5rem; font-weight: 900;">Agent Synapse Matrix</h3>
+      <button class="btn-premium" style="background: var(--primary); color: #030712; padding: 0.8rem 1.75rem; border-radius: 1rem; border: none; font-weight: 800; display: flex; align-items: center; gap: 0.75rem; cursor: pointer; box-shadow: 0 10px 20px -5px var(--primary-glow);" onclick="openAgentModal()">
+        <i data-lucide="plus" style="width: 18px;"></i> Deploy New Synapse
+      </button>
     </div>
-    <div class="stat-value" style="color:var(--success);">Connected</div>
-    <div class="stat-footer">
-      <span>Twilio Proxy: Active</span>
-    </div>
-  </div>
-</div>
 
-<div class="apex-card">
-  <div class="card-header">
-    <h3 class="card-title">Agent Configuration</h3>
-    <button class="action-btn" style="width:auto; padding:0 1rem; background:var(--primary); color:white; border:none;" onclick="openAgentModal()">
-      <i data-lucide="plus" style="width:14px; margin-right:4px;"></i> New Agent
-    </button>
-  </div>
-
-  <div class="table-wrapper">
-    <table style="width: 100%; border-collapse: collapse;">
+    <table class="matrix-table">
       <thead>
-        <tr style="text-align: left; border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
-          <th style="padding: 1rem;">Agent Name</th>
-          <th style="padding: 1rem;">Primary Task</th>
-          <th style="padding: 1rem;">Model</th>
-          <th style="padding: 1rem;">Status</th>
-          <th style="padding: 1rem; text-align: right;">Actions</th>
+        <tr>
+          <th>Neural Entity</th>
+          <th>Directive Protocol</th>
+          <th>Synthesis Model</th>
+          <th>Connectivity</th>
+          <th style="text-align: right;">Protocols</th>
         </tr>
       </thead>
       <tbody>
-        <tr style="border-bottom: 1px solid var(--border);">
-          <td style="padding: 1rem;">
-            <div style="display:flex; align-items:center; gap:0.75rem;">
-              <div style="width:32px; height:32px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; color:white; font-weight:700;">S</div>
+        <tr class="matrix-row">
+          <td>
+            <div style="display: flex; align-items: center; gap: 1.25rem;">
+              <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), #0ea5e9); display: flex; align-items: center; justify-content: center; color: #030712; font-weight: 900; font-size: 1.1rem; box-shadow: 0 0 15px var(--primary-glow);">S</div>
               <div>
-                <p style="font-weight:600;">Sarah V2</p>
-                <p style="font-size:0.75rem; color:var(--text-muted);">Front Desk Assistant</p>
+                <p style="font-weight: 800; color: white;">Sarah V2</p>
+                <p style="font-size: 0.75rem; color: #64748b; font-weight: 600;">UID: NEURAL-0922-X</p>
               </div>
             </div>
           </td>
-          <td style="padding: 1rem;">Booking & Inquiry</td>
-          <td style="padding: 1rem;">ElevenLabs Turbo v2</td>
-          <td style="padding: 1rem;"><span class="badge" style="background:rgba(var(--success-rgb), 0.1); color:var(--success);">Active</span></td>
-          <td style="padding: 1rem; text-align: right;">
-            <button class="action-btn" style="display:inline-flex;"><i data-lucide="settings"></i></button>
+          <td style="font-weight: 700; color: #cbd5e1;">Front Desk Orchestration</td>
+          <td style="font-family: monospace; font-size: 0.85rem; color: var(--primary); font-weight: 800;">ElevenLabs Turbo v2.5</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.75rem; color: #10b981; font-weight: 900; font-size: 0.75rem; text-transform: uppercase;">
+              <div class="status-ring" style="background: currentColor;"></div> Synced
+            </div>
+          </td>
+          <td style="text-align: right;">
+            <button style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: white; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'"><i data-lucide="settings" style="width: 18px;"></i></button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+
+<script>
+  if (window.lucide) lucide.createIcons();
+</script>
 
 <script>
   if (window.lucide) lucide.createIcons();

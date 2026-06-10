@@ -1,4 +1,11 @@
 {
-  "ignore": ["scratch/*", "public/uploads/*", "dev.db*", "knowledge/*", ".gemini/*"],
-  "ext": "js,json,ejs,css"
+  "watch": ["src"],
+  "ext": "js,ejs,json,css",
+  "ignore": [
+    "src/config/platform.json",
+    "src/public/uploads/*",
+    "node_modules/*",
+    "src/scripts/*"
+  ],
+  "delay": "500"
 }

@@ -6,6 +6,7 @@ const authMiddleware = require("../../middleware/auth.middleware");
 const { allowRoles } = require("../../middleware/role.middleware");
 const { ROLES } = require("../../constants/roles");
 const { tenantMiddleware } = require("../../middleware/tenant.middleware");
+const { billingGuard } = require("../../middleware/billing.middleware");
 
 /* =========================================
    🏢 BUSINESS ROUTES
@@ -16,6 +17,7 @@ router.post(
   "/",
   authMiddleware,
   tenantMiddleware,
+  billingGuard,
   allowRoles(ROLES.SUPERADMIN),
   controller.create
 );
@@ -25,6 +27,7 @@ router.get(
   "/",
   authMiddleware,
   tenantMiddleware,
+  billingGuard,
   allowRoles(ROLES.OWNER, ROLES.SUPERADMIN),
   controller.list
 );
@@ -34,7 +37,8 @@ router.get(
   "/all",
   authMiddleware,
   tenantMiddleware,
-  allowRoles(ROLES.OWNER, ROLES.SUPERADMIN),
+  billingGuard,
+  allowRoles(ROLES.OWNER, ROLES.SUPERADMIN, ROLES.DEVELOPER, ROLES.MANAGER, ROLES.PRODUCT, ROLES.AGENT),
   controller.getAllBusinesses
 );
 
@@ -43,7 +47,8 @@ router.get(
   "/current",
   authMiddleware,
   tenantMiddleware,
-  allowRoles(ROLES.OWNER, ROLES.SUPERADMIN),
+  billingGuard,
+  allowRoles(ROLES.OWNER, ROLES.SUPERADMIN, ROLES.DEVELOPER, ROLES.MANAGER, ROLES.PRODUCT, ROLES.AGENT),
   controller.getCurrent
 );
 
@@ -54,18 +59,21 @@ router.put(
   "/current",
   authMiddleware,
   tenantMiddleware,
+  billingGuard,
   allowRoles(ROLES.OWNER, ROLES.SUPERADMIN),
   upload.single("logo"),
   controller.updateCurrent
 );
 
-// Delete business (ONLY SUPERADMIN)
-router.delete(
+// Update specific business by ID
+router.put(
   "/:id",
   authMiddleware,
   tenantMiddleware,
-  allowRoles(ROLES.SUPERADMIN),
-  controller.remove
+  billingGuard,
+  allowRoles(ROLES.OWNER, ROLES.SUPERADMIN),
+  upload.single("logo"),
+  controller.updateCurrent
 );
 
 // Delete business (ONLY SUPERADMIN, Secure)
@@ -73,8 +81,19 @@ router.delete(
   "/:id",
   authMiddleware,
   tenantMiddleware,
+  billingGuard,
   allowRoles(ROLES.SUPERADMIN),
   controller.remove
+);
+
+// Live Debug Terminal
+router.get(
+  "/:id/terminal",
+  authMiddleware,
+  tenantMiddleware,
+  billingGuard,
+  allowRoles(ROLES.OWNER, ROLES.SUPERADMIN, ROLES.DEVELOPER),
+  controller.renderTerminal
 );
 
 module.exports = router;

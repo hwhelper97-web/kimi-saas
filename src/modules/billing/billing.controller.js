@@ -35,6 +35,12 @@ exports.getBillingStatus = async (req, res) => {
         plan: true,
         tokenBalance: true,
         totalTokensPurchased: true,
+        usedMinutes: true,
+        monthlyLimit: true,
+        monthlyUsedTokens: true,
+        monthlyTokenLimit: true,
+        staffLimit: true,
+        businessLimit: true,
         isDemoAccount: true
       }
     });

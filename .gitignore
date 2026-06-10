@@ -10,3 +10,24 @@ prisma/*.db-journal
 .vercel
 .next
 package-lock.json
+
+# Cache & Temporary Directories
+brain/
+scratch/
+backup/
+*.zip
+*.log
+*.txt
+*.png
+
+# Temporary root scripts
+check_*.js
+create-*.js
+find_*.js
+fix_*.js
+list_*.js
+manual_*.js
+repair_*.js
+reset_*.js
+test_*.js
+analytics_test_log.json

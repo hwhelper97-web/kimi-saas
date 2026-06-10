@@ -1,7 +1,12 @@
 const ROLES = {
   SUPERADMIN: "SUPERADMIN",
   OWNER: "OWNER",
-  STAFF: "STAFF"
+  ADMIN: "ADMIN",
+  AGENT: "AGENT",
+  STAFF: "STAFF",
+  DEVELOPER: "DEVELOPER",
+  MANAGER: "MANAGER",
+  PRODUCT: "PRODUCT"
 };
 
 module.exports = { ROLES };

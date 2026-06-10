@@ -34,7 +34,7 @@ async function seed() {
     console.log('Creating items...');
     await prisma.menuItem.create({
       data: {
-        name: 'Nexton Classic Burger', price: 9.99, description: 'Double beef patty, cheddar cheese, special sauce.',
+        name: 'Naxton Classic Burger', price: 9.99, description: 'Double beef patty, cheddar cheese, special sauce.',
         categoryId: catBurgers.id, businessId, tenantId,
         sizes: { create: [
           { name: 'Single', price: 0, tenantId },

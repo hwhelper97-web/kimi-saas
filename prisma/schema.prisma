@@ -11,14 +11,27 @@ model Tenant {
   id                   String              @id @default(uuid())
   name                 String
   stripeId             String?
-  plan                 String              @default("starter")
-  monthlyLimit         Int                 @default(500)
+  plan                 String              @default("nexa-core") // nexa-core, nexa-flow, nexa-prime
+  subscriptionStatus   String              @default("ACTIVE")  // ACTIVE, PAST_DUE, CANCELED, SUSPENDED
+  trialEndDate         DateTime?           // For Free Trial tracking
+  subscriptionEndDate  DateTime?           // For paid cycle tracking
+  monthlyLimit         Int                 @default(300)
   usedMinutes          Int                 @default(0)
   tokenBalance         Int                 @default(100)
   totalTokensPurchased Int                 @default(100)
+  monthlyTokenLimit    Int                 @default(300)
+  monthlyUsedTokens    Int                 @default(0)
+  totalUsedTokens      BigInt              @default(0)
+  staffLimit           Int                 @default(3)
+  businessLimit        Int                 @default(1)
+  allowOverage         Boolean             @default(false)
   isDemoAccount        Boolean             @default(false)
   createdAt            DateTime            @default(now())
+  lastBillingReset     DateTime            @default(now())
+  billingCycleDay      Int                 @default(1)
   slug                 String?             @unique
+  logoUrl              String?
+  updatedAt            DateTime            @default(now()) @updatedAt
   appointments         Appointment[]
   businesses           Business[]
   calls                Call[]
@@ -35,24 +48,266 @@ model Tenant {
   menuOptionGroups     MenuOptionGroup[]
   menuSizes            MenuSize[]
   mintRequests         MintRequest[]
+  notifications        Notification[]
   orders               Order[]
   orderItems           OrderItem[]
+  slaPolicies          SLAPolicy[]
+  departments          SupportDepartment[]
   supportSettings      SupportSettings?
   tickets              Ticket[]
   users                User[]
+  phoneNumbers         TenantPhoneNumber[]
+  routingRules         CallRoutingRule[]
+
+  // 🚀 Appointment System Back-relations
+  staff               Staff[]
+  serviceCategories   ServiceCategory[]
+  appointmentServices AppointmentService[]
+  analytics            CallAnalytics[]
+  blockedTimes         BlockedTime[]
+}
+
+model GlobalAiSettings {
+  id             String   @id @default("global")
+  
+  // Premium Agent Library (4 Slots)
+  slot1Name      String?
+  slot1Id        String?
+  slot2Name      String?
+  slot2Id        String?
+  slot3Name      String?
+  slot3Id        String?
+  slot4Name      String?
+  slot4Id        String?
+
+  // Global Assignments
+  orderAgentSlot String?  // e.g. "slot1"
+  apptAgentSlot  String?  // e.g. "slot2"
+
+  // Master Prompts (Strict Logic)
+  orderPrompt    String?  @db.Text
+  apptPrompt     String?  @db.Text
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model User {
-  id                    String         @id @default(uuid())
-  email                 String         @unique
+  id                    String           @id @default(uuid())
+  email                 String           @unique
   password              String
-  role                  String         @default("OWNER")
+  role                  String           @default("OWNER")
   tenantId              String
+  theme                 String           @default("default")
+  resetPasswordToken    String?
+  resetPasswordExpires  DateTime?
   assignedConversations Conversation[]
-  assignedTickets       Ticket[]
-  tenant                Tenant         @relation(fields: [tenantId], references: [id])
+  employeeProfile       EmployeeProfile?
+  notifications         Notification[]
+  assignedTickets       Ticket[]         @relation("AssignedTickets")
+  createdTickets        Ticket[]         @relation("CreatedBy")
+  tenant                Tenant           @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
+}
+
+model SupportDepartment {
+  id          String            @id @default(uuid())
+  tenantId    String
+  name        String
+  description String?
+  createdAt   DateTime          @default(now())
+  agents      EmployeeProfile[]
+  slaPolicies SLAPolicy[]
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
+  tickets     Ticket[]
+
+  @@index([tenantId])
+}
+
+model EmployeeProfile {
+  id           String             @id @default(uuid())
+  userId       String             @unique
+  departmentId String?
+  skills       String?
+  level        Int                @default(1)
+  isAvailable  Boolean            @default(true)
+  department   SupportDepartment? @relation(fields: [departmentId], references: [id])
+  user         User               @relation(fields: [userId], references: [id])
+
+  @@index([departmentId])
+}
+
+model Ticket {
+  id              String             @id @default(uuid())
+  description     String
+  tenantId        String
+  businessId      String?
+  customerId      String?
+  assignedToId    String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  category        String?
+  createdById     String?
+  departmentId    String?
+  resolutionNotes String?
+  resolvedAt      DateTime?
+  subject         String
+  status          TicketStatus       @default(open)
+  priority        Priority           @default(medium)
+  assignedTo      User?              @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  business        Business?          @relation(fields: [businessId], references: [id])
+  createdBy       User?              @relation("CreatedBy", fields: [createdById], references: [id])
+  customer        Customer?          @relation(fields: [customerId], references: [id])
+  department      SupportDepartment? @relation(fields: [departmentId], references: [id])
+  tenant          Tenant             @relation(fields: [tenantId], references: [id])
+  activities      TicketActivity[]
+  attachments     TicketAttachment[]
+  messages        TicketMessage[]
+  tags            TicketTag[]        @relation("TicketToTicketTag")
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([priority])
+}
+
+model TicketMessage {
+  id          String             @id @default(uuid())
+  ticketId    String
+  senderId    String
+  senderType  String
+  body        String
+  isInternal  Boolean            @default(false)
+  createdAt   DateTime           @default(now())
+  attachments TicketAttachment[]
+  ticket      Ticket             @relation(fields: [ticketId], references: [id])
+
+  @@index([ticketId])
+}
+
+model TicketAttachment {
+  id              String         @id @default(uuid())
+  ticketId        String?
+  ticketMessageId String?
+  fileName        String
+  fileType        String
+  fileUrl         String
+  fileSize        Int
+  createdAt       DateTime       @default(now())
+  ticket          Ticket?        @relation(fields: [ticketId], references: [id])
+  ticketMessage   TicketMessage? @relation(fields: [ticketMessageId], references: [id])
+}
+
+model TicketActivity {
+  id        String   @id @default(uuid())
+  ticketId  String
+  actorId   String
+  action    String
+  oldValue  String?
+  newValue  String?
+  createdAt DateTime @default(now())
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+
+  @@index([ticketId])
+}
+
+model TicketTag {
+  id      String   @id @default(uuid())
+  name    String   @unique
+  color   String?
+  tickets Ticket[] @relation("TicketToTicketTag")
+}
+
+model SLAPolicy {
+  id             String             @id @default(uuid())
+  tenantId       String
+  departmentId   String?
+  name           String
+  description    String?
+  responseTime   Int
+  resolutionTime Int
+  priority       Priority
+  department     SupportDepartment? @relation(fields: [departmentId], references: [id])
+  tenant         Tenant             @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model KnowledgeCategory {
+  id           String             @id @default(uuid())
+  name         String
+  description  String?
+  tenantId     String
+  displayOrder Int                @default(0)
+  articles     KnowledgeArticle[]
+  tenant       Tenant             @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model KnowledgeArticle {
+  id          String            @id @default(uuid())
+  title       String
+  content     String
+  categoryId  String
+  tenantId    String
+  isPublished Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  slug        String
+  viewCount   Int               @default(0)
+  category    KnowledgeCategory @relation(fields: [categoryId], references: [id])
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([categoryId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  tenantId  String
+  userId    String
+  title     String
+  message   String
+  type      String
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Conversation {
+  id           String                @id @default(uuid())
+  tenantId     String
+  customerId   String
+  status       String                @default("open")
+  assignedToId String?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  assignedTo   User?                 @relation(fields: [assignedToId], references: [id])
+  customer     Customer              @relation(fields: [customerId], references: [id])
+  tenant       Tenant                @relation(fields: [tenantId], references: [id])
+  messages     ConversationMessage[]
+
+  @@index([tenantId])
+  @@index([customerId])
+}
+
+model ConversationMessage {
+  id             String       @id @default(uuid())
+  conversationId String
+  senderId       String
+  senderType     String
+  body           String
+  isInternal     Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@index([conversationId])
 }
 
 model Business {
@@ -74,11 +329,17 @@ model Business {
   aiVoice             String?          @default("nova")
   aiVoiceId           String?
   aiPersonality       String?          @default("friendly")
+  aiGender            String?          @default("female")
   aiName              String?          @default("Sarah")
   timezone            String           @default("UTC")
   appointmentDuration Int              @default(30)
   openTime            String           @default("09:00")
   closeTime           String           @default("18:00")
+  slotInterval        Int              @default(30) // Minutes between slots
+  bufferTime          Int              @default(0)  // Buffer between appointments
+  breakStartTime      String?          // e.g. "13:00"
+  breakEndTime        String?          // e.g. "14:00"
+  maxBookingsPerSlot  Int              @default(1)
   orderSmsEnabled     Boolean          @default(false)
   deliveryAvailable   Boolean          @default(true)
   deliveryRadius      Float?           @default(5.0)
@@ -89,153 +350,37 @@ model Business {
   appointments        Appointment[]
   tenant              Tenant           @relation(fields: [tenantId], references: [id])
   calls               Call[]
-  conversations       Conversation[]
   integrations        Integration[]
   menuCategories      MenuCategory[]
   menuItems           MenuItem[]
   orders              Order[]
   supportSettings     SupportSettings?
   tickets             Ticket[]
+  phoneNumberConfig   TenantPhoneNumber?
+  blockedTimes        BlockedTime[]
+
+  // 🚀 Appointment Services System
+  serviceCategories   ServiceCategory[]
+  appointmentServices AppointmentService[]
+  staff               Staff[]
 }
 
-model MenuCategory {
-  id           String     @id @default(uuid())
-  name         String
-  description  String?
-  imageUrl     String?
-  displayOrder Int        @default(0)
-  isActive     Boolean    @default(true)
-  businessId   String
-  tenantId     String
-  createdAt    DateTime   @default(now())
-  tenant       Tenant     @relation(fields: [tenantId], references: [id])
-  business     Business   @relation(fields: [businessId], references: [id])
-  items        MenuItem[]
-
-  @@index([tenantId])
-  @@index([businessId])
-}
-
-model MenuItem {
-  id              String            @id @default(uuid())
-  name            String
-  description     String?
-  price           Float?
-  imageUrl        String?
-  prepTime        Int               @default(15)
-  isAvailable     Boolean           @default(true)
-  isVeg           Boolean           @default(false)
-  isVegan         Boolean           @default(false)
-  isSpicy         Boolean           @default(false)
-  isPopular       Boolean           @default(false)
-  isNew           Boolean           @default(false)
-  pricingType     String            @default("FIXED")
-  serviceDuration Int?
-  variants        String?
-  tags            String?
-  displayOrder    Int               @default(0)
-  availability    String?
-  categoryId      String?
-  businessId      String
-  tenantId        String
-  createdAt       DateTime          @default(now())
-  customerId      String?
-  addons          MenuAddon[]
-  customer        Customer?         @relation(fields: [customerId], references: [id])
-  category        MenuCategory?     @relation(fields: [categoryId], references: [id])
-  business        Business          @relation(fields: [businessId], references: [id])
-  tenant          Tenant            @relation(fields: [tenantId], references: [id])
-  optionGroups    MenuOptionGroup[]
-  sizes           MenuSize[]
-  orderItems      OrderItem[]
-
-  @@index([tenantId])
-  @@index([businessId])
-}
-
-model MenuSize {
-  id         String   @id @default(uuid())
-  name       String
-  price      Float
-  menuItemId String
-  tenantId   String
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
-
-  @@index([tenantId])
-}
-
-model MenuAddon {
-  id         String   @id @default(uuid())
-  name       String
-  price      Float
-  menuItemId String
-  tenantId   String
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
-
-  @@index([tenantId])
-}
-
-model MenuOptionGroup {
-  id           String       @id @default(uuid())
-  name         String
-  description  String?
-  minSelect    Int          @default(0)
-  maxSelect    Int          @default(1)
-  isRequired   Boolean      @default(false)
-  displayOrder Int          @default(0)
-  menuItemId   String
-  tenantId     String
-  options      MenuOption[]
-  tenant       Tenant       @relation(fields: [tenantId], references: [id])
-  menuItem     MenuItem     @relation(fields: [menuItemId], references: [id])
-
-  @@index([tenantId])
-}
-
-model MenuOption {
-  id            String          @id @default(uuid())
-  name          String
-  price         Float           @default(0.0)
-  optionGroupId String
+model Customer {
+  id            String         @id @default(uuid())
+  name          String?
+  email         String?
+  phone         String?
+  avatarUrl     String?
   tenantId      String
-  tenant        Tenant          @relation(fields: [tenantId], references: [id])
-  optionGroup   MenuOptionGroup @relation(fields: [optionGroupId], references: [id])
+  createdAt     DateTime       @default(now())
+  appointments  Appointment[]
+  conversations Conversation[]
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  menuItems     MenuItem[]
+  tickets       Ticket[]
 
-  @@index([tenantId])
-}
-
-model Order {
-  id            String      @id @default(uuid())
-  customerName  String
-  total         Float
-  tenantId      String
-  businessId    String
-  createdAt     DateTime    @default(now())
-  callId        String?
-  customerPhone String?
-  status        String      @default("pending")
-  tenant        Tenant      @relation(fields: [tenantId], references: [id])
-  business      Business    @relation(fields: [businessId], references: [id])
-  items         OrderItem[]
-
-  @@index([tenantId])
-}
-
-model OrderItem {
-  id             String   @id @default(uuid())
-  orderId        String
-  menuItemId     String
-  tenantId       String
-  quantity       Int
-  selectedSize   String?
-  selectedAddons String?
-  unitPrice      Float?
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  menuItem       MenuItem @relation(fields: [menuItemId], references: [id])
-  order          Order    @relation(fields: [orderId], references: [id])
-
+  @@unique([tenantId, email])
+  @@unique([tenantId, phone])
   @@index([tenantId])
 }
 
@@ -262,29 +407,331 @@ model Call {
   aiConfidence      Float?   @default(0.95)
   isGuardianRescued Boolean  @default(false)
   language          String?  @default("en-US")
-  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  phoneNumberId     String?
   business          Business @relation(fields: [businessId], references: [id])
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  appointments      Appointment[]
 
   @@index([tenantId])
 }
 
 model Appointment {
   id              String    @id @default(uuid())
-  customerName    String
-  customerPhone   String?
-  serviceName     String
-  appointmentTime DateTime
-  status          String    @default("PENDING")
-  notes           String?
-  staffId         String?
-  callId          String?
   tenantId        String
   businessId      String
-  createdAt       DateTime  @default(now())
+  serviceId       String?   // 🚀 Link to the specific service
   customerId      String?
+  staffId         String?
+  callId          String?   // 🚀 Link to the AI Call that created this
+
+  customerName    String
+  customerPhone   String?
+  customerEmail   String?   // 🚀 Added
+  
+  appointmentTime DateTime  // This is the START time
+  appointmentEnd  DateTime? // 🚀 Calculated based on service duration
+  durationMinutes Int       @default(30) // 🚀 Explicit duration for this booking
+  
+  status          String    @default("PENDING") // PENDING, CONFIRMED, CANCELLED, COMPLETED, NO_SHOW
+  source          String    @default("DASHBOARD") // AI, DASHBOARD, MANUAL, WIDGET
+  notes           String?   @db.Text
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt @default(now())
+
+  business        Business  @relation(fields: [businessId], references: [id])
   customer        Customer? @relation(fields: [customerId], references: [id])
   tenant          Tenant    @relation(fields: [tenantId], references: [id])
-  business        Business  @relation(fields: [businessId], references: [id])
+  staff           Staff?    @relation(fields: [staffId], references: [id])
+  service         AppointmentService? @relation(fields: [serviceId], references: [id])
+  call            Call?     @relation(fields: [callId], references: [id])
+
+  @@index([tenantId])
+  @@index([businessId])
+  @@index([serviceId])
+  @@index([appointmentTime])
+  @@index([status])
+}
+
+model MenuCategory {
+  id           String     @id @default(uuid())
+  name         String
+  description  String?
+  imageUrl     String?
+  displayOrder Int        @default(0)
+  isActive     Boolean    @default(true)
+  businessId   String
+  tenantId     String
+  createdAt    DateTime   @default(now())
+  business     Business   @relation(fields: [businessId], references: [id])
+  tenant       Tenant     @relation(fields: [tenantId], references: [id])
+  items        MenuItem[]
+
+  @@index([tenantId])
+  @@index([businessId])
+}
+
+model MenuItem {
+  id              String            @id @default(uuid())
+  name            String
+  description     String?
+  price           Float?
+  imageUrl        String?
+  prepTime        Int               @default(15)
+  isAvailable     Boolean           @default(true)
+  isVeg           Boolean           @default(false)
+  isVegan         Boolean           @default(false)
+  isSpicy         Boolean           @default(false)
+  isPopular       Boolean           @default(false)
+  isNew           Boolean           @default(false)
+  pricingType     String            @default("FIXED")
+  serviceDuration Int?
+  tags            String?
+  displayOrder    Int               @default(0)
+  availability    String?
+  categoryId      String?
+  businessId      String
+  tenantId        String
+  createdAt       DateTime          @default(now())
+  customerId      String?
+  addons          MenuAddon[] @relation("LegacyAddons")
+  
+  // 🚀 Enterprise Metadata
+  calories        Int?
+  allergens       String? 
+  spicyLevel      Int               @default(0)
+  basePrepTime    Int?              // distinct from prepTime which might be total
+  
+  // 🚀 Enterprise Relations
+  variants        MenuVariant[]
+  modifierGroups  MenuItemModifierGroup[]
+  itemAddons      MenuItemAddon[]
+  availabilityRule MenuAvailability?
+  comboInclusions ComboMealItem[]
+  business        Business          @relation(fields: [businessId], references: [id])
+  category        MenuCategory?     @relation(fields: [categoryId], references: [id])
+  customer        Customer?         @relation(fields: [customerId], references: [id])
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+  optionGroups    MenuOptionGroup[]
+  sizes           MenuSize[]
+  aliases         MenuItemAlias[]
+  orderItems      OrderItem[]
+
+  @@index([tenantId])
+  @@index([businessId])
+}
+
+model MenuVariant {
+  id              String   @id @default(uuid())
+  menuItemId      String
+  name            String
+  price           Float
+  calories        Int?
+  prepTime        Int?
+  sortOrder       Int      @default(0)
+  isDefault       Boolean  @default(false)
+  tenantId        String
+  
+  menuItem        MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+
+  @@index([menuItemId])
+  @@index([tenantId])
+}
+
+model ModifierGroup {
+  id             String           @id @default(uuid())
+  businessId     String
+  tenantId       String
+  name           String
+  description    String?
+  selectionType  String           @default("SINGLE")
+  minSelection   Int              @default(0)
+  maxSelection   Int              @default(1)
+  isRequired     Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  
+  options        ModifierOption[]
+  menuItems      MenuItemModifierGroup[]
+  
+  @@index([businessId])
+  @@index([tenantId])
+}
+
+model ModifierOption {
+  id              String         @id @default(uuid())
+  modifierGroupId String
+  name            String
+  price           Float          @default(0.0)
+  isAvailable     Boolean        @default(true)
+  sortOrder       Int            @default(0)
+  
+  group           ModifierGroup  @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
+}
+
+model MenuItemModifierGroup {
+  menuItemId      String
+  modifierGroupId String
+  
+  menuItem        MenuItem       @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  group           ModifierGroup  @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
+  
+  @@id([menuItemId, modifierGroupId])
+}
+
+model MenuItemAddon {
+  menuItemId String
+  addonId    String
+  
+  menuItem   MenuItem  @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  addon      MenuAddon @relation(fields: [addonId], references: [id], onDelete: Cascade)
+  
+  @@id([menuItemId, addonId])
+}
+
+model MenuAvailability {
+  id            String   @id @default(uuid())
+  menuItemId    String   @unique
+  availableDays String
+  startTime     String?
+  endTime       String?
+  stockQuantity Int?
+  isAvailable   Boolean  @default(true)
+  
+  menuItem      MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+}
+
+model ComboMeal {
+  id             String           @id @default(uuid())
+  businessId     String
+  tenantId       String
+  name           String
+  description    String?
+  comboPrice     Float
+  imageUrl       String?
+  isAvailable    Boolean          @default(true)
+  
+  items          ComboMealItem[]
+  
+  @@index([businessId])
+  @@index([tenantId])
+}
+
+model ComboMealItem {
+  comboMealId String
+  menuItemId  String
+  quantity    Int    @default(1)
+  
+  combo       ComboMeal @relation(fields: [comboMealId], references: [id], onDelete: Cascade)
+  menuItem    MenuItem  @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  
+  @@id([comboMealId, menuItemId])
+}
+
+model MenuItemAlias {
+  id          String   @id @default(uuid())
+  alias       String
+  menuItemId  String
+  tenantId    String
+
+  menuItem    MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+  @@index([menuItemId])
+  @@index([tenantId])
+}
+
+model MenuSize {
+  id         String   @id @default(uuid())
+  name       String
+  price      Float
+  menuItemId String
+  tenantId   String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model MenuAddon {
+  id         String   @id @default(uuid())
+  name       String
+  price      Float
+  menuItemId String?
+  businessId String?
+  tenantId   String
+  
+  menuItem   MenuItem? @relation("LegacyAddons", fields: [menuItemId], references: [id])
+  items      MenuItemAddon[]
+  tenant     Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model MenuOptionGroup {
+  id           String       @id @default(uuid())
+  name         String
+  description  String?
+  minSelect    Int          @default(0)
+  maxSelect    Int          @default(1)
+  isRequired   Boolean      @default(false)
+  displayOrder Int          @default(0)
+  menuItemId   String
+  tenantId     String
+  options      MenuOption[]
+  menuItem     MenuItem     @relation(fields: [menuItemId], references: [id])
+  tenant       Tenant       @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model MenuOption {
+  id            String          @id @default(uuid())
+  name          String
+  price         Float           @default(0.0)
+  optionGroupId String
+  tenantId      String
+  optionGroup   MenuOptionGroup @relation(fields: [optionGroupId], references: [id])
+  tenant        Tenant          @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  orderNumber   Int         @default(autoincrement())
+  customerName  String
+  total         Float
+  tenantId      String
+  businessId    String
+  createdAt     DateTime    @default(now())
+  callId        String?
+  customerPhone String?
+  notes         String?     @db.Text
+  status        String      @default("pending")
+  business      Business    @relation(fields: [businessId], references: [id])
+  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  items         OrderItem[]
+
+  @@index([tenantId])
+  @@index([businessId])
+}
+
+model OrderItem {
+  id             String   @id @default(uuid())
+  orderId        String
+  menuItemId     String
+  tenantId       String
+  quantity       Int
+  selectedSize   String?
+  selectedAddons String?
+  unitPrice      Float?
+  menuItem       MenuItem @relation(fields: [menuItemId], references: [id])
+  order          Order    @relation(fields: [orderId], references: [id])
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
 }
 
 model ExternalMapping {
@@ -305,8 +752,8 @@ model Integration {
   status      String                 @default("DISCONNECTED")
   lastSync    DateTime?
   config      String?
-  tenant      Tenant                 @relation(fields: [tenantId], references: [id])
   business    Business               @relation(fields: [businessId], references: [id])
+  tenant      Tenant                 @relation(fields: [tenantId], references: [id])
   credentials IntegrationCredential?
   logs        IntegrationLog[]
 }
@@ -343,115 +790,6 @@ model MintRequest {
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
 }
 
-model Customer {
-  id            String         @id @default(uuid())
-  name          String?
-  email         String?
-  phone         String?
-  avatarUrl     String?
-  tenantId      String
-  createdAt     DateTime       @default(now())
-  appointments  Appointment[]
-  conversations Conversation[]
-  tenant        Tenant         @relation(fields: [tenantId], references: [id])
-  menuItems     MenuItem[]
-  tickets       Ticket[]
-
-  @@unique([tenantId, email])
-  @@unique([tenantId, phone])
-  @@index([tenantId])
-}
-
-model Conversation {
-  id            String    @id @default(uuid())
-  tenantId      String
-  businessId    String
-  customerId    String
-  status        String    @default("open")
-  priority      String    @default("medium")
-  lastMessageAt DateTime  @default(now())
-  aiHandled     Boolean   @default(true)
-  assignedToId  String?
-  createdAt     DateTime  @default(now())
-  assignedTo    User?     @relation(fields: [assignedToId], references: [id])
-  customer      Customer  @relation(fields: [customerId], references: [id])
-  business      Business  @relation(fields: [businessId], references: [id])
-  tenant        Tenant    @relation(fields: [tenantId], references: [id])
-  messages      Message[]
-
-  @@index([tenantId])
-  @@index([businessId])
-}
-
-model Message {
-  id             String       @id @default(uuid())
-  conversationId String
-  senderId       String?
-  customerId     String?
-  senderType     String
-  content        String
-  contentType    String       @default("text")
-  attachmentUrl  String?
-  isRead         Boolean      @default(false)
-  metadata       String?
-  createdAt      DateTime     @default(now())
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
-
-  @@index([conversationId])
-}
-
-model Ticket {
-  id           String    @id @default(uuid())
-  title        String
-  description  String?
-  status       String    @default("open")
-  priority     String    @default("medium")
-  tags         String?
-  tenantId     String
-  businessId   String?
-  customerId   String
-  assignedToId String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  assignedTo   User?     @relation(fields: [assignedToId], references: [id])
-  customer     Customer  @relation(fields: [customerId], references: [id])
-  business     Business? @relation(fields: [businessId], references: [id])
-  tenant       Tenant    @relation(fields: [tenantId], references: [id])
-
-  @@index([tenantId])
-  @@index([businessId])
-}
-
-model KnowledgeCategory {
-  id          String             @id @default(uuid())
-  name        String
-  description String?
-  tenantId    String
-  businessId  String
-  articles    KnowledgeArticle[]
-  tenant      Tenant             @relation(fields: [tenantId], references: [id])
-
-  @@index([tenantId])
-}
-
-model KnowledgeArticle {
-  id          String            @id @default(uuid())
-  title       String
-  content     String
-  categoryId  String
-  tenantId    String
-  businessId  String
-  isPublished Boolean           @default(true)
-  metadata    String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  tenant      Tenant            @relation(fields: [tenantId], references: [id])
-  category    KnowledgeCategory @relation(fields: [categoryId], references: [id])
-
-  @@index([tenantId])
-  @@index([categoryId])
-}
-
 model SupportSettings {
   id               String   @id @default(uuid())
   tenantId         String   @unique
@@ -462,6 +800,305 @@ model SupportSettings {
   autoReplyEnabled Boolean  @default(true)
   kbEnabled        Boolean  @default(true)
   escalationRules  String?
-  tenant           Tenant   @relation(fields: [tenantId], references: [id])
   business         Business @relation(fields: [businessId], references: [id])
+  tenant           Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+enum TicketStatus {
+  open
+  pending
+  in_progress
+  investigating
+  fixing
+  testing
+  waiting_customer
+  resolved
+  closed
+  escalated
+}
+
+enum Priority {
+  low
+  medium
+  high
+  urgent
+  critical
+}
+
+model Incident {
+  id               String           @id @default(uuid())
+  title            String
+  description      String
+  severity         String           @default("major") // minor, major, critical
+  status           String           @default("investigating") // investigating, identified, monitoring, resolved
+  affectedServices String?          // comma separated or JSON
+  timeline         Json?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  resolvedAt       DateTime?
+}
+
+model SystemMetric {
+  id         String   @id @default(uuid())
+  name       String
+  value      Float
+  unit       String?
+  timestamp  DateTime @default(now())
+  
+  @@index([name])
+  @@index([timestamp])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  resource  String
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model InternalTask {
+  id           String    @id @default(uuid())
+  title        String
+  description  String?
+  assignedToId String
+  priority     Priority  @default(medium)
+  status       String    @default("todo") // todo, in_progress, review, done
+  dueDate      DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([assignedToId])
+}
+
+model SystemSetting {
+  id        String   @id @default(uuid())
+  group     String   // e.g., 'GENERAL', 'AI', 'VOICE', 'BILLING'
+  key       String   @unique
+  value     String   @db.Text
+  type      String   @default("string") // string, number, boolean, json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([group])
+}
+
+model TenantPhoneNumber {
+  id                   String              @id @default(uuid())
+  tenantId             String
+  businessId           String?             @unique
+  businessPhoneNumber  String?             // The BYON number (existing)
+  twilioPhoneNumber    String              @unique // The Twilio proxy number
+  twilioSid            String?
+  provider             String              @default("TWILIO")
+  forwardingEnabled    Boolean             @default(true)
+  aiEnabled            Boolean             @default(true)
+  recordingEnabled     Boolean             @default(true)
+  businessHours        Json?               // Store structured hours
+  transferNumber       String?             // Human transfer dest
+  fallbackNumber       String?             // Fallback if AI fails
+  departmentRouting    Json?               // Store dept mappings
+  status               String              @default("ACTIVE")
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  
+  tenant               Tenant              @relation(fields: [tenantId], references: [id])
+  business             Business?           @relation(fields: [businessId], references: [id])
+}
+
+model CallRoutingRule {
+  id                 String   @id @default(uuid())
+  tenantId           String
+  phoneNumberId      String?
+  routeType          String   // e.g., 'TIME_BASED', 'DEPARTMENT', 'FALLBACK'
+  destination        String   // Phone number or 'AI'
+  aiHandlingEnabled  Boolean  @default(true)
+  department         String?
+  priority           Int      @default(0)
+  createdAt          DateTime @default(now())
+  tenant             Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model CallAnalytics {
+  id                String   @id @default(uuid())
+  tenantId          String
+  businessId        String?
+  date              DateTime @default(now())
+  incomingCalls     Int      @default(0)
+  transferredCalls  Int      @default(0)
+  missedCalls       Int      @default(0)
+  aiHandledCalls    Int      @default(0)
+  avgCallDuration   Float    @default(0)
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@unique([tenantId, date])
+}
+
+
+// ==========================================
+// 🚀 APPOINTMENT SERVICES SYSTEM
+// ==========================================
+
+model Staff {
+  id           String             @id @default(uuid())
+  businessId   String
+  tenantId     String
+  name         String
+  email        String?
+  phone        String?
+  role         String?            @default("Specialist")
+  avatarUrl    String?
+  bio          String?
+  isActive     Boolean            @default(true)
+  workingHours Json?              // Structured working hours per day
+  createdAt    DateTime           @default(now())
+
+  business     Business           @relation(fields: [businessId], references: [id])
+  tenant       Tenant             @relation(fields: [tenantId], references: [id])
+  services     StaffService[]
+  appointments Appointment[]      // Relation to existing appointments
+
+  @@index([businessId])
+  @@index([tenantId])
+}
+
+model BlockedTime {
+  id           String    @id @default(uuid())
+  businessId   String
+  tenantId     String
+  staffId      String?
+  startTime    DateTime
+  endTime      DateTime
+  reason       String?
+  isRecurring  Boolean   @default(false)
+  
+  business     Business  @relation(fields: [businessId], references: [id])
+  tenant       Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@index([businessId])
+  @@index([tenantId])
+}
+
+model ServiceCategory {
+  id           String               @id @default(uuid())
+  businessId   String
+  tenantId     String
+  name         String
+  description  String?
+  imageUrl     String?
+  sortOrder    Int                  @default(0)
+  isActive     Boolean              @default(true)
+  createdAt    DateTime             @default(now())
+
+  business     Business             @relation(fields: [businessId], references: [id])
+  tenant       Tenant               @relation(fields: [tenantId], references: [id])
+  services     AppointmentService[]
+
+  @@index([businessId])
+  @@index([tenantId])
+}
+
+model AppointmentService {
+  id                   String               @id @default(uuid())
+  businessId           String
+  tenantId             String
+  categoryId           String
+  name                 String
+  description          String?
+  duration             Int                  @default(30) // Legacy support
+  durationMinutes      Int                  @default(30) // 🚀 Preferred field
+  bufferMinutes        Int                  @default(0)  // 🚀 Buffer between appointments
+  price                Float
+  discountPrice        Float?
+  imageUrl             String?
+  preparationTime      Int                  @default(0)
+  isActive             Boolean              @default(true) // 🚀 Renamed from isAvailable logic
+  isPopular            Boolean              @default(false)
+  isFeatured           Boolean              @default(false)
+  isAvailable          Boolean              @default(true) // Legacy support
+  requiresStaffSelection Boolean            @default(false)
+  allowOnlineBooking   Boolean              @default(true)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt @default(now())
+
+  business             Business             @relation(fields: [businessId], references: [id])
+  tenant               Tenant               @relation(fields: [tenantId], references: [id])
+  category             ServiceCategory      @relation(fields: [categoryId], references: [id])
+  appointments         Appointment[]        // 🚀 Relation to appointments
+  variants             ServiceVariant[]
+  addons               ServiceAddon[]
+  availability         ServiceAvailability?
+  staffAssignments     StaffService[]
+  aliases              ServiceAlias[]
+
+  @@index([businessId])
+  @@index([tenantId])
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+model ServiceVariant {
+  id               String             @id @default(uuid())
+  serviceId        String
+  name             String             // e.g. "30 Minutes", "1 Hour"
+  price            Float
+  duration         Int                // in minutes
+  sortOrder        Int                @default(0)
+  tenantId         String
+  service          AppointmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  createdAt        DateTime           @default(now())
+
+  @@index([serviceId])
+  @@index([tenantId])
+}
+
+model ServiceAddon {
+  id               String             @id @default(uuid())
+  serviceId        String
+  name             String
+  price            Float              @default(0.0)
+  durationIncrease Int                @default(0)
+  isAvailable      Boolean            @default(true)
+
+  service          AppointmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+}
+
+model StaffService {
+  id        String             @id @default(uuid())
+  staffId   String
+  serviceId String
+
+  staff     Staff              @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  service   AppointmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([staffId, serviceId])
+}
+
+model ServiceAvailability {
+  id               String             @id @default(uuid())
+  serviceId        String             @unique
+  availableDays    String             // JSON string of days: ["Monday", "Tuesday"]
+  startTime        String             @default("09:00")
+  endTime          String             @default("18:00")
+  maxBookingsPerSlot Int              @default(1)
+  isAvailable      Boolean            @default(true)
+
+  service          AppointmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+}
+
+model ServiceAlias {
+  id        String             @id @default(uuid())
+  serviceId String
+  alias     String
+  tenantId  String
+
+  service   AppointmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId])
+  @@index([tenantId])
 }

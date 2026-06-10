@@ -1,152 +1,888 @@
-<div class="page-header">
-  <div style="display:flex; justify-content:space-between; align-items:flex-end; width:100%;">
+<style>
+  :root {
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --primary: #2563eb;
+    --primary-glow: rgba(37, 99, 235, 0.3);
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --text-muted: #94a3b8;
+    --radius-xl: 1.5rem;
+    --radius-2xl: 2.25rem;
+  }
+
+  .booking-premium-container {
+    color: white;
+    padding-bottom: 5rem;
+  }
+
+  /* ✨ Premium Glassmorphism */
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-2xl);
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-4px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  /* 📅 Calendar Navigation */
+  .calendar-nav-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 2rem;
+    border: 1px solid var(--glass-border);
+    justify-content: center;
+  }
+
+  .day-selector-btn {
+    flex: 1 0 100px;
+    max-width: 140px;
+    padding: 1.25rem 0.75rem;
+    border-radius: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .day-selector-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+  }
+
+  .day-selector-btn.active-day {
+    background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%) !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 10px 20px -5px var(--primary-glow);
+    transform: scale(1.05);
+  }
+
+  .day-selector-btn span:first-child {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+  }
+
+  .day-selector-btn span:last-child {
+    font-size: 1.5rem;
+    font-weight: 900;
+  }
+
+  /* ⚡ Interactive Slots */
+  .slot-premium {
+    position: relative;
+    padding: 1.75rem 1.25rem;
+    text-align: center;
+    border-radius: 1.5rem;
+    cursor: pointer;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .slot-premium.available {
+    border-color: rgba(16, 185, 129, 0.15);
+  }
+
+  .slot-premium.available:hover {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: var(--success);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 30px -10px rgba(16, 185, 129, 0.3);
+  }
+
+  .slot-premium .slot-time {
+    font-size: 1.25rem;
+    font-weight: 900;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .slot-premium .slot-tag {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .slot-premium.booked {
+    background: rgba(0, 0, 0, 0.2);
+    opacity: 0.8;
+  }
+
+  .slot-premium.booked:hover {
+    opacity: 1;
+    transform: translateY(-5px);
+    border-color: var(--primary);
+  }
+
+  /* 💎 Sidebar Intelligence */
+  .intel-panel {
+    padding: 2rem;
+    border-radius: 2.25rem;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+    border: 1px solid var(--glass-border);
+  }
+
+  .intel-stat-box {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1.25rem;
+    border-radius: 1.25rem;
+    border: 1px solid var(--glass-border);
+  }
+
+  /* 🚀 Animations */
+  .animate-entrance { animation: slideUpFade 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+  
+  @keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--success);
+    animation: dot-pulse 2s infinite;
+  }
+
+  @keyframes dot-pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+
+<div class="booking-premium-container animate-entrance">
+  <!-- Header Elite -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4rem;">
     <div>
-      <h1>Appointments & Scheduling</h1>
-      <p>Manage your patient flow, bookings, and service availability.</p>
+      <h1 style="font-size: 3rem; font-weight: 900; letter-spacing: -0.05em; background: linear-gradient(135deg, #fff 0%, #64748b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Booking Intelligence</h1>
+      <p style="color: var(--text-muted); font-size: 1.2rem; font-weight: 500; margin-top: 0.5rem;">Strategic Schedule Management & Flow Optimization</p>
     </div>
-    <div style="display:flex; gap:0.75rem;">
-      <button class="action-btn" onclick="openBookingModal()" style="width:auto; padding:0 1rem; background:var(--primary); color:white; border:none; height:2.5rem; font-weight:600;">
-        <i data-lucide="plus" style="width:16px; margin-right:4px;"></i> New Appointment
+    <div style="display: flex; gap: 1rem;">
+      <button class="glass-card" onclick="toggleSettings()" style="width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+        <i data-lucide="settings-2" style="width: 24px; color: var(--text-muted);"></i>
       </button>
+      <button class="apex-btn" onclick="openBookingModal()" style="height: 56px; padding: 0 2rem; border-radius: 1.25rem; background: var(--primary); color: white; border: none; font-weight: 800; box-shadow: 0 10px 30px var(--primary-glow);">
+        <i data-lucide="plus" style="width: 20px; margin-right: 0.5rem; vertical-align: middle;"></i> New Appointment
+      </button>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 380px; gap: 3rem;">
+    
+    <!-- LEFT: Calendar Core -->
+    <div style="display: flex; flex-direction: column; gap: 3rem;">
+      
+      <!-- Quick Metrics -->
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+        <div class="glass-card" style="padding: 1.75rem; border-left: 4px solid var(--primary);">
+          <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Today's Load</span>
+          <h2 style="font-size: 2.5rem; font-weight: 900; margin-top: 0.25rem;" id="statToday">0</h2>
+        </div>
+        <div class="glass-card" style="padding: 1.75rem; border-left: 4px solid var(--success);">
+          <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Available Windows</span>
+          <h2 style="font-size: 2.5rem; font-weight: 900; margin-top: 0.25rem; color: var(--success);" id="statAvailable">0</h2>
+        </div>
+      </div>
+
+      <!-- Main Calendar Panel -->
+      <div class="glass-card" style="padding: 3.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3.5rem;">
+          <div>
+            <h2 style="font-size: 1.8rem; font-weight: 900; letter-spacing: -0.02em;">Weekly Operational View</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;" id="weekRangeLabel">Fetching schedule...</p>
+          </div>
+          <div style="display: flex; background: rgba(0,0,0,0.2); padding: 0.4rem; border-radius: 1.25rem; border: 1px solid var(--glass-border);">
+            <button class="view-toggle" onclick="switchView('day', this)" style="padding: 0.6rem 1.25rem; border-radius: 1rem; border: none; background: transparent; color: white; font-weight: 700; cursor: pointer;">Day</button>
+            <button class="view-toggle active" onclick="switchView('week', this)" style="padding: 0.6rem 1.25rem; border-radius: 1rem; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer;">Week</button>
+            <button class="view-toggle" onclick="switchView('month', this)" style="padding: 0.6rem 1.25rem; border-radius: 1rem; border: none; background: transparent; color: white; font-weight: 700; cursor: pointer;">Month</button>
+          </div>
+        </div>
+
+        <div id="calendarDaysRow" class="calendar-nav-row animate-entrance">
+          <!-- Days JS -->
+        </div>
+
+        <div style="margin-top: 4rem;">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+            <div style="width: 2rem; height: 2px; background: var(--primary);"></div>
+            <span style="font-size: 0.75rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.15em;">Active Time Windows</span>
+          </div>
+          <div id="availableSlotsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1.25rem;">
+            <!-- Slots JS -->
+          </div>
+        </div>
+
+        <div style="margin-top: 5rem;">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+            <div style="width: 2rem; height: 2px; background: rgba(255,255,255,0.2);"></div>
+            <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em;">Booked Engagements</span>
+          </div>
+          <div id="bookedSlotsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1.25rem;">
+            <!-- Bookings JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Intelligence Center -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+      
+      <!-- Panel: Selected Booking Intel -->
+      <div id="bookingIntelPanel" class="intel-panel glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h4 id="intelTitle" style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Elite Intel</h4>
+          <div id="intelStatusBadge"></div>
+        </div>
+        
+        <div id="intelContent">
+          <div style="text-align: center; padding: 3rem 1rem; opacity: 0.4;">
+            <i data-lucide="layers" style="width: 32px; height: 32px; margin: 0 auto 1rem; display: block;"></i>
+            <p style="font-size: 0.85rem; line-height: 1.5;">Select an active engagement to view customer profiles and session data.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Next Session Pulse -->
+      <div class="glass-card" style="padding: 2rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: none;">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+          <div class="pulse-dot"></div>
+          <h4 style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em;">Flow Monitoring</h4>
+        </div>
+        <div id="highlightApptCard">
+          <div style="padding: 1.5rem; text-align: center; color: #64748b; font-size: 0.85rem; font-weight: 500; border: 1px dashed rgba(255,255,255,0.1); border-radius: 1.25rem;">
+            Awaiting upcoming flow...
+          </div>
+        </div>
+      </div>
+
+      </div>
+
+      <!-- Panel: Operational Constraints -->
+      <div class="glass-card" style="padding: 2rem; border-style: dashed; border-color: rgba(255,255,255,0.1);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+          <h4 style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Scheduling Rules</h4>
+          <i data-lucide="lock" style="width: 14px; opacity: 0.5;"></i>
+        </div>
+        
+        <div id="scheduleSettingsPanel" style="display: none;">
+          <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div class="intel-stat-box">
+              <label style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; display: block;">Morning Sync (Open)</label>
+              <input type="time" id="setOpenTime" class="apex-input" style="background: transparent; border: none; color: white; padding: 0; height: auto; font-size: 1.1rem; font-weight: 700;">
+            </div>
+            <div class="intel-stat-box">
+              <label style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; display: block;">Evening Cutoff (Close)</label>
+              <input type="time" id="setCloseTime" class="apex-input" style="background: transparent; border: none; color: white; padding: 0; height: auto; font-size: 1.1rem; font-weight: 700;">
+            </div>
+            <button onclick="saveScheduleSettings()" class="apex-btn" style="width: 100%; height: 52px; background: var(--primary); color: white; border-radius: 1rem; font-weight: 800; border: none;">Apply Constraints</button>
+          </div>
+        </div>
+        <button onclick="toggleSettings()" id="settingsToggleBtn" style="width: 100%; height: 48px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 1rem; color: white; font-weight: 700; cursor: pointer;">Modify Access Windows</button>
+      </div>
+
     </div>
   </div>
 </div>
 
-<div class="apex-grid" style="grid-template-columns: 1fr 350px; gap: 1.5rem; align-items: start;">
-  <div class="apex-card" style="padding: 0;">
-    <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border);">
-      <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-        <div style="display:flex; gap:1rem; align-items:center;">
-          <h3 class="card-title">Weekly Schedule</h3>
-          <div style="display:flex; background:var(--bg-muted); border-radius:0.5rem; padding:0.25rem;">
-            <button class="action-btn active" style="font-size:0.7rem; height:1.75rem; padding:0 0.75rem;">Week</button>
-            <button class="action-btn" style="font-size:0.7rem; height:1.75rem; padding:0 0.75rem;">Day</button>
-          </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <button class="action-btn" style="width:32px; height:32px;"><i data-lucide="chevron-left"></i></button>
-          <span style="font-weight:700; font-size:0.875rem;">May 7 — May 13, 2026</span>
-          <button class="action-btn" style="width:32px; height:32px;"><i data-lucide="chevron-right"></i></button>
-        </div>
-      </div>
+<!-- ✨ Premium Booking Modal -->
+<div id="bookingModal" class="modal-overlay">
+  <div class="glass-card animate-entrance" style="width: 100%; max-width: 680px; padding: 4rem; position: relative;">
+    <button onclick="closeBookingModal()" style="position: absolute; top: 2rem; right: 2rem; width: 3.5rem; height: 3.5rem; border-radius: 1.25rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+      <i data-lucide="x" style="width: 20px;"></i>
+    </button>
+    
+    <div style="margin-bottom: 3.5rem;">
+      <h2 style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em;">Confirm Slot</h2>
+      <p style="color: var(--text-muted); font-size: 1.1rem; font-weight: 500; margin-top: 0.5rem;">Finalizing operational commitment for client.</p>
     </div>
 
-    <div class="table-wrapper">
-      <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-          <tr style="text-align: left; border-bottom: 1px solid var(--border); background:rgba(255,255,255,0.01);">
-            <th style="padding: 1rem; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted);">Client</th>
-            <th style="padding: 1rem; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted);">Service</th>
-            <th style="padding: 1rem; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted);">Date & Time</th>
-            <th style="padding: 1rem; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted);">Status</th>
-            <th style="padding: 1rem; text-align:right; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted);">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="appointmentTableBody">
-          <tr>
-            <td colspan="5" style="text-align:center; padding:4rem;">
-              <div class="spin" style="width:24px; height:24px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; margin: 0 auto 1rem;"></div>
-              <p style="color:var(--text-muted); font-size:0.875rem;">Connecting to AI Scheduling Engine...</p>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div style="display:flex; flex-direction:column; gap:1.5rem;">
-    <div class="apex-card">
-      <h3 class="card-title" style="margin-bottom:1rem;">Capacity Monitor</h3>
-      <div style="margin-bottom:1.5rem;">
-        <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:0.5rem;">
-          <span>Morning Slots</span>
-          <span style="font-weight:700; color:var(--success);">85%</span>
+    <form id="bookingForm" onsubmit="window.handleNewBooking(event)" style="display: flex; flex-direction: column; gap: 2rem;">
+      <input type="hidden" name="appointmentTime" id="modalTimeInput" />
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <div class="intel-stat-box">
+          <label style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.75rem; display: block;">Customer Name</label>
+          <input type="text" name="customerName" placeholder="Full Identity" required class="apex-input" style="background: transparent; border: none; color: white; padding: 0; height: auto; font-size: 1rem; font-weight: 600;">
         </div>
-        <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
-          <div style="width:85%; height:100%; background:var(--success);"></div>
+        <div class="intel-stat-box">
+          <label style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.75rem; display: block;">Phone Line</label>
+          <input type="tel" name="customerPhone" placeholder="+1..." required class="apex-input" style="background: transparent; border: none; color: white; padding: 0; height: auto; font-size: 1rem; font-weight: 600;">
         </div>
       </div>
-      <div style="margin-bottom:1rem;">
-        <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:0.5rem;">
-          <span>Evening Slots</span>
-          <span style="font-weight:700; color:var(--primary);">40%</span>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <div class="intel-stat-box">
+          <label style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.75rem; display: block;">Service Tier</label>
+          <select name="serviceId" id="modalServiceSelect" required class="apex-input select-chevron" style="background: transparent; border: none; color: var(--primary); padding: 0; height: auto; font-size: 1rem; font-weight: 800;">
+            <option value="">Syncing tiers...</option>
+          </select>
         </div>
-        <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
-          <div style="width:40%; height:100%; background:var(--primary);"></div>
+        <div class="intel-stat-box">
+          <label style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.75rem; display: block;">Lead Specialist</label>
+          <select name="staffId" id="modalStaffSelect" class="apex-input select-chevron" style="background: transparent; border: none; color: white; padding: 0; height: auto; font-size: 1rem; font-weight: 600;">
+            <option value="">Automatic Assignment</option>
+          </select>
         </div>
       </div>
-    </div>
 
-    <div class="apex-card" style="border-left: 4px solid var(--primary);">
-      <h4 style="font-size:0.875rem; font-weight:700; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
-        <i data-lucide="sparkles" style="width:14px; color:var(--primary);"></i> AI Scheduler Tip
-      </h4>
-      <p style="font-size:0.8rem; color:var(--text-secondary); line-height:1.5;">
-        Sarah V2 has noticed a high demand for <strong>Teeth Whitening</strong> on Friday evenings. Consider opening 2 additional slots.
-      </p>
-      <button class="action-btn" style="margin-top:1rem; width:100%; border-color:var(--primary); color:var(--primary);">Open Slots</button>
-    </div>
+      <div id="selectedTimeDisplay" style="padding: 2rem; background: rgba(var(--primary-rgb), 0.1); border-radius: 1.5rem; border: 1px solid rgba(var(--primary-rgb), 0.2); text-align: center;">
+        <span style="font-size: 1.25rem; font-weight: 900; color: var(--primary);">00:00 — 00:00</span>
+      </div>
+
+      <button type="submit" style="height: 72px; border-radius: 2rem; background: var(--primary); color: white; border: none; font-weight: 900; font-size: 1.1rem; cursor: pointer; box-shadow: 0 15px 30px var(--primary-glow);">
+        Commit Engagement
+      </button>
+    </form>
   </div>
 </div>
 
 <script>
-  if (window.lucide) lucide.createIcons();
-  
-  // Load initial appointments
-  async function fetchAppointments() {
-    try {
-      const bId = localStorage.getItem("activeBusinessId");
-      const res = await fetch(`/api/appointment?businessId=${bId}`, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem("accessToken") }
-      });
-      const result = await res.json();
-      const container = document.getElementById("appointmentTableBody");
+  (function() {
+    const currentToken = localStorage.getItem("token") || localStorage.getItem("accessToken");
+    const currentBId = "<%= business ? business.id : '' %>";
+    const defaultDuration = <%= business ? business.appointmentDuration : 30 %>;
+    let currentSelectedDate = new Date().toISOString().split('T')[0];
+
+    window.openBookingModal = function(timeStr = null) {
+      const modal = document.getElementById("bookingModal");
+      if (modal) {
+        modal.classList.add("show");
+        loadServices().then(() => {
+          // If no time provided (Manual New Appointment), use current date at 09:00
+          if (!timeStr) {
+            const defaultTime = new Date(currentSelectedDate);
+            defaultTime.setHours(9, 0, 0, 0);
+            timeStr = defaultTime.toISOString();
+          }
+          
+          document.getElementById("modalTimeInput").value = timeStr;
+          updateModalTimeDisplay();
+        });
+        loadStaff();
+      }
+    };
+
+    window.updateModalTimeDisplay = function() {
+      const timeStr = document.getElementById("modalTimeInput").value;
+      const serviceSelect = document.getElementById("modalServiceSelect");
+      if (!timeStr || !serviceSelect) return;
+
+      const startTime = new Date(timeStr);
+      const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
       
+      // 🚀 USE DATA-DURATION OR FALLBACK TO SETTINGS
+      let duration = defaultDuration;
+      if (selectedOption && selectedOption.dataset.duration) {
+        const d = parseInt(selectedOption.dataset.duration);
+        if (d > 0) duration = d;
+      }
+
+      const endTime = new Date(startTime.getTime() + duration * 60000);
+      
+      const timeFormat = { hour: 'numeric', minute: '2-digit', hour12: true };
+      const displayStr = `
+        <div style="font-size: 1.1rem; margin-bottom: 0.25rem;">${startTime.toLocaleTimeString([], timeFormat)} — ${endTime.toLocaleTimeString([], timeFormat)}</div>
+        <div style="font-size: 0.75rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.05em;">${duration} MINUTE SESSION</div>
+      `;
+      document.getElementById("selectedTimeDisplay").innerHTML = displayStr;
+    };
+
+    // Attach change listener after loadServices
+    const originalLoadServices = loadServices;
+    loadServices = async function() {
+      await originalLoadServices();
+      const select = document.getElementById("modalServiceSelect");
+      if (select) {
+        select.onchange = window.updateModalTimeDisplay;
+      }
+    };
+
+    window.closeBookingModal = function() {
+      const modal = document.getElementById("bookingModal");
+      if (modal) modal.classList.remove("show");
+    };
+
+    window.toggleSettings = function() {
+      const p = document.getElementById("scheduleSettingsPanel");
+      if (p) {
+        p.style.display = p.style.display === "none" ? "block" : "none";
+        if (p.style.display === "block") loadCurrentSettings();
+      }
+    };
+
+    window.viewAppt = async function(apptId) {
+      const intelContent = document.getElementById("intelContent");
+      const intelTitle = document.getElementById("intelTitle");
+      const intelBadge = document.getElementById("intelStatusBadge");
+      
+      if (!intelContent) return;
+      
+      intelTitle.innerText = "Loading Details...";
+      intelContent.style.opacity = "0.5";
+      
+      try {
+        const res = await fetch(`/api/appointment/${apptId}?businessId=${currentBId}`, {
+          headers: { "Authorization": "Bearer " + currentToken }
+        });
+        const result = await res.json();
+        
+        if (result.success && result.data) {
+          const appt = result.data;
+          intelTitle.innerText = "Booking Details";
+          intelContent.style.opacity = "1";
+          
+          intelBadge.innerHTML = `<span style="padding: 0.4rem 0.8rem; border-radius: 0.75rem; background: rgba(var(--success-rgb), 0.1); color: var(--success); font-size: 0.7rem; font-weight: 800;">${appt.status || 'CONFIRMED'}</span>`;
+          
+          intelContent.innerHTML = `
+            <div class="animate-fade-in" style="display: flex; flex-direction: column; gap: 1.5rem;">
+              <div style="display: flex; align-items: center; gap: 1.25rem;">
+                <div style="width: 4rem; height: 4rem; border-radius: 1.25rem; background: linear-gradient(135deg, var(--primary), #4f46e5); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1.5rem;">
+                  ${appt.customerName ? appt.customerName[0].toUpperCase() : 'C'}
+                </div>
+                <div>
+                  <h3 style="font-size: 1.25rem; font-weight: 900; color: var(--text-primary);">${appt.customerName}</h3>
+                  <p style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">${appt.customerPhone || 'No phone provided'}</p>
+                </div>
+              </div>
+
+              <div style="padding: 1.5rem; background: var(--bg-muted); border-radius: 1.5rem; border: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                   <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Service</span>
+                   <span style="font-weight: 700; color: var(--primary);">${appt.service?.name || appt.serviceName || 'General Service'}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                   <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Time</span>
+                   <span style="font-weight: 700;">${new Date(appt.appointmentTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                   <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Specialist</span>
+                   <span style="font-weight: 700;">${appt.staff?.name || 'Any Available'}</span>
+                </div>
+              </div>
+
+              ${appt.notes ? `
+                <div style="padding: 1rem; border-radius: 1rem; background: #fffbeb; border: 1px solid #fde68a;">
+                  <p style="font-size: 0.7rem; font-weight: 800; color: #92400e; margin-bottom: 0.25rem; text-transform: uppercase;">Note</p>
+                  <p style="font-size: 0.85rem; color: #78350f;">${appt.notes}</p>
+                </div>
+              ` : ''}
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+                <button class="apex-btn" style="height: 48px; font-size: 0.85rem; background: var(--success); color: white; border: none;" onclick="window.checkInAppt('${appt.id}')">Check In</button>
+                <button class="apex-btn" style="height: 48px; font-size: 0.85rem; color: var(--danger); background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.1);" onclick="window.cancelAppt('${appt.id}')">Cancel</button>
+              </div>
+            </div>
+          `;
+        }
+      } catch (err) {
+        intelTitle.innerText = "Error";
+        intelContent.innerHTML = `<p style="color: var(--danger); padding: 1rem;">Failed to load booking details.</p>`;
+      } finally {
+        if (window.lucide) lucide.createIcons();
+      }
+    };
+
+    window.checkInAppt = async function(id) {
+      if (!confirm("Check in this customer?")) return;
+      
+      const btn = event.target;
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = "Checking...";
+
+      try {
+        const res = await fetch(`/api/appointment/${id}/status`, {
+          method: "PUT",
+          headers: { 
+            "Content-Type": "application/json", 
+            "Authorization": "Bearer " + currentToken 
+          },
+          body: JSON.stringify({ status: "CHECKED_IN" })
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          if (window.Swal) Swal.fire("Checked In!", "Customer has been marked as present.", "success");
+          else alert("Customer checked in!");
+          
+          window.viewAppt(id); // Refresh panel
+          loadSlots(currentSelectedDate);
+          fetchStats();
+        }
+      } catch (err) {
+        alert("Check-in failed");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    };
+
+    window.cancelAppt = async function(id) {
+      if (!confirm("Are you sure you want to CANCEL this appointment?")) return;
+      
+      try {
+        const res = await fetch(`/api/appointment/${id}/status`, {
+          method: "PUT",
+          headers: { 
+            "Content-Type": "application/json", 
+            "Authorization": "Bearer " + currentToken 
+          },
+          body: JSON.stringify({ status: "CANCELLED" })
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          alert("Appointment cancelled.");
+          document.getElementById("intelContent").innerHTML = '<div style="text-align:center; padding:2rem; opacity:0.5;">Appointment was cancelled.</div>';
+          loadSlots(currentSelectedDate);
+          fetchStats();
+        }
+      } catch (err) { alert("Cancellation failed"); }
+    };
+
+    window.currentView = 'week';
+
+    window.switchView = function(view, btn) {
+      window.currentView = view;
+      document.querySelectorAll(".view-toggle").forEach(b => {
+        b.classList.remove("active");
+        b.style.background = "transparent";
+        b.style.color = "var(--text-primary)";
+      });
+      btn.classList.add("active");
+      btn.style.background = "var(--primary)";
+      btn.style.color = "white";
+
+      const title = document.querySelector('h2[style*="font-size: 1.8rem"]');
+      if (title) {
+        if (view === 'day') title.innerText = "Daily Operational View";
+        else if (view === 'week') title.innerText = "Weekly Operational View";
+        else if (view === 'month') title.innerText = "Monthly Strategic View";
+      }
+
+      initCalendar();
+    };
+
+    async function loadServices() {
+      try {
+        const res = await fetch(`/api/services?businessId=${currentBId}`, {
+          headers: { "Authorization": "Bearer " + currentToken }
+        });
+        const result = await res.json();
+        if (result.success) {
+          const select = document.getElementById("modalServiceSelect");
+          if (select) {
+            select.innerHTML = result.data.map(s => `
+              <option value="${s.id}" data-duration="${s.durationMinutes || s.duration}">
+                ${s.name} (${s.durationMinutes || s.duration} min)
+              </option>
+            `).join("");
+          }
+        }
+      } catch (err) { console.error("Service Load Error:", err); }
+    }
+
+    async function loadStaff() {
+      try {
+        const res = await fetch(`/api/services/staff?businessId=${currentBId}`, {
+          headers: { "Authorization": "Bearer " + currentToken }
+        });
+        const result = await res.json();
+        if (result.success) {
+          const select = document.getElementById("modalStaffSelect");
+          if (select) {
+            select.innerHTML = '<option value="">Any Specialist</option>' + result.data.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
+          }
+        }
+      } catch (err) { console.error("Staff Load Error:", err); }
+    }
+
+    async function loadCurrentSettings() {
+      try {
+        const res = await fetch(`/api/business/current?businessId=${currentBId}`, {
+          headers: { "Authorization": "Bearer " + currentToken }
+        });
+        const result = await res.json();
+        if (result.success && result.data) {
+          if (document.getElementById("setOpenTime")) document.getElementById("setOpenTime").value = result.data.openTime || "09:00";
+          if (document.getElementById("setCloseTime")) document.getElementById("setCloseTime").value = result.data.closeTime || "18:00";
+          if (document.getElementById("setSlotInterval")) document.getElementById("setSlotInterval").value = result.data.slotInterval || "30";
+        }
+      } catch (err) { console.error("Settings Load Error:", err); }
+    }
+
+    window.saveScheduleSettings = async function() {
+      const openTime = document.getElementById("setOpenTime").value;
+      const closeTime = document.getElementById("setCloseTime").value;
+      const slotInterval = document.getElementById("setSlotInterval").value;
+
+      try {
+        const res = await fetch(`/api/business/current?businessId=${currentBId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + currentToken },
+          body: JSON.stringify({ openTime, closeTime, slotInterval })
+        });
+        const result = await res.json();
+        if (result.success) {
+          if (window.showToast) window.showToast("Schedule rules updated!", "success");
+          else alert("Schedule rules updated!");
+          toggleSettings();
+          loadSlots(currentSelectedDate);
+        }
+      } catch (err) { alert("Failed to save settings"); }
+    };
+
+    window.selectDate = function(dateStr, el) {
+      currentSelectedDate = dateStr;
+      initCalendar();
+    };
+
+    async function loadSlots(date) {
+      const availableGrid = document.getElementById("availableSlotsGrid");
+      const bookedGrid = document.getElementById("bookedSlotsGrid");
+      
+      if (availableGrid) availableGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; opacity:0.5;">Calculating available windows...</div>';
+      
+      try {
+        const res = await fetch(`/api/appointment/slots?date=${date}&businessId=${currentBId}`, {
+          headers: { "Authorization": "Bearer " + currentToken }
+        });
+        const result = await res.json();
+        if (result.success) renderSlots(result.data);
+      } catch (err) { console.error("Slot Load Error:", err); }
+    }
+
+    function renderSlots(slots) {
+      const availableGrid = document.getElementById("availableSlotsGrid");
+      const bookedGrid = document.getElementById("bookedSlotsGrid");
+      
+      const available = slots.filter(s => s.status.toLowerCase() === "available");
+      const booked = slots.filter(s => s.status.toLowerCase() === "booked" || s.status.toLowerCase() === "confirmed");
+      
+      if (document.getElementById("statAvailable")) document.getElementById("statAvailable").innerText = available.length;
+
+      if (availableGrid) {
+        availableGrid.innerHTML = available.length ? available.map(slot => `
+          <div class="slot-premium available animate-entrance" onclick="window.openBookingModal('${slot.iso}')">
+            <p class="slot-time">${slot.time}</p>
+            <p class="slot-tag" style="color: var(--success);">Available</p>
+          </div>
+        `).join("") : '<div style="grid-column: 1/-1; padding: 4rem; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 500;">No available windows in this range.</div>';
+      }
+
+      if (bookedGrid) {
+        bookedGrid.innerHTML = booked.length ? booked.map(slot => `
+          <div class="slot-premium booked animate-entrance" onclick="window.viewAppt('${slot.appointmentId}')">
+            <p class="slot-time">${slot.time}</p>
+            <div style="margin-top: 0.75rem;">
+              <div style="font-weight: 800; font-size: 0.9rem; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${slot.client || 'Anonymous Client'}</div>
+              <div style="font-size: 0.65rem; color: var(--primary); text-transform: uppercase; font-weight: 800; margin-top: 0.25rem;">${slot.service || 'Appointment'}</div>
+            </div>
+          </div>
+        `).join("") : '<div style="grid-column: 1/-1; padding: 3rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">No scheduled engagements for this day.</div>';
+      }
+      
+      if (window.lucide) lucide.createIcons();
+      renderHighlight(slots);
+    }
+
+    function renderMemory(slots) {
+      const container = document.getElementById("dailyMemoryLog");
       if (!container) return;
 
-      if (result.success && result.data.length > 0) {
-        container.innerHTML = result.data.map(a => {
-          const apptDate = new Date(a.appointmentTime);
-          return `
-            <tr style="border-bottom: 1px solid var(--border);">
-              <td style="padding: 1rem;">
-                <p style="font-weight:600;">${a.customerName || 'Voice Lead'}</p>
-                <p style="font-size:0.75rem; color:var(--text-muted);">${a.customerPhone || 'No Phone'}</p>
-              </td>
-              <td style="padding: 1rem;">${a.serviceName}</td>
-              <td style="padding: 1rem;">
-                <p style="font-weight:500;">${apptDate.toLocaleDateString()}</p>
-                <p style="font-size:0.75rem; color:var(--text-muted);">${apptDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-              </td>
-              <td style="padding: 1rem;">
-                <span class="badge" style="background:${getStatusColor(a.status)}20; color:${getStatusColor(a.status)};">
-                  ${a.status.toUpperCase()}
-                </span>
-              </td>
-              <td style="padding: 1rem; text-align:right;">
-                <button class="action-btn" style="display:inline-flex;" onclick="updateApptStatus('${a.id}', 'confirmed')"><i data-lucide="check"></i></button>
-                <button class="action-btn" style="width:32px; height:32px; color:var(--danger); border-color:var(--border);" onclick="deleteAppt('${a.id}')"><i data-lucide="trash-2"></i></button>
-              </td>
-            </tr>
-          `;
-        }).join("");
-        if (window.lucide) lucide.createIcons();
-      } else {
-        container.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:4rem; color:var(--text-muted);">No appointments found for this period.</td></tr>';
+      // Extract all unique bookings from all slots
+      const allBookings = [];
+      const seenIds = new Set();
+
+      slots.forEach(slot => {
+        if (slot.bookings && slot.bookings.length) {
+          slot.bookings.forEach(b => {
+            if (!seenIds.has(b.id)) {
+              allBookings.push(b);
+              seenIds.add(b.id);
+            }
+          });
+        }
+      });
+
+      // Sort by time
+      allBookings.sort((a, b) => a.time.localeCompare(b.time));
+
+      if (allBookings.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 3rem; opacity: 0.5; font-weight: 600;">No activity recorded for this day.</div>';
+        return;
       }
-    } catch (err) {
-      console.error("Fetch Appts Error:", err);
-    }
-  }
 
-  function getStatusColor(status) {
-    switch(status.toLowerCase()) {
-      case 'confirmed': return '#10b981';
-      case 'pending': return '#f59e0b';
-      case 'cancelled': return '#ef4444';
-      default: return '#6b7280';
-    }
-  }
+      container.innerHTML = allBookings.map(b => {
+        let statusStyle = 'background: rgba(15, 23, 42, 0.05); color: var(--text-primary);';
+        let statusText = (b.status || 'BOOKED').toUpperCase();
 
-  fetchAppointments();
+        if (b.status === 'CANCELLED') {
+          statusStyle = 'background: rgba(239, 68, 68, 0.1); color: #ef4444; text-decoration: line-through; opacity: 0.6;';
+        } else if (b.status === 'CHECKED_IN' || b.status === 'COMPLETED') {
+          statusStyle = 'background: rgba(16, 185, 129, 0.1); color: #10b981;';
+        }
+
+        return `
+          <div class="animate-fade-in" style="display: flex; align-items: center; justify-content: space-between; padding: 1.25rem; border-radius: 1.5rem; border: 1px solid var(--border); ${statusStyle} cursor: pointer;" onclick="window.viewAppt('${b.id}')">
+            <div style="display: flex; align-items: center; gap: 1.5rem;">
+              <div style="font-weight: 900; font-size: 1.1rem; min-width: 90px; color: var(--text-primary);">${b.time}</div>
+              <div style="width: 1px; height: 30px; background: var(--border);"></div>
+              <div>
+                <p style="font-weight: 800; font-size: 1rem;">${b.client}</p>
+                <p style="font-size: 0.75rem; opacity: 0.7; font-weight: 600; text-transform: uppercase;">${b.service}</p>
+              </div>
+            </div>
+            <div style="font-size: 0.7rem; font-weight: 900; letter-spacing: 0.05em;">${statusText}</div>
+          </div>
+        `;
+      }).join("");
+      
+      if (window.lucide) lucide.createIcons();
+    }
+
+    window.handleNewBooking = async function(e) {
+      if (e) e.preventDefault();
+      const formData = new FormData(document.getElementById("bookingForm"));
+      const data = Object.fromEntries(formData.entries());
+      data.businessId = currentBId;
+
+      try {
+        const res = await fetch("/api/appointment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + currentToken },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (result.success) {
+          if (window.showToast) window.showToast("Appointment confirmed!", "success");
+          closeBookingModal();
+          loadSlots(currentSelectedDate);
+          fetchStats();
+        } else alert("Error: " + result.message);
+      } catch (err) { console.error("Create Error:", err); }
+    };
+
+    async function fetchStats() {
+      try {
+        const res = await fetch(`/api/appointment?businessId=${currentBId}`, {
+          headers: { "Authorization": "Bearer " + currentToken }
+        });
+        const result = await res.json();
+        if (result.success) {
+          const todayStr = new Date().toDateString();
+          const todayAppts = result.data.filter(a => new Date(a.appointmentTime).toDateString() === todayStr);
+          if (document.getElementById("statToday")) document.getElementById("statToday").innerText = todayAppts.length;
+          
+          renderHighlight(result.data);
+        }
+      } catch (err) {}
+    }
+
+    function renderHighlight(appts) {
+      const highlight = document.getElementById("highlightApptCard");
+      if (!highlight) return;
+      const next = appts.find(a => new Date(a.appointmentTime) > new Date() && a.status !== 'CANCELLED');
+      if (next) {
+        highlight.innerHTML = `
+          <div onclick="window.viewAppt('${next.id}')" style="background: rgba(255,255,255,0.05); border-radius: 1.5rem; padding: 1.5rem; display: flex; align-items: center; gap: 1rem; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+            <div style="width: 3.5rem; height: 3.5rem; border-radius: 1rem; background: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1.25rem;">
+              ${next.customerName ? next.customerName[0].toUpperCase() : 'C'}
+            </div>
+            <div>
+              <h4 style="font-weight: 800; font-size: 1rem; color: white;">${next.customerName || 'Private Client'}</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8;">${next.service?.name || next.serviceName || 'General Service'}</p>
+              <div style="margin-top: 0.5rem; padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.1); border-radius: 0.5rem; display: inline-block; font-size: 0.7rem; font-weight: 800; color: #4ade80;">
+                ${new Date(next.appointmentTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        highlight.innerHTML = '<div style="text-align:center; padding:2rem; color:#94a3b8; font-weight:600;">No upcoming bookings</div>';
+      }
+    }
+
+    function initCalendar() {
+      const row = document.getElementById("calendarDaysRow");
+      const label = document.getElementById("weekRangeLabel");
+      if (!row || !label) return;
+      
+      const today = new Date();
+      const start = new Date(currentSelectedDate + 'T12:00:00'); // Use mid-day to avoid TZ shifts
+      let count = 7;
+
+      if (window.currentView === 'day') {
+        count = 1;
+        label.innerText = start.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+      } else if (window.currentView === 'week') {
+        count = 7;
+        start.setDate(today.getDate() - (today.getDay() === 0 ? 6 : today.getDay() - 1));
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        label.innerText = `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} — ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${today.getFullYear()}`;
+      } else if (window.currentView === 'month') {
+        count = 30;
+        label.innerText = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      }
+
+      let html = "";
+      for (let i = 0; i < count; i++) {
+        const date = new Date(start);
+        date.setDate(start.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0];
+        const isToday = date.toDateString() === today.toDateString();
+        const isSelected = dateStr === currentSelectedDate;
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+
+        html += `
+          <div class="day-selector-btn ${isSelected ? 'active-day' : ''}" onclick="selectDate('${dateStr}', this)">
+            <span>${dayName}</span>
+            <span>${date.getDate()}</span>
+          </div>
+        `;
+      }
+      row.innerHTML = html;
+      loadSlots(currentSelectedDate);
+    }
+
+    initCalendar();
+    fetchStats();
+    if (window.lucide) lucide.createIcons();
+    
+    const refreshInterval = setInterval(() => {
+      if (document.getElementById("availableSlotsGrid")) {
+        loadSlots(currentSelectedDate);
+      } else {
+        clearInterval(refreshInterval);
+      }
+    }, 30000);
+  })();
 </script>

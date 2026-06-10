@@ -20,7 +20,7 @@ exports.getAnalytics = async (req, res) => {
       });
     }
 
-    const tenantId = req.user.tenantId || null;
+    const tenantId = req.tenantId || req.user.tenantId || null;
     const { businessId } = req.query;
 
     if (businessId) {
@@ -35,10 +35,18 @@ exports.getAnalytics = async (req, res) => {
     }
 
     const analytics = await dashboardService.getAnalytics(tenantId, businessId || null, req.user.role);
+    
+    // 🧩 Feature Gate: Tag the response with feature availability
+    const { hasFeature } = require("../../constants/plans");
+    const tenantPlan = analytics.tenant?.plan || "nexa_core";
+    const canSeeAdvanced = hasFeature(tenantPlan, "ADVANCED_ANALYTICS");
 
     res.json({
       success: true,
-      data: analytics
+      data: analytics,
+      features: {
+        advancedAnalytics: canSeeAdvanced
+      }
     });
   } catch (err) {
     console.error("Dashboard Analytics Error:", err);
@@ -58,7 +66,7 @@ exports.getLiveCalls = async (req, res) => {
       });
     }
 
-    const tenantId = req.user.tenantId || null;
+    const tenantId = req.tenantId || req.user.tenantId || null;
     const { businessId } = req.query;
 
     if (businessId) {

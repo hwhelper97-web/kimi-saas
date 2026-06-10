@@ -9,7 +9,10 @@ const PUBLIC_PREFIXES = [
   "/api/call/incoming",
   "/api/call/process",
   "/api/call/media-stream",
-  "/api/auth",
+  "/api/auth/register",
+  "/api/auth/login",
+  "/api/auth/refresh",
+  "/api/auth/forgot-password",
   // static assets needed by the admin UI
   "/js/",
   "/css/",
@@ -57,16 +60,55 @@ module.exports = async (req, res, next) => {
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
-      select: { id: true, tenantId: true, role: true, email: true },
+      select: { id: true, tenantId: true, role: true, email: true, theme: true },
     });
 
     if (!user) {
       return res.status(401).json({ error: "User no longer exists" });
     }
 
+    // Fetch branding (Prioritize active business, fallback to tenant)
+    let brandingName = null;
+    let brandingLogo = null;
+
+    // Allow businessId override from query (useful for SuperAdmin proxying)
+    const effectiveBusinessId = (user.role === 'SUPERADMIN' && req.query.businessId) 
+      ? req.query.businessId 
+      : (decoded.businessId || null);
+
+    if (effectiveBusinessId) {
+      const business = await prisma.business.findUnique({
+        where: { id: effectiveBusinessId },
+        select: { name: true, logoUrl: true, tenantId: true }
+      });
+      if (business) {
+        brandingName = business.name;
+        brandingLogo = business.logoUrl;
+        
+        // If SuperAdmin is proxying, update req.tenantId to match the business's tenant
+        if (user.role === 'SUPERADMIN') {
+          req.tenantId = business.tenantId;
+        }
+      }
+    }
+
+    if (!brandingName || !brandingLogo) {
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: user.tenantId },
+        select: { name: true, logoUrl: true }
+      });
+      if (tenant) {
+        brandingName = brandingName || tenant.name.replace(/ Tenant$/i, "");
+        brandingLogo = brandingLogo || tenant.logoUrl;
+      }
+    }
+
     req.user = user;
-    req.tenantId = user.tenantId;
-    req.businessId = decoded.businessId || null;
+    req.tenantId = req.tenantId || user.tenantId; // Use overridden tenantId if set above
+    req.businessId = effectiveBusinessId;
+
+    res.locals.platformLogo = brandingLogo || res.locals.platformLogo;
+    res.locals.businessName = brandingName || res.locals.businessName;
 
     next();
   } catch (error) {

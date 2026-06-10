@@ -15,7 +15,8 @@ const tenantMiddleware = (req, res, next) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    req.tenantId = req.user.tenantId || null;
+    // 🛡️ Guard: Only set tenantId if not already established by authMiddleware/proxy
+    req.tenantId = req.tenantId || req.user.tenantId || null;
     next();
   } catch (error) {
     console.error("Tenant Middleware Error:", error);

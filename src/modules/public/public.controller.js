@@ -8,7 +8,7 @@ exports.renderMobileMenu = async (req, res) => {
   try {
     const { subdomain } = req.params;
 
-    // Find business by subdomain (stripeId in our schema)
+    // Find business and determine its type
     const business = await prisma.business.findFirst({
       where: {
         tenant: {
@@ -17,13 +17,6 @@ exports.renderMobileMenu = async (req, res) => {
             { stripeId: subdomain }
           ]
         }
-      },
-      include: {
-        menuCategories: {
-          include: {
-            items: true
-          }
-        }
       }
     });
 
@@ -31,16 +24,41 @@ exports.renderMobileMenu = async (req, res) => {
       return res.status(404).send("Menu not found");
     }
 
-    // Sort categories and items
-    const categories = business.menuCategories.map(cat => ({
-      ...cat,
-      items: cat.items.sort((a, b) => a.price - b.price)
-    }));
+    const type = business.type?.toLowerCase() || "";
+    const isAppt = ["salon", "saloon", "spa", "barber", "clinic", "wellness", "massage", "studio", "dentist", "doctor", "specialist", "appointment"].some(k => type.includes(k));
+
+    let categories = [];
+
+    if (isAppt) {
+      const data = await prisma.serviceCategory.findMany({
+        where: { businessId: business.id },
+        include: { services: true },
+        orderBy: { sortOrder: "asc" }
+      });
+      categories = data.map(cat => ({
+        ...cat,
+        items: cat.services.map(s => ({
+          ...s,
+          price: s.price // Mapping for template consistency
+        }))
+      }));
+    } else {
+      const data = await prisma.menuCategory.findMany({
+        where: { businessId: business.id },
+        include: { items: true },
+        orderBy: { sortOrder: "asc" }
+      });
+      categories = data.map(cat => ({
+        ...cat,
+        items: cat.items.sort((a, b) => a.price - b.price)
+      }));
+    }
 
     res.render("public-menu", {
       business,
       categories,
-      layout: false // Render without the admin layout
+      isAppt,
+      layout: false
     });
   } catch (error) {
     console.error("[Public Menu] Error:", error);

@@ -58,3 +58,32 @@ exports.sendFailureSms = async (to, businessName, reason) => {
     console.error("[SMS Service] Error sending failure SMS:", error);
   }
 };
+
+/**
+ * sendAppointmentSms
+ * Confirmation for new bookings.
+ */
+exports.sendAppointmentSms = async (to, businessName, service, time) => {
+  if (!client) {
+    console.warn("[SMS Service] Twilio not configured. Skipping SMS.");
+    return;
+  }
+  try {
+    const body = `📅 APPOINTMENT CONFIRMED\n${businessName}\n\nService: ${service}\nTime: ${time}\n\nWe look forward to seeing you! Thank you for choosing us.`;
+    await client.messages.create({ body, from: fromNumber, to });
+    console.log(`[SMS Service] Sent confirmation to ${to}`);
+  } catch (err) { console.error("[SMS Service] Error:", err); }
+};
+
+/**
+ * sendCancellationSms
+ * Alert for cancelled bookings.
+ */
+exports.sendCancellationSms = async (to, businessName, service, time) => {
+  if (!client) return;
+  try {
+    const body = `❌ APPOINTMENT CANCELLED\n${businessName}\n\nYour appointment for ${service} at ${time} has been cancelled.\n\nIf this was an error, please contact us or re-book online.`;
+    await client.messages.create({ body, from: fromNumber, to });
+    console.log(`[SMS Service] Sent cancellation to ${to}`);
+  } catch (err) { console.error("[SMS Service] Error:", err); }
+};

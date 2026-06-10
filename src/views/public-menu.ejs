@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>
-        <%= business.name %> | Experience Premium Dining
+        <%= business.name %> | <%= isAppt ? 'Experience Professional Services' : 'Experience Premium Dining' %>
     </title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -326,7 +326,7 @@
         </h1>
         <div class="biz-status">
             <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: block;"></span>
-            Open & Serving
+            <%= isAppt ? 'Open & Accepting Appointments' : 'Open & Serving' %>
         </div>
 
         <div class="biz-details">
@@ -385,8 +385,11 @@
                                     <div class="food-price">
                                         <%= business.currency || '$' %>
                                             <%= item.price.toFixed(2) %>
+                                            <% if (isAppt && item.duration) { %>
+                                                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 400; margin-left: 0.5rem;">/ <%= item.duration %> mins</span>
+                                            <% } %>
                                     </div>
-                                    <i data-lucide="plus-circle"
+                                    <i data-lucide="<%= isAppt ? 'calendar' : 'plus-circle' %>"
                                         style="width: 24px; height: 24px; color: var(--border);"></i>
                                 </div>
                             </div>
@@ -404,7 +407,7 @@
     <footer>
         <div class="powered-by">
             <i data-lucide="zap" style="width: 14px; height: 14px; color: var(--primary); fill: var(--primary);"></i>
-            Nexton Interactive Intelligence
+            Naxton Interactive Intelligence
         </div>
         <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; letter-spacing: 0.05em;">SECURE
             DIGITAL MENU SYSTEM v2.0</p>
@@ -412,7 +415,7 @@
 
     <a href="tel:<%= business.phoneNumber %>" class="call-bridge">
         <i data-lucide="phone-forwarded"></i>
-        RESUME VOICE ORDER
+        <%= isAppt ? 'RESUME VOICE BOOKING' : 'RESUME VOICE ORDER' %>
     </a>
 
     <script>

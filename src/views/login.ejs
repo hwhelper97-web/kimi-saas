@@ -4,21 +4,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexton Technologies LLC | Secure Access</title>
+  <title>Naxton Technologies | Secure AI Portal</title>
   <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
-      --bg-dark: #020617;
-      --accent-primary: #8b5cf6;
-      --accent-secondary: #ec4899;
-      --glass-bg: rgba(15, 23, 42, 0.6);
-      --glass-border: rgba(255, 255, 255, 0.08);
+      --bg-darkest: #050505;
+      --bg-gradient-start: #072129;
+      --bg-gradient-end: #031014;
+      --accent-teal: #00bcd4;
+      --accent-cyan: #22d3ee;
+      --glass-bg: rgba(4, 17, 22, 0.95);
+      --glass-border: rgba(34, 211, 238, 0.1);
       --text-main: #f8fafc;
       --text-dim: #94a3b8;
+      --input-bg: rgba(255, 255, 255, 0.05);
+      --btn-gradient: linear-gradient(to right, #042B33, #063944, #0A4A57);
     }
 
     * {
@@ -29,317 +32,461 @@
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg-dark);
+      background: var(--bg-darkest);
       color: var(--text-main);
-      overflow: hidden;
+      min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    /* 🌌 Background Infrastructure */
+    .bg-main {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image: radial-gradient(circle at 2px 2px, rgba(34, 211, 238, 0.05) 1px, transparent 0);
+      background-size: 40px 40px;
+      opacity: 0.5;
+    }
+
+    .glow-circle {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.05) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: -1;
+      filter: blur(80px);
+    }
+
+    .glow-1 { top: -200px; left: -200px; }
+    .glow-2 { bottom: -200px; right: -200px; }
+
+    /* 📐 Layout Split */
+    .auth-wrapper {
+      display: flex;
+      width: 100%;
       min-height: 100vh;
     }
 
-    /* 🎨 Mesh Gradient Background */
-    .background {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      background-color: var(--bg-dark);
-      background-image:
-        radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
-    }
-
-    .background::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-      opacity: 0.03;
-      pointer-events: none;
-    }
-
-    /* 💎 Premium Glass Card */
-    .login-container {
-      width: 100%;
-      max-width: 440px;
-      padding: 2rem;
-      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 2rem;
-      padding: 3rem 2.5rem;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    /* 🏢 Left Branding Panel */
+    .branding-panel {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 5rem;
       position: relative;
       overflow: hidden;
+      border-right: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
     }
 
-    .card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
-      animation: shine 3s infinite linear;
+    @media (max-width: 1024px) {
+      .branding-panel { display: none; }
     }
 
-    @keyframes shine {
-      to {
-        left: 100%;
-      }
-    }
-
-    /* 🏢 Brand Identity */
-    .brand {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
-
-    .logo-box {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 1rem;
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-      border-radius: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
-      font-size: 2rem;
-      color: white;
-    }
-
-    .brand h1 {
-      font-size: 1.75rem;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      margin-bottom: 0.25rem;
-      background: linear-gradient(to right, #fff, #94a3b8);
+    .large-n {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15rem;
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(to bottom, var(--accent-cyan), transparent);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
+      opacity: 0.2;
+      margin-left: -2rem;
+      margin-bottom: -4rem;
     }
 
-    .brand p {
-      font-size: 0.875rem;
+    .brand-content {
+      position: relative;
+      z-index: 10;
+    }
+
+    .brand-content h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -2px;
+      margin-bottom: 1rem;
+      color: white;
+    }
+
+    .brand-content p {
+      font-size: 1.1rem;
       color: var(--text-dim);
-      font-weight: 500;
+      max-width: 480px;
+      line-height: 1.6;
+      margin-bottom: 3rem;
     }
 
-    .badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      background: rgba(139, 92, 246, 0.1);
-      border: 1px solid rgba(139, 92, 246, 0.2);
-      border-radius: 2rem;
+    .brand-meta {
+      display: flex;
+      gap: 3rem;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      color: var(--accent-cyan);
+      opacity: 0.6;
+    }
+
+    /* 🔐 Right Login Panel */
+    .login-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: rgba(3, 16, 20, 0.4);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(30px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 3.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(34, 211, 238, 0.05);
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      margin-bottom: 2.5rem;
+    }
+
+    .secure-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(34, 211, 238, 0.05);
+      border: 1px solid rgba(34, 211, 238, 0.2);
+      border-radius: 100px;
       font-size: 0.7rem;
-      color: var(--accent-primary);
+      font-weight: 800;
+      color: var(--accent-cyan);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-weight: 700;
-      margin-top: 1rem;
+      letter-spacing: 1px;
+      margin-bottom: 1.5rem;
     }
 
-    /* 📝 Form Elements */
+    .card-header h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-header p {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    /* 📋 Form UI */
     .form-group {
       margin-bottom: 1.5rem;
     }
 
     .form-group label {
       display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-dim);
-      margin-bottom: 0.5rem;
-      margin-left: 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      margin-bottom: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 1px;
+      opacity: 0.8;
     }
 
-    .input-wrapper {
+    .input-box {
       position: relative;
     }
 
-    .input-wrapper i {
+    .input-box i {
       position: absolute;
       left: 1.25rem;
       top: 50%;
       transform: translateY(-50%);
       color: var(--text-dim);
       width: 18px;
-      height: 18px;
-      transition: color 0.3s;
+      transition: all 0.3s;
     }
 
     input {
       width: 100%;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--glass-border);
-      border-radius: 1rem;
-      padding: 1.1rem 1.1rem 1.1rem 3.25rem;
+      background: var(--input-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem 1.1rem 3.5rem;
       color: white;
       font-family: inherit;
       font-size: 1rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s;
     }
 
     input:focus {
       outline: none;
-      border-color: var(--accent-primary);
-      background: rgba(139, 92, 246, 0.05);
-      box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+      border-color: var(--accent-cyan);
+      background: rgba(34, 211, 238, 0.05);
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.1);
     }
 
-    input:focus+i {
-      color: var(--accent-primary);
+    input:focus + i {
+      color: var(--accent-cyan);
     }
 
-    /* 🚀 Action Button */
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      font-size: 0.85rem;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-dim);
+      cursor: pointer;
+    }
+
+    .forgot-link {
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-weight: 600;
+      opacity: 0.7;
+      transition: opacity 0.3s;
+    }
+
+    .forgot-link:hover { opacity: 1; }
+
     .login-btn {
       width: 100%;
-      padding: 1.1rem;
-      border-radius: 1rem;
-      border: none;
-      background: linear-gradient(135deg, var(--accent-primary), #6366f1);
+      padding: 1.25rem;
+      border-radius: 12px;
+      border: 1px solid rgba(34, 211, 238, 0.2);
+      background: var(--btn-gradient);
       color: white;
-      font-size: 1rem;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
       font-weight: 700;
+      letter-spacing: 2px;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.4s;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.75rem;
-      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
-      margin-top: 2.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
     .login-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3);
-      filter: brightness(1.1);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 15px 40px rgba(34, 211, 238, 0.15);
+      filter: brightness(1.2);
     }
 
-    .login-btn:active {
-      transform: translateY(0);
+    .feature-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 3rem;
     }
 
-    .footer {
+    .f-card {
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
       text-align: center;
-      margin-top: 2rem;
-      font-size: 0.75rem;
+    }
+
+    .f-card i {
+      width: 18px;
+      color: var(--accent-cyan);
+      margin-bottom: 0.5rem;
+      opacity: 0.6;
+    }
+
+    .f-card div {
+      font-size: 0.65rem;
+      font-weight: 800;
       color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     #error-msg {
-      background: rgba(248, 113, 113, 0.1);
-      border: 1px solid rgba(248, 113, 113, 0.2);
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
       color: #f87171;
       padding: 1rem;
-      border-radius: 1rem;
-      font-size: 0.875rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
       margin-bottom: 1.5rem;
       display: none;
-      animation: shake 0.5s ease-in-out;
+      text-align: center;
     }
 
-    @keyframes shake {
-
-      0%,
-      100% {
-        transform: translateX(0);
-      }
-
-      25% {
-        transform: translateX(-5px);
-      }
-
-      75% {
-        transform: translateX(5px);
-      }
+    #success-msg {
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.2);
+      color: var(--accent-cyan);
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+      display: none;
+      text-align: center;
     }
 
-    .spin {
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(360deg);
-      }
-    }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
 
 <body>
-  <div class="background"></div>
+  <div class="bg-main"></div>
+  <div class="bg-grid"></div>
+  <div class="glow-circle glow-1"></div>
+  <div class="glow-circle glow-2"></div>
 
-  <div class="login-container">
-    <div class="card">
-      <div class="brand">
-        <div class="logo-box">
-          <i data-lucide="zap"></i>
+  <div class="auth-wrapper">
+    <!-- Left: Branding -->
+    <div class="branding-panel">
+      <div class="large-n">N</div>
+      <div class="brand-content">
+        <h1>Naxton<br>Technologies</h1>
+        <p>Harnessing autonomous neural intelligence to power the next generation of enterprise communication and workflow automation.</p>
+        
+        <div class="brand-meta">
+          <div>ESTD // 2026</div>
+          <div>LOC // CALIFORNIA</div>
+          <div>VER // 4.0.2</div>
         </div>
-        <h1>NEXTON TECHNOLOGIES</h1>
-        <p>Enterprise Control Center</p>
-        <span class="badge">Superadmin Access</span>
       </div>
-
-      <div id="error-msg"></div>
-
-      <form id="loginForm">
-        <div class="form-group">
-          <label>Email Address</label>
-          <div class="input-wrapper">
-            <i data-lucide="mail"></i>
-            <input type="email" id="email" placeholder="admin@nexton.ai" required />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Security Key</label>
-          <div class="input-wrapper">
-            <i data-lucide="lock"></i>
-            <input type="password" id="password" placeholder="••••••••" required />
-          </div>
-        </div>
-
-        <button type="submit" class="login-btn">
-          <span>Authenticate</span>
-          <i data-lucide="arrow-right"></i>
-        </button>
-      </form>
     </div>
 
-    <div class="footer">
-      &copy; 2026 Nexton Technologies LLC. All rights reserved.
+    <!-- Right: Login Form -->
+    <div class="login-panel">
+      <div class="login-card">
+        <div class="card-header">
+          <div class="secure-badge">
+            <i data-lucide="shield-check" style="width: 14px;"></i>
+            Secure Access Portal
+          </div>
+          <h2>Secure Digital Access</h2>
+          <p>Initialize neural handshake to enter environment.</p>
+        </div>
+
+        <div id="error-msg"></div>
+        <div id="success-msg"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm">
+          <div class="form-group">
+            <label>Neural Identity</label>
+            <div class="input-box">
+              <i data-lucide="user"></i>
+              <input type="email" id="email" placeholder="admin@naxton.ai" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Security Key</label>
+            <div class="input-box">
+              <i data-lucide="lock"></i>
+              <input type="password" id="password" placeholder="••••••••" required />
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label class="remember-me">
+              <input type="checkbox" style="width: 16px; height: 16px; accent-color: var(--accent-cyan);">
+              Stay Synchronized
+            </label>
+            <a href="#" class="forgot-link" id="showForgot">Lost Key?</a>
+          </div>
+
+          <button type="submit" class="login-btn">
+            <span>AUTHENTICATE</span>
+            <i data-lucide="zap" style="width: 16px;"></i>
+          </button>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form id="forgotForm" style="display: none;">
+          <div class="form-group">
+            <label>Recovery Email</label>
+            <div class="input-box">
+              <i data-lucide="mail"></i>
+              <input type="email" id="forgotEmail" placeholder="admin@naxton.ai" required />
+            </div>
+          </div>
+          <button type="submit" class="login-btn">
+            <span>SEND RESET LINK</span>
+            <i data-lucide="send" style="width: 16px;"></i>
+          </button>
+          <div style="margin-top: 1.5rem; text-align: center;">
+            <a href="#" class="back-to-login" style="color: var(--text-dim); font-size: 0.85rem; text-decoration: none;">Back to Login</a>
+          </div>
+        </form>
+
+        <!-- Reset Password Form -->
+        <form id="resetForm" style="display: none;">
+          <div class="form-group">
+            <label>New Security Key</label>
+            <div class="input-box">
+              <i data-lucide="lock"></i>
+              <input type="password" id="newPassword" placeholder="••••••••" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Confirm Key</label>
+            <div class="input-box">
+              <i data-lucide="lock"></i>
+              <input type="password" id="confirmPassword" placeholder="••••••••" required />
+            </div>
+          </div>
+          <button type="submit" class="login-btn">
+            <span>UPDATE KEY</span>
+            <i data-lucide="shield-check" style="width: 16px;"></i>
+          </button>
+          <div style="margin-top: 1.5rem; text-align: center;">
+            <a href="#" class="back-to-login" style="color: var(--text-dim); font-size: 0.85rem; text-decoration: none;">Cancel</a>
+          </div>
+        </form>
+
+        <div class="feature-cards">
+          <div class="f-card">
+            <i data-lucide="cpu"></i>
+            <div>AI Optimized</div>
+          </div>
+          <div class="f-card">
+            <i data-lucide="shield"></i>
+            <div>End-to-End</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -347,7 +494,46 @@
     lucide.createIcons();
 
     const loginForm = document.getElementById('loginForm');
+    const forgotForm = document.getElementById('forgotForm');
+    const resetForm = document.getElementById('resetForm');
     const errorMsg = document.getElementById('error-msg');
+    const successMsg = document.getElementById('success-msg');
+
+    // UI Switching Logic
+    const showForgot = document.getElementById('showForgot');
+    const backLinks = document.querySelectorAll('.back-to-login');
+
+    showForgot.onclick = (e) => {
+      e.preventDefault();
+      loginForm.style.display = 'none';
+      forgotForm.style.display = 'block';
+      resetForm.style.display = 'none';
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+    };
+
+    backLinks.forEach(link => {
+      link.onclick = (e) => {
+        e.preventDefault();
+        window.history.replaceState({}, document.title, window.location.pathname); // Clear token from URL
+        loginForm.style.display = 'block';
+        forgotForm.style.display = 'none';
+        resetForm.style.display = 'none';
+        errorMsg.style.display = 'none';
+        successMsg.style.display = 'none';
+      };
+    });
+
+    // Check for Reset Token in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const resetToken = urlParams.get('token');
+    if (resetToken) {
+      loginForm.style.display = 'none';
+      forgotForm.style.display = 'none';
+      resetForm.style.display = 'block';
+      successMsg.textContent = 'Token verified. Please enter your new security key.';
+      successMsg.style.display = 'block';
+    }
 
     async function loadPlatform() {
       try {
@@ -355,13 +541,6 @@
         const result = await res.json();
         if (result.success && result.data) {
           const { logoUrl, projectName } = result.data;
-          if (logoUrl) {
-            document.querySelector('.logo-box').innerHTML = `<img src="${logoUrl}" style="width: 40px; height: 40px; object-fit: contain;">`;
-            document.querySelector('.logo-box').style.background = 'none';
-          }
-          if (projectName) {
-            document.querySelector('.brand h1').innerText = projectName.toUpperCase();
-          }
         }
       } catch (err) {
         console.error("Load platform error:", err);
@@ -370,16 +549,16 @@
 
     loadPlatform();
 
+    // 1. LOGIN
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
       const btn = loginForm.querySelector('.login-btn');
       const originalHtml = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i> Verifying...';
+      btn.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i> VERIFYING...';
       lucide.createIcons();
 
       errorMsg.style.display = 'none';
@@ -390,20 +569,17 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
-
         const data = await response.json();
-
         if (data.success) {
           localStorage.setItem('accessToken', data.token);
           localStorage.setItem('user', JSON.stringify(data.user));
-          localStorage.removeItem('activeBusinessId'); // Clear old business session
-
           const role = data.user.role.toUpperCase();
-          if (role === 'SUPERADMIN') {
-            window.location.href = '/superadmin';
-          } else {
-            window.location.href = '/admin';
-          }
+          if (role === 'SUPERADMIN') window.location.href = '/superadmin';
+          else if (role === 'DEVELOPER') window.location.href = '/developer/dashboard';
+          else if (role === 'AGENT') window.location.href = '/agent/dashboard';
+          else if (role === 'MANAGER') window.location.href = '/manager/dashboard';
+          else if (role === 'PRODUCT') window.location.href = '/product/dashboard';
+          else window.location.href = '/admin';
         } else {
           errorMsg.textContent = data.error || 'Authentication failed';
           errorMsg.style.display = 'block';
@@ -414,6 +590,99 @@
       } catch (error) {
         errorMsg.textContent = 'Server connection failed';
         errorMsg.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        lucide.createIcons();
+      }
+    });
+
+    // 2. FORGOT PASSWORD
+    forgotForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('forgotEmail').value;
+      const btn = forgotForm.querySelector('.login-btn');
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i> TRANSMITTING...';
+      lucide.createIcons();
+
+      try {
+        const response = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await response.json();
+        if (data.success) {
+          successMsg.textContent = data.message;
+          successMsg.style.display = 'block';
+          errorMsg.style.display = 'none';
+          
+          // Debugging info (Remove in production)
+          if (data.debug && data.debug.resetLink) {
+             console.log("DEBUG Reset Link:", data.debug.resetLink);
+             const debugDiv = document.createElement('div');
+             debugDiv.style.marginTop = '1rem';
+             debugDiv.style.fontSize = '0.7rem';
+             debugDiv.style.color = 'var(--text-dim)';
+             debugDiv.innerHTML = `Dev Token: <a href="${data.debug.resetLink}" style="color: var(--accent-cyan)">Click to simulate email link</a>`;
+             successMsg.appendChild(debugDiv);
+          }
+        } else {
+          errorMsg.textContent = data.error || 'Request failed';
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Server error';
+        errorMsg.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        lucide.createIcons();
+      }
+    });
+
+    // 3. RESET PASSWORD
+    resetForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (newPassword !== confirmPassword) {
+        errorMsg.textContent = 'Passwords do not match';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      const btn = resetForm.querySelector('.login-btn');
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i> UPDATING...';
+      lucide.createIcons();
+
+      try {
+        const response = await fetch('/api/auth/reset-password-with-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: resetToken, newPassword })
+        });
+        const data = await response.json();
+        if (data.success) {
+          successMsg.textContent = 'Success! Your key has been updated.';
+          successMsg.style.display = 'block';
+          errorMsg.style.display = 'none';
+          resetForm.style.display = 'none';
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 3000);
+        } else {
+          errorMsg.textContent = data.error || 'Update failed';
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Server error';
+        errorMsg.style.display = 'block';
+      } finally {
         btn.disabled = false;
         btn.innerHTML = originalHtml;
         lucide.createIcons();

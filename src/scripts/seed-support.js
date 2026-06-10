@@ -42,7 +42,7 @@ async function main() {
           },
           {
             senderType: "AI",
-            content: "Hello! I'm the Nexton Platform Assistant. I'd be happy to help with your Twilio integration. Have you already added your Account SID to the Business Settings?",
+            content: "Hello! I'm the Naxton Platform Assistant. I'd be happy to help with your Twilio integration. Have you already added your Account SID to the Business Settings?",
           }
         ]
       }

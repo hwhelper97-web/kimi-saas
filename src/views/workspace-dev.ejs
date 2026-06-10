@@ -1,0 +1,136 @@
+<div class="apex-grid" style="grid-template-columns: repeat(4, 1fr); margin-top: 1rem;">
+    <div class="apex-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.05em;">SYSTEM UPTIME</span>
+            <i data-lucide="activity" style="width: 14px; color: #10b981;"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 800; color: white;">99.99%</div>
+        <div style="font-size: 0.65rem; color: #10b981; margin-top: 0.25rem;">● All services operational</div>
+    </div>
+    <div class="apex-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.05em;">API LATENCY</span>
+            <i data-lucide="zap" style="width: 14px; color: #00f2ff;"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 800; color: white;">42ms</div>
+        <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.25rem;">Global edge average</div>
+    </div>
+    <div class="apex-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.05em;">ACTIVE WORKERS</span>
+            <i data-lucide="cpu" style="width: 14px; color: #a855f7;"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 800; color: white;">12 / 16</div>
+        <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.25rem;">Dynamic scaling active</div>
+    </div>
+    <div class="apex-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.05em;">ERROR RATE</span>
+            <i data-lucide="alert-triangle" style="width: 14px; color: #f59e0b;"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 800; color: white;">0.04%</div>
+        <div style="font-size: 0.65rem; color: #f59e0b; margin-top: 0.25rem;">Within nominal parameters</div>
+    </div>
+</div>
+
+<div class="dashboard-main-grid" style="margin-top: 2rem;">
+    <div class="left-col">
+        <div class="apex-card">
+            <div class="card-header">
+                <h3 class="card-title">Live Deployment Logs</h3>
+                <div style="display: flex; gap: 0.5rem;">
+                    <span class="status-badge-standard" style="background: rgba(0, 242, 255, 0.1); color: #00f2ff; font-size: 0.6rem;">main branch</span>
+                    <span class="status-badge-standard" style="background: rgba(16, 185, 129, 0.1); color: #10b981; font-size: 0.6rem;">v2.4.0-stable</span>
+                </div>
+            </div>
+            <div id="devLogs" style="background: #060912; border-radius: 8px; padding: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #a1a1aa; height: 300px; overflow-y: auto; border: 1px solid var(--border);">
+                <div style="margin-bottom: 0.5rem;"><span style="color: #6366f1;">[10:42:01]</span> <span style="color: #10b981;">SUCCESS</span> - Deployment completed to edge-node-04</div>
+                <div style="margin-bottom: 0.5rem;"><span style="color: #6366f1;">[10:41:55]</span> <span style="color: #00f2ff;">INFO</span> - Verifying health checks...</div>
+                <div style="margin-bottom: 0.5rem;"><span style="color: #6366f1;">[10:41:30]</span> <span style="color: #00f2ff;">INFO</span> - Building assets for production...</div>
+                <div style="margin-bottom: 0.5rem;"><span style="color: #6366f1;">[10:41:15]</span> <span style="color: #a855f7;">GIT</span> - New push to <span style="color: white;">main</span> by <span style="color: #00f2ff;">@ahmad_dev</span></div>
+                <div style="margin-bottom: 0.5rem;"><span style="color: #6366f1;">[10:38:22]</span> <span style="color: #f59e0b;">WARN</span> - Database query latency spiked to 120ms</div>
+                <div style="margin-bottom: 0.5rem;"><span style="color: #6366f1;">[10:35:10]</span> <span style="color: #10b981;">SUCCESS</span> - AI Model 'sarah-v2' re-indexed successfully</div>
+                <div style="opacity: 0.5;">[System idle... monitoring frequencies...]</div>
+            </div>
+        </div>
+    </div>
+    <div class="right-col">
+        <div class="apex-card">
+            <h3 class="card-title">Technical Shortcuts</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
+                <button class="action-btn" style="width: 100%; justify-content: flex-start;" onclick="devAction('db')">
+                    <i data-lucide="database"></i> DB Query Console
+                </button>
+                <button class="action-btn" style="width: 100%; justify-content: flex-start;" onclick="devAction('infra')">
+                    <i data-lucide="layers"></i> Infrastructure Maps
+                </button>
+                <button class="action-btn" style="width: 100%; justify-content: flex-start;" onclick="devAction('keys')">
+                    <i data-lucide="key"></i> API Key Management
+                </button>
+                <button class="action-btn" style="width: 100%; justify-content: flex-start; border-color: #ef4444; color: #ef4444;" onclick="devAction('purge')">
+                    <i data-lucide="refresh-cw"></i> Force Cache Purge
+                </button>
+            </div>
+        </div>
+        <div class="apex-card" style="margin-top: 1.5rem;">
+            <h3 class="card-title">Environment</h3>
+            <div style="margin-top: 1rem; font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Runtime:</span>
+                    <span style="color: white; font-weight: 600;">Node.js v24.15.0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Database:</span>
+                    <span style="color: white; font-weight: 600;">PostgreSQL (Supabase)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Region:</span>
+                    <span style="color: white; font-weight: 600;">aws-us-east-1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if (window.lucide) lucide.createIcons();
+
+    function devAction(type) {
+        const timestamp = new Date().toLocaleTimeString();
+        let message = '';
+        let title = 'Technical Action';
+
+        if (type === 'db') {
+            message = 'Opening Secure DB Query Console... (Read-Only Mode)';
+            title = 'Database Access';
+            addLog(`[${timestamp}] <span style="color: #a855f7;">AUTH</span> - Secure session established for DB Explorer`);
+        } else if (type === 'infra') {
+            message = 'Fetching cluster topology and network maps...';
+            title = 'Infrastructure';
+            addLog(`[${timestamp}] <span style="color: #00f2ff;">INFO</span> - Loading regional node status...`);
+        } else if (type === 'keys') {
+            message = 'Loading platform API keys... (Masking active)';
+            title = 'Security';
+            addLog(`[${timestamp}] <span style="color: #f59e0b;">SEC</span> - User requested credential view`);
+        } else if (type === 'purge') {
+            message = 'Global edge cache purge initiated across all nodes.';
+            title = 'System Purge';
+            addLog(`[${timestamp}] <span style="color: #ef4444;">SYS</span> - Cache purge command executed by developer`);
+        }
+
+        if (window.notify) {
+            window.notify(message, title);
+        } else {
+            console.log(`${title}: ${message}`);
+        }
+    }
+
+    function addLog(html) {
+        const logs = document.getElementById('devLogs');
+        if (!logs) return;
+        const div = document.createElement('div');
+        div.style.marginBottom = '0.5rem';
+        div.innerHTML = html;
+        logs.insertBefore(div, logs.firstChild);
+    }
+</script>
