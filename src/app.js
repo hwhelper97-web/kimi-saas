@@ -55,16 +55,6 @@ app.get("/", (req, res) => {
   res.render("landing");
 });
 
-// Redirect any direct visits to app pages on the root domain to the app subdomain
-app.use((req, res, next) => {
-  const host = req.get("host") || "";
-  const appPaths = ["/login", "/logout", "/admin", "/superadmin", "/support", "/developer", "/agent", "/manager", "/product"];
-  if (!host.startsWith("app.") && appPaths.some(p => req.path.startsWith(p))) {
-    return res.redirect(`https://app.naxtontechnologies.com${req.originalUrl}`);
-  }
-  next();
-});
-
 // Admin dashboard – render the full UI (admin-dashboard-apex)
 app.get("/admin", authMiddleware, (req, res) => {
   return res.render("admin-dashboard-apex");
