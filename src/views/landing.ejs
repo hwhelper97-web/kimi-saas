@@ -4,11 +4,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= projectName %> | Next-Gen Voice AI Agents</title>
+  <title><%= projectName %> | Next-Gen AI & Enterprise SaaS Platforms</title>
   <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            darkest: '#050505',
+            cyanaccent: '#22d3ee',
+            tealaccent: '#00bcd4',
+            glassBg: 'rgba(4, 21, 27, 0.6)',
+            glassBorder: 'rgba(34, 211, 238, 0.08)',
+            textMain: '#f8fafc',
+            textDim: '#94a3b8',
+          },
+          fontFamily: {
+            orbitron: ['Orbitron', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom CSS for Glow Effects and Animations -->
   <style>
     :root {
       --bg-darkest: #050505;
@@ -16,7 +45,6 @@
       --bg-gradient-end: #031014;
       --accent-teal: #00bcd4;
       --accent-cyan: #22d3ee;
-      --accent-blue: #3b82f6;
       --glass-bg: rgba(4, 17, 22, 0.95);
       --glass-border: rgba(34, 211, 238, 0.1);
       --text-main: #f8fafc;
@@ -26,962 +54,1903 @@
     }
 
     * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
       scroll-behavior: smooth;
     }
 
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
       background: var(--bg-darkest);
-      color: var(--text-main);
-      overflow-x: hidden;
-      line-height: 1.6;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(34, 211, 238, 0.2);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(34, 211, 238, 0.4);
     }
 
-    /* 🌌 Starfield Grid & Glows */
-    .bg-main {
-      position: fixed;
-      inset: 0;
-      z-index: -2;
+    /* Background Gradients & Grids */
+    .bg-gradient-mesh {
       background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
     }
 
-    .bg-grid {
-      position: fixed;
-      inset: 0;
-      z-index: -2;
-      background-image: radial-gradient(circle at 1px 1px, rgba(34, 211, 238, 0.04) 1px, transparent 0);
-      background-size: 50px 50px;
-      opacity: 0.6;
+    .bg-grid-mesh {
+      background-image: radial-gradient(circle at 1.5px 1.5px, rgba(34, 211, 238, 0.04) 1px, transparent 0);
+      background-size: 40px 40px;
     }
 
-    .glow-circle {
-      position: absolute;
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(34, 211, 238, 0.04) 0%, transparent 70%);
-      border-radius: 50%;
-      z-index: -1;
-      filter: blur(120px);
-      pointer-events: none;
+    /* Glassmorphism Classes */
+    .glass-card {
+      background: rgba(4, 21, 27, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(34, 211, 238, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
     }
 
-    .glow-1 { top: -200px; left: -200px; }
-    .glow-2 { top: 40%; right: -300px; }
-    .glow-3 { bottom: -200px; left: 10%; }
+    .glass-card:hover {
+      border-color: rgba(34, 211, 238, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(34, 211, 238, 0.05);
+    }
 
-    /* 🧭 Navigation */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 100;
-      border-bottom: 1px solid var(--glass-border);
+    .glass-header {
       backdrop-filter: blur(20px);
-      background: rgba(4, 13, 18, 0.7);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(34, 211, 238, 0.08);
+      background: rgba(4, 13, 18, 0.75);
     }
 
-    .nav-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.25rem 2rem;
+    /* Glow Circles */
+    .radial-glow-1 {
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.06) 0%, transparent 70%);
+      filter: blur(100px);
     }
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 800;
-      font-size: 1.25rem;
-      color: white;
-      text-decoration: none;
-      letter-spacing: 1px;
+    .radial-glow-2 {
+      background: radial-gradient(circle, rgba(0, 188, 212, 0.05) 0%, transparent 65%);
+      filter: blur(80px);
     }
 
-    .logo-icon {
-      color: var(--accent-cyan);
-      filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.6));
-    }
-
-    nav {
-      display: flex;
-      gap: 2.5rem;
-      align-items: center;
-    }
-
-    nav a {
-      color: var(--text-dim);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: color 0.3s;
-    }
-
-    nav a:hover {
-      color: var(--accent-cyan);
-    }
-
-    .nav-btn {
-      padding: 0.6rem 1.25rem;
-      border-radius: 8px;
-      border: 1px solid rgba(34, 211, 238, 0.3);
-      background: rgba(34, 211, 238, 0.05);
-      color: white;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-decoration: none;
-      transition: all 0.3s;
-    }
-
-    .nav-btn:hover {
+    /* Custom Button Style matching Login page */
+    .btn-premium {
       background: var(--btn-gradient);
-      box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
-      border-color: transparent;
+      border: 1px solid rgba(34, 211, 238, 0.15);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-premium:hover {
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.35);
+      border-color: rgba(34, 211, 238, 0.4);
       transform: translateY(-1px);
     }
 
-    /* 🚀 Hero Section */
-    .hero {
-      position: relative;
-      padding: 10rem 2rem 6rem;
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.4rem 1rem;
-      background: rgba(34, 211, 238, 0.05);
-      border: 1px solid rgba(34, 211, 238, 0.15);
-      border-radius: 100px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--accent-cyan);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 2rem;
-      animation: pulse 2s infinite alternate;
-    }
-
-    @keyframes pulse {
-      from { box-shadow: 0 0 5px rgba(34, 211, 238, 0.1); }
-      to { box-shadow: 0 0 20px rgba(34, 211, 238, 0.3); }
-    }
-
-    .hero h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 3.5rem;
-      font-weight: 900;
-      line-height: 1.15;
-      letter-spacing: -1.5px;
-      color: white;
-      max-width: 900px;
-      margin-bottom: 1.5rem;
-    }
-
-    .hero h1 span {
-      background: linear-gradient(135deg, #22d3ee 0%, #00bcd4 50%, #3b82f6 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero p {
-      font-size: 1.15rem;
-      color: var(--text-dim);
-      max-width: 700px;
-      margin-bottom: 3rem;
-    }
-
-    .hero-ctas {
-      display: flex;
-      gap: 1.5rem;
-      margin-bottom: 5rem;
-    }
-
-    .btn-primary {
-      padding: 1rem 2rem;
-      border-radius: 12px;
-      background: var(--btn-gradient);
-      border: 1px solid rgba(34, 211, 238, 0.2);
-      color: white;
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 700;
-      font-size: 0.9rem;
-      letter-spacing: 1.5px;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      border-color: var(--accent-cyan);
-      box-shadow: 0 15px 35px rgba(34, 211, 238, 0.15);
-      filter: brightness(1.2);
-    }
-
-    .btn-outline {
-      padding: 1rem 2rem;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: var(--btn-secondary);
-      color: white;
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 700;
-      font-size: 0.9rem;
-      letter-spacing: 1.5px;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      transition: all 0.3s;
-    }
-
-    .btn-outline:hover {
-      border-color: rgba(255, 255, 255, 0.3);
-      background: rgba(255, 255, 255, 0.08);
-      transform: translateY(-2px);
-    }
-
-    /* 🖥️ Hero Interface Mockup */
-    .hero-mockup {
-      width: 100%;
-      max-width: 1000px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      overflow: hidden;
-      padding: 1.5rem;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 30px rgba(34, 211, 238, 0.05);
-      backdrop-filter: blur(10px);
-    }
-
-    .mockup-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      padding-bottom: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .mockup-dots {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .mockup-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-
-    .mockup-dot.red { background: #ef4444; }
-    .mockup-dot.yellow { background: #f59e0b; }
-    .mockup-dot.green { background: #10b981; }
-
-    .mockup-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.8rem;
-      color: var(--accent-cyan);
-      letter-spacing: 2px;
-    }
-
-    .mockup-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1.5rem;
-      text-align: left;
-    }
-
-    @media (max-width: 768px) {
-      .mockup-grid { grid-template-columns: 1fr; }
-    }
-
-    .mockup-chat {
-      background: rgba(0,0,0,0.2);
-      border-radius: 12px;
-      padding: 1.5rem;
-      height: 280px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      font-size: 0.9rem;
-    }
-
-    .chat-bubble {
-      max-width: 80%;
-      padding: 0.75rem 1rem;
-      border-radius: 12px;
-    }
-
-    .chat-bubble.assistant {
-      background: rgba(34, 211, 238, 0.08);
-      border: 1px solid rgba(34, 211, 238, 0.15);
-      align-self: flex-start;
-      color: white;
-    }
-
-    .chat-bubble.user {
-      background: rgba(255, 255, 255, 0.05);
-      align-self: flex-end;
-      color: var(--text-dim);
-    }
-
-    .mockup-stats {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .stat-card {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      padding: 1rem;
-    }
-
-    .stat-label {
-      font-size: 0.7rem;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .stat-val {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: white;
-      margin-top: 0.25rem;
-    }
-
-    /* ⚡ Features Grid */
-    .features {
-      padding: 6rem 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 5rem;
-    }
-
-    .section-header h2 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 1rem;
-    }
-
-    .section-header p {
-      color: var(--text-dim);
-      font-size: 1.1rem;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 2rem;
-    }
-
-    .feature-card {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 2.5rem;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(34, 211, 238, 0.05) 0%, transparent 100%);
+    /* Scroll Reveals */
+    .reveal {
       opacity: 0;
-      transition: opacity 0.3s;
+      transform: translateY(24px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .feature-card:hover {
-      transform: translateY(-5px);
-      border-color: rgba(34, 211, 238, 0.2);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.4);
-    }
-
-    .feature-card:hover::before {
+    .reveal.active {
       opacity: 1;
+      transform: translateY(0);
     }
 
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: rgba(34, 211, 238, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--accent-cyan);
-      margin-bottom: 1.5rem;
-      filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.2));
+    /* Staggered items inside active reveal container */
+    .stagger-reveal > * {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .feature-card h3 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: white;
-      margin-bottom: 0.75rem;
+    .stagger-reveal.active > * {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    .feature-card p {
-      color: var(--text-dim);
-      font-size: 0.95rem;
+    /* Interactive waveform */
+    .waveform-bar {
+      animation: bounceWave 1.4s ease-in-out infinite alternate;
     }
 
-    /* 🔄 How It Works Workflow */
-    .workflow {
-      padding: 6rem 2rem;
-      background: rgba(4, 13, 18, 0.5);
-      border-top: 1px solid rgba(255, 255, 255, 0.02);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    @keyframes bounceWave {
+      0% { height: 10%; }
+      100% { height: 100%; }
     }
 
-    .workflow-container {
-      max-width: 1200px;
-      margin: 0 auto;
+    /* Floating Animations */
+    .float-slow {
+      animation: floating 8s ease-in-out infinite;
+    }
+    .float-medium {
+      animation: floating 6s ease-in-out infinite;
+    }
+    .float-fast {
+      animation: floating 4.5s ease-in-out infinite;
     }
 
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 3rem;
-      position: relative;
-      margin-top: 4rem;
+    @keyframes floating {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(1deg); }
+      100% { transform: translateY(0px) rotate(0deg); }
     }
 
-    @media (max-width: 768px) {
-      .steps { grid-template-columns: 1fr; gap: 2rem; }
+    /* Timeline glow track */
+    .timeline-track {
+      background: linear-gradient(to bottom, rgba(34, 211, 238, 0.4) 0%, rgba(0, 188, 212, 0.1) 80%, transparent 100%);
     }
 
-    .step-card {
-      text-align: center;
-      position: relative;
+    /* Pulse active node */
+    .node-pulse {
+      animation: nodePulse 2s infinite;
     }
-
-    .step-num {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(34, 211, 238, 0.08);
-      border: 1px solid var(--accent-cyan);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 900;
-      color: var(--accent-cyan);
-      margin: 0 auto 1.5rem;
-      box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
-    }
-
-    .step-card h4 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.15rem;
-      color: white;
-      margin-bottom: 0.75rem;
-    }
-
-    .step-card p {
-      color: var(--text-dim);
-      font-size: 0.9rem;
-      max-width: 300px;
-      margin: 0 auto;
-    }
-
-    /* 💎 Pricing Grid */
-    .pricing {
-      padding: 6rem 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2rem;
-      align-items: stretch;
-    }
-
-    @media (max-width: 992px) {
-      .pricing-grid { grid-template-columns: 1fr; max-width: 500px; margin: 0 auto; }
-    }
-
-    .pricing-card {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 3rem 2rem;
-      display: flex;
-      flex-direction: column;
-      transition: all 0.3s;
-      position: relative;
-    }
-
-    .pricing-card.popular {
-      border-color: rgba(34, 211, 238, 0.3);
-      background: rgba(4, 20, 27, 0.85);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 25px rgba(34, 211, 238, 0.08);
-      transform: scale(1.03);
-    }
-
-    .pricing-card.popular::after {
-      content: 'MOST POPULAR';
-      position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
-      background: var(--btn-gradient);
-      color: white;
-      font-size: 0.65rem;
-      font-weight: 800;
-      padding: 0.25rem 0.75rem;
-      border-radius: 100px;
-      letter-spacing: 1px;
-    }
-
-    .pricing-card:hover {
-      border-color: rgba(34, 211, 238, 0.2);
-    }
-
-    .plan-name {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: var(--accent-cyan);
-      margin-bottom: 0.5rem;
-    }
-
-    .plan-desc {
-      font-size: 0.85rem;
-      color: var(--text-dim);
-      margin-bottom: 2rem;
-    }
-
-    .plan-price {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 2.75rem;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 2rem;
-    }
-
-    .plan-price span {
-      font-size: 0.9rem;
-      color: var(--text-dim);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 400;
-    }
-
-    .plan-features {
-      list-style: none;
-      margin-bottom: 3rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      font-size: 0.9rem;
-      color: var(--text-dim);
-    }
-
-    .plan-features li {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .plan-features i {
-      color: var(--accent-cyan);
-      width: 16px;
-    }
-
-    .pricing-btn {
-      margin-top: auto;
-      width: 100%;
-      text-align: center;
-      padding: 1rem;
-      border-radius: 10px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-decoration: none;
-      transition: all 0.3s;
-    }
-
-    .pricing-card.popular .pricing-btn {
-      background: var(--btn-gradient);
-      color: white;
-      box-shadow: 0 10px 20px rgba(0, 188, 212, 0.2);
-    }
-
-    .pricing-card.popular .pricing-btn:hover {
-      box-shadow: 0 15px 30px rgba(0, 188, 212, 0.4);
-      filter: brightness(1.1);
-    }
-
-    .pricing-card:not(.popular) .pricing-btn {
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: var(--btn-secondary);
-      color: white;
-    }
-
-    .pricing-card:not(.popular) .pricing-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* 📢 CTA Banner */
-    .cta-banner {
-      padding: 8rem 2rem;
-      max-width: 1000px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .cta-card {
-      background: linear-gradient(135deg, rgba(8, 31, 38, 0.6) 0%, rgba(4, 18, 23, 0.9) 100%);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 4rem 3rem;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-    }
-
-    .cta-card h2 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 1.5rem;
-    }
-
-    .cta-card p {
-      color: var(--text-dim);
-      max-width: 600px;
-      margin: 0 auto 3rem;
-      font-size: 1.1rem;
-    }
-
-    .cta-card .btn-primary {
-      margin: 0 auto;
-      max-width: max-content;
-    }
-
-    /* 🏁 Footer */
-    footer {
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 4rem 2rem;
-      background: rgba(3, 10, 13, 0.8);
-    }
-
-    .footer-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 2rem;
-    }
-
-    .footer-text {
-      font-size: 0.85rem;
-      color: var(--text-dim);
-    }
-
-    .footer-links {
-      display: flex;
-      gap: 2rem;
-    }
-
-    .footer-links a {
-      color: var(--text-dim);
-      text-decoration: none;
-      font-size: 0.85rem;
-      transition: color 0.3s;
-    }
-
-    .footer-links a:hover {
-      color: var(--accent-cyan);
+    @keyframes nodePulse {
+      0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.6); }
+      70% { box-shadow: 0 0 0 8px rgba(34, 211, 238, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
     }
   </style>
 </head>
 
-<body>
-  <div class="bg-main"></div>
-  <div class="bg-grid"></div>
-  <div class="glow-circle glow-1"></div>
-  <div class="glow-circle glow-2"></div>
-  <div class="glow-circle glow-3"></div>
+<body class="bg-darkest text-slate-100 font-sans overflow-x-hidden min-h-screen relative">
 
-  <!-- Header -->
-  <header>
-    <div class="nav-container">
-      <a href="#" class="logo">
+  <!-- 🌌 Cybernetic Node Starfield (Interactive Background) -->
+  <canvas id="canvas-network" class="fixed inset-0 pointer-events-none z-[-1]"></canvas>
+
+  <!-- Static Gradient & Grid Backdrop -->
+  <div class="fixed inset-0 bg-gradient-mesh z-[-2]"></div>
+  <div class="fixed inset-0 bg-grid-mesh opacity-50 z-[-2]"></div>
+  
+  <!-- Glowing Nodes Backdrop -->
+  <div class="fixed top-[-20%] left-[-20%] w-[70vw] h-[70vw] rounded-full radial-glow-1 z-[-1]"></div>
+  <div class="fixed bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full radial-glow-2 z-[-1]"></div>
+
+  <!-- ⏳ Futuristic Loader Overlay -->
+  <div id="loading-screen" class="fixed inset-0 z-[999] bg-[#050505] flex flex-col items-center justify-center transition-all duration-1000 ease-out">
+    <div class="relative flex flex-col items-center">
+      <!-- Outer cyber circle -->
+      <div class="w-24 h-24 rounded-full border border-dashed border-cyanaccent/30 animate-spin" style="animation-duration: 12s;"></div>
+      <!-- Middle glowing ring -->
+      <div class="absolute inset-2 rounded-full border border-cyanaccent/60 border-t-transparent animate-spin"></div>
+      
+      <!-- Inner Branding logo -->
+      <div class="absolute inset-4 rounded-full bg-glassBg flex items-center justify-center border border-glassBorder shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+        <i data-lucide="cpu" class="w-8 h-8 text-cyanaccent animate-pulse"></i>
+      </div>
+      <h2 class="font-orbitron font-extrabold text-lg text-white mt-8 tracking-[4px] uppercase"><%= projectName %></h2>
+      <p class="text-xs text-cyanaccent/60 tracking-[2px] mt-2 font-mono uppercase">Initializing Systems...</p>
+      
+      <!-- Fading progress line -->
+      <div class="w-48 h-[1px] bg-slate-800 rounded-full mt-6 overflow-hidden relative">
+        <div class="absolute inset-y-0 left-0 w-0 bg-cyanaccent rounded-full transition-all duration-700 ease-out" id="loading-progress"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SECTION 1 — NAVIGATION ==================== -->
+  <header class="fixed top-0 left-0 w-full z-50 glass-header transition-all duration-300" id="site-header">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      
+      <!-- Logo Container -->
+      <a href="#" class="flex items-center gap-3 font-orbitron font-extrabold text-sm tracking-[2px] text-white hover:opacity-95 transition-opacity">
         <% if (typeof platformLogo !== 'undefined' && platformLogo) { %>
-          <img src="<%= platformLogo %>" alt="Logo" style="height: 32px; width: auto; object-fit: contain; filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.4));" />
+          <img src="<%= platformLogo %>" alt="Naxton Logo" class="h-8 w-auto object-contain filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" />
         <% } else { %>
-          <i data-lucide="brain-circuit" class="logo-icon"></i>
+          <div class="relative w-8 h-8 flex items-center justify-center rounded-lg bg-cyanaccent/10 border border-cyanaccent/30 shadow-[0_0_10px_rgba(34,211,238,0.2)]">
+            <i data-lucide="brain-circuit" class="w-5 h-5 text-cyanaccent"></i>
+          </div>
         <% } %>
-        <span>NAXTON</span>
+        <span><%= projectName.toUpperCase() %></span>
       </a>
-      <nav>
-        <a href="#features">Features</a>
-        <a href="#workflow">How It Works</a>
-        <a href="#pricing">Pricing</a>
-        <a href="/login" class="nav-btn">ACCESS PORTAL</a>
+
+      <!-- Desktop Navigation Menu -->
+      <nav class="hidden lg:flex items-center gap-8 text-xs font-semibold tracking-wider text-textDim">
+        <a href="#" class="hover:text-cyanaccent text-cyanaccent transition-colors">HOME</a>
+        <a href="#services" class="hover:text-cyanaccent transition-colors">SERVICES</a>
+        <a href="#solutions" class="hover:text-cyanaccent transition-colors">SOLUTIONS</a>
+        <a href="#products" class="hover:text-cyanaccent transition-colors">PRODUCTS</a>
+        <a href="#technologies" class="hover:text-cyanaccent transition-colors">TECHNOLOGIES</a>
+        <a href="#portfolio" class="hover:text-cyanaccent transition-colors">PORTFOLIO</a>
+        <a href="#about" class="hover:text-cyanaccent transition-colors">ABOUT</a>
+        <a href="#contact" class="hover:text-cyanaccent transition-colors">CONTACT</a>
       </nav>
+
+      <!-- Action Buttons -->
+      <div class="hidden md:flex items-center gap-4">
+        <a href="#contact" class="px-5 py-2.5 rounded-lg border border-cyanaccent/30 text-xs font-bold font-orbitron tracking-widest text-cyanaccent bg-cyanaccent/5 hover:bg-cyanaccent/10 hover:border-cyanaccent/50 transition-all">
+          BOOK CONSULTATION
+        </a>
+        <a href="/login" class="px-5 py-2.5 rounded-lg text-xs font-bold font-orbitron tracking-widest text-white btn-premium">
+          GET STARTED
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button class="lg:hidden text-slate-300 hover:text-cyanaccent transition-colors" id="mobile-menu-btn" aria-label="Toggle Menu">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-nav" class="hidden fixed inset-y-0 right-0 w-80 max-w-full bg-[#040e13]/98 border-l border-glassBorder shadow-[0_0_40px_rgba(0,0,0,0.8)] backdrop-blur-xl flex flex-col p-8 z-50 transition-all duration-300">
+      <div class="flex items-center justify-between mb-8">
+        <h3 class="font-orbitron font-extrabold text-xs text-white tracking-[2px]">MENU</h3>
+        <button id="close-menu-btn" class="text-slate-400 hover:text-cyanaccent transition-colors">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+      <nav class="flex flex-col gap-6 text-sm font-semibold tracking-widest text-textDim mb-12">
+        <a href="#" class="mobile-link hover:text-cyanaccent transition-colors">HOME</a>
+        <a href="#services" class="mobile-link hover:text-cyanaccent transition-colors">SERVICES</a>
+        <a href="#solutions" class="mobile-link hover:text-cyanaccent transition-colors">SOLUTIONS</a>
+        <a href="#products" class="mobile-link hover:text-cyanaccent transition-colors">PRODUCTS</a>
+        <a href="#technologies" class="mobile-link hover:text-cyanaccent transition-colors">TECHNOLOGIES</a>
+        <a href="#portfolio" class="mobile-link hover:text-cyanaccent transition-colors">PORTFOLIO</a>
+        <a href="#about" class="mobile-link hover:text-cyanaccent transition-colors">ABOUT</a>
+        <a href="#contact" class="mobile-link hover:text-cyanaccent transition-colors">CONTACT</a>
+      </nav>
+      <div class="flex flex-col gap-4">
+        <a href="#contact" class="mobile-link w-full text-center py-3 rounded-lg border border-cyanaccent/30 text-xs font-bold font-orbitron tracking-wider text-cyanaccent bg-cyanaccent/5 hover:bg-cyanaccent/10 transition-colors">
+          BOOK CONSULTATION
+        </a>
+        <a href="/login" class="w-full text-center py-3 rounded-lg text-xs font-bold font-orbitron tracking-wider text-white btn-premium">
+          ACCESS PORTAL
+        </a>
+      </div>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="hero-badge">
-      <i data-lucide="sparkles" style="width: 14px;"></i>
-      Enterprise Voice AI Active
-    </div>
-    <h1>Automate Customer Connections with <span>Autonomous Voice Agents</span></h1>
-    <p>Naxton's high-fidelity voice AI manages bookings, captures orders, and handles customer inquiries 24/7. Never lose a lead to a busy line again.</p>
-
-    <div class="hero-ctas">
-      <a href="/login" class="btn-primary">
-        <span>GET STARTED</span>
-        <i data-lucide="arrow-right" style="width: 18px;"></i>
-      </a>
-      <a href="#features" class="btn-outline">
-        <span>LEARN MORE</span>
-      </a>
-    </div>
-
-    <!-- Live Mockup Dashboard -->
-    <div class="hero-mockup">
-      <div class="mockup-header">
-        <div class="mockup-dots">
-          <div class="mockup-dot red"></div>
-          <div class="mockup-dot yellow"></div>
-          <div class="mockup-dot green"></div>
+  <!-- ==================== SECTION 2 — HERO ==================== -->
+  <section class="min-h-screen flex items-center justify-center pt-24 pb-16 px-6 relative overflow-hidden" id="home">
+    <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <!-- Hero Left Text -->
+      <div class="lg:col-span-6 flex flex-col items-start text-left reveal animate-fadeIn">
+        <!-- Pulsing badge -->
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyanaccent/5 border border-cyanaccent/20 text-[10px] font-extrabold tracking-[2.5px] text-cyanaccent uppercase mb-6 shadow-[0_0_15px_rgba(34,211,238,0.05)]">
+          <span class="w-2 h-2 rounded-full bg-cyanaccent node-pulse"></span>
+          Future-Ready AI Solutions
         </div>
-        <div class="mockup-title">NAXTON-AI // OPERATIONAL FEED</div>
-        <div style="width: 50px;"></div>
+        
+        <!-- Large Headline -->
+        <h1 class="font-orbitron font-black text-4xl sm:text-5xl xl:text-6xl tracking-tight text-white mb-6 leading-[1.1]">
+          <%= projectName.toUpperCase() %><br>
+          <span class="bg-gradient-to-r from-cyanaccent via-tealaccent to-blue-400 bg-clip-text text-transparent">
+            Intelligent Digital Experiences
+          </span>
+        </h1>
+        
+        <!-- Description -->
+        <p class="text-textDim text-sm sm:text-base max-w-xl leading-relaxed mb-8">
+          We engineer next-generation AI Agents, SaaS platforms, enterprise applications, custom automation loops, and scalable cloud solutions built to accelerate business efficiency and growth.
+        </p>
+        
+        <!-- CTA Action row -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
+          <a href="#contact" class="px-8 py-3.5 rounded-lg text-xs font-extrabold font-orbitron tracking-widest text-white text-center btn-premium">
+            START YOUR PROJECT
+          </a>
+          <a href="#contact" class="px-8 py-3.5 rounded-lg border border-glassBorder bg-white/5 hover:bg-white/10 hover:border-cyanaccent/30 text-xs font-extrabold font-orbitron tracking-widest text-slate-200 text-center transition-all">
+            SCHEDULE CONSULTATION
+          </a>
+        </div>
       </div>
-      <div class="mockup-grid">
-        <div class="mockup-chat">
-          <div class="chat-bubble assistant">
-            Hello, welcome to New York Pizza and Kabob! My name is Jordan, your AI host. What can I get started for you today?
+
+      <!-- Hero Right: Premium Cyber Dashboard Mockup -->
+      <div class="lg:col-span-6 relative flex items-center justify-center reveal">
+        
+        <!-- Behind mockup glow -->
+        <div class="absolute w-72 h-72 rounded-full bg-cyanaccent/10 filter blur-[60px] animate-pulse"></div>
+
+        <!-- Central Dashboard Card Frame -->
+        <div class="w-full max-w-lg glass-card rounded-xl border border-glassBorder p-4 relative overflow-hidden float-slow">
+          <!-- Frame header controls -->
+          <div class="flex items-center justify-between border-b border-glassBorder pb-3 mb-4">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-red-500/50"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-green-500/50"></span>
+            </div>
+            <span class="font-mono text-[10px] text-cyanaccent/50 tracking-widest uppercase flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
+              naxton-cloud-intelligence // v2.4
+            </span>
+            <div class="w-12"></div>
           </div>
-          <div class="chat-bubble user">
-            Hi Jordan, I'd like to place an order for pickup. Can I get one Afghani Pizza and two orders of Chapli Kababs?
-          </div>
-          <div class="chat-bubble assistant">
-            Absolutely! One Afghani Pizza and two Chapli Kababs for pickup. Would you like to add any drinks or desserts to that order?
-          </div>
-          <div class="chat-bubble user">
-            Just a Pepsi, thanks.
+
+          <!-- Dashboard mockup grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            
+            <!-- Widget 1: Analytics Live -->
+            <div class="bg-black/40 rounded-lg p-3 border border-glassBorder sm:col-span-2">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-bold text-slate-300">Live Audio Call Processing</span>
+                <span class="w-2 h-2 rounded-full bg-green-500 node-pulse"></span>
+              </div>
+              <div class="h-28 flex items-end gap-1.5 px-1 py-2 relative">
+                <!-- Glowing waveform bar graphs -->
+                <div class="w-full bg-cyanaccent/20 rounded-t-sm waveform-bar" style="animation-delay: 0.1s; height: 30%"></div>
+                <div class="w-full bg-cyanaccent/40 rounded-t-sm waveform-bar" style="animation-delay: 0.5s; height: 60%"></div>
+                <div class="w-full bg-tealaccent/30 rounded-t-sm waveform-bar" style="animation-delay: 0.3s; height: 45%"></div>
+                <div class="w-full bg-cyanaccent/60 rounded-t-sm waveform-bar animate-pulse" style="height: 80%; animation-duration: 0.9s;"></div>
+                <div class="w-full bg-tealaccent/70 rounded-t-sm waveform-bar" style="animation-delay: 0.7s; height: 75%"></div>
+                <div class="w-full bg-cyanaccent/30 rounded-t-sm waveform-bar" style="animation-delay: 0.2s; height: 50%"></div>
+                <div class="w-full bg-blue-500/40 rounded-t-sm waveform-bar animate-pulse" style="height: 55%;"></div>
+                <div class="w-full bg-cyanaccent/80 rounded-t-sm waveform-bar" style="animation-delay: 0.8s; height: 90%"></div>
+                <div class="w-full bg-cyanaccent/40 rounded-t-sm waveform-bar" style="animation-delay: 0.4s; height: 40%"></div>
+                
+                <!-- Time tag -->
+                <span class="absolute bottom-1 right-2 font-mono text-[9px] text-cyanaccent/60">latency: 48ms</span>
+              </div>
+            </div>
+
+            <!-- Widget 2: Stats Ring -->
+            <div class="bg-black/40 rounded-lg p-3 border border-glassBorder flex flex-col justify-between items-center text-center">
+              <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Reliability</span>
+              
+              <!-- Circular graphic -->
+              <div class="relative w-16 h-16 flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                  <path class="text-slate-800" stroke-width="2.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path class="text-cyanaccent" stroke-dasharray="99.9, 100" stroke-width="2.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="absolute font-mono text-[10px] font-extrabold text-white">99.9%</div>
+              </div>
+              
+              <span class="text-[9px] text-textDim">Core Uptime</span>
+            </div>
+
+            <!-- Widget 3: Live Feed Logs -->
+            <div class="bg-black/40 rounded-lg p-3 border border-glassBorder sm:col-span-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-bold text-slate-300">Operational Log Feed</span>
+                <span class="text-[9px] font-mono text-textDim">SYS: OK</span>
+              </div>
+              <div class="font-mono text-[9px] text-slate-400 space-y-1.5 leading-relaxed">
+                <div class="flex justify-between border-b border-white/5 pb-1">
+                  <span class="text-cyanaccent">[03:14:21]</span>
+                  <span class="text-slate-300">AI Voice Agent: Completed reservation booking</span>
+                  <span class="text-green-400">SUCCESS</span>
+                </div>
+                <div class="flex justify-between border-b border-white/5 pb-1">
+                  <span class="text-cyanaccent">[03:15:05]</span>
+                  <span class="text-slate-300">Nexa Flow: Triggered webhook CRM pipeline sync</span>
+                  <span class="text-cyanaccent">DISPATCHED</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-cyanaccent">[03:15:39]</span>
+                  <span class="text-slate-300">Secure Vault: Database API token rotated</span>
+                  <span class="text-tealaccent">ROTATED</span>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
-        <div class="mockup-stats">
-          <div class="stat-card">
-            <div class="stat-label">Active Connections</div>
-            <div class="stat-val" style="color: var(--accent-cyan);">4 Calls Live</div>
+
+        <!-- Floating Card 1: Nexa Voice -->
+        <div class="absolute -top-6 -left-6 glass-card border border-glassBorder p-3 rounded-lg flex items-center gap-3 shadow-2xl float-medium z-10 max-w-[160px]">
+          <div class="w-8 h-8 rounded-full bg-cyanaccent/15 border border-cyanaccent/30 flex items-center justify-center text-cyanaccent">
+            <i data-lucide="mic-2" class="w-4 h-4"></i>
           </div>
-          <div class="stat-card">
-            <div class="stat-label">Average Response Time</div>
-            <div class="stat-val">0.48s</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">System Accuracy</div>
-            <div class="stat-val" style="color: #10b981;">99.2%</div>
+          <div>
+            <h4 class="text-[10px] font-extrabold text-white tracking-wider">NEXA VOICE</h4>
+            <p class="text-[9px] text-green-400 flex items-center gap-1 mt-0.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+              Live: Active
+            </p>
           </div>
         </div>
+
+        <!-- Floating Card 2: Nexa Flow -->
+        <div class="absolute -bottom-6 -right-6 glass-card border border-glassBorder p-3 rounded-lg flex items-center gap-3 shadow-2xl float-fast z-10 max-w-[180px]">
+          <div class="w-8 h-8 rounded-full bg-tealaccent/15 border border-tealaccent/30 flex items-center justify-center text-tealaccent">
+            <i data-lucide="git-branch" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h4 class="text-[10px] font-extrabold text-white tracking-wider">NEXA FLOW</h4>
+            <p class="text-[9px] text-textDim mt-0.5">Automations: 1,420 / min</p>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
 
-  <!-- Features Grid -->
-  <section class="features" id="features">
-    <div class="section-header">
-      <h2>Engineered for Scale</h2>
-      <p>Powerful infrastructure designed to eliminate operational bottlenecks and automate calls concurrently.</p>
-    </div>
-    <div class="features-grid">
-      <!-- Feature 1 -->
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i data-lucide="phone-call"></i>
+  <!-- ==================== SECTION 3 — TRUST & STATS ==================== -->
+  <section class="py-12 border-y border-glassBorder bg-[#041014]/50 backdrop-blur-md relative" id="stats">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-8 text-center reveal stagger-reveal">
+        
+        <!-- Stat Item 1 -->
+        <div class="flex flex-col items-center">
+          <h2 class="font-orbitron font-black text-2xl sm:text-3xl text-white tracking-tight leading-none mb-2 bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent">
+            250+
+          </h2>
+          <p class="text-[10px] sm:text-xs font-bold tracking-widest text-textDim uppercase">Projects Delivered</p>
         </div>
-        <h3>Zero Missed Calls</h3>
-        <p>Take hundreds of calls at the exact same second. The system automatically answers all incoming caller lines, preventing any busy signals.</p>
-      </div>
-      <!-- Feature 2 -->
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i data-lucide="mic"></i>
+
+        <!-- Stat Item 2 -->
+        <div class="flex flex-col items-center border-l border-glassBorder/40">
+          <h2 class="font-orbitron font-black text-2xl sm:text-3xl text-cyanaccent tracking-tight leading-none mb-2">
+            99.9%
+          </h2>
+          <p class="text-[10px] sm:text-xs font-bold tracking-widest text-textDim uppercase">Reliability</p>
         </div>
-        <h3>Human-like Voice Synthetics</h3>
-        <p>Powered by low-latency ElevenLabs voices. The agent talks dynamically with real-time breathing pauses, eliminating robotic text-to-speech sound.</p>
-      </div>
-      <!-- Feature 3 -->
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i data-lucide="shopping-cart"></i>
+
+        <!-- Stat Item 3 -->
+        <div class="flex flex-col items-center border-l border-glassBorder/40">
+          <h2 class="font-orbitron font-black text-2xl sm:text-3xl text-white tracking-tight leading-none mb-2">
+            24/7
+          </h2>
+          <p class="text-[10px] sm:text-xs font-bold tracking-widest text-textDim uppercase">Live Support</p>
         </div>
-        <h3>Intelligent Extraction</h3>
-        <p>Uses advanced LLMs to extract exact menu item orders, count custom modifiers, and process bookings directly into your SQL database.</p>
+
+        <!-- Stat Item 4 -->
+        <div class="flex flex-col items-center border-l border-glassBorder/40">
+          <h2 class="font-orbitron font-black text-2xl sm:text-3xl text-tealaccent tracking-tight leading-none mb-2">
+            GLOBAL
+          </h2>
+          <p class="text-[10px] sm:text-xs font-bold tracking-widest text-textDim uppercase">Clients Reached</p>
+        </div>
+
+        <!-- Stat Item 5 -->
+        <div class="flex flex-col items-center border-l border-glassBorder/40">
+          <h2 class="font-orbitron font-black text-2xl sm:text-3xl text-white tracking-tight leading-none mb-2">
+            10+
+          </h2>
+          <p class="text-[10px] sm:text-xs font-bold tracking-widest text-textDim uppercase">Tech Partners</p>
+        </div>
+
       </div>
     </div>
   </section>
 
-  <!-- How it Works Workflow -->
-  <section class="workflow" id="workflow">
-    <div class="workflow-container">
-      <div class="section-header">
-        <h2>Integrated Communication Loop</h2>
-        <p>Three core modules working in perfect synchronization to power your voice automation.</p>
+  <!-- ==================== SECTION 4 — SERVICES ==================== -->
+  <section class="py-24 px-6 relative overflow-hidden" id="services">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Section Header -->
+      <div class="text-center mb-16 reveal">
+        <span class="text-[9px] font-extrabold tracking-[3px] text-cyanaccent uppercase">Capabilities</span>
+        <h2 class="font-orbitron font-black text-3xl sm:text-4xl text-white tracking-tight mt-2 mb-4">
+          Core Engineering Specializations
+        </h2>
+        <div class="w-16 h-[2px] bg-cyanaccent mx-auto"></div>
+        <p class="text-textDim text-sm max-w-xl mx-auto mt-4">
+          Robust, premium software solutions tailored to automate enterprise operations and secure scalable modern architectures.
+        </p>
       </div>
-      <div class="steps">
-        <div class="step-card">
-          <div class="step-num">01</div>
-          <h4>Voice Connection</h4>
-          <p>Twilio routes the customer's call to the Naxton WebSocket engine, establishing a continuous media stream channel.</p>
+
+      <!-- Service Card Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal stagger-reveal">
+        
+        <!-- SERVICE 1 -->
+        <div class="glass-card rounded-xl border border-glassBorder p-6 relative group transition-all duration-300">
+          <!-- Hover light backdrop -->
+          <div class="absolute inset-0 bg-gradient-to-br from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
+          
+          <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-6 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
+            <i data-lucide="mic" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-white mb-4 uppercase">AI Agents</h3>
+          <ul class="text-xs text-textDim space-y-2.5">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Voice AI Agents (Low-latency Synthetics)
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Customer Support AI Integrations
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Automated Receptionists & Booking
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              AI Conversational Sales Representatives
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Scalable Cloud-Hosted AI Call Centers
+            </li>
+          </ul>
         </div>
-        <div class="step-card">
-          <div class="step-num">02</div>
-          <h4>Neural Analysis</h4>
-          <p>Real-time speech-to-text transcribes the audio, and our cognitive service generates immediate responses using custom business parameters.</p>
+
+        <!-- SERVICE 2 -->
+        <div class="glass-card rounded-xl border border-glassBorder p-6 relative group transition-all duration-300">
+          <div class="absolute inset-0 bg-gradient-to-br from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
+          
+          <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-6 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
+            <i data-lucide="blocks" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-white mb-4 uppercase">SaaS Development</h3>
+          <ul class="text-xs text-textDim space-y-2.5">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Multi-Tenant Architecture Frameworks
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Stripe Subscription System Integration
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Advanced Booking & Scheduling Engines
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Premium Business Administration Portals
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Custom CRM & Lead Funnel Solutions
+            </li>
+          </ul>
         </div>
-        <div class="step-card">
-          <div class="step-num">03</div>
-          <h4>Dashboard Sync</h4>
-          <p>Completed orders, appointments, and conversational recordings are synced instantly to the central admin panel dashboard.</p>
+
+        <!-- SERVICE 3 -->
+        <div class="glass-card rounded-xl border border-glassBorder p-6 relative group transition-all duration-300">
+          <div class="absolute inset-0 bg-gradient-to-br from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
+          
+          <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-6 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
+            <i data-lucide="layout" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-white mb-4 uppercase">Web Applications</h3>
+          <ul class="text-xs text-textDim space-y-2.5">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Secure Enterprise Portal Interfaces
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Interactive Real-time Data Dashboards
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Internal Resource Management Panels
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Custom Operations Frameworks
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Premium Client-Facing Control Centers
+            </li>
+          </ul>
         </div>
+
+        <!-- SERVICE 4 -->
+        <div class="glass-card rounded-xl border border-glassBorder p-6 relative group transition-all duration-300">
+          <div class="absolute inset-0 bg-gradient-to-br from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
+          
+          <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-6 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
+            <i data-lucide="shuffle" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-white mb-4 uppercase">Automation</h3>
+          <ul class="text-xs text-textDim space-y-2.5">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Complex Workflow Automation Loops
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Business Process Event Triggers
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              CRM Pipeline Pipeline Automations
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Secure Webhook & Third-Party API Integrations
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Custom Intelligent LLM Automation Agents
+            </li>
+          </ul>
+        </div>
+
+        <!-- SERVICE 5 -->
+        <div class="glass-card rounded-xl border border-glassBorder p-6 relative group transition-all duration-300">
+          <div class="absolute inset-0 bg-gradient-to-br from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
+          
+          <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-6 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
+            <i data-lucide="cloud" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-white mb-4 uppercase">Cloud Solutions</h3>
+          <ul class="text-xs text-textDim space-y-2.5">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Enterprise AWS Infrastructure Deployment
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Railway & Vercel PaaS Deployment Loops
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Scalable Database Hosting & Tuning
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              CI/CD Automation & Docker Containers
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Secure High-Availability Load Balancers
+            </li>
+          </ul>
+        </div>
+
+        <!-- SERVICE 6 -->
+        <div class="glass-card rounded-xl border border-glassBorder p-6 relative group transition-all duration-300">
+          <div class="absolute inset-0 bg-gradient-to-br from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
+          
+          <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-6 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
+            <i data-lucide="code-2" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-white mb-4 uppercase">Custom Software</h3>
+          <ul class="text-xs text-textDim space-y-2.5">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Bespoke Enterprise Web Architectures
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Internal Legacy System Integrations
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Proprietary Cloud Platforms
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              High-Security Back-End Microservices
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              Bespoke Digital Transformation Systems
+            </li>
+          </ul>
+        </div>
+
       </div>
     </div>
   </section>
 
-  <!-- Pricing Grid -->
-  <section class="pricing" id="pricing">
-    <div class="section-header">
-      <h2>Subscription Tiers</h2>
-      <p>Flexible plans tailored to fit businesses from local storefronts to multi-location enterprises.</p>
+  <!-- ==================== SECTION 5 — TECHNOLOGY STACK ==================== -->
+  <section class="py-24 px-6 border-t border-glassBorder relative bg-black/10" id="technologies">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Header -->
+      <div class="text-center mb-16 reveal">
+        <span class="text-[9px] font-extrabold tracking-[3px] text-cyanaccent uppercase">Core Integrations</span>
+        <h2 class="font-orbitron font-black text-3xl sm:text-4xl text-white tracking-tight mt-2 mb-4">
+          Our Advanced Technology Stack
+        </h2>
+        <div class="w-16 h-[2px] bg-cyanaccent mx-auto"></div>
+        <p class="text-textDim text-sm max-w-xl mx-auto mt-4">
+          We construct modern systems utilizing industry-leading frameworks and cloud networks for optimal speed and reliability.
+        </p>
+      </div>
+
+      <!-- Tech Stack grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4 reveal stagger-reveal">
+        
+        <!-- Next.js -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="layers" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Next.js 15</span>
+        </div>
+
+        <!-- React -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="atom" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">React</span>
+        </div>
+
+        <!-- Node.js -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="terminal" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Node.js</span>
+        </div>
+
+        <!-- TypeScript -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="code" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">TypeScript</span>
+        </div>
+
+        <!-- Tailwind CSS -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="palette" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Tailwind</span>
+        </div>
+
+        <!-- Prisma -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="database-backup" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Prisma ORM</span>
+        </div>
+
+        <!-- PostgreSQL -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="database" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">PostgreSQL</span>
+        </div>
+
+        <!-- OpenAI -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="brain" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">OpenAI API</span>
+        </div>
+
+        <!-- Deepgram -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="waveform" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Deepgram</span>
+        </div>
+
+        <!-- Twilio -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="phone-forwarded" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Twilio Voice</span>
+        </div>
+
+        <!-- WebSockets -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="cable" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">WebSockets</span>
+        </div>
+
+        <!-- Railway -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="server" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Railway PaaS</span>
+        </div>
+
+        <!-- Docker -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="container" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Docker</span>
+        </div>
+
+        <!-- AWS -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="cloudy" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">AWS Cloud</span>
+        </div>
+
+        <!-- Vercel -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="send" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Vercel</span>
+        </div>
+
+        <!-- GitHub -->
+        <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
+          <i data-lucide="git-pull-request" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">GitHub</span>
+        </div>
+
+      </div>
     </div>
-    <div class="pricing-grid">
-      <!-- Plan 1 -->
-      <div class="pricing-card">
-        <div class="plan-name">Starter</div>
-        <div class="plan-desc">For growing local businesses.</div>
-        <div class="plan-price">$49<span>/month</span></div>
-        <ul class="plan-features">
-          <li><i data-lucide="check"></i> 1 Dedicated Phone Number</li>
-          <li><i data-lucide="check"></i> Up to 3 Concurrent Calls</li>
-          <li><i data-lucide="check"></i> Standard Menu/Service Setup</li>
-          <li><i data-lucide="check"></i> Live Dashboard & Logs</li>
+  </section>
+
+  <!-- ==================== SECTION 6 — PRODUCTS ==================== -->
+  <section class="py-24 px-6 relative" id="products">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Header -->
+      <div class="text-center mb-16 reveal">
+        <span class="text-[9px] font-extrabold tracking-[3px] text-cyanaccent uppercase">Proprietary Systems</span>
+        <h2 class="font-orbitron font-black text-3xl sm:text-4xl text-white tracking-tight mt-2 mb-4">
+          Nexa Suite Platforms
+        </h2>
+        <div class="w-16 h-[2px] bg-cyanaccent mx-auto"></div>
+        <p class="text-textDim text-sm max-w-xl mx-auto mt-4">
+          Out-of-the-box business operating engines designed for custom scaling, automation, and real-time processing.
+        </p>
+      </div>
+
+      <!-- Product Showcase Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 reveal stagger-reveal">
+        
+        <!-- PRODUCT 1: NEXA CORE -->
+        <div class="glass-card rounded-xl border border-glassBorder p-8 relative overflow-hidden group">
+          <div class="absolute -top-12 -right-12 w-48 h-48 bg-cyanaccent/5 rounded-full filter blur-3xl group-hover:bg-cyanaccent/10 transition-colors"></div>
+          
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <span class="text-[9px] font-extrabold tracking-widest text-cyanaccent uppercase font-mono">Platform Foundation</span>
+              <h3 class="font-orbitron font-black text-xl text-white mt-1">NEXA CORE</h3>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+          </div>
+          
+          <p class="text-xs text-textDim leading-relaxed mb-6">
+            A premium, highly secure, and cloud-optimized SaaS foundation boilerplate featuring multi-tenant database partitioning, granular role management, secure JWT validation, and automated subscription gateways.
+          </p>
+          
+          <div class="flex flex-wrap gap-2 mb-6">
+            <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Multi-Tenant</span>
+            <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Auth Security</span>
+            <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Stripe API</span>
+          </div>
+          
+          <a href="/login" class="inline-flex items-center gap-2 text-xs font-bold font-orbitron text-cyanaccent tracking-wider hover:text-white transition-colors">
+            EXPLORE ARCHITECTURE <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+        </div>
+
+        <!-- PRODUCT 2: NEXA FLOW -->
+        <div class="glass-card rounded-xl border border-glassBorder p-8 relative overflow-hidden group">
+          <div class="absolute -top-12 -right-12 w-48 h-48 bg-cyanaccent/5 rounded-full filter blur-3xl group-hover:bg-cyanaccent/10 transition-colors"></div>
+          
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <span class="text-[9px] font-extrabold tracking-widest text-cyanaccent uppercase font-mono">Process Automation</span>
+              <h3 class="font-orbitron font-black text-xl text-white mt-1">NEXA FLOW</h3>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent">
+              <i data-lucide="git-merge" class="w-5 h-5"></i>
+            </div>
+          </div>
+          
+          <p class="text-xs text-textDim leading-relaxed mb-6">
+            An advanced event-driven orchestration system built to automate linear workflows. Syncs operations dynamically across calendar schedulers, custom CRMs, third-party databases, and internal API nodes.
+          </p>
+          
+          <div class="flex flex-wrap gap-2 mb-6">
+            <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Workflow Loop</span>
+            <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Webhooks</span>
+            <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">JSON Engines</span>
+          </div>
+          
+          <a href="/login" class="inline-flex items-center gap-2 text-xs font-bold font-orbitron text-cyanaccent tracking-wider hover:text-white transition-colors">
+            DISCOVER WORKFLOWS <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+        </div>
+
+        <!-- PRODUCT 3: NEXA VOICE -->
+        <div class="glass-card rounded-xl border border-glassBorder p-8 relative overflow-hidden group">
+          <div class="absolute -top-12 -right-12 w-48 h-48 bg-cyanaccent/5 rounded-full filter blur-3xl group-hover:bg-cyanaccent/10 transition-colors"></div>
+          
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <span class="text-[9px] font-extrabold tracking-widest text-cyanaccent uppercase font-mono">Audio Synthetics</span>
+              <h3 class="font-orbitron font-black text-xl text-white mt-1">NEXA VOICE</h3>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent">
+              <i data-lucide="mic-2" class="w-5 h-5"></i>
+            </div>
+          </div>
+          
+          <p class="text-xs text-textDim leading-relaxed mb-6">
+            Our state-of-the-art conversational voice AI hosting platform. Interfaces ElevenLabs neural audios and Twilio telecommunications networks to answer caller lines concurrently with sub-100ms response speeds.
+          </p>
+          
+          <div class="flex flex-wrap gap-2 mb-6">
+            <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Low-Latency</span>
+            <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Voice Synthesis</span>
+            <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Twilio SDK</span>
+          </div>
+          
+          <a href="/login" class="inline-flex items-center gap-2 text-xs font-bold font-orbitron text-cyanaccent tracking-wider hover:text-white transition-colors">
+            VIEW CAPABILITIES <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+        </div>
+
+        <!-- PRODUCT 4: NEXA ENTERPRISE -->
+        <div class="glass-card rounded-xl border border-glassBorder p-8 relative overflow-hidden group">
+          <div class="absolute -top-12 -right-12 w-48 h-48 bg-cyanaccent/5 rounded-full filter blur-3xl group-hover:bg-cyanaccent/10 transition-colors"></div>
+          
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <span class="text-[9px] font-extrabold tracking-widest text-cyanaccent uppercase font-mono">Omni Ecosystem</span>
+              <h3 class="font-orbitron font-black text-xl text-white mt-1">NEXA ENTERPRISE</h3>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent">
+              <i data-lucide="globe-2" class="w-5 h-5"></i>
+            </div>
+          </div>
+          
+          <p class="text-xs text-textDim leading-relaxed mb-6">
+            A comprehensive, high-security custom-tailored package designed for corporate operations, featuring dedicated server sandboxing, advanced analytics dashboard clusters, and premium API integrations.
+          </p>
+          
+          <div class="flex flex-wrap gap-2 mb-6">
+            <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Isolated Sandbox</span>
+            <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Custom Analytics</span>
+            <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Dedicated SLA</span>
+          </div>
+          
+          <a href="/login" class="inline-flex items-center gap-2 text-xs font-bold font-orbitron text-cyanaccent tracking-wider hover:text-white transition-colors">
+            CONTACT ENTERPRISE SALES <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 7 — WHY CHOOSE US ==================== -->
+  <section class="py-24 px-6 border-t border-glassBorder relative bg-[#031014]/30" id="solutions">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Section Header -->
+      <div class="text-center mb-16 reveal">
+        <span class="text-[9px] font-extrabold tracking-[3px] text-cyanaccent uppercase">Value Proposition</span>
+        <h2 class="font-orbitron font-black text-3xl sm:text-4xl text-white tracking-tight mt-2 mb-4">
+          Engineered for Corporate Trust
+        </h2>
+        <div class="w-16 h-[2px] bg-cyanaccent mx-auto"></div>
+        <p class="text-textDim text-sm max-w-xl mx-auto mt-4">
+          Why leading brands choose Naxton Technologies for high-scale automation, AI agent frameworks, and custom software systems.
+        </p>
+      </div>
+
+      <!-- Feature Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 reveal stagger-reveal">
+        
+        <!-- Feature 1 -->
+        <div class="flex flex-col items-start p-4">
+          <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Enterprise Security</h4>
+          <p class="text-[11px] text-textDim leading-relaxed">
+            Granular SSL, encrypted JWT structures, safe environment variable sandboxing, and strict database row permissions.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="flex flex-col items-start p-4 border-l border-glassBorder/20">
+          <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
+            <i data-lucide="codepen" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Modern Architecture</h4>
+          <p class="text-[11px] text-textDim leading-relaxed">
+            Constructed with robust Next.js 15 routing, optimized React components, and TypeScript structures.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="flex flex-col items-start p-4 border-l border-glassBorder/20">
+          <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">AI Integration</h4>
+          <p class="text-[11px] text-textDim leading-relaxed">
+            Seamless interface bindings to advanced cognitive LLM logic models and neural low-latency voice engines.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="flex flex-col items-start p-4 border-l border-glassBorder/20">
+          <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Fast Performance</h4>
+          <p class="text-[11px] text-textDim leading-relaxed">
+            Sub-second operational loop responses, optimized backend asset packaging, and lightning-fast database indexes.
+          </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="flex flex-col items-start p-4 border-t border-glassBorder/20 pt-8">
+          <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
+            <i data-lucide="network" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Scalable Tech</h4>
+          <p class="text-[11px] text-textDim leading-relaxed">
+            Dynamic load-balancing networks, PostgreSQL architectures, and isolated container deployment modules.
+          </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="flex flex-col items-start p-4 border-l border-t border-glassBorder/20 pt-8">
+          <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
+            <i data-lucide="headset" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Dedicated Support</h4>
+          <p class="text-[11px] text-textDim leading-relaxed">
+            Direct communication channels to our specialized cloud engineers and live server monitoring analytics.
+          </p>
+        </div>
+
+        <!-- Feature 7 -->
+        <div class="flex flex-col items-start p-4 border-l border-t border-glassBorder/20 pt-8">
+          <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
+            <i data-lucide="cloud-lightning" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Cloud Native</h4>
+          <p class="text-[11px] text-textDim leading-relaxed">
+            Optimized hosting clusters deployed directly on high-performance AWS containerized networks.
+          </p>
+        </div>
+
+        <!-- Feature 8 -->
+        <div class="flex flex-col items-start p-4 border-l border-t border-glassBorder/20 pt-8">
+          <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
+            <i data-lucide="history" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Future Ready</h4>
+          <p class="text-[11px] text-textDim leading-relaxed">
+            Engineered modular code layers allowing simple upgrades when upgrading to proprietary LLMs or sub-features.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 8 — PROCESS ==================== -->
+  <section class="py-24 px-6 relative" id="about">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Section Header -->
+      <div class="text-center mb-16 reveal">
+        <span class="text-[9px] font-extrabold tracking-[3px] text-cyanaccent uppercase">Implementation</span>
+        <h2 class="font-orbitron font-black text-3xl sm:text-4xl text-white tracking-tight mt-2 mb-4">
+          The Engineering Lifecycle
+        </h2>
+        <div class="w-16 h-[2px] bg-cyanaccent mx-auto"></div>
+        <p class="text-textDim text-sm max-w-xl mx-auto mt-4">
+          A systemic 6-step methodology ensuring secure deployment, structural integrity, and custom operations mapping.
+        </p>
+      </div>
+
+      <!-- Process Timeline -->
+      <div class="relative grid grid-cols-1 md:grid-cols-6 gap-8 reveal stagger-reveal">
+        <!-- Connecting Line Background -->
+        <div class="hidden md:block absolute top-6 left-0 right-0 h-[1px] timeline-track z-0"></div>
+
+        <!-- Step 1 -->
+        <div class="flex flex-col items-center md:items-start text-center md:text-left relative z-10">
+          <div class="w-12 h-12 rounded-full bg-[#04151b] border border-glassBorder flex items-center justify-center shadow-lg mb-6 group hover:border-cyanaccent transition-all duration-300">
+            <span class="font-orbitron text-xs font-extrabold text-cyanaccent group-hover:scale-105 transition-transform">01</span>
+          </div>
+          <h4 class="font-orbitron font-extrabold text-xs tracking-widest text-white uppercase mb-2">Discovery</h4>
+          <p class="text-[11px] text-textDim leading-relaxed max-w-xs">
+            Analyzing operational bottlenecks, technical requirements, and custom voice routing configurations.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="flex flex-col items-center md:items-start text-center md:text-left relative z-10">
+          <div class="w-12 h-12 rounded-full bg-[#04151b] border border-glassBorder flex items-center justify-center shadow-lg mb-6 group hover:border-cyanaccent transition-all duration-300">
+            <span class="font-orbitron text-xs font-extrabold text-cyanaccent group-hover:scale-105 transition-transform">02</span>
+          </div>
+          <h4 class="font-orbitron font-extrabold text-xs tracking-widest text-white uppercase mb-2">Strategy</h4>
+          <p class="text-[11px] text-textDim leading-relaxed max-w-xs">
+            Designing systemic layout maps, database schema architecture, and isolated call webhook processes.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="flex flex-col items-center md:items-start text-center md:text-left relative z-10">
+          <div class="w-12 h-12 rounded-full bg-[#04151b] border border-glassBorder flex items-center justify-center shadow-lg mb-6 group hover:border-cyanaccent transition-all duration-300">
+            <span class="font-orbitron text-xs font-extrabold text-cyanaccent group-hover:scale-105 transition-transform">03</span>
+          </div>
+          <h4 class="font-orbitron font-extrabold text-xs tracking-widest text-white uppercase mb-2">Design</h4>
+          <p class="text-[11px] text-textDim leading-relaxed max-w-xs">
+            Constructing premium interface layouts, wireframes, and responsive dashboard control panels.
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="flex flex-col items-center md:items-start text-center md:text-left relative z-10">
+          <div class="w-12 h-12 rounded-full bg-[#04151b] border border-glassBorder flex items-center justify-center shadow-lg mb-6 group hover:border-cyanaccent transition-all duration-300">
+            <span class="font-orbitron text-xs font-extrabold text-cyanaccent group-hover:scale-105 transition-transform">04</span>
+          </div>
+          <h4 class="font-orbitron font-extrabold text-xs tracking-widest text-white uppercase mb-2">Development</h4>
+          <p class="text-[11px] text-textDim leading-relaxed max-w-xs">
+            Programming microservices, writing schema endpoints, and structuring LLM extraction engines.
+          </p>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="flex flex-col items-center md:items-start text-center md:text-left relative z-10">
+          <div class="w-12 h-12 rounded-full bg-[#04151b] border border-glassBorder flex items-center justify-center shadow-lg mb-6 group hover:border-cyanaccent transition-all duration-300">
+            <span class="font-orbitron text-xs font-extrabold text-cyanaccent group-hover:scale-105 transition-transform">05</span>
+          </div>
+          <h4 class="font-orbitron font-extrabold text-xs tracking-widest text-white uppercase mb-2">Testing</h4>
+          <p class="text-[11px] text-textDim leading-relaxed max-w-xs">
+            Simulating live webhook concurrency, carrying out security reviews, and validating SQL query speeds.
+          </p>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="flex flex-col items-center md:items-start text-center md:text-left relative z-10">
+          <div class="w-12 h-12 rounded-full bg-[#04151b] border border-glassBorder flex items-center justify-center shadow-lg mb-6 group hover:border-cyanaccent transition-all duration-300">
+            <span class="font-orbitron text-xs font-extrabold text-cyanaccent group-hover:scale-105 transition-transform">06</span>
+          </div>
+          <h4 class="font-orbitron font-extrabold text-xs tracking-widest text-white uppercase mb-2">Launch</h4>
+          <p class="text-[11px] text-textDim leading-relaxed max-w-xs">
+            Deploying container workloads on live AWS/Railway architectures and initiating continuous analytics tracking.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 9 — PORTFOLIO ==================== -->
+  <section class="py-24 px-6 border-t border-glassBorder relative bg-black/10" id="portfolio">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Section Header -->
+      <div class="text-center mb-16 reveal">
+        <span class="text-[9px] font-extrabold tracking-[3px] text-cyanaccent uppercase">Case Studies</span>
+        <h2 class="font-orbitron font-black text-3xl sm:text-4xl text-white tracking-tight mt-2 mb-4">
+          Enterprise Implementations
+        </h2>
+        <div class="w-16 h-[2px] bg-cyanaccent mx-auto"></div>
+        <p class="text-textDim text-sm max-w-xl mx-auto mt-4">
+          Review our deployed automation platforms, client portal dashboards, and customized AI reception systems.
+        </p>
+      </div>
+
+      <!-- Portfolio Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal stagger-reveal">
+        
+        <!-- Project 1 -->
+        <div class="glass-card rounded-xl border border-glassBorder overflow-hidden group cursor-pointer">
+          <!-- Device frame mockup container -->
+          <div class="h-48 bg-slate-950/80 border-b border-glassBorder flex items-center justify-center p-6 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-t from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            
+            <!-- CSS Phone/Interface Mockup -->
+            <div class="w-32 h-36 bg-[#04151b] border border-glassBorder rounded-lg p-2.5 shadow-2xl flex flex-col justify-between transform group-hover:scale-[1.03] transition-transform duration-300">
+              <div class="flex items-center justify-between border-b border-glassBorder pb-1">
+                <span class="text-[8px] font-bold text-cyanaccent font-mono">CALL_LOG // #492</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
+              </div>
+              <div class="flex flex-col gap-1.5 my-2">
+                <div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div class="w-3/4 h-full bg-cyanaccent"></div>
+                </div>
+                <span class="text-[6px] text-textDim font-mono">Customer: "Booking for tomorrow..."</span>
+                <span class="text-[6px] text-tealaccent font-mono">Status: Connected (1.2m)</span>
+              </div>
+              <div class="flex justify-between items-center text-[7px] font-bold text-white border-t border-glassBorder pt-1">
+                <span>RECEPTIONIST</span>
+                <i data-lucide="phone-incoming" class="w-2.5 h-2.5 text-cyanaccent"></i>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h4 class="font-orbitron font-extrabold text-xs tracking-widest text-white uppercase mb-2">AI Call Agent Platform</h4>
+            <p class="text-[11px] text-textDim leading-relaxed">
+              Custom-synthesized ElevenLabs calling gateway built to automate scheduling desks concurrently.
+            </p>
+          </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="glass-card rounded-xl border border-glassBorder overflow-hidden group cursor-pointer">
+          <div class="h-48 bg-slate-950/80 border-b border-glassBorder flex items-center justify-center p-6 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-t from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            
+            <!-- Dashboard Mockup -->
+            <div class="w-44 h-32 bg-[#04151b] border border-glassBorder rounded-lg p-2 shadow-2xl flex flex-col justify-between transform group-hover:scale-[1.03] transition-transform duration-300">
+              <div class="flex items-center justify-between border-b border-glassBorder pb-1">
+                <span class="text-[7px] font-bold text-white font-orbitron uppercase">RESTAURANT PORTAL</span>
+                <span class="text-[6px] font-mono text-cyanaccent">LIVE: 98%</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 my-1.5">
+                <div class="bg-black/30 p-1 rounded border border-glassBorder/50 flex flex-col justify-center">
+                  <span class="text-[5px] text-textDim">Daily Orders</span>
+                  <span class="text-[8px] font-bold text-white">412</span>
+                </div>
+                <div class="bg-black/30 p-1 rounded border border-glassBorder/50 flex flex-col justify-center">
+                  <span class="text-[5px] text-textDim">Revenue</span>
+                  <span class="text-[8px] font-bold text-tealaccent">$8,421</span>
+                </div>
+              </div>
+              <div class="text-[5px] font-mono text-slate-400 border-t border-glassBorder pt-1 flex justify-between">
+                <span>SQL Server Status: Online</span>
+                <span class="text-green-400">OK</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h4 class="font-orbitron font-extrabold text-xs tracking-widest text-white uppercase mb-2">Restaurant SaaS System</h4>
+            <p class="text-[11px] text-textDim leading-relaxed">
+              Multi-tenant pizza ordering portal complete with automated phone-to-SQL extraction modules.
+            </p>
+          </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="glass-card rounded-xl border border-glassBorder overflow-hidden group cursor-pointer">
+          <div class="h-48 bg-slate-950/80 border-b border-glassBorder flex items-center justify-center p-6 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-t from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            
+            <!-- CRM Mockup -->
+            <div class="w-40 h-32 bg-[#04151b] border border-glassBorder rounded-lg p-2.5 shadow-2xl flex flex-col justify-between transform group-hover:scale-[1.03] transition-transform duration-300">
+              <div class="flex items-center justify-between border-b border-glassBorder pb-1">
+                <span class="text-[7px] font-bold text-white font-orbitron uppercase">NEXA CRM</span>
+                <i data-lucide="users" class="w-2.5 h-2.5 text-cyanaccent"></i>
+              </div>
+              <div class="space-y-1.5 my-2">
+                <div class="flex justify-between items-center bg-black/20 p-1 rounded border border-glassBorder/40">
+                  <span class="text-[6px] text-white">Lead: Sarah Connor</span>
+                  <span class="text-[5px] px-1 bg-cyanaccent/15 text-cyanaccent rounded">HOT</span>
+                </div>
+                <div class="flex justify-between items-center bg-black/20 p-1 rounded border border-glassBorder/40">
+                  <span class="text-[6px] text-white">Lead: John Doe</span>
+                  <span class="text-[5px] px-1 bg-white/5 text-textDim rounded">CONTACTED</span>
+                </div>
+              </div>
+              <div class="text-[5px] font-mono text-slate-400 border-t border-glassBorder pt-1">
+                Total pipeline value: $450k
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h4 class="font-orbitron font-extrabold text-xs tracking-widest text-white uppercase mb-2">Enterprise CRM</h4>
+            <p class="text-[11px] text-textDim leading-relaxed">
+              Highly secure contact funnel architecture with webhook synchronizations and client tagging.
+            </p>
+          </div>
+        </div>
+
+        <!-- Project 4 -->
+        <div class="glass-card rounded-xl border border-glassBorder overflow-hidden group cursor-pointer">
+          <div class="h-48 bg-slate-950/80 border-b border-glassBorder flex items-center justify-center p-6 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-t from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            
+            <!-- Automation Mockup -->
+            <div class="w-36 h-32 bg-[#04151b] border border-glassBorder rounded-lg p-2.5 shadow-2xl flex flex-col justify-between transform group-hover:scale-[1.03] transition-transform duration-300">
+              <div class="flex items-center justify-between border-b border-glassBorder pb-1">
+                <span class="text-[7px] font-bold text-white font-orbitron uppercase">AUTOMATION FLOW</span>
+                <span class="text-[6px] text-tealaccent">ACTIVE</span>
+              </div>
+              
+              <!-- Diagram representation -->
+              <div class="flex flex-col items-center gap-1 my-1">
+                <span class="text-[5px] px-1 py-0.5 bg-white/5 border border-glassBorder rounded font-mono">Incoming Call</span>
+                <i data-lucide="arrow-down" class="w-2.5 h-2.5 text-cyanaccent"></i>
+                <span class="text-[5px] px-1 py-0.5 bg-cyanaccent/15 border border-cyanaccent/30 rounded font-mono">Extract Data</span>
+                <i data-lucide="arrow-down" class="w-2.5 h-2.5 text-cyanaccent"></i>
+                <span class="text-[5px] px-1 py-0.5 bg-white/5 border border-glassBorder rounded font-mono">Sync to CRM</span>
+              </div>
+
+              <div class="text-[5px] font-mono text-slate-400 border-t border-glassBorder pt-1">
+                Execution speed: 18ms
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h4 class="font-orbitron font-extrabold text-xs tracking-widest text-white uppercase mb-2">Automation Dashboard</h4>
+            <p class="text-[11px] text-textDim leading-relaxed">
+              Workflow orchestration control panel showcasing data extraction maps and execution statistics.
+            </p>
+          </div>
+        </div>
+
+        <!-- Project 5 -->
+        <div class="glass-card rounded-xl border border-glassBorder overflow-hidden group cursor-pointer">
+          <div class="h-48 bg-slate-950/80 border-b border-glassBorder flex items-center justify-center p-6 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-t from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            
+            <!-- Booking Mockup -->
+            <div class="w-44 h-32 bg-[#04151b] border border-glassBorder rounded-lg p-2 shadow-2xl flex flex-col justify-between transform group-hover:scale-[1.03] transition-transform duration-300">
+              <div class="flex items-center justify-between border-b border-glassBorder pb-1">
+                <span class="text-[7px] font-bold text-white font-orbitron uppercase">CALENDAR SCHEDULER</span>
+                <i data-lucide="calendar" class="w-2.5 h-2.5 text-cyanaccent"></i>
+              </div>
+              
+              <!-- Calendar Grid mockup -->
+              <div class="grid grid-cols-7 gap-0.5 my-1.5 text-center">
+                <span class="text-[4px] font-bold text-textDim">M</span>
+                <span class="text-[4px] font-bold text-textDim">T</span>
+                <span class="text-[4px] font-bold text-textDim">W</span>
+                <span class="text-[4px] font-bold text-textDim">T</span>
+                <span class="text-[4px] font-bold text-textDim">F</span>
+                <span class="text-[4px] font-bold text-textDim">S</span>
+                <span class="text-[4px] font-bold text-textDim">S</span>
+                
+                <span class="text-[5px] text-slate-700">1</span>
+                <span class="text-[5px] text-slate-700">2</span>
+                <span class="text-[5px] text-white">3</span>
+                <span class="text-[5px] text-white">4</span>
+                <span class="text-[5px] text-cyanaccent font-extrabold bg-cyanaccent/15 rounded">5</span>
+                <span class="text-[5px] text-white">6</span>
+                <span class="text-[5px] text-white">7</span>
+              </div>
+
+              <div class="text-[5px] font-mono text-slate-400 border-t border-glassBorder pt-1 flex justify-between">
+                <span>Slots Available: 18</span>
+                <span class="text-tealaccent">ACTIVE</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h4 class="font-orbitron font-extrabold text-xs tracking-widest text-white uppercase mb-2">Booking Platform</h4>
+            <p class="text-[11px] text-textDim leading-relaxed">
+              Medical dental clinic appointment system with automated timezone locks and concurrency guards.
+            </p>
+          </div>
+        </div>
+
+        <!-- Project 6 -->
+        <div class="glass-card rounded-xl border border-glassBorder overflow-hidden group cursor-pointer">
+          <div class="h-48 bg-slate-950/80 border-b border-glassBorder flex items-center justify-center p-6 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-t from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            
+            <!-- Business Management Mockup -->
+            <div class="w-40 h-32 bg-[#04151b] border border-glassBorder rounded-lg p-2.5 shadow-2xl flex flex-col justify-between transform group-hover:scale-[1.03] transition-transform duration-300">
+              <div class="flex items-center justify-between border-b border-glassBorder pb-1">
+                <span class="text-[7px] font-bold text-white font-orbitron uppercase">BUSINESS CONSOLE</span>
+                <i data-lucide="settings" class="w-2.5 h-2.5 text-cyanaccent animate-spin" style="animation-duration: 20s;"></i>
+              </div>
+              <div class="space-y-1.5 my-2">
+                <div class="flex justify-between items-center text-[5px] text-textDim border-b border-white/5 pb-0.5">
+                  <span>Twilio Phone config</span>
+                  <span class="text-green-400">Connected</span>
+                </div>
+                <div class="flex justify-between items-center text-[5px] text-textDim border-b border-white/5 pb-0.5">
+                  <span>ElevenLabs Voice Model</span>
+                  <span class="text-cyanaccent">Nova (Default)</span>
+                </div>
+              </div>
+              <div class="text-[5px] font-mono text-slate-400 border-t border-glassBorder pt-1">
+                Active Tenant ID: bbc47e11-e92f
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h4 class="font-orbitron font-extrabold text-xs tracking-widest text-white uppercase mb-2">Business Management System</h4>
+            <p class="text-[11px] text-textDim leading-relaxed">
+              Platform administration control panels allowing managers to configure AI names, genders, and business hours.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 10 — TESTIMONIALS ==================== -->
+  <section class="py-24 px-6 relative overflow-hidden bg-black/5" id="testimonials">
+    <div class="max-w-4xl mx-auto text-center">
+      
+      <!-- Section Header -->
+      <div class="mb-16 reveal">
+        <span class="text-[9px] font-extrabold tracking-[3px] text-cyanaccent uppercase">Feedback</span>
+        <h2 class="font-orbitron font-black text-3xl sm:text-4xl text-white tracking-tight mt-2 mb-4">
+          Corporate Client Testimonials
+        </h2>
+        <div class="w-16 h-[2px] bg-cyanaccent mx-auto"></div>
+      </div>
+
+      <!-- Testimonial Slider Wrapper -->
+      <div class="relative reveal min-h-[260px]">
+        
+        <!-- Slide 1 -->
+        <div class="testimonial-slide glass-card rounded-xl border border-glassBorder p-8 md:p-12 transition-all duration-700 ease-in-out opacity-100 transform translate-x-0" id="slide-0">
+          <div class="flex items-center justify-center text-cyanaccent mb-6">
+            <i data-lucide="quote" class="w-8 h-8 opacity-60"></i>
+          </div>
+          <p class="text-sm md:text-base text-slate-200 leading-relaxed italic max-w-2xl mx-auto mb-8">
+            "Naxton Technologies rebuilt our restaurant ordering architecture from scratch. Their low-latency voice AI agents answer up to 10 customer call lines concurrently during rush hours. Our team has freed up hundreds of hours of manual labor, allowing us to focus entirely on customer delivery."
+          </p>
+          <h5 class="font-orbitron font-bold text-xs tracking-widest text-white uppercase">Syed Saif</h5>
+          <p class="text-[10px] text-cyanaccent font-mono uppercase mt-1">Founder, Syed Services Ltd.</p>
+        </div>
+
+        <!-- Slide 2 (Hidden by default) -->
+        <div class="testimonial-slide glass-card rounded-xl border border-glassBorder p-8 md:p-12 absolute inset-0 transition-all duration-700 ease-in-out opacity-0 transform translate-x-12 pointer-events-none" id="slide-1">
+          <div class="flex items-center justify-center text-cyanaccent mb-6">
+            <i data-lucide="quote" class="w-8 h-8 opacity-60"></i>
+          </div>
+          <p class="text-sm md:text-base text-slate-200 leading-relaxed italic max-w-2xl mx-auto mb-8">
+            "The multi-tenant CRM and booking engine integrated by Naxton Technologies transformed our dental clinic workflows. The automated SMS triggers and timezone conversion layers worked flawlessly out-of-the-box. Our client onboarding timeline was reduced by over 60%."
+          </p>
+          <h5 class="font-orbitron font-bold text-xs tracking-widest text-white uppercase">Dr. Amanda Vance</h5>
+          <p class="text-[10px] text-cyanaccent font-mono uppercase mt-1">Operations Lead, Max Dental Group</p>
+        </div>
+
+        <!-- Slide 3 (Hidden by default) -->
+        <div class="testimonial-slide glass-card rounded-xl border border-glassBorder p-8 md:p-12 absolute inset-0 transition-all duration-700 ease-in-out opacity-0 transform translate-x-12 pointer-events-none" id="slide-2">
+          <div class="flex items-center justify-center text-cyanaccent mb-6">
+            <i data-lucide="quote" class="w-8 h-8 opacity-60"></i>
+          </div>
+          <p class="text-sm md:text-base text-slate-200 leading-relaxed italic max-w-2xl mx-auto mb-8">
+            "We required an isolated sandboxed database and custom API webhook loops deployed on AWS containerized nodes. Naxton delivered a production-ready system that successfully processed millions of automated requests with 99.9% uptime. Absolute masters of digital transformation."
+          </p>
+          <h5 class="font-orbitron font-bold text-xs tracking-widest text-white uppercase">Marcus Sterling</h5>
+          <p class="text-[10px] text-cyanaccent font-mono uppercase mt-1">CTO, Nexa Solutions Inc.</p>
+        </div>
+
+        <!-- Slider Controls -->
+        <div class="flex items-center justify-center gap-3 mt-8">
+          <button class="w-8 h-8 rounded-full border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent hover:border-cyanaccent/30 transition-all cursor-pointer" onclick="prevTestimonial()">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          
+          <div class="flex gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyanaccent cursor-pointer transition-colors" id="dot-0" onclick="goToSlide(0)"></span>
+            <span class="w-2 h-2 rounded-full bg-slate-700 cursor-pointer transition-colors" id="dot-1" onclick="goToSlide(1)"></span>
+            <span class="w-2 h-2 rounded-full bg-slate-700 cursor-pointer transition-colors" id="dot-2" onclick="goToSlide(2)"></span>
+          </div>
+
+          <button class="w-8 h-8 rounded-full border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent hover:border-cyanaccent/30 transition-all cursor-pointer" onclick="nextTestimonial()">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 11 — FAQ ==================== -->
+  <section class="py-24 px-6 border-t border-glassBorder relative bg-black/10" id="faq">
+    <div class="max-w-4xl mx-auto">
+      
+      <!-- Section Header -->
+      <div class="text-center mb-16 reveal">
+        <span class="text-[9px] font-extrabold tracking-[3px] text-cyanaccent uppercase">Knowledge Base</span>
+        <h2 class="font-orbitron font-black text-3xl sm:text-4xl text-white tracking-tight mt-2 mb-4">
+          Frequently Answered Questions
+        </h2>
+        <div class="w-16 h-[2px] bg-cyanaccent mx-auto"></div>
+      </div>
+
+      <!-- FAQ Accordions -->
+      <div class="space-y-4 reveal stagger-reveal">
+        
+        <!-- FAQ 1 -->
+        <div class="glass-card rounded-lg border border-glassBorder overflow-hidden transition-all duration-300">
+          <button class="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none cursor-pointer" onclick="toggleFaq(this)">
+            <span class="font-orbitron font-bold text-xs tracking-wider text-white uppercase">What AI Voice models do your agents integrate with?</span>
+            <i data-lucide="plus" class="w-4 h-4 text-cyanaccent transition-transform duration-300"></i>
+          </button>
+          <div class="max-h-0 overflow-hidden transition-all duration-350 ease-in-out">
+            <p class="px-6 pb-5 text-xs text-textDim leading-relaxed border-t border-white/5 pt-4">
+              Our AI receptionist and voice platforms interface natively with OpenAI's cognitive language models and ElevenLabs' low-latency voice synthesis engine, routed through custom Twilio WebSocket media streams.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="glass-card rounded-lg border border-glassBorder overflow-hidden transition-all duration-300">
+          <button class="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none cursor-pointer" onclick="toggleFaq(this)">
+            <span class="font-orbitron font-bold text-xs tracking-wider text-white uppercase">Is your SaaS foundation multi-tenant and secure?</span>
+            <i data-lucide="plus" class="w-4 h-4 text-cyanaccent transition-transform duration-300"></i>
+          </button>
+          <div class="max-h-0 overflow-hidden transition-all duration-350 ease-in-out">
+            <p class="px-6 pb-5 text-xs text-textDim leading-relaxed border-t border-white/5 pt-4">
+              Yes. All our products are engineered using standard row-level tenant isolation (RLS), encrypted token authentication pipelines, and dedicated SQL schema architectures.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="glass-card rounded-lg border border-glassBorder overflow-hidden transition-all duration-300">
+          <button class="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none cursor-pointer" onclick="toggleFaq(this)">
+            <span class="font-orbitron font-bold text-xs tracking-wider text-white uppercase">How do you structure custom development pricing?</span>
+            <i data-lucide="plus" class="w-4 h-4 text-cyanaccent transition-transform duration-300"></i>
+          </button>
+          <div class="max-h-0 overflow-hidden transition-all duration-350 ease-in-out">
+            <p class="px-6 pb-5 text-xs text-textDim leading-relaxed border-t border-white/5 pt-4">
+              We structure custom projects via milestones (Discovery, Architecture, Interface Design, System Development, Beta Launch). Total estimates scale dynamically with execution timelines and required API integrations.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ 4 -->
+        <div class="glass-card rounded-lg border border-glassBorder overflow-hidden transition-all duration-300">
+          <button class="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none cursor-pointer" onclick="toggleFaq(this)">
+            <span class="font-orbitron font-bold text-xs tracking-wider text-white uppercase">What is the standard development timeline for an enterprise SaaS?</span>
+            <i data-lucide="plus" class="w-4 h-4 text-cyanaccent transition-transform duration-300"></i>
+          </button>
+          <div class="max-h-0 overflow-hidden transition-all duration-350 ease-in-out">
+            <p class="px-6 pb-5 text-xs text-textDim leading-relaxed border-t border-white/5 pt-4">
+              Typical MVP developments complete in 4 to 8 weeks, while complex enterprise systems with extensive integrations, custom AI models, and custom APIs can take 12 weeks or longer.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ 5 -->
+        <div class="glass-card rounded-lg border border-glassBorder overflow-hidden transition-all duration-300">
+          <button class="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none cursor-pointer" onclick="toggleFaq(this)">
+            <span class="font-orbitron font-bold text-xs tracking-wider text-white uppercase">Do you provide long-term service SLA contracts?</span>
+            <i data-lucide="plus" class="w-4 h-4 text-cyanaccent transition-transform duration-300"></i>
+          </button>
+          <div class="max-h-0 overflow-hidden transition-all duration-350 ease-in-out">
+            <p class="px-6 pb-5 text-xs text-textDim leading-relaxed border-t border-white/5 pt-4">
+              Yes. We provide comprehensive Service Level Agreements (SLAs) offering 24/7 dedicated support channels, custom bug resolution times, and isolated server failover redundancy.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 12 — FINAL CTA ==================== -->
+  <section class="py-24 px-6 relative overflow-hidden animate-fadeIn" id="final-cta">
+    <!-- Huge background glow circle -->
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+      <div class="w-96 h-96 rounded-full bg-cyanaccent/5 filter blur-[90px] animate-pulse"></div>
+    </div>
+
+    <div class="max-w-4xl mx-auto glass-card rounded-2xl border border-glassBorder p-8 sm:p-16 text-center relative z-10">
+      <span class="text-[9px] font-extrabold tracking-[3px] text-tealaccent uppercase">Get Started Today</span>
+      <h2 class="font-orbitron font-black text-3xl sm:text-4xl text-white tracking-tight mt-2 mb-6 leading-tight">
+        Ready To Build The Future With AI?
+      </h2>
+      <p class="text-textDim text-sm max-w-xl mx-auto leading-relaxed mb-10">
+        Partner with Naxton Technologies to create intelligent digital solutions, automate operational workflows, and scale your tech stack.
+      </p>
+      
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="#contact" class="w-full sm:w-auto px-8 py-4 rounded-lg text-xs font-bold font-orbitron tracking-widest text-white text-center btn-premium">
+          START YOUR PROJECT
+        </a>
+        <a href="#contact" class="w-full sm:w-auto px-8 py-4 rounded-lg border border-glassBorder bg-white/5 hover:bg-white/10 text-xs font-bold font-orbitron tracking-widest text-slate-200 text-center transition-colors">
+          BOOK FREE CONSULTATION
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 13 — FOOTER & CONTACT ==================== -->
+  <section class="border-t border-glassBorder py-20 px-6 relative bg-black/40" id="contact">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
+      
+      <!-- Footer Info -->
+      <div class="lg:col-span-4 flex flex-col items-start">
+        <a href="#" class="flex items-center gap-3 font-orbitron font-extrabold text-sm tracking-[2px] text-white mb-6">
+          <% if (typeof platformLogo !== 'undefined' && platformLogo) { %>
+            <img src="<%= platformLogo %>" alt="Naxton Logo" class="h-8 w-auto object-contain filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" />
+          <% } else { %>
+            <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-cyanaccent/10 border border-cyanaccent/30 shadow-[0_0_10px_rgba(34,211,238,0.2)]">
+              <i data-lucide="brain-circuit" class="w-5 h-5 text-cyanaccent"></i>
+            </div>
+          <% } %>
+          <span><%= projectName.toUpperCase() %></span>
+        </a>
+        <p class="text-xs text-textDim leading-relaxed mb-8 max-w-xs">
+          Naxton Technologies LLC engineers next-generation voice automation, custom SaaS applications, and enterprise database integrations.
+        </p>
+        <div class="flex items-center gap-4 mb-8">
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent hover:border-cyanaccent/30 transition-colors">
+            <i data-lucide="linkedin" class="w-4 h-4"></i>
+          </a>
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent hover:border-cyanaccent/30 transition-colors">
+            <i data-lucide="facebook" class="w-4 h-4"></i>
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent hover:border-cyanaccent/30 transition-colors">
+            <i data-lucide="instagram" class="w-4 h-4"></i>
+          </a>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent hover:border-cyanaccent/30 transition-colors">
+            <i data-lucide="github" class="w-4 h-4"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Links Column 1 -->
+      <div class="lg:col-span-2">
+        <h5 class="font-orbitron font-bold text-[10px] tracking-[2.5px] text-white uppercase mb-6">Company</h5>
+        <ul class="space-y-4 text-xs font-semibold text-textDim">
+          <li><a href="#" class="hover:text-cyanaccent transition-colors">Home</a></li>
+          <li><a href="#about" class="hover:text-cyanaccent transition-colors">About Us</a></li>
+          <li><a href="#portfolio" class="hover:text-cyanaccent transition-colors">Portfolio</a></li>
+          <li><a href="#contact" class="hover:text-cyanaccent transition-colors">Contact</a></li>
         </ul>
-        <a href="/login" class="pricing-btn">SELECT PLAN</a>
       </div>
-      <!-- Plan 2 -->
-      <div class="pricing-card popular">
-        <div class="plan-name">Professional</div>
-        <div class="plan-desc">For busy storefronts and clinics.</div>
-        <div class="plan-price">$99<span>/month</span></div>
-        <ul class="plan-features">
-          <li><i data-lucide="check"></i> 3 Dedicated Phone Numbers</li>
-          <li><i data-lucide="check"></i> Unlimited Concurrent Lines</li>
-          <li><i data-lucide="check"></i> Advanced Fuzzy Name Matching</li>
-          <li><i data-lucide="check"></i> Real-time Audio Playbacks</li>
-          <li><i data-lucide="check"></i> 24/7 priority hosting</li>
+
+      <!-- Links Column 2 -->
+      <div class="lg:col-span-2">
+        <h5 class="font-orbitron font-bold text-[10px] tracking-[2.5px] text-white uppercase mb-6">Services</h5>
+        <ul class="space-y-4 text-xs font-semibold text-textDim">
+          <li><a href="#services" class="hover:text-cyanaccent transition-colors">AI Agents</a></li>
+          <li><a href="#services" class="hover:text-cyanaccent transition-colors">SaaS Development</a></li>
+          <li><a href="#services" class="hover:text-cyanaccent transition-colors">Automation Loop</a></li>
+          <li><a href="#services" class="hover:text-cyanaccent transition-colors">Cloud Solutions</a></li>
         </ul>
-        <a href="/login" class="pricing-btn">SELECT PLAN</a>
       </div>
-      <!-- Plan 3 -->
-      <div class="pricing-card">
-        <div class="plan-name">Enterprise</div>
-        <div class="plan-desc">For franchises and corporate chains.</div>
-        <div class="plan-price">Custom</div>
-        <ul class="plan-features">
-          <li><i data-lucide="check"></i> Custom Number Integration</li>
-          <li><i data-lucide="check"></i> Custom Fine-Tuning Models</li>
-          <li><i data-lucide="check"></i> Direct POS Database API Hook</li>
-          <li><i data-lucide="check"></i> Dedicated Voice Models</li>
+
+      <!-- Links Column 3 -->
+      <div class="lg:col-span-4">
+        <h5 class="font-orbitron font-bold text-[10px] tracking-[2.5px] text-white uppercase mb-6">Corporate Office</h5>
+        <ul class="space-y-4 text-xs text-textDim mb-6">
+          <li class="flex items-center gap-3">
+            <i data-lucide="mail" class="w-4 h-4 text-cyanaccent"></i>
+            <span>info@naxtontechnologies.com</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i data-lucide="phone" class="w-4 h-4 text-cyanaccent"></i>
+            <span>+1 (510) 909-0820</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i data-lucide="map-pin" class="w-4 h-4 text-cyanaccent"></i>
+            <span>Naxton Technologies LLC, California, USA</span>
+          </li>
         </ul>
-        <a href="/login" class="pricing-btn">CONTACT SALES</a>
+        <span class="text-[10px] font-bold tracking-[2px] font-mono text-cyanaccent uppercase">OPERATIONAL REGION: GLOBAL</span>
+      </div>
+
+    </div>
+
+    <!-- Copyright -->
+    <div class="max-w-7xl mx-auto border-t border-glassBorder/40 pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-textDim">
+      <p>&copy; 2026 <%= projectName %>. All rights reserved. Registered LLC California.</p>
+      <div class="flex gap-6 mt-4 sm:mt-0 font-semibold">
+        <a href="#" class="hover:text-cyanaccent transition-colors">Privacy Policy</a>
+        <a href="#" class="hover:text-cyanaccent transition-colors">Terms of Service</a>
       </div>
     </div>
   </section>
 
-  <!-- CTA Banner -->
-  <section class="cta-banner">
-    <div class="cta-card">
-      <h2>Unshackle Your Staff</h2>
-      <p>Automate your reservation desks and order taking. Free up your employees to focus entirely on on-premise execution and customer service.</p>
-      <a href="/login" class="btn-primary">
-        <span>INITIALIZE PORTAL</span>
-        <i data-lucide="zap" style="width: 16px;"></i>
-      </a>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-    <div class="footer-container">
-      <a href="#" class="logo" style="font-size: 1rem;">
-        <% if (typeof platformLogo !== 'undefined' && platformLogo) { %>
-          <img src="<%= platformLogo %>" alt="Logo" style="height: 24px; width: auto; object-fit: contain; filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.4));" />
-        <% } else { %>
-          <i data-lucide="brain-circuit" class="logo-icon" style="width: 18px;"></i>
-        <% } %>
-        <span><%= projectName %></span>
-      </a>
-      <div class="footer-text">
-        &copy; 2026 <%= projectName %>. All rights reserved. Estd. California.
-      </div>
-      <div class="footer-links">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
-      </div>
-    </div>
-  </footer>
-
+  <!-- ==================== SCRIPTS AND INTERACTIONS ==================== -->
   <script>
+    // Initialize Lucide Icons
     lucide.createIcons();
+
+    // Loading screen dismiss logic
+    window.addEventListener('load', () => {
+      const progressBar = document.getElementById('loading-progress');
+      const loadingScreen = document.getElementById('loading-screen');
+      
+      // Animate progress line to full
+      setTimeout(() => {
+        progressBar.style.width = '100%';
+      }, 100);
+
+      // Fade out loading screen
+      setTimeout(() => {
+        loadingScreen.classList.add('opacity-0', 'pointer-events-none');
+      }, 700);
+    });
+
+    // Mobile Navigation toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const closeMenuBtn = document.getElementById('close-menu-btn');
+    const mobileNav = document.getElementById('mobile-nav');
+
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileNav.classList.remove('hidden');
+    });
+
+    closeMenuBtn.addEventListener('click', () => {
+      mobileNav.classList.add('hidden');
+    });
+
+    // Close mobile nav when clicking links
+    document.querySelectorAll('.mobile-link').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileNav.classList.add('hidden');
+      });
+    });
+
+    // Header sticky scroll effect
+    const header = document.getElementById('site-header');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 40) {
+        header.classList.add('py-2.5', 'bg-[#040e13]/90');
+        header.classList.remove('py-4', 'bg-rgba(4, 13, 18, 0.75)');
+      } else {
+        header.classList.add('py-4', 'bg-rgba(4, 13, 18, 0.75)');
+        header.classList.remove('py-2.5', 'bg-[#040e13]/90');
+      }
+    });
+
+    // Reveal elements on scroll (Framer-motion style reveal)
+    const revealElements = document.querySelectorAll('.reveal');
+    const revealOnScroll = () => {
+      const triggerBottom = window.innerHeight * 0.85;
+      revealElements.forEach(el => {
+        const top = el.getBoundingClientRect().top;
+        if (top < triggerBottom) {
+          el.classList.add('active');
+          if (el.classList.contains('stagger-reveal')) {
+            el.querySelectorAll(':scope > *').forEach((child, index) => {
+              child.style.transitionDelay = `${index * 80}ms`;
+              child.style.opacity = '1';
+              child.style.transform = 'translateY(0)';
+            });
+          }
+        }
+      });
+    };
+
+    window.addEventListener('scroll', revealOnScroll);
+    revealOnScroll(); // Initial check on load
+
+    // Testimonial Carousel sliding logic
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.testimonial-slide');
+    const dots = document.querySelectorAll('[id^="dot-"]');
+
+    function showSlide(index) {
+      slides.forEach((slide, idx) => {
+        if (idx === index) {
+          slide.classList.remove('opacity-0', 'translate-x-12', 'pointer-events-none');
+          slide.classList.add('opacity-100', 'translate-x-0');
+          slide.removeAttribute('style'); // Clear absolute layout override if current
+        } else {
+          slide.classList.remove('opacity-100', 'translate-x-0');
+          slide.classList.add('opacity-0', 'translate-x-12', 'pointer-events-none');
+          slide.style.position = 'absolute';
+        }
+      });
+
+      dots.forEach((dot, idx) => {
+        if (idx === index) {
+          dot.classList.add('bg-cyanaccent');
+          dot.classList.remove('bg-slate-700');
+        } else {
+          dot.classList.add('bg-slate-700');
+          dot.classList.remove('bg-cyanaccent');
+        }
+      });
+      currentSlide = index;
+    }
+
+    function nextTestimonial() {
+      let next = (currentSlide + 1) % slides.length;
+      showSlide(next);
+    }
+
+    function prevTestimonial() {
+      let prev = (currentSlide - 1 + slides.length) % slides.length;
+      showSlide(prev);
+    }
+
+    function goToSlide(index) {
+      showSlide(index);
+    }
+
+    // Auto rotate testimonials every 6 seconds
+    setInterval(nextTestimonial, 6000);
+
+    // FAQ Accordion Toggle
+    function toggleFaq(button) {
+      const container = button.parentElement;
+      const content = container.querySelector('div');
+      const icon = button.querySelector('i');
+      
+      // Close other accordions
+      document.querySelectorAll('.faq-active').forEach(activeItem => {
+        if (activeItem !== container) {
+          activeItem.classList.remove('faq-active');
+          activeItem.querySelector('div').style.maxHeight = '0px';
+          activeItem.querySelector('i').style.transform = 'rotate(0deg)';
+        }
+      });
+
+      if (container.classList.contains('faq-active')) {
+        container.classList.remove('faq-active');
+        content.style.maxHeight = '0px';
+        icon.style.transform = 'rotate(0deg)';
+      } else {
+        container.classList.add('faq-active');
+        content.style.maxHeight = content.scrollHeight + 'px';
+        icon.style.transform = 'rotate(45deg)';
+      }
+    }
+
+    // Interactive Starfield & Node Network Particle Background (Canvas)
+    const canvas = document.getElementById('canvas-network');
+    const ctx = canvas.getContext('2d');
+
+    let points = [];
+    let mouse = { x: null, y: null, radius: 150 };
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initParticles();
+    }
+
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 0.45;
+        this.vy = (Math.random() - 0.5) * 0.45;
+        this.baseSize = Math.random() * 1.5 + 0.5;
+        this.size = this.baseSize;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Bounce borders
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+        // Mouse gravity interaction
+        if (mouse.x !== null && mouse.y !== null) {
+          let dx = mouse.x - this.x;
+          let dy = mouse.y - this.y;
+          let distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < mouse.radius) {
+            const force = (mouse.radius - distance) / mouse.radius;
+            // Pull slightly towards mouse
+            this.x -= dx * force * 0.02;
+            this.y -= dy * force * 0.02;
+            this.size = this.baseSize * (1 + force * 1.5);
+          } else {
+            this.size = this.baseSize;
+          }
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(34, 211, 238, 0.45)';
+        ctx.fill();
+      }
+    }
+
+    function initParticles() {
+      points = [];
+      // Dynamic count based on screen size
+      const count = Math.floor((canvas.width * canvas.height) / 9500);
+      for (let i = 0; i < Math.min(count, 120); i++) {
+        points.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height));
+      }
+    }
+
+    function drawNetwork() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw grid nodes
+      for (let i = 0; i < points.length; i++) {
+        points[i].update();
+        points[i].draw();
+
+        // Connect lines
+        for (let j = i + 1; j < points.length; j++) {
+          let dx = points[i].x - points[j].x;
+          let dy = points[i].y - points[j].y;
+          let dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 110) {
+            ctx.beginPath();
+            ctx.moveTo(points[i].x, points[i].y);
+            ctx.lineTo(points[j].x, points[j].y);
+            // Opacity scales down as distance increases
+            const opacity = (110 - dist) / 110 * 0.06;
+            ctx.strokeStyle = `rgba(34, 211, 238, ${opacity})`;
+            ctx.lineWidth = 0.75;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawNetwork);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+    window.addEventListener('mouseleave', () => {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
+    resizeCanvas();
+    drawNetwork();
   </script>
 </body>
 
