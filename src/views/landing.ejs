@@ -218,7 +218,13 @@
       
       <!-- Inner Branding logo -->
       <div class="absolute inset-4 rounded-full bg-glassBg flex items-center justify-center border border-glassBorder shadow-[0_0_15px_rgba(34,211,238,0.2)]">
-        <i data-lucide="cpu" class="w-8 h-8 text-cyanaccent animate-pulse"></i>
+        <svg class="w-10 h-10 text-cyanaccent filter drop-shadow-[0_0_8px_rgba(34,211,238,0.6)] animate-pulse" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="15" y="15" width="14" height="70" fill="currentColor"/>
+          <rect x="71" y="27" width="14" height="58" fill="currentColor"/>
+          <rect x="71" y="2" width="14" height="14" fill="currentColor"/>
+          <rect x="85" y="69" width="10" height="16" fill="currentColor"/>
+          <polygon points="15,15 29,15 85,85 71,85" fill="currentColor"/>
+        </svg>
       </div>
       <h2 class="font-orbitron font-extrabold text-lg text-white mt-8 tracking-[4px] uppercase"><%= projectName %></h2>
       <p class="text-xs text-cyanaccent/60 tracking-[2px] mt-2 font-mono uppercase">Initializing Systems...</p>
@@ -239,8 +245,14 @@
         <% if (typeof platformLogo !== 'undefined' && platformLogo) { %>
           <img src="<%= platformLogo %>" alt="Naxton Logo" class="h-8 w-auto object-contain filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" />
         <% } else { %>
-          <div class="relative w-8 h-8 flex items-center justify-center rounded-lg bg-cyanaccent/10 border border-cyanaccent/30 shadow-[0_0_10px_rgba(34,211,238,0.2)]">
-            <i data-lucide="brain-circuit" class="w-5 h-5 text-cyanaccent"></i>
+          <div class="relative w-8 h-8 flex items-center justify-center">
+            <svg class="w-7 h-7 text-cyanaccent filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="15" y="15" width="14" height="70" fill="currentColor"/>
+              <rect x="71" y="27" width="14" height="58" fill="currentColor"/>
+              <rect x="71" y="2" width="14" height="14" fill="currentColor"/>
+              <rect x="85" y="69" width="10" height="16" fill="currentColor"/>
+              <polygon points="15,15 29,15 85,85 71,85" fill="currentColor"/>
+            </svg>
           </div>
         <% } %>
         <span><%= projectName.toUpperCase() %></span>
@@ -1618,8 +1630,14 @@
           <% if (typeof platformLogo !== 'undefined' && platformLogo) { %>
             <img src="<%= platformLogo %>" alt="Naxton Logo" class="h-8 w-auto object-contain filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" />
           <% } else { %>
-            <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-cyanaccent/10 border border-cyanaccent/30 shadow-[0_0_10px_rgba(34,211,238,0.2)]">
-              <i data-lucide="brain-circuit" class="w-5 h-5 text-cyanaccent"></i>
+            <div class="relative w-8 h-8 flex items-center justify-center">
+              <svg class="w-7 h-7 text-cyanaccent filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="15" y="15" width="14" height="70" fill="currentColor"/>
+                <rect x="71" y="27" width="14" height="58" fill="currentColor"/>
+                <rect x="71" y="2" width="14" height="14" fill="currentColor"/>
+                <rect x="85" y="69" width="10" height="16" fill="currentColor"/>
+                <polygon points="15,15 29,15 85,85 71,85" fill="currentColor"/>
+              </svg>
             </div>
           <% } %>
           <span><%= projectName.toUpperCase() %></span>
