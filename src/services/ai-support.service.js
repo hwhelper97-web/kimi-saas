@@ -1,13 +1,22 @@
 const { OpenAI } = require("openai");
 const prisma = require("../config/prisma");
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let openai;
 
 /**
  * Generate an AI response for a support conversation
  */
 exports.generateAIResponse = async ({ conversationId, tenantId, businessId, customerMessage }) => {
   try {
+    if (!openai) {
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        console.warn("[AI Support] Missing OPENAI_API_KEY. AI support response will be bypassed.");
+        return null;
+      }
+      openai = new OpenAI({ apiKey });
+    }
+
     // 1. Get Support Settings & Knowledge Base context
     const settings = await prisma.supportSettings.findUnique({
       where: { businessId }
