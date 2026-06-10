@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= projectName %> | Next-Gen Voice AI Agents</title>
+  <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg-darkest: #040d12;
+      --bg-gradient-start: #081f26;
+      --bg-gradient-end: #030a0d;
+      --accent-teal: #00bcd4;
+      --accent-cyan: #22d3ee;
+      --accent-blue: #3b82f6;
+      --glass-bg: rgba(4, 18, 23, 0.7);
+      --glass-border: rgba(34, 211, 238, 0.08);
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --btn-gradient: linear-gradient(135deg, #008ba3 0%, #00bcd4 100%);
+      --btn-secondary: rgba(255, 255, 255, 0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-darkest);
+      color: var(--text-main);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* 🌌 Starfield Grid & Glows */
+    .bg-main {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image: radial-gradient(circle at 1px 1px, rgba(34, 211, 238, 0.04) 1px, transparent 0);
+      background-size: 50px 50px;
+      opacity: 0.6;
+    }
+
+    .glow-circle {
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.04) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: -1;
+      filter: blur(120px);
+      pointer-events: none;
+    }
+
+    .glow-1 { top: -200px; left: -200px; }
+    .glow-2 { top: 40%; right: -300px; }
+    .glow-3 { bottom: -200px; left: 10%; }
+
+    /* 🧭 Navigation */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      border-bottom: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      background: rgba(4, 13, 18, 0.7);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: white;
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+
+    .logo-icon {
+      color: var(--accent-cyan);
+      filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.6));
+    }
+
+    nav {
+      display: flex;
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    nav a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: var(--accent-cyan);
+    }
+
+    .nav-btn {
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      background: rgba(34, 211, 238, 0.05);
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .nav-btn:hover {
+      background: var(--btn-gradient);
+      box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
+      border-color: transparent;
+      transform: translateY(-1px);
+    }
+
+    /* 🚀 Hero Section */
+    .hero {
+      position: relative;
+      padding: 10rem 2rem 6rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      background: rgba(34, 211, 238, 0.05);
+      border: 1px solid rgba(34, 211, 238, 0.15);
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      animation: pulse 2s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { box-shadow: 0 0 5px rgba(34, 211, 238, 0.1); }
+      to { box-shadow: 0 0 20px rgba(34, 211, 238, 0.3); }
+    }
+
+    .hero h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -1.5px;
+      color: white;
+      max-width: 900px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, #22d3ee 0%, #00bcd4 50%, #3b82f6 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-dim);
+      max-width: 700px;
+      margin-bottom: 3rem;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 5rem;
+    }
+
+    .btn-primary {
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      background: var(--btn-gradient);
+      border: none;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 1.5px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 10px 25px rgba(0, 188, 212, 0.2);
+      transition: all 0.3s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px rgba(0, 188, 212, 0.4);
+      filter: brightness(1.1);
+    }
+
+    .btn-outline {
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--btn-secondary);
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 1.5px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.3s;
+    }
+
+    .btn-outline:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
+    }
+
+    /* 🖥️ Hero Interface Mockup */
+    .hero-mockup {
+      width: 100%;
+      max-width: 1000px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      overflow: hidden;
+      padding: 1.5rem;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 30px rgba(34, 211, 238, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    .mockup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .mockup-dots {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .mockup-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .mockup-dot.red { background: #ef4444; }
+    .mockup-dot.yellow { background: #f59e0b; }
+    .mockup-dot.green { background: #10b981; }
+
+    .mockup-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      color: var(--accent-cyan);
+      letter-spacing: 2px;
+    }
+
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      text-align: left;
+    }
+
+    @media (max-width: 768px) {
+      .mockup-grid { grid-template-columns: 1fr; }
+    }
+
+    .mockup-chat {
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      padding: 1.5rem;
+      height: 280px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .chat-bubble {
+      max-width: 80%;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+    }
+
+    .chat-bubble.assistant {
+      background: rgba(34, 211, 238, 0.08);
+      border: 1px solid rgba(34, 211, 238, 0.15);
+      align-self: flex-start;
+      color: white;
+    }
+
+    .chat-bubble.user {
+      background: rgba(255, 255, 255, 0.05);
+      align-self: flex-end;
+      color: var(--text-dim);
+    }
+
+    .mockup-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-val {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      margin-top: 0.25rem;
+    }
+
+    /* ⚡ Features Grid */
+    .features {
+      padding: 6rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 5rem;
+    }
+
+    .section-header h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .section-header p {
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.05) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(34, 211, 238, 0.2);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(34, 211, 238, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-cyan);
+      margin-bottom: 1.5rem;
+      filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.2));
+    }
+
+    .feature-card h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+    }
+
+    /* 🔄 How It Works Workflow */
+    .workflow {
+      padding: 6rem 2rem;
+      background: rgba(4, 13, 18, 0.5);
+      border-top: 1px solid rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .workflow-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+      position: relative;
+      margin-top: 4rem;
+    }
+
+    @media (max-width: 768px) {
+      .steps { grid-template-columns: 1fr; gap: 2rem; }
+    }
+
+    .step-card {
+      text-align: center;
+      position: relative;
+    }
+
+    .step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(34, 211, 238, 0.08);
+      border: 1px solid var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      color: var(--accent-cyan);
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+    }
+
+    .step-card h4 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.15rem;
+      color: white;
+      margin-bottom: 0.75rem;
+    }
+
+    .step-card p {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+
+    /* 💎 Pricing Grid */
+    .pricing {
+      padding: 6rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      align-items: stretch;
+    }
+
+    @media (max-width: 992px) {
+      .pricing-grid { grid-template-columns: 1fr; max-width: 500px; margin: 0 auto; }
+    }
+
+    .pricing-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .pricing-card.popular {
+      border-color: rgba(34, 211, 238, 0.3);
+      background: rgba(4, 20, 27, 0.85);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 25px rgba(34, 211, 238, 0.08);
+      transform: scale(1.03);
+    }
+
+    .pricing-card.popular::after {
+      content: 'MOST POPULAR';
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: var(--btn-gradient);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 0.25rem 0.75rem;
+      border-radius: 100px;
+      letter-spacing: 1px;
+    }
+
+    .pricing-card:hover {
+      border-color: rgba(34, 211, 238, 0.2);
+    }
+
+    .plan-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-desc {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-bottom: 2rem;
+    }
+
+    .plan-price {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 2rem;
+    }
+
+    .plan-price span {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 400;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+    }
+
+    .plan-features li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .plan-features i {
+      color: var(--accent-cyan);
+      width: 16px;
+    }
+
+    .pricing-btn {
+      margin-top: auto;
+      width: 100%;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .pricing-card.popular .pricing-btn {
+      background: var(--btn-gradient);
+      color: white;
+      box-shadow: 0 10px 20px rgba(0, 188, 212, 0.2);
+    }
+
+    .pricing-card.popular .pricing-btn:hover {
+      box-shadow: 0 15px 30px rgba(0, 188, 212, 0.4);
+      filter: brightness(1.1);
+    }
+
+    .pricing-card:not(.popular) .pricing-btn {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--btn-secondary);
+      color: white;
+    }
+
+    .pricing-card:not(.popular) .pricing-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* 📢 CTA Banner */
+    .cta-banner {
+      padding: 8rem 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .cta-card {
+      background: linear-gradient(135deg, rgba(8, 31, 38, 0.6) 0%, rgba(4, 18, 23, 0.9) 100%);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 4rem 3rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    }
+
+    .cta-card h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-card p {
+      color: var(--text-dim);
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      font-size: 1.1rem;
+    }
+
+    .cta-card .btn-primary {
+      margin: 0 auto;
+      max-width: max-content;
+    }
+
+    /* 🏁 Footer */
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 4rem 2rem;
+      background: rgba(3, 10, 13, 0.8);
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .footer-text {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .footer-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent-cyan);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-main"></div>
+  <div class="bg-grid"></div>
+  <div class="glow-circle glow-1"></div>
+  <div class="glow-circle glow-2"></div>
+  <div class="glow-circle glow-3"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <i data-lucide="brain-circuit" class="logo-icon"></i>
+        <span>NAXTON</span>
+      </a>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#workflow">How It Works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="/login" class="nav-btn">ACCESS PORTAL</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">
+      <i data-lucide="sparkles" style="width: 14px;"></i>
+      Enterprise Voice AI Active
+    </div>
+    <h1>Automate Customer Connections with <span>Autonomous Voice Agents</span></h1>
+    <p>Naxton's high-fidelity voice AI manages bookings, captures orders, and handles customer inquiries 24/7. Never lose a lead to a busy line again.</p>
+
+    <div class="hero-ctas">
+      <a href="/login" class="btn-primary">
+        <span>GET STARTED</span>
+        <i data-lucide="arrow-right" style="width: 18px;"></i>
+      </a>
+      <a href="#features" class="btn-outline">
+        <span>LEARN MORE</span>
+      </a>
+    </div>
+
+    <!-- Live Mockup Dashboard -->
+    <div class="hero-mockup">
+      <div class="mockup-header">
+        <div class="mockup-dots">
+          <div class="mockup-dot red"></div>
+          <div class="mockup-dot yellow"></div>
+          <div class="mockup-dot green"></div>
+        </div>
+        <div class="mockup-title">NAXTON-AI // OPERATIONAL FEED</div>
+        <div style="width: 50px;"></div>
+      </div>
+      <div class="mockup-grid">
+        <div class="mockup-chat">
+          <div class="chat-bubble assistant">
+            Hello, welcome to New York Pizza and Kabob! My name is Jordan, your AI host. What can I get started for you today?
+          </div>
+          <div class="chat-bubble user">
+            Hi Jordan, I'd like to place an order for pickup. Can I get one Afghani Pizza and two orders of Chapli Kababs?
+          </div>
+          <div class="chat-bubble assistant">
+            Absolutely! One Afghani Pizza and two Chapli Kababs for pickup. Would you like to add any drinks or desserts to that order?
+          </div>
+          <div class="chat-bubble user">
+            Just a Pepsi, thanks.
+          </div>
+        </div>
+        <div class="mockup-stats">
+          <div class="stat-card">
+            <div class="stat-label">Active Connections</div>
+            <div class="stat-val" style="color: var(--accent-cyan);">4 Calls Live</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Average Response Time</div>
+            <div class="stat-val">0.48s</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">System Accuracy</div>
+            <div class="stat-val" style="color: #10b981;">99.2%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="features" id="features">
+    <div class="section-header">
+      <h2>Engineered for Scale</h2>
+      <p>Powerful infrastructure designed to eliminate operational bottlenecks and automate calls concurrently.</p>
+    </div>
+    <div class="features-grid">
+      <!-- Feature 1 -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i data-lucide="phone-call"></i>
+        </div>
+        <h3>Zero Missed Calls</h3>
+        <p>Take hundreds of calls at the exact same second. The system automatically answers all incoming caller lines, preventing any busy signals.</p>
+      </div>
+      <!-- Feature 2 -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i data-lucide="mic"></i>
+        </div>
+        <h3>Human-like Voice Synthetics</h3>
+        <p>Powered by low-latency ElevenLabs voices. The agent talks dynamically with real-time breathing pauses, eliminating robotic text-to-speech sound.</p>
+      </div>
+      <!-- Feature 3 -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i data-lucide="shopping-cart"></i>
+        </div>
+        <h3>Intelligent Extraction</h3>
+        <p>Uses advanced LLMs to extract exact menu item orders, count custom modifiers, and process bookings directly into your SQL database.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it Works Workflow -->
+  <section class="workflow" id="workflow">
+    <div class="workflow-container">
+      <div class="section-header">
+        <h2>Integrated Communication Loop</h2>
+        <p>Three core modules working in perfect synchronization to power your voice automation.</p>
+      </div>
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h4>Voice Connection</h4>
+          <p>Twilio routes the customer's call to the Naxton WebSocket engine, establishing a continuous media stream channel.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h4>Neural Analysis</h4>
+          <p>Real-time speech-to-text transcribes the audio, and our cognitive service generates immediate responses using custom business parameters.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h4>Dashboard Sync</h4>
+          <p>Completed orders, appointments, and conversational recordings are synced instantly to the central admin panel dashboard.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Grid -->
+  <section class="pricing" id="pricing">
+    <div class="section-header">
+      <h2>Subscription Tiers</h2>
+      <p>Flexible plans tailored to fit businesses from local storefronts to multi-location enterprises.</p>
+    </div>
+    <div class="pricing-grid">
+      <!-- Plan 1 -->
+      <div class="pricing-card">
+        <div class="plan-name">Starter</div>
+        <div class="plan-desc">For growing local businesses.</div>
+        <div class="plan-price">$49<span>/month</span></div>
+        <ul class="plan-features">
+          <li><i data-lucide="check"></i> 1 Dedicated Phone Number</li>
+          <li><i data-lucide="check"></i> Up to 3 Concurrent Calls</li>
+          <li><i data-lucide="check"></i> Standard Menu/Service Setup</li>
+          <li><i data-lucide="check"></i> Live Dashboard & Logs</li>
+        </ul>
+        <a href="/login" class="pricing-btn">SELECT PLAN</a>
+      </div>
+      <!-- Plan 2 -->
+      <div class="pricing-card popular">
+        <div class="plan-name">Professional</div>
+        <div class="plan-desc">For busy storefronts and clinics.</div>
+        <div class="plan-price">$99<span>/month</span></div>
+        <ul class="plan-features">
+          <li><i data-lucide="check"></i> 3 Dedicated Phone Numbers</li>
+          <li><i data-lucide="check"></i> Unlimited Concurrent Lines</li>
+          <li><i data-lucide="check"></i> Advanced Fuzzy Name Matching</li>
+          <li><i data-lucide="check"></i> Real-time Audio Playbacks</li>
+          <li><i data-lucide="check"></i> 24/7 priority hosting</li>
+        </ul>
+        <a href="/login" class="pricing-btn">SELECT PLAN</a>
+      </div>
+      <!-- Plan 3 -->
+      <div class="pricing-card">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-desc">For franchises and corporate chains.</div>
+        <div class="plan-price">Custom</div>
+        <ul class="plan-features">
+          <li><i data-lucide="check"></i> Custom Number Integration</li>
+          <li><i data-lucide="check"></i> Custom Fine-Tuning Models</li>
+          <li><i data-lucide="check"></i> Direct POS Database API Hook</li>
+          <li><i data-lucide="check"></i> Dedicated Voice Models</li>
+        </ul>
+        <a href="/login" class="pricing-btn">CONTACT SALES</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="cta-banner">
+    <div class="cta-card">
+      <h2>Unshackle Your Staff</h2>
+      <p>Automate your reservation desks and order taking. Free up your employees to focus entirely on on-premise execution and customer service.</p>
+      <a href="/login" class="btn-primary">
+        <span>INITIALIZE PORTAL</span>
+        <i data-lucide="zap" style="width: 16px;"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <a href="#" class="logo" style="font-size: 1rem;">
+        <i data-lucide="brain-circuit" class="logo-icon" style="width: 18px;"></i>
+        <span><%= projectName %></span>
+      </a>
+      <div class="footer-text">
+        &copy; 2026 <%= projectName %>. All rights reserved. Estd. California.
+      </div>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>

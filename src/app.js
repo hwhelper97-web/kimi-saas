@@ -47,7 +47,7 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  res.json({ status: "OK", message: "Naxton AI API Running" });
+  res.render("landing");
 });
 
 // Admin dashboard – render the full UI (admin-dashboard-apex)
