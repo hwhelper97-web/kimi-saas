@@ -37,7 +37,7 @@ app.set("views", path.join(__dirname, "views"));
 // Global Platform Middleware
 app.use((req, res, next) => {
   const configPath = path.join(__dirname, "config/platform.json");
-  let config = { projectName: "Naxton Technologies LLC", logoUrl: null };
+  let config = { projectName: "Naxton Technologies", logoUrl: null };
   if (fs.existsSync(configPath)) {
     try { config = JSON.parse(fs.readFileSync(configPath, "utf8")); } catch (e) {}
   }
@@ -186,7 +186,7 @@ app.use("/", require("./modules/public/public.routes"));
 app.get("/api/platform/settings", (req, res) => {
   const fs = require("fs");
   const configPath = path.join(__dirname, "config/platform.json");
-  let config = { projectName: "Naxton Technologies LLC", logoUrl: null };
+  let config = { projectName: "Naxton Technologies", logoUrl: null };
   if (fs.existsSync(configPath)) {
     try { config = JSON.parse(fs.readFileSync(configPath, "utf8")); } catch (e) {}
   }

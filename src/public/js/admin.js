@@ -66,7 +66,7 @@ socket.on("new_order", (data) => {
 document.addEventListener("DOMContentLoaded", () => {
   loadBusinesses().then(() => {
     applyTheme(localStorage.getItem("kimi_theme") || "dark");
-    applyBrandName(localStorage.getItem("kimi_brand") || "Naxton Technologies LLC");
+    applyBrandName(localStorage.getItem("kimi_brand") || "Naxton Technologies");
     renderSidebar();
     loadSection("dashboard");
   });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= typeof businessName !== 'undefined' ? businessName + ' — Naxton Technologies LLC' : 'Naxton Technologies LLC' %></title>
+  <title><%= typeof businessName !== 'undefined' ? businessName + ' — Naxton Technologies' : 'Naxton Technologies' %></title>
   <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -32,7 +32,7 @@
           <% } %>
         </div>
         <div class="logo-text">
-          <h2 style="font-size: 1rem; font-weight: 700;" id="brandLogoText"><%= typeof businessName !== 'undefined' ? businessName : (typeof projectName !== 'undefined' ? projectName : 'Naxton Technologies LLC') %></h2>
+          <h2 style="font-size: 1rem; font-weight: 700;" id="brandLogoText"><%= typeof businessName !== 'undefined' ? businessName : (typeof projectName !== 'undefined' ? projectName : 'Naxton Technologies') %></h2>
           <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">AI Voice Suite</p>
         </div>
       </div>

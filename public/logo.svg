@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee" />
+      <stop offset="100%" stop-color="#00bcd4" />
+    </linearGradient>
+  </defs>
+  <rect x="15" y="15" width="14" height="70" fill="url(#logo-grad)"/>
+  <rect x="71" y="27" width="14" height="58" fill="url(#logo-grad)"/>
+  <rect x="71" y="2" width="14" height="14" fill="url(#logo-grad)"/>
+  <rect x="85" y="69" width="10" height="16" fill="url(#logo-grad)"/>
+  <polygon points="15,15 29,15 85,85 71,85" fill="url(#logo-grad)"/>
+</svg>
