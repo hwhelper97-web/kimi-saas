@@ -11,18 +11,18 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
-      --bg-darkest: #040d12;
-      --bg-gradient-start: #081f26;
-      --bg-gradient-end: #030a0d;
+      --bg-darkest: #050505;
+      --bg-gradient-start: #072129;
+      --bg-gradient-end: #031014;
       --accent-teal: #00bcd4;
       --accent-cyan: #22d3ee;
       --accent-blue: #3b82f6;
-      --glass-bg: rgba(4, 18, 23, 0.7);
-      --glass-border: rgba(34, 211, 238, 0.08);
+      --glass-bg: rgba(4, 17, 22, 0.95);
+      --glass-border: rgba(34, 211, 238, 0.1);
       --text-main: #f8fafc;
       --text-dim: #94a3b8;
-      --btn-gradient: linear-gradient(135deg, #008ba3 0%, #00bcd4 100%);
-      --btn-secondary: rgba(255, 255, 255, 0.03);
+      --btn-gradient: linear-gradient(to right, #042B33, #063944, #0A4A57);
+      --btn-secondary: rgba(255, 255, 255, 0.05);
     }
 
     * {
@@ -218,7 +218,7 @@
       padding: 1rem 2rem;
       border-radius: 12px;
       background: var(--btn-gradient);
-      border: none;
+      border: 1px solid rgba(34, 211, 238, 0.2);
       color: white;
       font-family: 'Orbitron', sans-serif;
       font-weight: 700;
@@ -228,14 +228,15 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      box-shadow: 0 10px 25px rgba(0, 188, 212, 0.2);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
       transition: all 0.3s;
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 15px 35px rgba(0, 188, 212, 0.4);
-      filter: brightness(1.1);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 15px 35px rgba(34, 211, 238, 0.15);
+      filter: brightness(1.2);
     }
 
     .btn-outline {
@@ -756,14 +757,18 @@
   <header>
     <div class="nav-container">
       <a href="#" class="logo">
-        <i data-lucide="brain-circuit" class="logo-icon"></i>
+        <% if (typeof platformLogo !== 'undefined' && platformLogo) { %>
+          <img src="<%= platformLogo %>" alt="Logo" style="height: 32px; width: auto; object-fit: contain; filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.4));" />
+        <% } else { %>
+          <i data-lucide="brain-circuit" class="logo-icon"></i>
+        <% } %>
         <span>NAXTON</span>
       </a>
       <nav>
         <a href="#features">Features</a>
         <a href="#workflow">How It Works</a>
         <a href="#pricing">Pricing</a>
-        <a href="/login" class="nav-btn">ACCESS PORTAL</a>
+        <a href="https://app.naxtontechnologies.com/login" class="nav-btn">ACCESS PORTAL</a>
       </nav>
     </div>
   </header>
@@ -778,7 +783,7 @@
     <p>Naxton's high-fidelity voice AI manages bookings, captures orders, and handles customer inquiries 24/7. Never lose a lead to a busy line again.</p>
 
     <div class="hero-ctas">
-      <a href="/login" class="btn-primary">
+      <a href="https://app.naxtontechnologies.com/login" class="btn-primary">
         <span>GET STARTED</span>
         <i data-lucide="arrow-right" style="width: 18px;"></i>
       </a>
@@ -910,7 +915,7 @@
           <li><i data-lucide="check"></i> Standard Menu/Service Setup</li>
           <li><i data-lucide="check"></i> Live Dashboard & Logs</li>
         </ul>
-        <a href="/login" class="pricing-btn">SELECT PLAN</a>
+        <a href="https://app.naxtontechnologies.com/login" class="pricing-btn">SELECT PLAN</a>
       </div>
       <!-- Plan 2 -->
       <div class="pricing-card popular">
@@ -924,7 +929,7 @@
           <li><i data-lucide="check"></i> Real-time Audio Playbacks</li>
           <li><i data-lucide="check"></i> 24/7 priority hosting</li>
         </ul>
-        <a href="/login" class="pricing-btn">SELECT PLAN</a>
+        <a href="https://app.naxtontechnologies.com/login" class="pricing-btn">SELECT PLAN</a>
       </div>
       <!-- Plan 3 -->
       <div class="pricing-card">
@@ -937,7 +942,7 @@
           <li><i data-lucide="check"></i> Direct POS Database API Hook</li>
           <li><i data-lucide="check"></i> Dedicated Voice Models</li>
         </ul>
-        <a href="/login" class="pricing-btn">CONTACT SALES</a>
+        <a href="https://app.naxtontechnologies.com/login" class="pricing-btn">CONTACT SALES</a>
       </div>
     </div>
   </section>
@@ -947,7 +952,7 @@
     <div class="cta-card">
       <h2>Unshackle Your Staff</h2>
       <p>Automate your reservation desks and order taking. Free up your employees to focus entirely on on-premise execution and customer service.</p>
-      <a href="/login" class="btn-primary">
+      <a href="https://app.naxtontechnologies.com/login" class="btn-primary">
         <span>INITIALIZE PORTAL</span>
         <i data-lucide="zap" style="width: 16px;"></i>
       </a>
@@ -958,7 +963,11 @@
   <footer>
     <div class="footer-container">
       <a href="#" class="logo" style="font-size: 1rem;">
-        <i data-lucide="brain-circuit" class="logo-icon" style="width: 18px;"></i>
+        <% if (typeof platformLogo !== 'undefined' && platformLogo) { %>
+          <img src="<%= platformLogo %>" alt="Logo" style="height: 24px; width: auto; object-fit: contain; filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.4));" />
+        <% } else { %>
+          <i data-lucide="brain-circuit" class="logo-icon" style="width: 18px;"></i>
+        <% } %>
         <span><%= projectName %></span>
       </a>
       <div class="footer-text">

@@ -46,8 +46,23 @@ app.use((req, res, next) => {
   next();
 });
 
+// Domain-aware Routing for Root and App Subdomain
 app.get("/", (req, res) => {
+  const host = req.get("host") || "";
+  if (host.startsWith("app.")) {
+    return res.redirect("/login");
+  }
   res.render("landing");
+});
+
+// Redirect any direct visits to app pages on the root domain to the app subdomain
+app.use((req, res, next) => {
+  const host = req.get("host") || "";
+  const appPaths = ["/login", "/logout", "/admin", "/superadmin", "/support", "/developer", "/agent", "/manager", "/product"];
+  if (!host.startsWith("app.") && appPaths.some(p => req.path.startsWith(p))) {
+    return res.redirect(`https://app.naxtontechnologies.com${req.originalUrl}`);
+  }
+  next();
 });
 
 // Admin dashboard – render the full UI (admin-dashboard-apex)
