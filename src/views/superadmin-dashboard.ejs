@@ -738,6 +738,276 @@
       justify-content: flex-end;
     }
 
+    /* Responsive Header & Layout Extensions */
+    .sidebar-toggle-btn {
+      display: none;
+    }
+    .sidebar-close-btn {
+      display: none;
+    }
+    
+    @media (max-width: 1024px) {
+      .sidebar-toggle-btn {
+        display: flex !important;
+      }
+      .sidebar-close-btn {
+        display: flex !important;
+      }
+      .apex-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 10000;
+        transform: translateX(-100%);
+        box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+      }
+      .apex-sidebar.active {
+        transform: translateX(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .apex-header {
+        padding: 0 1rem !important;
+      }
+      .header-search {
+        display: none !important;
+      }
+      .user-profile div:last-child {
+        display: none !important;
+      }
+      .apex-content {
+        padding: 1rem 1rem !important;
+      }
+      .dashboard-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+      }
+      .quick-actions {
+        flex-wrap: wrap;
+        width: 100%;
+      }
+      .quick-actions .system-status-pill,
+      .quick-actions .action-btn {
+        flex: 1 1 auto;
+        justify-content: center;
+      }
+    }
+
+    /* Monospace Stat Values Clamp */
+    .stat-value {
+      font-size: clamp(1.5rem, 4.5vw, 2.25rem) !important;
+      word-break: break-all;
+    }
+
+    /* Responsive Grids */
+    .billing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    @media (max-width: 1024px) {
+      .billing-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .billing-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .billing-grid .apex-card {
+        transform: none !important;
+      }
+    }
+
+    .aiops-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 1024px) {
+      .aiops-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 600px) {
+      .aiops-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .queues-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    @media (max-width: 768px) {
+      .queues-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .support-pulse-grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 2rem;
+    }
+    @media (max-width: 1024px) {
+      .support-pulse-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 2rem;
+    }
+    @media (max-width: 1024px) {
+      .matrix-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Responsive Page Headers */
+    .responsive-page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+    }
+    .responsive-page-header-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    @media (max-width: 900px) {
+      .responsive-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      .responsive-page-header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+      .responsive-page-header-actions .header-search {
+        width: 100% !important;
+      }
+    }
+
+    /* Scrollable Support Tabs */
+    @media (max-width: 768px) {
+      .support-tabs {
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        padding: 0.4rem 0.5rem !important;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+      }
+      .support-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .support-tabs .tab-btn {
+        flex: 0 0 auto !important;
+      }
+    }
+
+    /* Responsive Support Inbox */
+    .context-panel-sa {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      overflow-y: auto;
+      height: 100%;
+    }
+    @media (max-width: 1200px) {
+      .support-inbox-grid {
+        grid-template-columns: 300px 1fr !important;
+        height: auto !important;
+      }
+      .context-panel-sa {
+        grid-column: span 2;
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+        gap: 1.5rem !important;
+        height: auto !important;
+        overflow-y: visible !important;
+      }
+    }
+    @media (max-width: 768px) {
+      .support-inbox-grid {
+        grid-template-columns: 1fr !important;
+        height: auto !important;
+      }
+      .context-panel-sa {
+        grid-column: span 1 !important;
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    /* Settings UI Responsiveness */
+    @media (max-width: 900px) {
+      .settings-layout {
+        grid-template-columns: 1fr !important;
+      }
+      .settings-sidebar {
+        position: relative !important;
+        top: 0 !important;
+        margin-bottom: 1.5rem !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        padding: 0.75rem !important;
+      }
+      .settings-nav-item {
+        margin-bottom: 0 !important;
+        flex: 1 1 calc(50% - 0.5rem) !important;
+      }
+    }
+    @media (max-width: 480px) {
+      .settings-nav-item {
+        flex: 1 1 100% !important;
+      }
+    }
+    @media (max-width: 600px) {
+      .settings-form-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .settings-form-full {
+        grid-column: span 1 !important;
+      }
+    }
+
+    /* Custom scrollbar and overflow styles */
+    .table-container-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Unstyled components fixes */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 768px) {
+      .provision-card {
+        padding: 1.5rem !important;
+        min-height: auto !important;
+      }
+    }
+
   </style>
 </head>
 <body data-theme="dark">
@@ -752,6 +1022,7 @@
   </script>
 
   <div class="apex-layout">
+    <div id="sidebarOverlay" onclick="toggleMobileSidebar()" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; backdrop-filter: blur(4px);"></div>
     <aside class="apex-sidebar">
       <div class="sidebar-header">
         <div class="logo-box" style="background: var(--primary);">
@@ -762,6 +1033,9 @@
           <h2 style="font-size: 0.95rem; font-weight: 700;"><%= projectName || 'Naxton Technologies' %></h2>
           <p style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">AI Voice Suite</p>
         </div>
+        <button class="action-btn sidebar-close-btn" onclick="toggleMobileSidebar()" style="border: none; background: transparent; margin-left: auto;">
+          <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+        </button>
       </div>
 
       <nav class="sidebar-nav">
@@ -846,6 +1120,9 @@
 
     <main class="apex-main">
       <header class="apex-header">
+        <button class="action-btn sidebar-toggle-btn" onclick="toggleMobileSidebar()" style="margin-right: 1rem;">
+          <i data-lucide="menu"></i>
+        </button>
         <div class="header-search">
           <i data-lucide="search"></i>
           <input type="text" placeholder="Search for actions, tenants, stats..." />
@@ -1163,7 +1440,7 @@
               </button>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 400px; gap: 2rem;">
+            <div class="support-pulse-grid">
                <div style="height: 300px;">
                   <canvas id="supportVolumeChart"></canvas>
                </div>
@@ -1194,20 +1471,20 @@
 
         <!-- TENANTS SECTION -->
         <div id="tenantsSection" class="section-container" style="display: none;">
-          <div class="page-header">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
-              <div>
-                <h1>Registered Tenants</h1>
-                <p>Manage all business accounts and platform capacity.</p>
-              </div>
-              <div class="header-search" style="width: 300px;">
+          <div class="page-header responsive-page-header">
+            <div>
+              <h1>Registered Tenants</h1>
+              <p>Manage all business accounts and platform capacity.</p>
+            </div>
+            <div class="responsive-page-header-actions">
+              <div class="header-search" style="width: 300px; margin-bottom: 0;">
                 <i data-lucide="search"></i>
                 <input type="text" id="tenantSearch" placeholder="Search tenants..." oninput="filterTenants(this.value)" />
               </div>
             </div>
           </div>
 
-          <div class="apex-card" style="padding: 0; overflow: hidden;">
+          <div class="apex-card table-container-responsive" style="padding: 0;">
             <table class="apex-table">
               <thead>
                 <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
@@ -1250,24 +1527,22 @@
 
         <!-- TRANSCRIPTS SECTION -->
         <div id="transcriptsSection" class="section-container" style="display: none;">
-          <div class="page-header" style="margin-bottom: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
-              <div>
-                <p class="eyebrow" style="color: var(--primary); margin-bottom: 4px;">Intelligence Hub</p>
-                <h1 style="font-size: 2rem; font-weight: 800;">Neural Transcripts</h1>
-                <p style="color: var(--text-muted);">AI-to-human conversation intelligence and monitoring.</p>
-              </div>
-              <div style="display: flex; gap: 1rem; align-items: center;">
-                <button class="apex-btn apex-btn-outline" style="color: var(--primary); border-color: rgba(var(--primary-rgb), 0.2);">
-                  <i data-lucide="sparkles" style="width: 16px; margin-right: 8px;"></i> AI INSIGHTS
-                </button>
-                <button class="apex-btn apex-btn-outline">
-                  <i data-lucide="download" style="width: 16px; margin-right: 8px;"></i> EXPORT
-                </button>
-                <div class="header-search" style="width: 280px; height: 44px; margin-bottom: 0;">
-                  <i data-lucide="search"></i>
-                  <input type="text" id="transcriptSearch" placeholder="Filter transcripts..." oninput="handleTranscriptSearch(this.value)" />
-                </div>
+          <div class="page-header responsive-page-header">
+            <div>
+              <p class="eyebrow" style="color: var(--primary); margin-bottom: 4px;">Intelligence Hub</p>
+              <h1 style="font-size: 2rem; font-weight: 800;">Neural Transcripts</h1>
+              <p style="color: var(--text-muted);">AI-to-human conversation intelligence and monitoring.</p>
+            </div>
+            <div class="responsive-page-header-actions">
+              <button class="apex-btn apex-btn-outline" style="color: var(--primary); border-color: rgba(var(--primary-rgb), 0.2);">
+                <i data-lucide="sparkles" style="width: 16px; margin-right: 8px;"></i> AI INSIGHTS
+              </button>
+              <button class="apex-btn apex-btn-outline">
+                <i data-lucide="download" style="width: 16px; margin-right: 8px;"></i> EXPORT
+              </button>
+              <div class="header-search" style="width: 280px; height: 44px; margin-bottom: 0;">
+                <i data-lucide="search"></i>
+                <input type="text" id="transcriptSearch" placeholder="Filter transcripts..." oninput="handleTranscriptSearch(this.value)" />
               </div>
             </div>
           </div>
@@ -1279,7 +1554,7 @@
             <button class="apex-btn apex-btn-sm apex-btn-glass">Escalations</button>
           </div>
 
-          <div id="transcriptBox" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 2rem;"></div>
+          <div id="transcriptBox" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 2rem;"></div>
         </div>
 
         <!-- PROVISIONING SECTION -->
@@ -1315,7 +1590,7 @@
                   </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="settings-form-grid">
                   <div class="form-group">
                     <label>Admin Email</label>
                     <div style="position: relative;">
@@ -1356,7 +1631,7 @@
                   <p style="font-size: 0.85rem; color: var(--text-muted);">Select the AI model niche and import existing assets.</p>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="settings-form-grid">
                   <div class="form-group">
                     <label>Deployment Category</label>
                     <select id="businessType" class="form-control" onchange="updateSubCategoriesSA()">
@@ -1532,26 +1807,24 @@
 
         <!-- BILLING & TOKENS SECTION -->
         <div id="billingSection" class="section-container" style="display: none;">
-          <div class="page-header" style="margin-bottom: 3rem;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
-              <div>
-                <p class="eyebrow" style="color: var(--primary); margin-bottom: 4px;">Financial Center</p>
-                <h1 style="font-size: 2.25rem; font-weight: 900; letter-spacing: -0.04em;">Billing & Token Management</h1>
-                <p style="color: var(--text-muted);">Configure platform pricing models and authorize resource injections.</p>
-              </div>
-              <div style="display: flex; gap: 1rem;">
-                <button class="apex-btn apex-btn-outline" onclick="loadMintRequests()">
-                  <i data-lucide="refresh-cw" style="width: 16px; margin-right: 8px;"></i> SYNC DATA
-                </button>
-                <button class="apex-btn apex-btn-primary">
-                  <i data-lucide="plus-circle" style="width: 16px; margin-right: 8px;"></i> CREATE TIER
-                </button>
-              </div>
+          <div class="page-header responsive-page-header">
+            <div>
+              <p class="eyebrow" style="color: var(--primary); margin-bottom: 4px;">Financial Center</p>
+              <h1 style="font-size: 2.25rem; font-weight: 900; letter-spacing: -0.04em;">Billing & Token Management</h1>
+              <p style="color: var(--text-muted);">Configure platform pricing models and authorize resource injections.</p>
+            </div>
+            <div class="responsive-page-header-actions">
+              <button class="apex-btn apex-btn-outline" onclick="loadMintRequests()">
+                <i data-lucide="refresh-cw" style="width: 16px; margin-right: 8px;"></i> SYNC DATA
+              </button>
+              <button class="apex-btn apex-btn-primary">
+                <i data-lucide="plus-circle" style="width: 16px; margin-right: 8px;"></i> CREATE TIER
+              </button>
             </div>
           </div>
 
           <!-- TOKEN TIERS (PREMIUM CARDS) -->
-          <div class="apex-grid" style="margin-bottom: 3rem; grid-template-columns: repeat(3, 1fr);">
+          <div class="billing-grid">
             <!-- STARTER -->
             <div class="apex-card" style="border: 1px solid rgba(16, 185, 129, 0.2); background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent); position: relative; overflow: hidden; padding: 2rem;">
               <div style="position: absolute; top: 0; right: 0; width: 100px; height: 100px; background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.1), transparent); z-index: 0;"></div>
@@ -1667,25 +1940,23 @@
 
         <!-- PHONE INVENTORY SECTION -->
         <div id="phonesSection" class="section-container" style="display: none;">
-          <div class="page-header" style="margin-bottom: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
-              <div>
-                <p class="eyebrow" style="color: var(--primary); margin-bottom: 4px;">Telephony Management</p>
-                <h1 style="font-size: 2rem; font-weight: 800;">Phone Inventory</h1>
-                <p style="color: var(--text-muted);">Manage platform numbers and assign them to specific tenants.</p>
-              </div>
-              <div style="display: flex; gap: 1rem;">
-                <button class="apex-btn apex-btn-outline" onclick="loadInventory()">
-                  <i data-lucide="refresh-cw" style="width: 16px; margin-right: 8px;"></i> REFRESH
-                </button>
-                <button class="apex-btn apex-btn-primary" onclick="openPurchaseModal()">
-                  <i data-lucide="plus-circle" style="width: 16px; margin-right: 8px;"></i> BUY NEW NUMBER
-                </button>
-              </div>
+          <div class="page-header responsive-page-header">
+            <div>
+              <p class="eyebrow" style="color: var(--primary); margin-bottom: 4px;">Telephony Management</p>
+              <h1 style="font-size: 2rem; font-weight: 800;">Phone Inventory</h1>
+              <p style="color: var(--text-muted);">Manage platform numbers and assign them to specific tenants.</p>
+            </div>
+            <div class="responsive-page-header-actions">
+              <button class="apex-btn apex-btn-outline" onclick="loadInventory()">
+                <i data-lucide="refresh-cw" style="width: 16px; margin-right: 8px;"></i> REFRESH
+              </button>
+              <button class="apex-btn apex-btn-primary" onclick="openPurchaseModal()">
+                <i data-lucide="plus-circle" style="width: 16px; margin-right: 8px;"></i> BUY NEW NUMBER
+              </button>
             </div>
           </div>
 
-          <div class="apex-card" style="padding: 0; overflow: hidden;">
+          <div class="apex-card table-container-responsive" style="padding: 0;">
             <table class="apex-table">
               <thead>
                 <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
@@ -2193,7 +2464,7 @@
 
         <!-- TAB: TICKETS -->
         <div id="support-tickets" class="support-tab-content" style="display: none;">
-          <div class="apex-card" style="padding: 0; overflow: hidden;">
+          <div class="apex-card table-container-responsive" style="padding: 0;">
             <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
               <div style="display: flex; gap: 1rem;">
                 <select class="form-control" style="width: 150px; height: 36px; font-size: 0.8rem;" onchange="filterSupportTickets(this.value)">
@@ -2363,8 +2634,8 @@
 
         <!-- TAB: MATRIX (Agent Matrix) -->
         <div id="support-matrix" class="support-tab-content" style="display: none;">
-          <div style="display: grid; grid-template-columns: 1fr 380px; gap: 2rem;">
-            <div class="apex-card" style="padding: 0; overflow: hidden;">
+          <div class="matrix-grid">
+            <div class="apex-card table-container-responsive" style="padding: 0;">
               <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                  <h3 class="card-title">Neural Support Personnel</h3>
                  <span class="system-status-pill">REALTIME SYNC</span>
@@ -2451,12 +2722,12 @@
 
         <!-- SECTION: INFRASTRUCTURE -->
         <div id="infraSection" class="section-container" style="display: none;">
-          <div class="section-header">
+          <div class="page-header responsive-page-header">
             <div>
-              <h1 class="section-title">Infrastructure Monitoring</h1>
-              <p class="section-subtitle">Real-time server metrics, websocket health, and system uptime.</p>
+              <h1>Infrastructure Monitoring</h1>
+              <p>Real-time server metrics, websocket health, and system uptime.</p>
             </div>
-            <div class="header-actions">
+            <div class="responsive-page-header-actions">
               <span class="system-status-pill">ALL SYSTEMS NOMINAL</span>
             </div>
           </div>
@@ -2535,7 +2806,7 @@
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+          <div class="aiops-grid">
             <div class="apex-card" style="padding: 1.5rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">OpenAI Usage</span>
@@ -2570,7 +2841,7 @@
             </div>
           </div>
 
-          <div class="apex-card">
+          <div class="apex-card table-container-responsive">
             <h3 class="card-title">Latest AI Sessions</h3>
             <table class="apex-table" style="margin-top: 1.5rem;">
               <thead>
@@ -2593,17 +2864,17 @@
 
         <!-- SECTION: SECURITY & AUDIT -->
         <div id="securitySection" class="section-container" style="display: none;">
-          <div class="section-header">
+          <div class="page-header responsive-page-header">
             <div>
-              <h1 class="section-title">Security & Audit Center</h1>
-              <p class="section-subtitle">Track administrator actions and platform security events.</p>
+              <h1>Security & Audit Center</h1>
+              <p>Track administrator actions and platform security events.</p>
             </div>
-            <div class="header-actions">
+            <div class="responsive-page-header-actions">
               <button class="apex-btn apex-btn-secondary"><i data-lucide="download"></i> Export Logs</button>
             </div>
           </div>
 
-          <div class="apex-card">
+          <div class="apex-card table-container-responsive">
             <div class="card-header">
               <h3 class="card-title">Audit Trail</h3>
               <div class="header-search">
@@ -2683,14 +2954,14 @@
 
         <!-- SECTION: WORKER QUEUES -->
         <div id="queuesSection" class="section-container" style="display: none;">
-          <div class="section-header">
+          <div class="page-header responsive-page-header">
             <div>
-              <h1 class="section-title">Background Worker Queues</h1>
-              <p class="section-subtitle">Monitoring BullMQ / Redis background task throughput.</p>
+              <h1>Background Worker Queues</h1>
+              <p>Monitoring BullMQ / Redis background task throughput.</p>
             </div>
           </div>
 
-          <div id="queuesGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+          <div id="queuesGrid" class="queues-grid">
             <!-- Injected via JS -->
           </div>
         </div>
@@ -2893,6 +3164,18 @@
     let callsChartInstance = null;
     let currentBusinessFilter = "";
 
+    function toggleMobileSidebar() {
+      const sidebar = document.querySelector('.apex-sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      if (sidebar) {
+        sidebar.classList.toggle('active');
+        const isActive = sidebar.classList.contains('active');
+        if (overlay) {
+          overlay.style.display = isActive ? 'block' : 'none';
+        }
+      }
+    }
+
     function logout() { 
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
@@ -2925,6 +3208,11 @@
       
       const navItem = document.getElementById('nav-' + id);
       if (navItem) navItem.classList.add('active');
+
+      const sidebar = document.querySelector('.apex-sidebar');
+      if (sidebar && sidebar.classList.contains('active')) {
+        toggleMobileSidebar();
+      }
       
       // Auto-load section specific data
       if (id === 'dashboard') { loadAnalytics(); loadActivityFeed(); loadBusinesses(); }
