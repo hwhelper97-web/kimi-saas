@@ -192,6 +192,10 @@
       70% { box-shadow: 0 0 0 8px rgba(34, 211, 238, 0); }
       100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
     }
+
+    #mobile-nav {
+      background-color: #040e13 !important;
+    }
   </style>
 </head>
 
@@ -286,8 +290,11 @@
       </button>
     </div>
 
+    <!-- Mobile Nav Backdrop -->
+    <div id="mobile-nav-backdrop" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"></div>
+
     <!-- Mobile Drawer -->
-    <div id="mobile-nav" class="hidden fixed inset-y-0 right-0 w-80 max-w-full bg-[#040e13]/98 border-l border-glassBorder shadow-[0_0_40px_rgba(0,0,0,0.8)] backdrop-blur-xl flex flex-col p-8 z-50 transition-all duration-300">
+    <div id="mobile-nav" class="hidden fixed inset-y-0 right-0 w-80 max-w-full bg-[#040e13] border-l border-glassBorder shadow-[0_0_40px_rgba(0,0,0,0.8)] backdrop-blur-xl flex flex-col p-8 z-50 transition-all duration-300">
       <div class="flex items-center justify-between mb-8">
         <h3 class="font-orbitron font-extrabold text-xs text-white tracking-[2px]">MENU</h3>
         <button id="close-menu-btn" class="w-8 h-8 rounded-lg bg-glassBg border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent transition-colors cursor-pointer">
@@ -1740,19 +1747,30 @@
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const closeMenuBtn = document.getElementById('close-menu-btn');
     const mobileNav = document.getElementById('mobile-nav');
+    const mobileNavBackdrop = document.getElementById('mobile-nav-backdrop');
 
     mobileMenuBtn.addEventListener('click', () => {
       mobileNav.classList.remove('hidden');
+      if (mobileNavBackdrop) mobileNavBackdrop.classList.remove('hidden');
     });
 
     closeMenuBtn.addEventListener('click', () => {
       mobileNav.classList.add('hidden');
+      if (mobileNavBackdrop) mobileNavBackdrop.classList.add('hidden');
     });
+
+    if (mobileNavBackdrop) {
+      mobileNavBackdrop.addEventListener('click', () => {
+        mobileNav.classList.add('hidden');
+        mobileNavBackdrop.classList.add('hidden');
+      });
+    }
 
     // Close mobile nav when clicking links
     document.querySelectorAll('.mobile-link').forEach(link => {
       link.addEventListener('click', () => {
         mobileNav.classList.add('hidden');
+        if (mobileNavBackdrop) mobileNavBackdrop.classList.add('hidden');
       });
     });
 

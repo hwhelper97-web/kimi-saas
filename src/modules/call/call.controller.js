@@ -123,8 +123,8 @@ const getBusinessContext = async (session, toNumber) => {
         }
       },
       appointments: {
-        where: { date: { gte: new Date() } },
-        orderBy: { date: "asc" }
+        where: { appointmentTime: { gte: new Date() } },
+        orderBy: { appointmentTime: "asc" }
       }
     },
   });

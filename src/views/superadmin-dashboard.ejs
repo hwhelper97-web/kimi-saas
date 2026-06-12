@@ -1008,6 +1008,35 @@
       }
     }
 
+    /* Primary stats grid and live operations panel fixes */
+    .primary-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    @media (max-width: 1400px) {
+      .primary-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 600px) {
+      .primary-stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .live-ops-panel {
+      display: flex !important;
+      flex-direction: column !important;
+      height: 770px !important;
+      min-height: 0 !important;
+    }
+    @media (max-width: 1024px) {
+      .live-ops-panel {
+        height: 500px !important;
+      }
+    }
   </style>
 </head>
 <body data-theme="dark">
@@ -1193,7 +1222,7 @@
           </div>
 
           <!-- PRIMARY STATS -->
-          <div class="apex-grid" style="margin-bottom: 2.5rem;">
+          <div class="primary-stats-grid">
             <div class="stat-card" style="cursor: pointer; border-bottom: 3px solid var(--primary);" onclick="showSection('billing')">
               <div class="stat-header">
                 <span class="stat-label">Platform Revenue</span>
@@ -1397,7 +1426,7 @@
             </div>
 
             <div class="right-col">
-              <div class="apex-card live-ops-panel" style="height: 100%;">
+              <div class="apex-card live-ops-panel">
                 <div class="card-title-row">
                   <div class="live-ops-header">
                     <div class="pulse-dot"></div>
