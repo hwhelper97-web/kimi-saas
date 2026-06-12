@@ -281,8 +281,9 @@ exports.incoming = async (req, res) => {
     session.transferNumber = config?.transferNumber;
 
     // 🚀 START REALTIME STREAM
-    const host = req.headers.host;
-    const protocol = host.includes("ngrok-free.dev") ? "wss" : (req.protocol === "https" ? "wss" : "ws");
+    const host = req.headers.host || "";
+    const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
+    const protocol = (isLocal && !host.includes("ngrok")) ? "ws" : "wss";
     const callerPhone = req.body.From || "Unknown";
     const streamUrl = `${protocol}://${host}/v2/stream/${business.id}?caller=${encodeURIComponent(callerPhone)}`;
     
@@ -759,7 +760,6 @@ exports.proxyRecording = (req, res) => res.sendStatus(200);
 exports.streamVoice = (req, res) => res.sendStatus(200);
 
 exports.testVoice = (req, res) => res.sendStatus(200);
-exports.testAI = (req, res) => res.sendStatus(200);
 
 /* ===============================
    PROVISIONING: SEARCH NUMBERS

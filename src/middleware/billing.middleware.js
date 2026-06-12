@@ -79,7 +79,11 @@ const billingGuard = async (req, res, next) => {
 const checkResourceLimit = (resourceType) => {
   return async (req, res, next) => {
     try {
+      if (req.user?.role === "SUPERADMIN") return next();
       const tenant = req.tenant; // From billingGuard
+      if (!tenant) {
+        return res.status(403).json({ success: false, message: "Tenant context missing" });
+      }
       const plan = PLANS[tenant.plan.toUpperCase()] || PLANS.NEXA_CORE;
       
       let currentCount = 0;
@@ -114,7 +118,11 @@ const checkResourceLimit = (resourceType) => {
  */
 const requireFeature = (featureKey) => {
   return (req, res, next) => {
+    if (req.user?.role === "SUPERADMIN") return next();
     const tenant = req.tenant; // From billingGuard
+    if (!tenant) {
+      return res.status(403).json({ success: false, message: "Tenant context missing" });
+    }
     if (!hasFeature(tenant.plan, featureKey)) {
       return res.status(403).json({
         success: false,

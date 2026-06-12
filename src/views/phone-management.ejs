@@ -185,32 +185,38 @@
       });
       const result = await res.json();
       
-      if (result.success && result.data.length > 0) {
-        document.getElementById('numbersCount').innerText = `${result.data.length} Numbers Active`;
-        table.innerHTML = result.data.map(p => `
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 1rem;">
-              <div style="font-weight: 700;">${p.twilioPhoneNumber}</div>
-              <div style="font-size: 0.7rem; color: var(--text-muted);">${p.businessPhoneNumber || 'No BYON linked'}</div>
-            </td>
-            <td style="padding: 1rem; font-size: 0.875rem;">${p.business?.name || 'Unlinked'}</td>
-            <td style="padding: 1rem;">
-              <span class="badge" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); font-size: 0.65rem;">
-                ${p.forwardingEnabled ? 'AUTO-FORWARD' : 'AI-ONLY'}
-              </span>
-            </td>
-            <td style="padding: 1rem;">
-              <div class="toggle ${p.aiEnabled ? 'active' : ''}" onclick="togglePhoneAI('${p.id}', ${p.aiEnabled})"></div>
-            </td>
-            <td style="padding: 1rem; text-align: right;">
-              <button class="apex-btn apex-btn-sm apex-btn-secondary" style="width:32px; height:32px; padding:0;" onclick='openPhoneModal(${JSON.stringify(p)})'>
-                <i data-lucide="edit-3" style="width:14px;"></i>
-              </button>
-            </td>
-          </tr>
-        `).join('');
-      } else {
-        table.innerHTML = '<tr><td colspan="5" style="padding: 4rem; text-align: center; color: var(--text-muted);"><i data-lucide="phone-off" style="width:32px; height:32px; opacity:0.3; margin-bottom:1rem;"></i><br/>No phone numbers configured.</td></tr>';
+      if (result.success) {
+        const countEl = document.getElementById('numbersCount');
+        if (countEl) countEl.innerText = `${result.data.length} Numbers Active`;
+        
+        if (table) {
+          if (result.data.length > 0) {
+            table.innerHTML = result.data.map(p => `
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 1rem;">
+                  <div style="font-weight: 700;">${p.twilioPhoneNumber}</div>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">${p.businessPhoneNumber || 'No BYON linked'}</div>
+                </td>
+                <td style="padding: 1rem; font-size: 0.875rem;">${p.business?.name || 'Unlinked'}</td>
+                <td style="padding: 1rem;">
+                  <span class="badge" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); font-size: 0.65rem;">
+                    ${p.forwardingEnabled ? 'AUTO-FORWARD' : 'AI-ONLY'}
+                  </span>
+                </td>
+                <td style="padding: 1rem;">
+                  <div class="toggle ${p.aiEnabled ? 'active' : ''}" onclick="togglePhoneAI('${p.id}', ${p.aiEnabled})"></div>
+                </td>
+                <td style="padding: 1rem; text-align: right;">
+                  <button class="apex-btn apex-btn-sm apex-btn-secondary" style="width:32px; height:32px; padding:0;" onclick='openPhoneModal(${JSON.stringify(p)})'>
+                    <i data-lucide="edit-3" style="width:14px;"></i>
+                  </button>
+                </td>
+              </tr>
+            `).join('');
+          } else {
+            table.innerHTML = '<tr><td colspan="5" style="padding: 4rem; text-align: center; color: var(--text-muted);"><i data-lucide="phone-off" style="width:32px; height:32px; opacity:0.3; margin-bottom:1rem;"></i><br/>No phone numbers configured.</td></tr>';
+          }
+        }
       }
 
       // 2. Load Analytics
@@ -219,15 +225,20 @@
       });
       const aResult = await aRes.json();
       if (aResult.success) {
-        document.getElementById('statInbound').innerText = aResult.data.incomingCalls || 0;
-        document.getElementById('statAI').innerText = aResult.data.aiHandledCalls || 0;
-        document.getElementById('statTransferred').innerText = aResult.data.transferredCalls || 0;
+        const statInbound = document.getElementById('statInbound');
+        const statAI = document.getElementById('statAI');
+        const statTransferred = document.getElementById('statTransferred');
+        if (statInbound) statInbound.innerText = aResult.data.incomingCalls || 0;
+        if (statAI) statAI.innerText = aResult.data.aiHandledCalls || 0;
+        if (statTransferred) statTransferred.innerText = aResult.data.transferredCalls || 0;
       }
 
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide && table && document.body.contains(table)) lucide.createIcons();
     } catch (e) { 
       console.error("[Phone-Management] Load Error:", e); 
-      table.innerHTML = '<tr><td colspan="5" style="padding: 4rem; text-align: center; color: var(--danger);">Failed to load configurations.</td></tr>';
+      if (table) {
+        table.innerHTML = '<tr><td colspan="5" style="padding: 4rem; text-align: center; color: var(--danger);">Failed to load configurations.</td></tr>';
+      }
     }
   };
 

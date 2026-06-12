@@ -83,11 +83,11 @@ exports.getAnalytics = async (req, res) => {
 
     const whereClause = req.user.role === "SUPERADMIN"
       ? (businessId ? { businessId } : {})
-      : { tenantId };
+      : { tenantId, ...(businessId ? { businessId } : {}) };
 
     // Aggregate stats from CallAnalytics
     const stats = await prisma.callAnalytics.aggregate({
-      where: { tenantId: tenantId },
+      where: whereClause,
       _sum: {
         incomingCalls: true,
         aiHandledCalls: true,
