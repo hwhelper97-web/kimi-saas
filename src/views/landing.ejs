@@ -12,45 +12,123 @@
   <!-- Tailwind Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.435.0/dist/umd/lucide.min.js"></script>
 
   <!-- Tailwind Configuration -->
   <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            darkest: '#050505',
-            cyanaccent: '#22d3ee',
-            tealaccent: '#00bcd4',
-            glassBg: 'rgba(4, 21, 27, 0.6)',
-            glassBorder: 'rgba(34, 211, 238, 0.08)',
-            textMain: '#f8fafc',
-            textDim: '#94a3b8',
-          },
-          fontFamily: {
-            orbitron: ['Orbitron', 'sans-serif'],
-            sans: ['Plus Jakarta Sans', 'sans-serif'],
+    if (typeof tailwind !== 'undefined') {
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              darkest: 'var(--bg-darkest)',
+              cyanaccent: 'var(--accent-cyan)',
+              tealaccent: 'var(--accent-teal)',
+              glassBg: 'var(--glass-bg)',
+              glassBorder: 'var(--glass-border)',
+              textMain: 'var(--text-main)',
+              textDim: 'var(--text-dim)',
+            },
+            fontFamily: {
+              orbitron: ['Orbitron', 'sans-serif'],
+              sans: ['Plus Jakarta Sans', 'sans-serif'],
+            }
           }
         }
-      }
+      };
     }
   </script>
 
   <!-- Custom CSS for Glow Effects and Animations -->
   <style>
     :root {
-      --bg-darkest: #050505;
-      --bg-gradient-start: #072129;
-      --bg-gradient-end: #031014;
-      --accent-teal: #00bcd4;
+      --bg-darkest: #040506;
+      --bg-gradient-start: #061f26;
+      --bg-gradient-end: #020c0f;
       --accent-cyan: #22d3ee;
-      --glass-bg: rgba(4, 17, 22, 0.95);
-      --glass-border: rgba(34, 211, 238, 0.1);
+      --accent-teal: #00bcd4;
+      --accent-rgb: 34, 211, 238;
+      --glass-bg: rgba(4, 21, 27, 0.65);
+      --glass-border: rgba(34, 211, 238, 0.08);
+      --btn-gradient: linear-gradient(to right, #042B33, #063944, #0A4A57);
       --text-main: #f8fafc;
       --text-dim: #94a3b8;
-      --btn-gradient: linear-gradient(to right, #042B33, #063944, #0A4A57);
       --btn-secondary: rgba(255, 255, 255, 0.05);
+    }
+
+    .theme-teal {
+      --bg-darkest: #040506;
+      --bg-gradient-start: #061f26;
+      --bg-gradient-end: #020c0f;
+      --accent-cyan: #22d3ee;
+      --accent-teal: #00bcd4;
+      --accent-rgb: 34, 211, 238;
+      --glass-bg: rgba(4, 21, 27, 0.65);
+      --glass-border: rgba(34, 211, 238, 0.08);
+      --btn-gradient: linear-gradient(to right, #042B33, #063944, #0A4A57);
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --btn-secondary: rgba(255, 255, 255, 0.05);
+    }
+
+    .theme-purple {
+      --bg-darkest: #060409;
+      --bg-gradient-start: #18092a;
+      --bg-gradient-end: #0a0314;
+      --accent-cyan: #f472b6;
+      --accent-teal: #a855f7;
+      --accent-rgb: 168, 85, 247;
+      --glass-bg: rgba(18, 9, 30, 0.65);
+      --glass-border: rgba(168, 85, 247, 0.08);
+      --btn-gradient: linear-gradient(to right, #2c0e3a, #3c1352, #4e196b);
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --btn-secondary: rgba(255, 255, 255, 0.05);
+    }
+
+    .theme-green {
+      --bg-darkest: #030503;
+      --bg-gradient-start: #08210e;
+      --bg-gradient-end: #030d05;
+      --accent-cyan: #34d399;
+      --accent-teal: #10b981;
+      --accent-rgb: 16, 185, 129;
+      --glass-bg: rgba(6, 21, 10, 0.65);
+      --glass-border: rgba(16, 185, 129, 0.08);
+      --btn-gradient: linear-gradient(to right, #093116, #0d421e, #135527);
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --btn-secondary: rgba(255, 255, 255, 0.05);
+    }
+
+    .theme-gold {
+      --bg-darkest: #070503;
+      --bg-gradient-start: #231609;
+      --bg-gradient-end: #0e0803;
+      --accent-cyan: #fbbf24;
+      --accent-teal: #f59e0b;
+      --accent-rgb: 245, 158, 11;
+      --glass-bg: rgba(23, 14, 6, 0.65);
+      --glass-border: rgba(245, 158, 11, 0.08);
+      --btn-gradient: linear-gradient(to right, #381d09, #4a270b, #5e320d);
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --btn-secondary: rgba(255, 255, 255, 0.05);
+    }
+
+    .theme-light {
+      --bg-darkest: #ffffff;
+      --bg-gradient-start: #ffffff;
+      --bg-gradient-end: #f8fafc;
+      --accent-cyan: #0891b2;
+      --accent-teal: #0e7490;
+      --accent-rgb: 14, 116, 144;
+      --glass-bg: rgba(255, 255, 255, 0.75);
+      --glass-border: rgba(14, 116, 144, 0.08);
+      --btn-gradient: linear-gradient(to right, #0891b2, #0e7490, #155e75);
+      --text-main: #0f172a;
+      --text-dim: #475569;
+      --btn-secondary: rgba(14, 116, 144, 0.05);
     }
 
     * {
@@ -194,12 +272,202 @@
     }
 
     #mobile-nav {
-      background-color: #040e13 !important;
+      background-color: var(--bg-darkest) !important;
+    }
+
+    /* Premium Button Shimmer & Scale Updates */
+    .btn-premium {
+      position: relative;
+      background: var(--btn-gradient);
+      border: 1px solid rgba(var(--accent-rgb), 0.2);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      color: #ffffff !important;
+    }
+    .btn-premium::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -50%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.15) 30%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.15) 70%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: skewX(-25deg);
+      transition: 0.75s;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .btn-premium:hover::after {
+      left: 125%;
+      opacity: 1;
+      transition: 0.75s;
+    }
+    .btn-premium:hover {
+      box-shadow: 0 0 25px rgba(var(--accent-rgb), 0.45);
+      border-color: rgba(var(--accent-rgb), 0.6);
+      transform: translateY(-2px);
+    }
+
+    /* Light Theme Styling Overrides */
+    .theme-light h1,
+    .theme-light h2,
+    .theme-light h3,
+    .theme-light h4,
+    .theme-light h5,
+    .theme-light h6 {
+      color: var(--text-main) !important;
+    }
+    .theme-light p {
+      color: var(--text-dim) !important;
+    }
+    .theme-light .bg-clip-text {
+      background-image: linear-gradient(to bottom, var(--text-main) 0%, #475569 100%) !important;
+      color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+    .theme-light #stats,
+    .theme-light #technologies,
+    .theme-light #solutions,
+    .theme-light #portfolio,
+    .theme-light #testimonials,
+    .theme-light #faq,
+    .theme-light #final-cta,
+    .theme-light #contact {
+      background-color: rgba(255, 255, 255, 0.4) !important;
+      backdrop-filter: blur(12px) !important;
+    }
+    .theme-light .bg-black\/40 {
+      background-color: rgba(15, 23, 42, 0.05) !important;
+    }
+    .theme-light .bg-black\/60 {
+      background-color: rgba(15, 23, 42, 0.08) !important;
+    }
+    .theme-light .text-slate-300,
+    .theme-light .text-slate-400 {
+      color: var(--text-dim) !important;
+    }
+    .theme-light #mobile-nav {
+      background-color: var(--bg-darkest) !important;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-content {
+      background: rgba(4, 21, 27, 0.85);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(var(--accent-rgb), 0.15);
+      border-radius: 1.25rem;
+      max-width: 32rem;
+      width: 100%;
+      transform: scale(0.95) translateY(10px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(var(--accent-rgb), 0.1);
+      overflow: hidden;
+    }
+    .theme-light .modal-content {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(var(--accent-rgb), 0.2);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    }
+    .modal-overlay.active .modal-content {
+      transform: scale(1) translateY(0);
+    }
+    
+    .input-premium {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(var(--accent-rgb), 0.15);
+      color: #ffffff;
+      transition: all 0.3s ease;
+    }
+    .theme-light .input-premium {
+      background: rgba(255, 255, 255, 0.8);
+      border-color: rgba(var(--accent-rgb), 0.25);
+      color: #0f172a;
+    }
+    .input-premium:focus {
+      border-color: rgba(var(--accent-rgb), 0.6);
+      box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.2);
+      outline: none;
+    }
+
+    /* Product Preview Flowchart animations */
+    @keyframes pulseNode {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), 0.8)); }
+    }
+    .svg-node-active {
+      animation: pulseNode 2s infinite ease-in-out;
+    }
+    @keyframes dashMove {
+      to {
+        stroke-dashoffset: -20;
+      }
+    }
+    .svg-path-flow {
+      stroke-dasharray: 5, 5;
+      animation: dashMove 1s linear infinite;
+    }
+    
+    /* Document Scrollable box */
+    .doc-scrollbox {
+      max-height: 24rem;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(var(--accent-rgb), 0.2) rgba(0,0,0,0.1);
+    }
+
+    /* Glass card glow background mapping */
+    .glass-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(300px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(var(--accent-rgb), 0.08), transparent 40%);
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    .glass-card:hover::before {
+      opacity: 1;
+    }
+    .glass-card > * {
+      position: relative;
+      z-index: 10;
     }
   </style>
 </head>
 
-<body class="bg-darkest text-slate-100 font-sans overflow-x-hidden min-h-screen relative">
+<body class="bg-darkest text-textMain font-sans overflow-x-hidden min-h-screen relative">
 
   <!-- 🌌 Cybernetic Node Starfield (Interactive Background) -->
   <canvas id="canvas-network" class="fixed inset-0 pointer-events-none z-[-1]"></canvas>
@@ -242,10 +510,10 @@
 
   <!-- ==================== SECTION 1 — NAVIGATION ==================== -->
   <header class="fixed top-0 left-0 w-full z-50 glass-header transition-all duration-300" id="site-header">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
       
       <!-- Logo Container -->
-      <a href="#" class="flex items-center gap-3 font-orbitron font-extrabold text-sm tracking-[2px] text-white hover:opacity-95 transition-opacity">
+      <a href="#" class="flex items-center gap-3 font-orbitron font-extrabold text-sm tracking-[2px] text-white hover:opacity-95 transition-opacity flex-shrink-0 whitespace-nowrap">
         <% if (typeof platformLogo !== 'undefined' && platformLogo) { %>
           <img src="<%= platformLogo %>" alt="Naxton Logo" class="h-8 w-auto object-contain filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" />
         <% } else { %>
@@ -259,11 +527,11 @@
             </svg>
           </div>
         <% } %>
-        <span><%= projectName.toUpperCase() %></span>
+        <span><%= projectName.toUpperCase().replace('TECHNOLOGIES', 'TECH') %></span>
       </a>
 
       <!-- Desktop Navigation Menu -->
-      <nav class="hidden xl:flex items-center gap-6 text-[11px] font-semibold tracking-wider text-textDim">
+      <nav class="hidden xl:flex items-center gap-5 text-[11px] font-semibold tracking-wider text-textDim flex-shrink-0">
         <a href="#" class="hover:text-cyanaccent text-cyanaccent transition-colors">HOME</a>
         <a href="#services" class="hover:text-cyanaccent transition-colors">SERVICES</a>
         <a href="#solutions" class="hover:text-cyanaccent transition-colors">SOLUTIONS</a>
@@ -275,11 +543,20 @@
       </nav>
 
       <!-- Action Buttons -->
-      <div class="hidden md:flex items-center gap-4">
-        <a href="#contact" class="px-5 py-2.5 rounded-lg border border-cyanaccent/30 text-xs font-bold font-orbitron tracking-widest text-cyanaccent bg-cyanaccent/5 hover:bg-cyanaccent/10 hover:border-cyanaccent/50 transition-all">
+      <div class="hidden md:flex items-center gap-4 flex-shrink-0">
+        <!-- Theme Controller -->
+        <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-glassBg border border-glassBorder shadow-inner">
+          <button onclick="setTheme('teal')" class="w-3 h-3 rounded-full bg-[#00bcd4] border border-white/20 hover:scale-125 transition-all cursor-pointer" title="Teal Cyber"></button>
+          <button onclick="setTheme('purple')" class="w-3 h-3 rounded-full bg-[#a855f7] border border-white/20 hover:scale-125 transition-all cursor-pointer" title="Amethyst Aura"></button>
+          <button onclick="setTheme('green')" class="w-3 h-3 rounded-full bg-[#10b981] border border-white/20 hover:scale-125 transition-all cursor-pointer" title="Matrix Jade"></button>
+          <button onclick="setTheme('gold')" class="w-3 h-3 rounded-full bg-[#f59e0b] border border-white/20 hover:scale-125 transition-all cursor-pointer" title="Sol Amber"></button>
+          <button onclick="setTheme('light')" class="w-3 h-3 rounded-full bg-[#ffffff] border border-slate-300 hover:scale-125 transition-all cursor-pointer shadow-[0_0_5px_rgba(255,255,255,0.8)]" title="Bright Light"></button>
+        </div>
+
+        <a href="#contact" class="px-4 py-2.5 rounded-lg border border-cyanaccent/30 text-xs font-bold font-orbitron tracking-widest text-cyanaccent bg-cyanaccent/5 hover:bg-cyanaccent/10 hover:border-cyanaccent/50 transition-all">
           BOOK CONSULTATION
         </a>
-        <a href="/login" class="px-5 py-2.5 rounded-lg text-xs font-bold font-orbitron tracking-widest text-white btn-premium">
+        <a href="/login" class="px-4 py-2.5 rounded-lg text-xs font-bold font-orbitron tracking-widest text-white btn-premium">
           GET STARTED
         </a>
       </div>
@@ -294,7 +571,7 @@
     <div id="mobile-nav-backdrop" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"></div>
 
     <!-- Mobile Drawer -->
-    <div id="mobile-nav" class="hidden fixed inset-y-0 right-0 w-80 max-w-full bg-[#040e13] border-l border-glassBorder shadow-[0_0_40px_rgba(0,0,0,0.8)] backdrop-blur-xl flex flex-col p-8 z-50 transition-all duration-300">
+    <div id="mobile-nav" class="hidden fixed inset-y-0 right-0 w-80 max-w-full bg-darkest border-l border-glassBorder shadow-[0_0_40px_rgba(0,0,0,0.8)] backdrop-blur-xl flex flex-col p-8 z-50 transition-all duration-300">
       <div class="flex items-center justify-between mb-8">
         <h3 class="font-orbitron font-extrabold text-xs text-white tracking-[2px]">MENU</h3>
         <button id="close-menu-btn" class="w-8 h-8 rounded-lg bg-glassBg border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent transition-colors cursor-pointer">
@@ -311,6 +588,18 @@
         <a href="#about" class="mobile-link hover:text-cyanaccent transition-colors">ABOUT</a>
         <a href="#contact" class="mobile-link hover:text-cyanaccent transition-colors">CONTACT</a>
       </nav>
+      <!-- Theme Selection in Drawer -->
+      <div class="mb-6 flex flex-col gap-2 border-t border-glassBorder/40 pt-6">
+        <span class="text-[9px] font-bold font-orbitron text-textDim tracking-widest uppercase block">Select Theme</span>
+        <div class="flex items-center gap-3 py-1.5">
+          <button onclick="setTheme('teal')" class="w-6 h-6 rounded-full bg-[#00bcd4] border border-white/20 hover:scale-110 transition-transform cursor-pointer flex items-center justify-center text-[10px] text-white font-bold"></button>
+          <button onclick="setTheme('purple')" class="w-6 h-6 rounded-full bg-[#a855f7] border border-white/20 hover:scale-110 transition-transform cursor-pointer flex items-center justify-center text-[10px] text-white font-bold"></button>
+          <button onclick="setTheme('green')" class="w-6 h-6 rounded-full bg-[#10b981] border border-white/20 hover:scale-110 transition-transform cursor-pointer flex items-center justify-center text-[10px] text-white font-bold"></button>
+          <button onclick="setTheme('gold')" class="w-6 h-6 rounded-full bg-[#f59e0b] border border-white/20 hover:scale-110 transition-transform cursor-pointer flex items-center justify-center text-[10px] text-white font-bold"></button>
+          <button onclick="setTheme('light')" class="w-6 h-6 rounded-full bg-[#ffffff] border border-slate-300 hover:scale-110 transition-transform cursor-pointer flex items-center justify-center text-[10px] text-slate-800 font-bold" title="Bright Light"></button>
+        </div>
+      </div>
+
       <div class="flex flex-col gap-4">
         <a href="#contact" class="mobile-link w-full text-center py-3 rounded-lg border border-cyanaccent/30 text-xs font-bold font-orbitron tracking-wider text-cyanaccent bg-cyanaccent/5 hover:bg-cyanaccent/10 transition-colors">
           BOOK CONSULTATION
@@ -358,13 +647,13 @@
         </div>
       </div>
 
-      <!-- Hero Right: Premium Cyber Dashboard Mockup -->
+      <!-- Hero Right: Premium Cyber Dashboard / Interactive Simulator -->
       <div class="lg:col-span-6 relative flex items-center justify-center reveal">
         
         <!-- Behind mockup glow -->
         <div class="absolute w-72 h-72 rounded-full bg-cyanaccent/10 filter blur-[60px] animate-pulse"></div>
 
-        <!-- Central Dashboard Card Frame -->
+        <!-- Central Dashboard & Simulator Card Frame -->
         <div class="w-full max-w-lg glass-card rounded-xl border border-glassBorder p-4 relative overflow-hidden float-slow">
           <!-- Frame header controls -->
           <div class="flex items-center justify-between border-b border-glassBorder pb-3 mb-4">
@@ -373,81 +662,170 @@
               <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></span>
               <span class="w-2.5 h-2.5 rounded-full bg-green-500/50"></span>
             </div>
-            <span class="font-mono text-[10px] text-cyanaccent/50 tracking-widest uppercase flex items-center gap-2">
+            <span id="simulator-header-title" class="font-mono text-[10px] text-cyanaccent/50 tracking-widest uppercase flex items-center gap-2">
               <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
               naxton-cloud-intelligence // v2.4
             </span>
-            <div class="w-12"></div>
+            <button id="sound-toggle-btn" onclick="toggleMute()" class="text-textDim hover:text-cyanaccent transition-colors" title="Toggle Voice Sound">
+              <i data-lucide="volume-2" class="w-4 h-4"></i>
+            </button>
           </div>
 
-          <!-- Dashboard mockup grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            
-            <!-- Widget 1: Analytics Live -->
-            <div class="bg-black/40 rounded-lg p-3 border border-glassBorder sm:col-span-2">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-bold text-slate-300">Live Audio Call Processing</span>
-                <span class="w-2 h-2 rounded-full bg-green-500 node-pulse"></span>
+          <!-- VIEW 1: Static Live Dashboard Mockup -->
+          <div id="dashboard-mockup-view" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              
+              <!-- Widget 1: Analytics Live -->
+              <div class="bg-black/40 rounded-lg p-3 border border-glassBorder sm:col-span-2">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] font-bold text-slate-300">Live Audio Call Processing</span>
+                  <span class="w-2 h-2 rounded-full bg-green-500 node-pulse"></span>
+                </div>
+                <div class="h-28 flex items-end gap-1.5 px-1 py-2 relative">
+                  <!-- Glowing waveform bar graphs -->
+                  <div class="w-full bg-cyanaccent/20 rounded-t-sm waveform-bar" style="animation-delay: 0.1s; height: 30%"></div>
+                  <div class="w-full bg-cyanaccent/40 rounded-t-sm waveform-bar" style="animation-delay: 0.5s; height: 60%"></div>
+                  <div class="w-full bg-tealaccent/30 rounded-t-sm waveform-bar" style="animation-delay: 0.3s; height: 45%"></div>
+                  <div class="w-full bg-cyanaccent/60 rounded-t-sm waveform-bar animate-pulse" style="height: 80%; animation-duration: 0.9s;"></div>
+                  <div class="w-full bg-tealaccent/70 rounded-t-sm waveform-bar" style="animation-delay: 0.7s; height: 75%"></div>
+                  <div class="w-full bg-cyanaccent/30 rounded-t-sm waveform-bar" style="animation-delay: 0.2s; height: 50%"></div>
+                  <div class="w-full bg-blue-500/40 rounded-t-sm waveform-bar animate-pulse" style="height: 55%;"></div>
+                  <div class="w-full bg-cyanaccent/80 rounded-t-sm waveform-bar" style="animation-delay: 0.8s; height: 90%"></div>
+                  <div class="w-full bg-cyanaccent/40 rounded-t-sm waveform-bar" style="animation-delay: 0.4s; height: 40%"></div>
+                  
+                  <!-- Time tag -->
+                  <span class="absolute bottom-1 right-2 font-mono text-[9px] text-cyanaccent/60">latency: 48ms</span>
+                </div>
               </div>
-              <div class="h-28 flex items-end gap-1.5 px-1 py-2 relative">
-                <!-- Glowing waveform bar graphs -->
-                <div class="w-full bg-cyanaccent/20 rounded-t-sm waveform-bar" style="animation-delay: 0.1s; height: 30%"></div>
-                <div class="w-full bg-cyanaccent/40 rounded-t-sm waveform-bar" style="animation-delay: 0.5s; height: 60%"></div>
-                <div class="w-full bg-tealaccent/30 rounded-t-sm waveform-bar" style="animation-delay: 0.3s; height: 45%"></div>
-                <div class="w-full bg-cyanaccent/60 rounded-t-sm waveform-bar animate-pulse" style="height: 80%; animation-duration: 0.9s;"></div>
-                <div class="w-full bg-tealaccent/70 rounded-t-sm waveform-bar" style="animation-delay: 0.7s; height: 75%"></div>
-                <div class="w-full bg-cyanaccent/30 rounded-t-sm waveform-bar" style="animation-delay: 0.2s; height: 50%"></div>
-                <div class="w-full bg-blue-500/40 rounded-t-sm waveform-bar animate-pulse" style="height: 55%;"></div>
-                <div class="w-full bg-cyanaccent/80 rounded-t-sm waveform-bar" style="animation-delay: 0.8s; height: 90%"></div>
-                <div class="w-full bg-cyanaccent/40 rounded-t-sm waveform-bar" style="animation-delay: 0.4s; height: 40%"></div>
+
+              <!-- Widget 2: Stats Ring -->
+              <div class="bg-black/40 rounded-lg p-3 border border-glassBorder flex flex-col justify-between items-center text-center">
+                <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Reliability</span>
                 
-                <!-- Time tag -->
-                <span class="absolute bottom-1 right-2 font-mono text-[9px] text-cyanaccent/60">latency: 48ms</span>
-              </div>
-            </div>
-
-            <!-- Widget 2: Stats Ring -->
-            <div class="bg-black/40 rounded-lg p-3 border border-glassBorder flex flex-col justify-between items-center text-center">
-              <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Reliability</span>
-              
-              <!-- Circular graphic -->
-              <div class="relative w-16 h-16 flex items-center justify-center">
-                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                  <path class="text-slate-800" stroke-width="2.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path class="text-cyanaccent" stroke-dasharray="99.9, 100" stroke-width="2.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                </svg>
-                <div class="absolute font-mono text-[10px] font-extrabold text-white">99.9%</div>
-              </div>
-              
-              <span class="text-[9px] text-textDim">Core Uptime</span>
-            </div>
-
-            <!-- Widget 3: Live Feed Logs -->
-            <div class="bg-black/40 rounded-lg p-3 border border-glassBorder sm:col-span-3">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-bold text-slate-300">Operational Log Feed</span>
-                <span class="text-[9px] font-mono text-textDim">SYS: OK</span>
-              </div>
-              <div class="font-mono text-[9px] text-slate-400 space-y-1.5 leading-relaxed">
-                <div class="flex justify-between border-b border-white/5 pb-1">
-                  <span class="text-cyanaccent">[03:14:21]</span>
-                  <span class="text-slate-300">AI Voice Agent: Completed reservation booking</span>
-                  <span class="text-green-400">SUCCESS</span>
+                <!-- Circular graphic -->
+                <div class="relative w-16 h-16 flex items-center justify-center">
+                  <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <path class="text-slate-800" stroke-width="2.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path class="text-cyanaccent" stroke-dasharray="99.9, 100" stroke-width="2.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  </svg>
+                  <div class="absolute font-mono text-[10px] font-extrabold text-white">99.9%</div>
                 </div>
-                <div class="flex justify-between border-b border-white/5 pb-1">
-                  <span class="text-cyanaccent">[03:15:05]</span>
-                  <span class="text-slate-300">Nexa Flow: Triggered webhook CRM pipeline sync</span>
-                  <span class="text-cyanaccent">DISPATCHED</span>
+                
+                <span class="text-[9px] text-textDim">Core Uptime</span>
+              </div>
+
+              <!-- Widget 3: Live Feed Logs -->
+              <div class="bg-black/40 rounded-lg p-3 border border-glassBorder sm:col-span-3">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] font-bold text-slate-300">Operational Log Feed</span>
+                  <span class="text-[9px] font-mono text-textDim">SYS: OK</span>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-cyanaccent">[03:15:39]</span>
-                  <span class="text-slate-300">Secure Vault: Database API token rotated</span>
-                  <span class="text-tealaccent">ROTATED</span>
+                <div class="font-mono text-[9px] text-slate-400 space-y-1.5 leading-relaxed">
+                  <div class="flex justify-between border-b border-white/5 pb-1">
+                    <span class="text-cyanaccent">[03:14:21]</span>
+                    <span class="text-slate-300">AI Voice Agent: Completed reservation booking</span>
+                    <span class="text-green-400">SUCCESS</span>
+                  </div>
+                  <div class="flex justify-between border-b border-white/5 pb-1">
+                    <span class="text-cyanaccent">[03:15:05]</span>
+                    <span class="text-slate-300">Nexa Flow: Triggered webhook CRM pipeline sync</span>
+                    <span class="text-cyanaccent">DISPATCHED</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-cyanaccent">[03:15:39]</span>
+                    <span class="text-slate-300">Secure Vault: Database API token rotated</span>
+                    <span class="text-tealaccent">ROTATED</span>
+                  </div>
                 </div>
               </div>
+
             </div>
 
+            <!-- Launcher Button -->
+            <button onclick="launchInteractiveVoice()" class="w-full py-3.5 rounded-lg text-xs font-bold font-orbitron tracking-widest text-white btn-premium flex items-center justify-center gap-2.5 shadow-[0_0_20px_rgba(34,211,238,0.25)] border-cyanaccent/30 group cursor-pointer">
+              <i data-lucide="phone-call" class="w-4 h-4 text-cyanaccent group-hover:scale-110 transition-transform"></i>
+              TEST INTERACTIVE VOICE AGENT
+            </button>
           </div>
+
+          <!-- VIEW 2: Interactive Voice Agent Call Simulator -->
+          <div id="interactive-voice-view" class="hidden flex flex-col justify-between space-y-4">
+            <!-- Active Info -->
+            <div class="flex items-center justify-between bg-cyanaccent/5 border border-cyanaccent/20 rounded-lg p-2.5">
+              <div class="flex items-center gap-2.5">
+                <div class="relative w-2.5 h-2.5">
+                  <span class="absolute inline-flex h-full w-full rounded-full bg-cyanaccent opacity-75 animate-ping"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyanaccent" id="status-dot"></span>
+                </div>
+                <span id="call-status" class="font-orbitron font-extrabold text-[10px] text-white tracking-widest uppercase">DIALING AGENT...</span>
+              </div>
+              <span id="call-timer" class="font-mono text-[10px] text-cyanaccent font-bold">00:00</span>
+            </div>
+
+            <!-- Agent Selector Grid -->
+            <div class="grid grid-cols-3 gap-2" id="agent-selector-grid">
+              <button onclick="selectAgent('nex')" id="agent-btn-nex" class="py-2 px-1 text-center rounded bg-cyanaccent/15 border border-cyanaccent/40 text-white transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1 cursor-pointer">
+                <span class="text-base">🍔</span>
+                <span>NEX (BURGER)</span>
+              </button>
+              <button onclick="selectAgent('aura')" id="agent-btn-aura" class="py-2 px-1 text-center rounded bg-black/40 border border-glassBorder text-textDim hover:text-white transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1 cursor-pointer">
+                <span class="text-base">💆</span>
+                <span>AURA (SPA)</span>
+              </button>
+              <button onclick="selectAgent('cyrus')" id="agent-btn-cyrus" class="py-2 px-1 text-center rounded bg-black/40 border border-glassBorder text-textDim hover:text-white transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1 cursor-pointer">
+                <span class="text-base">💻</span>
+                <span>CYRUS (DEV)</span>
+              </button>
+            </div>
+
+            <!-- Waveform & Visualizer -->
+            <div class="h-16 bg-black/50 border border-glassBorder rounded-lg flex items-center justify-center gap-1 relative overflow-hidden px-4">
+              <div id="sim-wave-1" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-2" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-3" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-4" class="w-1.5 h-2 bg-tealaccent/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-5" class="w-1.5 h-2 bg-tealaccent/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-6" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-7" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-8" class="w-1.5 h-2 bg-blue-500/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-9" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-10" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-11" class="w-1.5 h-2 bg-tealaccent/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-12" class="w-1.5 h-2 bg-tealaccent/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-13" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
+              <div id="sim-wave-14" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
+              
+              <span class="absolute bottom-1 right-2 font-mono text-[8px] text-cyanaccent/40 uppercase tracking-widest" id="voice-stream-type">SYNTHETIC FEED ACTIVE</span>
+            </div>
+
+            <!-- Terminal log / transcript -->
+            <div class="h-32 bg-black/60 border border-glassBorder rounded-lg p-3 overflow-y-auto font-mono text-[10px] space-y-2 flex flex-col" id="simulator-transcript">
+              <div class="text-cyanaccent/60">[SYS] Secure WebRTC gateway initializing...</div>
+            </div>
+
+            <!-- Presets / Quick Actions -->
+            <div class="space-y-1.5">
+              <span class="text-[9px] font-bold text-textDim uppercase tracking-wider block">Suggested Replies:</span>
+              <div class="flex flex-wrap gap-1.5" id="dialogue-presets">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Custom Input / Controls Row -->
+            <div class="flex items-center gap-2">
+              <input type="text" id="sim-user-input" onkeydown="handleInputKeydown(event)" placeholder="Type a response..." class="flex-1 bg-black/40 border border-glassBorder rounded-lg py-2 px-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyanaccent/40" />
+              
+              <button onclick="toggleSpeechInput()" id="mic-btn" class="w-9 h-9 rounded-lg bg-black/40 border border-glassBorder flex items-center justify-center text-textDim hover:text-cyanaccent hover:border-cyanaccent/30 transition-colors cursor-pointer" title="Speech Input">
+                <i data-lucide="mic" class="w-4 h-4"></i>
+              </button>
+
+              <button onclick="hangUpCall()" class="px-3.5 h-9 rounded-lg bg-red-950/40 border border-red-500/30 text-red-400 hover:bg-red-900/40 hover:border-red-500 transition-colors font-orbitron text-[10px] font-bold tracking-widest uppercase flex items-center justify-center gap-1.5 cursor-pointer">
+                <i data-lucide="phone-off" class="w-3.5 h-3.5"></i>
+                DISCONNECT
+              </button>
+            </div>
+          </div>
+
         </div>
 
         <!-- Floating Card 1: Nexa Voice -->
@@ -553,28 +931,42 @@
           <div class="absolute inset-0 bg-gradient-to-br from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
           
           <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-6 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
-            <i data-lucide="mic" class="w-5 h-5"></i>
+            <svg class="w-5 h-5 text-cyanaccent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="22"/>
+            </svg>
           </div>
           <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-white mb-4 uppercase">AI Agents</h3>
           <ul class="text-xs text-textDim space-y-2.5">
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Voice AI Agents (Low-latency Synthetics)
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Customer Support AI Integrations
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Automated Receptionists & Booking
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               AI Conversational Sales Representatives
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Scalable Cloud-Hosted AI Call Centers
             </li>
           </ul>
@@ -585,28 +977,43 @@
           <div class="absolute inset-0 bg-gradient-to-br from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
           
           <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-6 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
-            <i data-lucide="blocks" class="w-5 h-5"></i>
+            <svg class="w-5 h-5 text-cyanaccent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+            </svg>
           </div>
           <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-white mb-4 uppercase">SaaS Development</h3>
           <ul class="text-xs text-textDim space-y-2.5">
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Multi-Tenant Architecture Frameworks
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Stripe Subscription System Integration
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Advanced Booking & Scheduling Engines
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Premium Business Administration Portals
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Custom CRM & Lead Funnel Solutions
             </li>
           </ul>
@@ -617,28 +1024,42 @@
           <div class="absolute inset-0 bg-gradient-to-br from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
           
           <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-6 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
-            <i data-lucide="layout" class="w-5 h-5"></i>
+            <svg class="w-5 h-5 text-cyanaccent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2"/>
+              <path d="M3 9h18"/>
+              <path d="M9 21V9"/>
+            </svg>
           </div>
           <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-white mb-4 uppercase">Web Applications</h3>
           <ul class="text-xs text-textDim space-y-2.5">
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Secure Enterprise Portal Interfaces
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Interactive Real-time Data Dashboards
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Internal Resource Management Panels
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Custom Operations Frameworks
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Premium Client-Facing Control Centers
             </li>
           </ul>
@@ -649,28 +1070,44 @@
           <div class="absolute inset-0 bg-gradient-to-br from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
           
           <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-6 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
-            <i data-lucide="shuffle" class="w-5 h-5"></i>
+            <svg class="w-5 h-5 text-cyanaccent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/>
+              <path d="m18 2 4 4-4 4"/>
+              <path d="M2 6h1.9c1.2 0 2.3.6 3 1.7l1.1 1.6"/>
+              <path d="m15.4 12.8 1.2 1.7c.8 1.1 2 1.7 3.2 1.7H22"/>
+              <path d="m18 14 4 4-4 4"/>
+            </svg>
           </div>
           <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-white mb-4 uppercase">Automation</h3>
           <ul class="text-xs text-textDim space-y-2.5">
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Complex Workflow Automation Loops
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Business Process Event Triggers
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               CRM Pipeline Pipeline Automations
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Secure Webhook & Third-Party API Integrations
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Custom Intelligent LLM Automation Agents
             </li>
           </ul>
@@ -681,28 +1118,40 @@
           <div class="absolute inset-0 bg-gradient-to-br from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
           
           <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-6 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
-            <i data-lucide="cloud" class="w-5 h-5"></i>
+            <svg class="w-5 h-5 text-cyanaccent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.48 0-.96.06-1.4.17A5.95 5.95 0 0 0 13 8c-3 0-5.5 2.5-5.5 5.5 0 .28.02.56.06.84A4.5 4.5 0 0 0 4 18.5c0 2.5 2 4.5 4.5 4.5h9"/>
+            </svg>
           </div>
           <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-white mb-4 uppercase">Cloud Solutions</h3>
           <ul class="text-xs text-textDim space-y-2.5">
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Enterprise AWS Infrastructure Deployment
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Railway & Vercel PaaS Deployment Loops
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Scalable Database Hosting & Tuning
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               CI/CD Automation & Docker Containers
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Secure High-Availability Load Balancers
             </li>
           </ul>
@@ -713,28 +1162,42 @@
           <div class="absolute inset-0 bg-gradient-to-br from-cyanaccent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
           
           <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-6 shadow-[0_0_15px_rgba(34,211,238,0.15)]">
-            <i data-lucide="code-2" class="w-5 h-5"></i>
+            <svg class="w-5 h-5 text-cyanaccent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m18 16 4-4-4-4"/>
+              <path d="m6 8-4 4 4 4"/>
+              <path d="m14.5 4-5 16"/>
+            </svg>
           </div>
           <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-white mb-4 uppercase">Custom Software</h3>
           <ul class="text-xs text-textDim space-y-2.5">
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Bespoke Enterprise Web Architectures
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Internal Legacy System Integrations
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Proprietary Cloud Platforms
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               High-Security Back-End Microservices
             </li>
             <li class="flex items-center gap-2">
-              <i data-lucide="check" class="w-4 h-4 text-cyanaccent flex-shrink-0"></i>
+              <svg class="w-4 h-4 text-cyanaccent flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
               Bespoke Digital Transformation Systems
             </li>
           </ul>
@@ -765,97 +1228,170 @@
         
         <!-- Next.js -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="layers" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 3-10 5L12 13l10-5-10-5Z"/>
+            <path d="m2 17 10 5 10-5"/>
+            <path d="m2 12 10 5 10-5"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Next.js 15</span>
         </div>
 
         <!-- React -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="atom" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="1"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            <path d="M2 12a15.3 15.3 0 0 1 10-4 15.3 15.3 0 0 1 10 4 15.3 15.3 0 0 1-10 4 15.3 15.3 0 0 1-10-4z"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">React</span>
         </div>
 
         <!-- Node.js -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="terminal" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 17 10 11 4 5"/>
+            <line x1="12" y1="19" x2="20" y2="19"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Node.js</span>
         </div>
 
         <!-- TypeScript -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="code" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/>
+            <polyline points="8 6 2 12 8 18"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">TypeScript</span>
         </div>
 
         <!-- Tailwind CSS -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="palette" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="13.5" cy="6.5" r=".5"/>
+            <circle cx="17.5" cy="10.5" r=".5"/>
+            <circle cx="8.5" cy="7.5" r=".5"/>
+            <circle cx="6.5" cy="12.5" r=".5"/>
+            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.63-.77 1.63-1.7 0-.43-.16-.83-.41-1.16a.48.48 0 0 1-.09-.27c0-.28.24-.52.52-.52h1.52c5.43 0 9.83-4.4 9.83-9.83C22 5.56 17.5 2 12 2z"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Tailwind</span>
         </div>
 
         <!-- Prisma -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="database-backup" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+            <path d="M3 12a9 3 0 0 0 5 2.69"/>
+            <path d="M21 5v7a9 3 0 0 1-5 2.69"/>
+            <path d="M3 5v14a9 3 0 0 0 14 2.54"/>
+            <path d="M21 12v7a9 3 0 0 1-14 2.54"/>
+            <path d="M12 12v9"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Prisma ORM</span>
         </div>
 
         <!-- PostgreSQL -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="database" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+            <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">PostgreSQL</span>
         </div>
 
         <!-- OpenAI -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="brain" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1 0-3.12 3 3 0 0 1 0-4.88 2.5 2.5 0 0 1 0-3.12A2.5 2.5 0 0 1 9.5 2Z"/>
+            <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 0-3.12 3 3 0 0 0 0-4.88 2.5 2.5 0 0 0 0-3.12A2.5 2.5 0 0 0 14.5 2Z"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">OpenAI API</span>
         </div>
 
         <!-- Deepgram -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="waveform" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10v4"/>
+            <path d="M6 6v12"/>
+            <path d="M9 3v18"/>
+            <path d="M12 7v10"/>
+            <path d="M15 5v14"/>
+            <path d="M18 8v8"/>
+            <path d="M21 11v2"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Deepgram</span>
         </div>
 
         <!-- Twilio -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="phone-forwarded" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 2 22 6 18 10"/>
+            <line x1="12" y1="6" x2="22" y2="6"/>
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Twilio Voice</span>
         </div>
 
         <!-- WebSockets -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="cable" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2"/>
+            <path d="M19 15V9a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v6"/>
+            <path d="M12 2v3"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">WebSockets</span>
         </div>
 
         <!-- Railway -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="server" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="8" x="2" y="2" rx="2" ry="2"/>
+            <rect width="20" height="8" x="2" y="14" rx="2" ry="2"/>
+            <line x1="6" y1="6" x2="6.01" y2="6"/>
+            <line x1="6" y1="18" x2="6.01" y2="18"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Railway PaaS</span>
         </div>
 
         <!-- Docker -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="container" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 7.7 12.5 3.1a1 1 0 0 0-.9 0L2 7.7a1 1 0 0 0-.5.9v7.8a1 1 0 0 0 .5.9l9.5 4.6a1 1 0 0 0 .9 0l9.5-4.6a1 1 0 0 0 .5-.9V8.6a1 1 0 0 0-.5-.9z"/>
+            <path d="M12 22V12"/>
+            <path d="M2 8l10 4 10-4"/>
+            <path d="M12 12h10"/>
+            <path d="M12 12H2"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Docker</span>
         </div>
 
         <!-- AWS -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="cloudy" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.48 0-.96.06-1.4.17A5.95 5.95 0 0 0 13 8c-3 0-5.5 2.5-5.5 5.5 0 .28.02.56.06.84A4.5 4.5 0 0 0 4 18.5c0 2.5 2 4.5 4.5 4.5h9"/>
+            <path d="M5.5 10a3.5 3.5 0 0 1 5.8-2.6 6 6 0 0 1 10.7 5.6 3.5 3.5 0 0 1-1.5 6H19"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">AWS Cloud</span>
         </div>
 
         <!-- Vercel -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="send" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">Vercel</span>
         </div>
 
         <!-- GitHub -->
         <div class="glass-card rounded-lg border border-glassBorder p-4 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-cyanaccent/20">
-          <i data-lucide="git-pull-request" class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2"></i>
+          <svg class="w-6 h-6 text-slate-300 group-hover:text-cyanaccent transition-colors duration-300 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="18" r="3"/>
+            <circle cx="6" cy="6" r="3"/>
+            <circle cx="6" cy="18" r="3"/>
+            <path d="M18 15V9a4 4 0 0 0-4-4H9"/>
+            <line x1="6" y1="9" x2="6" y2="15"/>
+          </svg>
           <span class="font-orbitron text-[10px] font-bold text-slate-300 uppercase tracking-widest">GitHub</span>
         </div>
 
@@ -892,7 +1428,10 @@
               <h3 class="font-orbitron font-black text-xl text-white mt-1">NEXA CORE</h3>
             </div>
             <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent">
-              <i data-lucide="shield-check" class="w-5 h-5"></i>
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
             </div>
           </div>
           
@@ -906,9 +1445,12 @@
             <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Stripe API</span>
           </div>
           
-          <a href="/login" class="inline-flex items-center gap-2 text-xs font-bold font-orbitron text-cyanaccent tracking-wider hover:text-white transition-colors">
-            EXPLORE ARCHITECTURE <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </a>
+          <button onclick="openProductPreview('core')" class="inline-flex items-center gap-2 text-xs font-bold font-orbitron text-cyanaccent tracking-wider hover:text-white transition-colors cursor-pointer focus:outline-none">
+            EXPLORE ARCHITECTURE <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
         </div>
 
         <!-- PRODUCT 2: NEXA FLOW -->
@@ -921,7 +1463,12 @@
               <h3 class="font-orbitron font-black text-xl text-white mt-1">NEXA FLOW</h3>
             </div>
             <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent">
-              <i data-lucide="git-merge" class="w-5 h-5"></i>
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="18" r="3" />
+                <circle cx="6" cy="6" r="3" />
+                <path d="M6 9v8a4 4 0 0 0 4 4h2" />
+                <path d="m9 3 3 3-3 3" />
+              </svg>
             </div>
           </div>
           
@@ -935,9 +1482,12 @@
             <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">JSON Engines</span>
           </div>
           
-          <a href="/login" class="inline-flex items-center gap-2 text-xs font-bold font-orbitron text-cyanaccent tracking-wider hover:text-white transition-colors">
-            DISCOVER WORKFLOWS <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </a>
+          <button onclick="openProductPreview('flow')" class="inline-flex items-center gap-2 text-xs font-bold font-orbitron text-cyanaccent tracking-wider hover:text-white transition-colors cursor-pointer focus:outline-none">
+            DISCOVER WORKFLOWS <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
         </div>
 
         <!-- PRODUCT 3: NEXA VOICE -->
@@ -950,7 +1500,11 @@
               <h3 class="font-orbitron font-black text-xl text-white mt-1">NEXA VOICE</h3>
             </div>
             <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent">
-              <i data-lucide="mic-2" class="w-5 h-5"></i>
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m11 7.601-5.994 8.19a1 1 0 0 0 .1 1.298l.817.818a1 1 0 0 0 1.314.087L15.09 12" />
+                <path d="M16.5 21.174C15.5 20.5 14.372 20 13 20c-2.058 0-3.928 2.356-6 2-2.072-.356-2.775-3.369-1.5-4.5" />
+                <circle cx="16" cy="7" r="5" />
+              </svg>
             </div>
           </div>
           
@@ -964,9 +1518,12 @@
             <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Twilio SDK</span>
           </div>
           
-          <a href="/login" class="inline-flex items-center gap-2 text-xs font-bold font-orbitron text-cyanaccent tracking-wider hover:text-white transition-colors">
-            VIEW CAPABILITIES <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </a>
+          <button onclick="openProductPreview('voice')" class="inline-flex items-center gap-2 text-xs font-bold font-orbitron text-cyanaccent tracking-wider hover:text-white transition-colors cursor-pointer focus:outline-none">
+            VIEW CAPABILITIES <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
         </div>
 
         <!-- PRODUCT 4: NEXA ENTERPRISE -->
@@ -979,7 +1536,12 @@
               <h3 class="font-orbitron font-black text-xl text-white mt-1">NEXA ENTERPRISE</h3>
             </div>
             <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent">
-              <i data-lucide="globe-2" class="w-5 h-5"></i>
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.54 15H17a2 2 0 0 0-2 2v4.54" />
+                <path d="M7 3.34V5a3 3 0 0 0 3 3a2 2 0 0 1 2 2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0-1.1.9-2 2-2h3.17" />
+                <path d="M11 21.95V18a2 2 0 0 0-2-2a2 2 0 0 1-2-2v-1a2 2 0 0 0-2-2H2.05" />
+                <circle cx="12" cy="12" r="10" />
+              </svg>
             </div>
           </div>
           
@@ -993,9 +1555,12 @@
             <span class="px-2.5 py-1 rounded bg-white/5 border border-glassBorder text-[9px] font-bold text-slate-300 font-orbitron uppercase">Dedicated SLA</span>
           </div>
           
-          <a href="/login" class="inline-flex items-center gap-2 text-xs font-bold font-orbitron text-cyanaccent tracking-wider hover:text-white transition-colors">
-            CONTACT ENTERPRISE SALES <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </a>
+          <button onclick="openProductPreview('enterprise')" class="inline-flex items-center gap-2 text-xs font-bold font-orbitron text-cyanaccent tracking-wider hover:text-white transition-colors cursor-pointer focus:outline-none">
+            CONTACT ENTERPRISE SALES <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
         </div>
 
       </div>
@@ -1024,7 +1589,10 @@
         <!-- Feature 1 -->
         <div class="flex flex-col items-start p-4">
           <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
-            <i data-lucide="lock" class="w-4 h-4"></i>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Enterprise Security</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -1035,7 +1603,13 @@
         <!-- Feature 2 -->
         <div class="flex flex-col items-start p-4 border-l border-glassBorder/20">
           <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
-            <i data-lucide="codepen" class="w-4 h-4"></i>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
+              <line x1="12" x2="12" y1="22" y2="15.5" />
+              <polyline points="22 8.5 12 15.5 2 8.5" />
+              <polyline points="2 15.5 12 8.5 22 15.5" />
+              <line x1="12" x2="12" y1="2" y2="8.5" />
+            </svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Modern Architecture</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -1046,7 +1620,12 @@
         <!-- Feature 3 -->
         <div class="flex flex-col items-start p-4 border-l border-glassBorder/20">
           <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
-            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" />
+              <path d="M20 2v4" />
+              <path d="M22 4h-4" />
+              <circle cx="4" cy="20" r="2" />
+            </svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">AI Integration</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -1057,7 +1636,9 @@
         <!-- Feature 4 -->
         <div class="flex flex-col items-start p-4 border-l border-glassBorder/20">
           <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
-            <i data-lucide="zap" class="w-4 h-4"></i>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
+            </svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Fast Performance</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -1068,7 +1649,13 @@
         <!-- Feature 5 -->
         <div class="flex flex-col items-start p-4 border-t border-glassBorder/20 pt-8">
           <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
-            <i data-lucide="network" class="w-4 h-4"></i>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="16" y="16" width="6" height="6" rx="1" />
+              <rect x="2" y="16" width="6" height="6" rx="1" />
+              <rect x="9" y="2" width="6" height="6" rx="1" />
+              <path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3" />
+              <path d="M12 12V8" />
+            </svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Scalable Tech</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -1079,7 +1666,10 @@
         <!-- Feature 6 -->
         <div class="flex flex-col items-start p-4 border-l border-t border-glassBorder/20 pt-8">
           <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
-            <i data-lucide="headset" class="w-4 h-4"></i>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z" />
+              <path d="M21 16v2a4 4 0 0 1-4 4h-5" />
+            </svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Dedicated Support</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -1090,7 +1680,10 @@
         <!-- Feature 7 -->
         <div class="flex flex-col items-start p-4 border-l border-t border-glassBorder/20 pt-8">
           <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
-            <i data-lucide="cloud-lightning" class="w-4 h-4"></i>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973" />
+              <path d="m13 12-3 5h4l-3 5" />
+            </svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Cloud Native</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -1101,7 +1694,11 @@
         <!-- Feature 8 -->
         <div class="flex flex-col items-start p-4 border-l border-t border-glassBorder/20 pt-8">
           <div class="w-8 h-8 rounded bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent mb-4">
-            <i data-lucide="history" class="w-4 h-4"></i>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+              <path d="M12 7v5l4 2" />
+            </svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-white uppercase mb-2">Future Ready</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -1647,23 +2244,46 @@
               </svg>
             </div>
           <% } %>
-          <span><%= projectName.toUpperCase() %></span>
+          <span><%= projectName.toUpperCase().replace('TECHNOLOGIES', 'TECH') %></span>
         </a>
         <p class="text-xs text-textDim leading-relaxed mb-8 max-w-xs">
           Naxton Technologies LLC engineers next-generation voice automation, custom SaaS applications, and enterprise database integrations.
         </p>
         <div class="flex items-center gap-4 mb-8">
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent hover:border-cyanaccent/30 transition-colors">
-            <i data-lucide="linkedin" class="w-4 h-4"></i>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl border border-glassBorder bg-glassBg/40 flex items-center justify-center text-textDim hover:text-cyanaccent hover:border-cyanaccent/40 hover:scale-110 hover:shadow-[0_0_15px_rgba(var(--accent-rgb),0.25)] transition-all duration-300">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+              <rect x="2" y="9" width="4" height="12"></rect>
+              <circle cx="4" cy="4" r="2"></circle>
+            </svg>
           </a>
-          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent hover:border-cyanaccent/30 transition-colors">
-            <i data-lucide="facebook" class="w-4 h-4"></i>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl border border-glassBorder bg-glassBg/40 flex items-center justify-center text-textDim hover:text-cyanaccent hover:border-cyanaccent/40 hover:scale-110 hover:shadow-[0_0_15px_rgba(var(--accent-rgb),0.25)] transition-all duration-300">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
           </a>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent hover:border-cyanaccent/30 transition-colors">
-            <i data-lucide="instagram" class="w-4 h-4"></i>
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl border border-glassBorder bg-glassBg/40 flex items-center justify-center text-textDim hover:text-cyanaccent hover:border-cyanaccent/40 hover:scale-110 hover:shadow-[0_0_15px_rgba(var(--accent-rgb),0.25)] transition-all duration-300">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+            </svg>
           </a>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent hover:border-cyanaccent/30 transition-colors">
-            <i data-lucide="github" class="w-4 h-4"></i>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl border border-glassBorder bg-glassBg/40 flex items-center justify-center text-textDim hover:text-cyanaccent hover:border-cyanaccent/40 hover:scale-110 hover:shadow-[0_0_15px_rgba(var(--accent-rgb),0.25)] transition-all duration-300">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+          </a>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl border border-glassBorder bg-glassBg/40 flex items-center justify-center text-textDim hover:text-cyanaccent hover:border-cyanaccent/40 hover:scale-110 hover:shadow-[0_0_15px_rgba(var(--accent-rgb),0.25)] transition-all duration-300">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+            </svg>
+          </a>
+          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl border border-glassBorder bg-glassBg/40 flex items-center justify-center text-textDim hover:text-cyanaccent hover:border-cyanaccent/40 hover:scale-110 hover:shadow-[0_0_15px_rgba(var(--accent-rgb),0.25)] transition-all duration-300">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
+              <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+            </svg>
           </a>
         </div>
       </div>
@@ -1672,10 +2292,43 @@
       <div class="lg:col-span-2">
         <h5 class="font-orbitron font-bold text-xs sm:text-sm tracking-[2px] text-white uppercase mb-4">Company</h5>
         <ul class="space-y-4 text-xs font-semibold text-textDim">
-          <li><a href="#" class="hover:text-cyanaccent transition-colors">Home</a></li>
-          <li><a href="#about" class="hover:text-cyanaccent transition-colors">About Us</a></li>
-          <li><a href="#portfolio" class="hover:text-cyanaccent transition-colors">Portfolio</a></li>
-          <li><a href="#contact" class="hover:text-cyanaccent transition-colors">Contact</a></li>
+          <li>
+            <a href="#" class="flex items-center gap-2 hover:text-cyanaccent transition-colors group">
+              <svg class="w-3.5 h-3.5 text-cyanaccent/60 group-hover:text-cyanaccent transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              <span>Home</span>
+            </a>
+          </li>
+          <li>
+            <a href="#about" class="flex items-center gap-2 hover:text-cyanaccent transition-colors group">
+              <svg class="w-3.5 h-3.5 text-cyanaccent/60 group-hover:text-cyanaccent transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4"/>
+                <path d="M12 8h.01"/>
+              </svg>
+              <span>About Us</span>
+            </a>
+          </li>
+          <li>
+            <a href="#portfolio" class="flex items-center gap-2 hover:text-cyanaccent transition-colors group">
+              <svg class="w-3.5 h-3.5 text-cyanaccent/60 group-hover:text-cyanaccent transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+              </svg>
+              <span>Portfolio</span>
+            </a>
+          </li>
+          <li>
+            <a href="#contact" class="flex items-center gap-2 hover:text-cyanaccent transition-colors group">
+              <svg class="w-3.5 h-3.5 text-cyanaccent/60 group-hover:text-cyanaccent transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="16" x="2" y="4" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+              <span>Contact</span>
+            </a>
+          </li>
         </ul>
       </div>
 
@@ -1683,10 +2336,52 @@
       <div class="lg:col-span-2">
         <h5 class="font-orbitron font-bold text-xs sm:text-sm tracking-[2px] text-white uppercase mb-4">Services</h5>
         <ul class="space-y-4 text-xs font-semibold text-textDim">
-          <li><a href="#services" class="hover:text-cyanaccent transition-colors">AI Agents</a></li>
-          <li><a href="#services" class="hover:text-cyanaccent transition-colors">SaaS Development</a></li>
-          <li><a href="#services" class="hover:text-cyanaccent transition-colors">Automation Loop</a></li>
-          <li><a href="#services" class="hover:text-cyanaccent transition-colors">Cloud Solutions</a></li>
+          <li>
+            <a href="#services" class="flex items-center gap-2 hover:text-cyanaccent transition-colors group">
+              <svg class="w-3.5 h-3.5 text-cyanaccent/60 group-hover:text-cyanaccent transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="16" height="16" x="4" y="4" rx="2"/>
+                <rect width="6" height="6" x="9" y="9" rx="1"/>
+                <path d="M9 1v3"/>
+                <path d="M15 1v3"/>
+                <path d="M9 20v3"/>
+                <path d="M15 20v3"/>
+                <path d="M20 9h3"/>
+                <path d="M20 15h3"/>
+                <path d="M1 9h3"/>
+                <path d="M1 15h3"/>
+              </svg>
+              <span>AI Agents</span>
+            </a>
+          </li>
+          <li>
+            <a href="#services" class="flex items-center gap-2 hover:text-cyanaccent transition-colors group">
+              <svg class="w-3.5 h-3.5 text-cyanaccent/60 group-hover:text-cyanaccent transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"/>
+                <polyline points="8 6 2 12 8 18"/>
+              </svg>
+              <span>SaaS Development</span>
+            </a>
+          </li>
+          <li>
+            <a href="#services" class="flex items-center gap-2 hover:text-cyanaccent transition-colors group">
+              <svg class="w-3.5 h-3.5 text-cyanaccent/60 group-hover:text-cyanaccent transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/>
+                <path d="m18 2 4 4-4 4"/>
+                <path d="M2 6h1.9c1.2 0 2.3.6 3 1.7l1.1 1.6"/>
+                <path d="m15.4 12.8 1.2 1.7c.8 1.1 2 1.7 3.2 1.7H22"/>
+                <path d="m18 14 4 4-4 4"/>
+              </svg>
+              <span>Automation Loop</span>
+            </a>
+          </li>
+          <li>
+            <a href="#services" class="flex items-center gap-2 hover:text-cyanaccent transition-colors group">
+              <svg class="w-3.5 h-3.5 text-cyanaccent/60 group-hover:text-cyanaccent transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.48 0-.96.06-1.4.17A5.95 5.95 0 0 0 13 8c-3 0-5.5 2.5-5.5 5.5 0 .28.02.56.06.84A4.5 4.5 0 0 0 4 18.5c0 2.5 2 4.5 4.5 4.5h9"/>
+              </svg>
+              <span>Cloud Solutions</span>
+            </a>
+          </li>
         </ul>
       </div>
 
@@ -1695,15 +2390,23 @@
         <h5 class="font-orbitron font-bold text-xs sm:text-sm tracking-[2px] text-white uppercase mb-4">Corporate Office</h5>
         <ul class="space-y-4 text-xs text-textDim mb-6">
           <li class="flex items-center gap-3">
-            <i data-lucide="mail" class="w-4 h-4 text-cyanaccent"></i>
+            <svg class="w-4 h-4 text-cyanaccent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="16" x="2" y="4" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
             <span>info@naxtontechnologies.com</span>
           </li>
           <li class="flex items-center gap-3">
-            <i data-lucide="phone" class="w-4 h-4 text-cyanaccent"></i>
+            <svg class="w-4 h-4 text-cyanaccent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
             <span>+1 (510) 909-0820</span>
           </li>
           <li class="flex items-center gap-3">
-            <i data-lucide="map-pin" class="w-4 h-4 text-cyanaccent"></i>
+            <svg class="w-4 h-4 text-cyanaccent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
             <span>Naxton Technologies LLC, California, USA</span>
           </li>
         </ul>
@@ -1722,10 +2425,361 @@
     </div>
   </section>
 
+  <!-- 💼 Consultation glassmorphic Modal -->
+  <div id="consultation-modal" class="modal-overlay">
+    <div class="modal-content p-6 sm:p-8 relative">
+      <button onclick="closeConsultationModal()" class="absolute top-4 right-4 text-textDim hover:text-cyanaccent transition-colors cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      
+      <div id="consultation-form-view">
+        <h3 class="font-orbitron font-black text-xl text-white tracking-wider mb-2 uppercase">Request Consultation</h3>
+        <p class="text-xs text-textDim mb-6">Let's discuss how Naxton's digital engineering can transform your operations.</p>
+        
+        <form id="consultation-form" onsubmit="handleConsultationSubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-[10px] font-bold tracking-widest text-slate-400 font-orbitron uppercase mb-1.5">Full Name</label>
+            <input type="text" required id="consult-name" placeholder="John Doe" class="w-full px-3.5 py-2.5 rounded-lg text-xs input-premium" />
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[10px] font-bold tracking-widest text-slate-400 font-orbitron uppercase mb-1.5">Email Address</label>
+              <input type="email" required id="consult-email" placeholder="john@company.com" class="w-full px-3.5 py-2.5 rounded-lg text-xs input-premium" />
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold tracking-widest text-slate-400 font-orbitron uppercase mb-1.5">Company Name</label>
+              <input type="text" required id="consult-company" placeholder="Acme Inc." class="w-full px-3.5 py-2.5 rounded-lg text-xs input-premium" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold tracking-widest text-slate-400 font-orbitron uppercase mb-1.5">Service Tier</label>
+            <select id="consult-tier" class="w-full px-3.5 py-2.5 rounded-lg text-xs input-premium bg-black/40">
+              <option value="voice">Nexa Voice AI Integration</option>
+              <option value="saas">SaaS Framework Implementation</option>
+              <option value="automation">Workflow Loop Automation</option>
+              <option value="custom">Bespoke Custom Software</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold tracking-widest text-slate-400 font-orbitron uppercase mb-1.5">Project Scope / Details</label>
+            <textarea id="consult-details" rows="3" placeholder="Tell us about your requirements..." class="w-full px-3.5 py-2.5 rounded-lg text-xs input-premium"></textarea>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button type="button" onclick="closeConsultationModal()" class="w-full py-3.5 rounded-lg border border-glassBorder bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-bold font-orbitron tracking-widest text-center transition-colors cursor-pointer flex items-center justify-center gap-2">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              <span>BACK TO HOME</span>
+            </button>
+            <button type="submit" class="w-full py-3.5 rounded-lg text-xs font-bold font-orbitron tracking-widest text-white btn-premium flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(34,211,238,0.25)] cursor-pointer">
+              <span id="submit-btn-text">SUBMIT REQUEST</span>
+              <div id="submit-btn-spinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Success View -->
+      <div id="consultation-success-view" class="hidden text-center py-6">
+        <div class="w-16 h-16 rounded-full bg-cyanaccent/15 border border-cyanaccent/30 flex items-center justify-center text-cyanaccent mx-auto mb-6 shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+          <i data-lucide="shield-check" class="w-8 h-8"></i>
+        </div>
+        <h3 class="font-orbitron font-black text-xl text-white tracking-wider mb-2 uppercase">Request Received</h3>
+        <p class="text-xs text-textDim max-w-sm mx-auto leading-relaxed mb-6">
+          Thank you. Your consultation request has been securely dispatched to our engineering desk.
+        </p>
+        <div class="bg-black/30 border border-glassBorder rounded-lg p-4 max-w-xs mx-auto mb-8 font-mono text-left text-[11px] space-y-1">
+          <div class="text-textDim">Ticket ID: <span class="text-cyanaccent" id="success-ticket-id">NX-12345</span></div>
+          <div class="text-textDim">Registered to: <span class="text-slate-300" id="success-name">John Doe</span></div>
+          <div class="text-textDim">Tier: <span class="text-slate-300" id="success-tier">Nexa Voice</span></div>
+        </div>
+        <button onclick="closeConsultationModal()" class="px-6 py-2.5 rounded-lg text-xs font-bold font-orbitron tracking-widest text-white btn-premium cursor-pointer flex items-center justify-center gap-2 mx-auto">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span>BACK TO HOME</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🛡️ Product Preview Modal -->
+  <div id="product-preview-modal" class="modal-overlay">
+    <div class="modal-content max-w-2xl p-6 sm:p-8 relative">
+      <button onclick="closeProductPreview()" class="absolute top-4 right-4 text-textDim hover:text-cyanaccent transition-colors cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      
+      <!-- Nexa Core View -->
+      <div id="preview-core" class="hidden space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <span class="text-[9px] font-extrabold tracking-widest text-cyanaccent uppercase font-mono">Platform Foundation</span>
+            <h3 class="font-orbitron font-black text-lg text-white">NEXA CORE ARCHITECTURE</h3>
+          </div>
+        </div>
+        <p class="text-xs text-textDim leading-relaxed">
+          Nexa Core serves as our secure backend boiler, enforcing strict tenant segmentation, token authority, and Stripe transaction loops.
+        </p>
+        
+        <!-- Interactive SVG Diagram -->
+        <div class="bg-black/40 border border-glassBorder rounded-lg p-4 flex items-center justify-center min-h-[200px]">
+          <svg class="w-full max-w-md h-auto" viewBox="0 0 400 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Client Node -->
+            <rect x="10" y="65" width="80" height="50" rx="6" class="fill-glassBg stroke-cyanaccent/30" />
+            <text x="50" y="95" text-anchor="middle" class="fill-white font-orbitron text-[9px] font-bold">CLIENT APP</text>
+            
+            <!-- Auth Gateway Node -->
+            <rect x="150" y="20" width="100" height="50" rx="6" class="fill-glassBg stroke-tealaccent/30" />
+            <text x="200" y="50" text-anchor="middle" class="fill-white font-orbitron text-[9px] font-bold">AUTH GATEWAY</text>
+            
+            <!-- Database Tenant A & B Nodes -->
+            <rect x="300" y="20" width="90" height="40" rx="6" class="fill-glassBg stroke-glassBorder" />
+            <text x="345" y="45" text-anchor="middle" class="fill-textDim font-orbitron text-[8px]">TENANT A DB</text>
+            
+            <rect x="300" y="80" width="90" height="40" rx="6" class="fill-glassBg stroke-glassBorder" />
+            <text x="345" y="105" text-anchor="middle" class="fill-textDim font-orbitron text-[8px]">TENANT B DB</text>
+            
+            <!-- Billing API Node -->
+            <rect x="150" y="110" width="100" height="50" rx="6" class="fill-glassBg stroke-cyanaccent/30" />
+            <text x="200" y="140" text-anchor="middle" class="fill-white font-orbitron text-[9px] font-bold">STRIPE BILLING</text>
+            
+            <!-- Flow Paths -->
+            <path d="M 90 90 L 150 45" class="stroke-cyanaccent/40 svg-path-flow" stroke-width="1.5" />
+            <path d="M 90 90 L 150 135" class="stroke-cyanaccent/40 svg-path-flow" stroke-width="1.5" />
+            <path d="M 250 45 L 300 40" class="stroke-tealaccent/40 svg-path-flow" stroke-width="1.5" />
+            <path d="M 250 45 L 300 100" class="stroke-tealaccent/40 svg-path-flow" stroke-width="1.5" />
+            
+            <!-- Pulsing active dots -->
+            <circle cx="150" cy="45" r="4" class="fill-cyanaccent svg-node-active" />
+            <circle cx="250" cy="45" r="4" class="fill-tealaccent svg-node-active" />
+          </svg>
+        </div>
+        <div class="flex justify-end pt-4 border-t border-glassBorder/40">
+          <button onclick="closeProductPreview()" class="px-5 py-2.5 rounded-lg border border-glassBorder bg-white/5 hover:bg-white/10 text-xs font-bold font-orbitron tracking-widest text-slate-200 transition-all cursor-pointer flex items-center gap-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>BACK TO HOME</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Nexa Flow View -->
+      <div id="preview-flow" class="hidden space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent">
+            <i data-lucide="git-merge" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <span class="text-[9px] font-extrabold tracking-widest text-cyanaccent uppercase font-mono">Process Automation</span>
+            <h3 class="font-orbitron font-black text-lg text-white">NEXA WORKFLOW SIMULATOR</h3>
+          </div>
+        </div>
+        <p class="text-xs text-textDim leading-relaxed">
+          Nexa Flow bridges multiple services (Calendars, CRMs, Webhooks). Click the button below to simulate a live event webhook routing sequence.
+        </p>
+        
+        <!-- Live Automation Panel -->
+        <div class="bg-black/40 border border-glassBorder rounded-lg p-4 space-y-4">
+          <div class="flex justify-between items-center text-[10px] font-mono border-b border-glassBorder pb-2">
+            <span class="text-slate-400">AUTOMATION LOGS</span>
+            <span id="flow-status" class="text-tealaccent">IDLE</span>
+          </div>
+          <div id="flow-logs" class="h-28 overflow-y-auto font-mono text-[9px] space-y-1 text-slate-400">
+            <div class="text-cyanaccent/40">[SYS] Ready for simulation trigger.</div>
+          </div>
+          <button onclick="triggerFlowSimulation()" class="w-full py-2.5 rounded-lg text-xs font-bold font-orbitron tracking-widest text-white btn-premium cursor-pointer">
+            TRIGGER SIMULATION WEBHOOK
+          </button>
+        </div>
+        <div class="flex justify-end pt-4 border-t border-glassBorder/40">
+          <button onclick="closeProductPreview()" class="px-5 py-2.5 rounded-lg border border-glassBorder bg-white/5 hover:bg-white/10 text-xs font-bold font-orbitron tracking-widest text-slate-200 transition-all cursor-pointer flex items-center gap-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>BACK TO HOME</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Nexa Voice View -->
+      <div id="preview-voice" class="hidden space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent">
+            <i data-lucide="mic-2" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <span class="text-[9px] font-extrabold tracking-widest text-cyanaccent uppercase font-mono">Audio Synthetics</span>
+            <h3 class="font-orbitron font-black text-lg text-white">NEXA VOICE CAPABILITIES</h3>
+          </div>
+        </div>
+        <p class="text-xs text-textDim leading-relaxed">
+          Realtime telecommunications nodes answer callers under 100ms. See the live websocket audio stream parameter clusters below.
+        </p>
+        
+        <!-- Parameter list and mock visualizer -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-black/40 border border-glassBorder rounded-lg p-4 space-y-3 font-mono text-[10px] text-textDim">
+            <div class="border-b border-glassBorder pb-1.5 flex justify-between">
+              <span>VOICE ENGINE</span>
+              <span class="text-cyanaccent font-bold">ElevenLabs Turbo v2</span>
+            </div>
+            <div class="border-b border-glassBorder pb-1.5 flex justify-between">
+              <span>RESPONSE SPEED</span>
+              <span class="text-green-400 font-bold">92ms average</span>
+            </div>
+            <div class="border-b border-glassBorder pb-1.5 flex justify-between">
+              <span>SIP/RTC CHANNELS</span>
+              <span class="text-slate-300">Twilio media streaming</span>
+            </div>
+            <div class="flex justify-between">
+              <span>CONCURRENCY</span>
+              <span class="text-slate-300">Unlimited channels</span>
+            </div>
+          </div>
+          
+          <div class="bg-black/40 border border-glassBorder rounded-lg p-4 flex flex-col justify-between items-center text-center">
+            <span class="text-[9px] font-bold font-orbitron text-slate-300 uppercase">WEBSOCKET WAVE</span>
+            <div class="h-12 flex items-end gap-1 px-4 my-2">
+              <div class="w-1.5 bg-cyanaccent/70 h-4 rounded-full animate-pulse"></div>
+              <div class="w-1.5 bg-cyanaccent/40 h-8 rounded-full animate-pulse" style="animation-delay: 0.1s"></div>
+              <div class="w-1.5 bg-tealaccent/80 h-12 rounded-full animate-pulse" style="animation-delay: 0.3s"></div>
+              <div class="w-1.5 bg-tealaccent/50 h-6 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
+              <div class="w-1.5 bg-cyanaccent/90 h-10 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+            </div>
+            <span class="text-[8px] font-mono text-cyanaccent/50">WSS://API.NAXTON.AI/VOICE</span>
+          </div>
+        </div>
+        <div class="flex justify-end pt-4 border-t border-glassBorder/40">
+          <button onclick="closeProductPreview()" class="px-5 py-2.5 rounded-lg border border-glassBorder bg-white/5 hover:bg-white/10 text-xs font-bold font-orbitron tracking-widest text-slate-200 transition-all cursor-pointer flex items-center gap-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>BACK TO HOME</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Nexa Enterprise View -->
+      <div id="preview-enterprise" class="hidden space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-cyanaccent/10 border border-cyanaccent/20 flex items-center justify-center text-cyanaccent">
+            <i data-lucide="globe-2" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <span class="text-[9px] font-extrabold tracking-widest text-cyanaccent uppercase font-mono">Omni Ecosystem</span>
+            <h3 class="font-orbitron font-black text-lg text-white">NEXA ENTERPRISE SOLUTION</h3>
+          </div>
+        </div>
+        <p class="text-xs text-textDim leading-relaxed">
+          Nexa Enterprise bundles corporate-grade security SLA controls, isolated sandbox servers, and custom ML training datasets.
+        </p>
+        
+        <div class="bg-black/40 border border-glassBorder rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <h5 class="font-orbitron font-bold text-[10px] text-white tracking-widest uppercase">SANDBOX ISOLATION</h5>
+            <p class="text-[10px] text-textDim leading-relaxed">Dedicated clusters deployed on separate AWS VPC segments for zero data leak risk.</p>
+          </div>
+          <div class="space-y-2">
+            <h5 class="font-orbitron font-bold text-[10px] text-white tracking-widest uppercase">GUARANTEED SLA</h5>
+            <p class="text-[10px] text-textDim leading-relaxed">24/7 engineering hotline with a guaranteed sub-30 minute ticket resolution window.</p>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button onclick="closeProductPreview()" class="w-full py-3 rounded-lg border border-glassBorder bg-white/5 hover:bg-white/10 text-xs font-bold font-orbitron tracking-widest text-slate-200 transition-all cursor-pointer flex items-center justify-center gap-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>BACK TO HOME</span>
+          </button>
+          <button onclick="openConsultationModal(); closeProductPreview();" class="w-full py-3 rounded-lg text-xs font-bold font-orbitron tracking-widest text-white btn-premium cursor-pointer flex items-center justify-center gap-2">
+            <span>CONNECT SALES</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 📜 Legal Document Modal -->
+  <div id="document-modal" class="modal-overlay">
+    <div class="modal-content max-w-xl p-6 sm:p-8 relative">
+      <button onclick="closeDocModal()" class="absolute top-4 right-4 text-textDim hover:text-cyanaccent transition-colors cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      
+      <h3 id="doc-modal-title" class="font-orbitron font-black text-lg text-white tracking-wider mb-4 uppercase">Privacy Policy</h3>
+      
+      <div id="doc-modal-content" class="doc-scrollbox text-xs text-textDim leading-relaxed space-y-4 font-sans pr-2">
+        <!-- Content will be injected dynamically -->
+      </div>
+      <div class="flex justify-end pt-6 border-t border-glassBorder/40 mt-6">
+        <button onclick="closeDocModal()" class="px-5 py-2.5 rounded-lg border border-glassBorder bg-white/5 hover:bg-white/10 text-xs font-bold font-orbitron tracking-widest text-slate-200 transition-all cursor-pointer flex items-center gap-2">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span>BACK TO HOME</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Back to Top / Back to Home Button -->
+  <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 right-6 z-50 p-3 rounded-xl border border-glassBorder bg-black/60 text-slate-300 hover:text-cyanaccent hover:border-cyanaccent/50 hover:scale-110 shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)] transition-all duration-300 opacity-0 pointer-events-none cursor-pointer flex items-center gap-2 font-orbitron text-[9px] font-bold tracking-widest backdrop-blur-md">
+    <i data-lucide="arrow-up" class="w-4 h-4"></i>
+    <span class="hidden md:inline">BACK TO TOP</span>
+  </button>
+
   <!-- ==================== SCRIPTS AND INTERACTIONS ==================== -->
   <script>
-    // Initialize Lucide Icons
-    lucide.createIcons();
+    // Safe helpers for Lucide and LocalStorage to prevent browser runtime crashes
+    function safeCreateIcons() {
+      if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        try {
+          lucide.createIcons();
+        } catch (e) {
+          console.warn('Lucide failed to render icons:', e);
+        }
+      }
+    }
+    
+    function safeSetItem(key, val) {
+      try {
+        localStorage.setItem(key, val);
+      } catch (e) {
+        console.warn('LocalStorage writing is blocked or unavailable:', e);
+      }
+    }
+    
+    function safeGetItem(key) {
+      try {
+        return localStorage.getItem(key);
+      } catch (e) {
+        console.warn('LocalStorage reading is blocked or unavailable:', e);
+        return null;
+      }
+    }
+
+    // Initialize Lucide Icons safely
+    safeCreateIcons();
+
+    // ==========================================
+    // MULTI-THEME SELECTOR LOGIC
+    // ==========================================
+    const availableThemes = ['teal', 'purple', 'green', 'gold', 'light'];
+    function setTheme(themeName) {
+      if (!availableThemes.includes(themeName)) return;
+      
+      // Remove all theme classes
+      availableThemes.forEach(t => {
+        document.documentElement.classList.remove(`theme-${t}`);
+        document.body.classList.remove(`theme-${t}`);
+      });
+      
+      // Add new theme class
+      document.documentElement.classList.add(`theme-${themeName}`);
+      document.body.classList.add(`theme-${themeName}`);
+      
+      // Save theme to localStorage safely
+      safeSetItem('theme', themeName);
+
+      // Re-initialize particles if canvas exists to match theme accent
+      if (typeof initParticles === 'function') {
+        initParticles();
+      }
+    }
 
     // Loading screen dismiss logic
     window.addEventListener('load', () => {
@@ -1776,6 +2830,7 @@
 
     // Header sticky scroll effect
     const header = document.getElementById('site-header');
+    const backToTopBtn = document.getElementById('back-to-top');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 40) {
         header.classList.add('py-2.5', 'bg-[#040e13]/90');
@@ -1783,6 +2838,16 @@
       } else {
         header.classList.add('py-4', 'bg-rgba(4, 13, 18, 0.75)');
         header.classList.remove('py-2.5', 'bg-[#040e13]/90');
+      }
+
+      if (backToTopBtn) {
+        if (window.scrollY > 500) {
+          backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+          backToTopBtn.classList.add('opacity-100');
+        } else {
+          backToTopBtn.classList.remove('opacity-100');
+          backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
+        }
       }
     });
 
@@ -1888,6 +2953,13 @@
     let points = [];
     let mouse = { x: null, y: null, radius: 150 };
 
+    // Helper to extract active accent RGB values
+    function getActiveAccentRgb() {
+      const styles = getComputedStyle(document.documentElement);
+      const rgb = styles.getPropertyValue('--accent-rgb').trim();
+      return rgb || '34, 211, 238';
+    }
+
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -1932,7 +3004,9 @@
       draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(34, 211, 238, 0.45)';
+        // Dynamic color based on theme
+        const rgb = getActiveAccentRgb();
+        ctx.fillStyle = `rgba(${rgb}, 0.45)`;
         ctx.fill();
       }
     }
@@ -1949,6 +3023,8 @@
     function drawNetwork() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
+      const rgb = getActiveAccentRgb();
+
       // Draw grid nodes
       for (let i = 0; i < points.length; i++) {
         points[i].update();
@@ -1964,9 +3040,9 @@
             ctx.beginPath();
             ctx.moveTo(points[i].x, points[i].y);
             ctx.lineTo(points[j].x, points[j].y);
-            // Opacity scales down as distance increases
+            // Dynamic lines opacity
             const opacity = (110 - dist) / 110 * 0.06;
-            ctx.strokeStyle = `rgba(34, 211, 238, ${opacity})`;
+            ctx.strokeStyle = `rgba(${rgb}, ${opacity})`;
             ctx.lineWidth = 0.75;
             ctx.stroke();
           }
@@ -1974,6 +3050,795 @@
       }
       requestAnimationFrame(drawNetwork);
     }
+
+    // ==========================================
+    // INTERACTIVE VOICE SIMULATOR LOGIC
+    // ==========================================
+    let simulatorActive = false;
+    let callTimerInterval = null;
+    let callSeconds = 0;
+    let currentAgent = 'nex';
+    let dialogueStep = 0;
+    let isMuted = false;
+    let speechSynth = window.speechSynthesis;
+    let activeUtterance = null;
+    let waveInterval = null;
+    let recognition = null;
+    let isListening = false;
+
+    // Helper to extract active accent RGB values
+    function getActiveAccentRgb() {
+      const styles = getComputedStyle(document.documentElement);
+      const rgb = styles.getPropertyValue('--accent-rgb').trim();
+      return rgb || '34, 211, 238';
+    }
+
+    // Agent dialogue definitions with natural human filler phrasing & pauses
+    const agentsData = {
+      nex: {
+        name: "NEX",
+        role: "RESTAURANT ASSISTANT",
+        initText: "Ah, hello! Thanks for calling Nexton Burger Joint. I'm Nex, your AI voice assistant. Hmm, what can I get started for you today?",
+        dialogue: {
+          0: {
+            replies: [
+              { label: "Order a Nexton Classic Burger", text: "I'd like to order a Nexton Classic Burger, please.", nextStep: 1 },
+              { label: "What are your business hours?", text: "What are your business hours?", nextStep: 2 },
+              { label: "Where are you located?", text: "Where are you located?", nextStep: 3 }
+            ]
+          },
+          1: {
+            text: "Excellent choice! A Nexton Classic Burger. Let's see... would you like a Single for $9.99, or make it a Double for just $12.99?",
+            replies: [
+              { label: "Make it a Double!", text: "Make it a Double, please.", nextStep: 4 },
+              { label: "Single is fine", text: "Just the Single is fine.", nextStep: 5 }
+            ]
+          },
+          2: {
+            text: "Sure! We are open Monday through Sunday, from 11 AM to 11 PM. Can I help you place a pickup order now?",
+            replies: [
+              { label: "Order a Classic Burger", text: "Yes, I'd like to order a Nexton Classic Burger.", nextStep: 1 },
+              { label: "No, thank you", text: "No, that's all I needed to know, thanks!", nextStep: 6 }
+            ]
+          },
+          3: {
+            text: "Oh, we are located at 123 Burger Lane, right in the heart of the tech district. Would you like to place a pickup order?",
+            replies: [
+              { label: "Yes, order a burger", text: "Yes, I'd like to order a Nexton Classic Burger.", nextStep: 1 },
+              { label: "No, thanks", text: "No, thanks!", nextStep: 6 }
+            ]
+          },
+          4: {
+            text: "You got it, a Double Classic Burger! Hmm, would you like to make it a meal with seasoned fries and a soft drink for an extra $3.99?",
+            replies: [
+              { label: "Yes, make it a meal", text: "Yes, please add fries and a drink.", nextStep: 7 },
+              { label: "No fries, just the burger", text: "No fries, just the burger.", nextStep: 8 }
+            ]
+          },
+          5: {
+            text: "Perfect, a Single Classic Burger. Would you like to add seasoned fries and a drink for $3.99?",
+            replies: [
+              { label: "Yes, make it a meal", text: "Yes, make it a meal.", nextStep: 7 },
+              { label: "No, just the burger", text: "No, just the burger.", nextStep: 8 }
+            ]
+          },
+          6: {
+            text: "No problem at all! Let me know if you need anything else. Have a fantastic day!",
+            replies: [
+              { label: "Start Over", text: "Let me order a burger now.", nextStep: 0 }
+            ]
+          },
+          7: {
+            text: "Wonderful, I've added seasoned fries and a drink to your order. That will be ready in about 15 minutes. Can I get a name for the order?",
+            replies: [
+              { label: "Use my name", text: "Just put it under Alex.", nextStep: 9 }
+            ]
+          },
+          8: {
+            text: "Excellent. Your burger will be ready for pickup in 10 minutes. Can I get a name for the order?",
+            replies: [
+              { label: "Use my name", text: "Put it under Alex.", nextStep: 9 }
+            ]
+          },
+          9: {
+            text: "Awesome! Your order is saved under Alex. Thank you for choosing Nexton Burger Joint! Have a great day!",
+            replies: [
+              { label: "Hang Up", text: "Thank you! Goodbye.", nextStep: 'hangup' }
+            ]
+          }
+        }
+      },
+      aura: {
+        name: "AURA",
+        role: "SPA COORDINATOR",
+        initText: "Hello! Thank you for calling Nexton Spa and Massage. I'm Aura, your scheduling coordinator. How can I help you relax today?",
+        dialogue: {
+          0: {
+            replies: [
+              { label: "Book a Deep Tissue Massage", text: "I'd like to book a Deep Tissue Massage.", nextStep: 1 },
+              { label: "What services do you offer?", text: "What services do you offer?", nextStep: 2 },
+              { label: "Are you open on Sundays?", text: "Are you open on Sundays?", nextStep: 3 }
+            ]
+          },
+          1: {
+            text: "Perfect! Our Deep Tissue Massage is highly recommended. Let's see... what day works best? We have openings this Friday at 3 PM, or Saturday at 11 AM.",
+            replies: [
+              { label: "Friday at 3 PM", text: "Friday at 3 PM works for me.", nextStep: 4 },
+              { label: "Saturday at 11 AM", text: "Saturday at 11 AM is better.", nextStep: 5 }
+            ]
+          },
+          2: {
+            text: "Sure! We offer Swedish and Deep Tissue Massages, rejuvenating organic facials, and hot stone therapies. Would you like to schedule one of these?",
+            replies: [
+              { label: "Book Deep Tissue Massage", text: "Yes, I'd like to book the Deep Tissue Massage.", nextStep: 1 },
+              { label: "No, thanks", text: "No, just browsing, thank you!", nextStep: 6 }
+            ]
+          },
+          3: {
+            text: "Yes, we are open Tuesdays through Sundays, from 9 AM to 7 PM. We are closed on Mondays. Would you like to schedule an appointment?",
+            replies: [
+              { label: "Book an appointment", text: "Yes, let's book an appointment.", nextStep: 1 },
+              { label: "No, thanks", text: "No, thanks!", nextStep: 6 }
+            ]
+          },
+          4: {
+            text: "Excellent choice! I have reserved Friday at 3 PM for your Deep Tissue Massage. Under what name should I place the booking?",
+            replies: [
+              { label: "Under name 'Sam'", text: "Please put it under Sam.", nextStep: 7 }
+            ]
+          },
+          5: {
+            text: "Great! I've booked Saturday at 11 AM for you. Under what name should I place the booking?",
+            replies: [
+              { label: "Under name 'Sam'", text: "Put it under Sam.", nextStep: 7 }
+            ]
+          },
+          6: {
+            text: "Of course! Let me know if you'd like to book later. Have a peaceful day!",
+            replies: [
+              { label: "Start Over", text: "I want to book an appointment now.", nextStep: 0 }
+            ]
+          },
+          7: {
+            text: "Perfect, Sam! Your appointment is successfully booked. We'll send a text confirmation to your phone. Have a wonderful day!",
+            replies: [
+              { label: "Hang Up", text: "Perfect, thank you! Goodbye.", nextStep: 'hangup' }
+            ]
+          }
+        }
+      },
+      cyrus: {
+        name: "CYRUS",
+        role: "DEV SUPPORT ENGINEER",
+        initText: "Systems online. This is Cyrus, your Dev API support agent. What endpoint or security token issue are we debugging today?",
+        dialogue: {
+          0: {
+            replies: [
+              { label: "Debugging 403 API Error", text: "I'm getting a 403 authorization error on my API call.", nextStep: 1 },
+              { label: "How to rotate DB token?", text: "How do I rotate my database security token?", nextStep: 2 },
+              { label: "Next.js Compatibility?", text: "Is the system compatible with Next.js?", nextStep: 3 }
+            ]
+          },
+          1: {
+            text: "A 403 status code usually indicates an invalid or expired API Bearer Token in your request headers. Have you verified that your JWT secret is loaded correctly in your environment settings?",
+            replies: [
+              { label: "Yes, secret is set", text: "Yes, my JWT secret is set.", nextStep: 4 },
+              { label: "How to check .env?", text: "How do I check my environment variables?", nextStep: 5 }
+            ]
+          },
+          2: {
+            text: "To rotate database credentials securely, you can run 'node src/scripts/rotate-keys.js' or use the developer dashboard settings. Would you like me to trigger a mock token rotation right now?",
+            replies: [
+              { label: "Yes, rotate it!", text: "Yes, please rotate my token.", nextStep: 6 },
+              { label: "No, run manually", text: "No, I'll run it manually.", nextStep: 7 }
+            ]
+          },
+          3: {
+            text: "Absolutely! The Naxton AI voice engine interfaces natively with Next.js using standard WebSockets. You can integrate our React hooks to create low-latency streaming clients. Would you like a setup example?",
+            replies: [
+              { label: "Yes, show sample", text: "Yes, show me a setup example.", nextStep: 8 },
+              { label: "No, that's fine", text: "No, that's fine, thanks!", nextStep: 7 }
+            ]
+          },
+          4: {
+            text: "Understood. Please check your token expiration time. If you need, I can assist you with running a token rotation script to generate a new active key.",
+            replies: [
+              { label: "Rotate token", text: "Yes, let's run token rotation.", nextStep: 6 },
+              { label: "Done, thanks!", text: "That resolved it, thanks!", nextStep: 7 }
+            ]
+          },
+          5: {
+            text: "You should inspect your local .env file. Verify that your JWT_SECRET matches the server configuration and make sure you restart your Express server after making modifications.",
+            replies: [
+              { label: "Got it, thanks!", text: "Got it, thanks!", nextStep: 7 }
+            ]
+          },
+          6: {
+            text: "Initiating key rotation... [ROTATED] New database token successfully generated and cached. Your API key credentials have been updated.",
+            replies: [
+              { label: "Perfect, test again", text: "Awesome, thank you!", nextStep: 7 }
+            ]
+          },
+          7: {
+            text: "Excellent. Let me know if any other middleware traces fire. Bridge status remains active. Have a productive coding session!",
+            replies: [
+              { label: "Hang Up", text: "Goodbye!", nextStep: 'hangup' }
+            ]
+          },
+          8: {
+            text: "To integrate: import useVoiceClient from '@naxton/react'. Run const client = useVoiceClient({ url: 'wss://api.naxton.ai/voice' }); and bind client.connect() to a button. Simple as that!",
+            replies: [
+              { label: "Awesome, thanks!", text: "Awesome, thanks!", nextStep: 7 }
+            ]
+          }
+        }
+      }
+    };
+
+    // Synthesize voice
+    function speakText(text) {
+      if (!speechSynth) return;
+      speechSynth.cancel(); // Cancel current speaking
+
+      if (isMuted) return;
+
+      activeUtterance = new SpeechSynthesisUtterance(text);
+      activeUtterance.rate = 0.95; // Warm human speaking rate
+      activeUtterance.pitch = currentAgent === 'cyrus' ? 0.90 : (currentAgent === 'aura' ? 1.10 : 1.0);
+
+      // Select matching voice
+      const voices = speechSynth.getVoices();
+      let selectedVoice = null;
+      if (currentAgent === 'aura') {
+        selectedVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female')) ||
+                        voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('zira')) ||
+                        voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('google'));
+      } else if (currentAgent === 'cyrus') {
+        selectedVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('male')) ||
+                        voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('david')) ||
+                        voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('google'));
+      } else {
+        selectedVoice = voices.find(v => v.lang.startsWith('en'));
+      }
+      if (selectedVoice) activeUtterance.voice = selectedVoice;
+
+      activeUtterance.onstart = () => {
+        startWaveformAnimation();
+        document.getElementById('call-status').innerText = 'AGENT SPEAKING...';
+        document.getElementById('status-dot').className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500';
+      };
+
+      activeUtterance.onend = () => {
+        stopWaveformAnimation();
+        document.getElementById('call-status').innerText = 'LISTENING...';
+        document.getElementById('status-dot').className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-500 animate-pulse';
+      };
+
+      speechSynth.speak(activeUtterance);
+    }
+
+    // Toggle Mute
+    function toggleMute() {
+      isMuted = !isMuted;
+      const btn = document.getElementById('sound-toggle-btn');
+      if (isMuted) {
+        btn.innerHTML = '<i data-lucide="volume-x" class="w-4 h-4 text-red-500"></i>';
+        if (speechSynth) speechSynth.cancel();
+        stopWaveformAnimation();
+      } else {
+        btn.innerHTML = '<i data-lucide="volume-2" class="w-4 h-4 text-cyanaccent"></i>';
+      }
+      safeCreateIcons();
+    }
+
+    // Waveform Animation during Speaking
+    function startWaveformAnimation() {
+      if (waveInterval) clearInterval(waveInterval);
+      waveInterval = setInterval(() => {
+        for (let i = 1; i <= 14; i++) {
+          const height = Math.floor(Math.random() * 48) + 8;
+          const bar = document.getElementById(`sim-wave-${i}`);
+          if (bar) bar.style.height = `${height}px`;
+        }
+      }, 100);
+    }
+
+    function stopWaveformAnimation() {
+      if (waveInterval) clearInterval(waveInterval);
+      for (let i = 1; i <= 14; i++) {
+        const bar = document.getElementById(`sim-wave-${i}`);
+        if (bar) bar.style.height = `8px`; // Return to low idle
+      }
+    }
+
+    // Web Speech API - Recognition
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        document.getElementById('mic-btn').style.display = 'none';
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        isListening = true;
+        document.getElementById('mic-btn').innerHTML = '<i data-lucide="mic-off" class="w-4 h-4 text-red-500 animate-pulse"></i>';
+        document.getElementById('call-status').innerText = 'RECORDING SPEECH...';
+        safeCreateIcons();
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        document.getElementById('mic-btn').innerHTML = '<i data-lucide="mic" class="w-4 h-4 text-textDim"></i>';
+        safeCreateIcons();
+      };
+
+      recognition.onresult = (event) => {
+        const resultText = event.results[0][0].transcript;
+        addTranscriptLine('USER', resultText);
+        processUserInputText(resultText);
+      };
+
+      recognition.onerror = (e) => {
+        console.error("Speech Recognition Error:", e);
+      };
+    }
+
+    function toggleSpeechInput() {
+      if (!recognition) return;
+      if (isListening) {
+        recognition.stop();
+      } else {
+        if (speechSynth) speechSynth.cancel();
+        recognition.start();
+      }
+    }
+
+    // Launch Simulator View
+    function launchInteractiveVoice() {
+      simulatorActive = true;
+      document.getElementById('dashboard-mockup-view').classList.add('hidden');
+      document.getElementById('interactive-voice-view').classList.remove('hidden');
+      
+      // Reset simulator variables
+      callSeconds = 0;
+      document.getElementById('call-timer').innerText = '00:00';
+      if (callTimerInterval) clearInterval(callTimerInterval);
+      callTimerInterval = setInterval(() => {
+        callSeconds++;
+        const mins = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+        const secs = String(callSeconds % 60).padStart(2, '0');
+        document.getElementById('call-timer').innerText = `${mins}:${secs}`;
+      }, 1000);
+
+      // Select default agent
+      selectAgent('nex');
+
+      // Initialize speech recognition if possible
+      if (!recognition) initSpeechRecognition();
+    }
+
+    // Hangup Simulator
+    function hangUpCall() {
+      simulatorActive = false;
+      if (callTimerInterval) clearInterval(callTimerInterval);
+      if (waveInterval) clearInterval(waveInterval);
+      if (speechSynth) speechSynth.cancel();
+      if (recognition && isListening) recognition.stop();
+
+      document.getElementById('interactive-voice-view').classList.add('hidden');
+      document.getElementById('dashboard-mockup-view').classList.remove('hidden');
+    }
+
+    // Select Agent Profile
+    function selectAgent(agentKey) {
+      currentAgent = agentKey;
+      dialogueStep = 0;
+      
+      // Update buttons active styling
+      ['nex', 'aura', 'cyrus'].forEach(key => {
+        const btn = document.getElementById(`agent-btn-${key}`);
+        if (btn) {
+          if (key === agentKey) {
+            btn.className = 'py-2 px-1 text-center rounded bg-cyanaccent/15 border border-cyanaccent/40 text-white transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1 cursor-pointer';
+          } else {
+            btn.className = 'py-2 px-1 text-center rounded bg-black/40 border border-glassBorder text-textDim hover:text-white transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1 cursor-pointer';
+          }
+        }
+      });
+
+      // Clear Transcript log
+      const log = document.getElementById('simulator-transcript');
+      if (log) log.innerHTML = '';
+      
+      addTranscriptLine('SYS', `Connecting to ${agentsData[agentKey].name} Voice Node...`);
+      setTimeout(() => {
+        addTranscriptLine('SYS', `Realtime media connection active.`);
+        addTranscriptLine('AGENT', agentsData[agentKey].initText);
+        speakText(agentsData[agentKey].initText);
+        populateDialoguePresets();
+      }, 700);
+    }
+
+    // Add line to terminal transcript
+    function addTranscriptLine(sender, text) {
+      const log = document.getElementById('simulator-transcript');
+      if (!log) return;
+      const div = document.createElement('div');
+      
+      if (sender === 'SYS') {
+        div.className = 'text-cyanaccent/60';
+        div.innerText = `[SYS] ${text}`;
+      } else if (sender === 'AGENT') {
+        div.className = 'text-white';
+        div.innerHTML = `<span class="text-cyanaccent">[${agentsData[currentAgent].name}]</span> ${text}`;
+      } else {
+        div.className = 'text-slate-300';
+        div.innerHTML = `<span class="text-tealaccent">[USER]</span> ${text}`;
+      }
+      
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    // Populate Suggested Replies (dialogue presets)
+    function populateDialoguePresets() {
+      const container = document.getElementById('dialogue-presets');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const stepData = agentsData[currentAgent].dialogue[dialogueStep];
+      if (!stepData || !stepData.replies) return;
+
+      stepData.replies.forEach(reply => {
+        const btn = document.createElement('button');
+        btn.className = 'px-2.5 py-1 text-[9px] font-bold font-mono border border-glassBorder rounded bg-white/5 text-slate-300 hover:border-cyanaccent/30 hover:text-cyanaccent transition-all cursor-pointer';
+        btn.innerText = reply.label;
+        btn.onclick = () => selectDialogueOption(reply.text, reply.nextStep);
+        container.appendChild(btn);
+      });
+    }
+
+    // Select a dialogue option
+    function selectDialogueOption(text, nextStep) {
+      addTranscriptLine('USER', text);
+      
+      if (nextStep === 'hangup') {
+        setTimeout(() => hangUpCall(), 1200);
+        return;
+      }
+
+      dialogueStep = nextStep;
+      
+      // Wait a bit, show thinking, then reply
+      setTimeout(() => {
+        const stepData = agentsData[currentAgent].dialogue[dialogueStep];
+        if (stepData && stepData.text) {
+          addTranscriptLine('AGENT', stepData.text);
+          speakText(stepData.text);
+        }
+        populateDialoguePresets();
+      }, 700);
+    }
+
+    // Process typed response
+    function processUserInputText(inputText) {
+      if (!inputText.trim()) return;
+      
+      // Match key terms or respond generically
+      let matchedStep = null;
+      const stepData = agentsData[currentAgent].dialogue[dialogueStep];
+      
+      if (stepData && stepData.replies) {
+        // Find best match in replies
+        const lowerInput = inputText.toLowerCase();
+        let bestMatch = null;
+        let highestScore = 0;
+        
+        stepData.replies.forEach(reply => {
+          const words = reply.text.toLowerCase().split(' ');
+          let matchCount = 0;
+          words.forEach(w => {
+            if (lowerInput.includes(w) && w.length > 3) matchCount++;
+          });
+          if (matchCount > highestScore) {
+            highestScore = matchCount;
+            bestMatch = reply;
+          }
+        });
+
+        if (bestMatch) {
+          matchedStep = bestMatch.nextStep;
+        }
+      }
+
+      if (matchedStep !== null) {
+        if (matchedStep === 'hangup') {
+          setTimeout(() => hangUpCall(), 1200);
+          return;
+        }
+        dialogueStep = matchedStep;
+        setTimeout(() => {
+          const nextData = agentsData[currentAgent].dialogue[dialogueStep];
+          if (nextData && nextData.text) {
+            addTranscriptLine('AGENT', nextData.text);
+            speakText(nextData.text);
+          }
+          populateDialoguePresets();
+        }, 700);
+      } else {
+        // Generic AI fallback response
+        setTimeout(() => {
+          const genericReplies = {
+            nex: "I understand. Would you like to order a Nexton Classic Burger or check our timings?",
+            aura: "Understood. I can help with booking Swedish or Deep Tissue massage, or other therapies. What works best?",
+            cyrus: "Copy that. Please verify your connection headers, or tell me if you need database token rotation details."
+          };
+          const reply = genericReplies[currentAgent];
+          addTranscriptLine('AGENT', reply);
+          speakText(reply);
+        }, 800);
+      }
+    }
+
+    function handleInputKeydown(event) {
+      if (event.key === 'Enter') {
+        const input = document.getElementById('sim-user-input');
+        if (input) {
+          const text = input.value.trim();
+          if (text) {
+            addTranscriptLine('USER', text);
+            processUserInputText(text);
+            input.value = '';
+          }
+        }
+      }
+    }
+
+    // ==========================================
+    // INTERACTIVE MODALS AND TRIGGERS
+    // ==========================================
+    
+    // Consultation Modal
+    function openConsultationModal() {
+      const modal = document.getElementById('consultation-modal');
+      const formView = document.getElementById('consultation-form-view');
+      const successView = document.getElementById('consultation-success-view');
+      
+      formView.classList.remove('hidden');
+      successView.classList.add('hidden');
+      modal.classList.add('active');
+    }
+    
+    function closeConsultationModal() {
+      document.getElementById('consultation-modal').classList.remove('active');
+    }
+    
+    function handleConsultationSubmit(e) {
+      e.preventDefault();
+      
+      const submitBtnText = document.getElementById('submit-btn-text');
+      const spinner = document.getElementById('submit-btn-spinner');
+      
+      submitBtnText.textContent = 'DISPATCHING...';
+      spinner.classList.remove('hidden');
+      
+      const name = document.getElementById('consult-name').value;
+      const email = document.getElementById('consult-email').value;
+      const company = document.getElementById('consult-company').value;
+      const tier = document.getElementById('consult-tier').value;
+      const details = document.getElementById('consult-details').value;
+      
+      // Simulate API call delay
+      setTimeout(() => {
+        submitBtnText.textContent = 'SUBMIT REQUEST';
+        spinner.classList.add('hidden');
+        
+        // Generate mock ticket
+        const ticketNum = 'NX-' + Math.floor(10000 + Math.random() * 90000);
+        
+        // Save to localStorage safely
+        const savedConsultations = JSON.parse(safeGetItem('naxton_consultations') || '[]');
+        savedConsultations.push({ ticketNum, name, email, company, tier, details, date: new Date().toISOString() });
+        safeSetItem('naxton_consultations', JSON.stringify(savedConsultations));
+        
+        // Update success view content
+        document.getElementById('success-ticket-id').textContent = ticketNum;
+        document.getElementById('success-name').textContent = name;
+        
+        const tierNames = {
+          voice: 'Nexa Voice AI',
+          saas: 'SaaS Architecture',
+          automation: 'Workflow Automation',
+          custom: 'Bespoke Software'
+        };
+        document.getElementById('success-tier').textContent = tierNames[tier] || tier;
+        
+        // Toggle view
+        document.getElementById('consultation-form-view').classList.add('hidden');
+        document.getElementById('consultation-success-view').classList.remove('hidden');
+        
+        // Reset form fields
+        document.getElementById('consultation-form').reset();
+      }, 1500);
+    }
+    
+    // Product Preview Modal
+    function openProductPreview(productKey) {
+      const modal = document.getElementById('product-preview-modal');
+      const tiers = ['core', 'flow', 'voice', 'enterprise'];
+      
+      tiers.forEach(t => {
+        document.getElementById(`preview-${t}`).classList.add('hidden');
+      });
+      
+      document.getElementById(`preview-${productKey}`).classList.remove('hidden');
+      modal.classList.add('active');
+    }
+    
+    function closeProductPreview() {
+      document.getElementById('product-preview-modal').classList.remove('active');
+      stopFlowSimulation();
+    }
+    
+    // Nexa Flow Simulation
+    let flowSimInterval = null;
+    function triggerFlowSimulation() {
+      const logs = document.getElementById('flow-logs');
+      const status = document.getElementById('flow-status');
+      
+      if (flowSimInterval) clearInterval(flowSimInterval);
+      
+      logs.innerHTML = '';
+      status.textContent = 'PROCESSING...';
+      status.className = 'text-cyanaccent animate-pulse';
+      
+      const steps = [
+        { msg: '[WEBHOOK] Incoming request captured on /api/v1/trigger-webhook', delay: 200, color: 'text-white' },
+        { msg: '[AUTH] Validating secret token payload headers... OK', delay: 700, color: 'text-tealaccent' },
+        { msg: '[JSON] Extracted user ID: usr_99a803f7bc2, amount: $129.00', delay: 1200, color: 'text-textDim' },
+        { msg: '[PIPELINE] Forwarding payload variables to CRM Sync Hub...', delay: 1800, color: 'text-textDim' },
+        { msg: '[POSTGRES] Updating order audit ledger database transaction...', delay: 2400, color: 'text-textDim' },
+        { msg: '[DISPATCH] Triggering external calendar reschedule event API...', delay: 3000, color: 'text-textDim' },
+        { msg: '[SUCCESS] Workflow loop completed successfully in 32ms.', delay: 3600, color: 'text-green-400 font-bold' }
+      ];
+      
+      steps.forEach(step => {
+        setTimeout(() => {
+          const div = document.createElement('div');
+          div.className = step.color;
+          div.textContent = step.msg;
+          logs.appendChild(div);
+          logs.scrollTop = logs.scrollHeight;
+          
+          if (step.msg.includes('[SUCCESS]')) {
+            status.textContent = 'COMPLETED';
+            status.className = 'text-green-400 font-bold';
+          }
+        }, step.delay);
+      });
+    }
+    
+    function stopFlowSimulation() {
+      if (flowSimInterval) clearInterval(flowSimInterval);
+      const logs = document.getElementById('flow-logs');
+      if (logs) {
+        logs.innerHTML = '<div class="text-cyanaccent/40">[SYS] Ready for simulation trigger.</div>';
+      }
+      const status = document.getElementById('flow-status');
+      if (status) {
+        status.textContent = 'IDLE';
+        status.className = 'text-tealaccent';
+      }
+    }
+    
+    // Legal Document Modal
+    const legalTexts = {
+      privacy: `
+        <h4 class="font-orbitron font-bold text-white text-[11px] mb-2 uppercase">1. INTRODUCTION</h4>
+        <p class="mb-4">Naxton Technologies LLC ("we," "our," or "us") values your privacy. This Privacy Policy details our protocols regarding the collection, processing, and storage of database tokens and operational user credentials.</p>
+        <h4 class="font-orbitron font-bold text-white text-[11px] mb-2 uppercase">2. INFORMATION SECURED</h4>
+        <p class="mb-4">We do not store plain-text database secrets. All API keys, Twilio authorization hashes, and ElevenLabs voice vectors are compiled, isolated in environmental modules, and locked utilizing industry-grade RLS (Row-Level Security) algorithms.</p>
+        <h4 class="font-orbitron font-bold text-white text-[11px] mb-2 uppercase">3. COOKIES & LOCAL STORAGE</h4>
+        <p class="mb-4">Our application utilizes LocalStorage (under keys such as "theme" and "naxton_consultations") to preserve system aesthetic states and mock consultation ticket submissions locally on your machine. This information is never transmitted to unverified external trackers.</p>
+        <h4 class="font-orbitron font-bold text-white text-[11px] mb-2 uppercase">4. CONTACT</h4>
+        <p>For regulatory enquiries, contact legal@naxtontechnologies.com.</p>
+      `,
+      terms: `
+        <h4 class="font-orbitron font-bold text-white text-[11px] mb-2 uppercase">1. SERVICE ENGAGEMENT</h4>
+        <p class="mb-4">By accessing the Naxton web platform, you agree to comply with our environmental sandbox regulations. Our simulated voice components and database rotation routines are provided strictly for demonstration and testing purposes.</p>
+        <h4 class="font-orbitron font-bold text-white text-[11px] mb-2 uppercase">2. PROHIBITED USAGE</h4>
+        <p class="mb-4">You may not exploit our Web Speech synthesis routines or recognition modules to transmit malicious payloads, spam audio channels, or violate third-party communication codes of conduct.</p>
+        <h4 class="font-orbitron font-bold text-white text-[11px] mb-2 uppercase">3. LIMITATION OF LIABILITY</h4>
+        <p class="mb-4">Under no circumstances shall Naxton Technologies LLC be liable for any operational latency, expired JWT secrets, or WebRTC stream disruptions occurring on your local environment setup.</p>
+        <h4 class="font-orbitron font-bold text-white text-[11px] mb-2 uppercase">4. JURISDICTION</h4>
+        <p>These terms are governed by the laws of the State of California, United States.</p>
+      `
+    };
+    
+    function openDocModal(docKey) {
+      const modal = document.getElementById('document-modal');
+      const titleEl = document.getElementById('doc-modal-title');
+      const contentEl = document.getElementById('doc-modal-content');
+      
+      if (docKey === 'privacy') {
+        titleEl.textContent = 'Privacy Policy';
+        contentEl.innerHTML = legalTexts.privacy;
+      } else {
+        titleEl.textContent = 'Terms of Service';
+        contentEl.innerHTML = legalTexts.terms;
+      }
+      
+      modal.classList.add('active');
+    }
+    
+    function closeDocModal() {
+      document.getElementById('document-modal').classList.remove('active');
+    }
+
+    // ==========================================
+    // GLOBAL CLICK INTERCEPTOR & SMOOTH SCROLL
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+      // Intercept consultation and document links
+      document.addEventListener('click', (e) => {
+        const target = e.target.closest('a');
+        if (!target) return;
+        const href = target.getAttribute('href');
+        
+        // Intercept consultation buttons
+        if (href === '#contact' || target.textContent.trim() === 'BOOK CONSULTATION' || target.textContent.trim() === 'START YOUR PROJECT' || target.textContent.trim() === 'SCHEDULE CONSULTATION' || target.textContent.trim() === 'BOOK FREE CONSULTATION') {
+          e.preventDefault();
+          openConsultationModal();
+        }
+        
+        // Intercept legal links
+        if (target.textContent.trim() === 'Privacy Policy') {
+          e.preventDefault();
+          openDocModal('privacy');
+        }
+        if (target.textContent.trim() === 'Terms of Service') {
+          e.preventDefault();
+          openDocModal('terms');
+        }
+      });
+
+      // Smooth scroll for nav links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          const href = this.getAttribute('href');
+          if (href === '#contact' || this.textContent.trim() === 'BOOK CONSULTATION' || this.textContent.trim() === 'START YOUR PROJECT' || this.textContent.trim() === 'SCHEDULE CONSULTATION' || this.textContent.trim() === 'BOOK FREE CONSULTATION') {
+            return;
+          }
+          
+          e.preventDefault();
+          const targetId = href.substring(1);
+          const targetElement = document.getElementById(targetId || 'home');
+          if (targetElement) {
+            window.scrollTo({
+              top: targetElement.offsetTop - 80,
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+
+      // Mouse Spotlight Glow effect on glass-cards
+      const glassCards = document.querySelectorAll('.glass-card');
+      glassCards.forEach(card => {
+        card.addEventListener('mousemove', e => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          card.style.setProperty('--mouse-x', `${x}px`);
+          card.style.setProperty('--mouse-y', `${y}px`);
+        });
+      });
+    });
 
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('mousemove', (e) => {
@@ -1987,6 +3852,10 @@
 
     resizeCanvas();
     drawNetwork();
+
+    // Load theme on start safely after all variables and functions are defined
+    const savedTheme = safeGetItem('theme') || 'teal';
+    setTheme(savedTheme);
   </script>
 </body>
 
