@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --border: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism custom styling utilities */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel:hover {
+  border-color: rgba(34, 211, 238, 0.15);
+  box-shadow: 0 0 25px rgba(34, 211, 238, 0.04);
+}
+
+.cyber-glow {
+  box-shadow: 0 0 40px rgba(34, 211, 238, 0.05);
+}
+
+.glow-text-cyan {
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+}

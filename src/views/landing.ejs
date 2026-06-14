@@ -372,6 +372,11 @@
       );
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    @media (max-width: 1024px) {
+      .btn-hud-cta {
+        background: rgba(4, 21, 27, 0.9) !important;
+      }
+    }
     .btn-hud-cta::before {
       content: '';
       position: absolute;
@@ -3492,9 +3497,9 @@
     window.addEventListener('scroll', () => {
       if (window.scrollY > 40) {
         header.classList.add('py-2.5', 'bg-[#040e13]/90');
-        header.classList.remove('py-4', 'bg-rgba(4, 13, 18, 0.75)');
+        header.classList.remove('py-4', 'bg-[#040d12]/75');
       } else {
-        header.classList.add('py-4', 'bg-rgba(4, 13, 18, 0.75)');
+        header.classList.add('py-4', 'bg-[#040d12]/75');
         header.classList.remove('py-2.5', 'bg-[#040e13]/90');
       }
 

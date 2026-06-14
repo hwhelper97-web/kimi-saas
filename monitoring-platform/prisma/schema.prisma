@@ -1,0 +1,56 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model SystemStatus {
+  id           String   @id @default(uuid())
+  serviceName  String   // website, database, openai, twilio, railway
+  status       String   // online, warning, offline
+  responseTime Int      // in ms
+  healthPct    Float    // e.g. 99.8
+  checkedAt    DateTime @default(now())
+
+  @@index([serviceName])
+}
+
+model SystemMetric {
+  id        String   @id @default(uuid())
+  cpuUsage  Float
+  memUsage  Float
+  netRx     Float    // Bytes received
+  netTx     Float    // Bytes sent
+  dbLatency Int      // Query latency in ms
+  checkedAt DateTime @default(now())
+
+  @@index([checkedAt])
+}
+
+model SystemError {
+  id         String   @id @default(uuid())
+  service    String   // api, database, openai, twilio, auth
+  message    String
+  severity   String   // info, warning, critical
+  resolved   Boolean  @default(false)
+  occurredAt DateTime @default(now())
+
+  @@index([service])
+  @@index([occurredAt])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String   // USER_LOGIN, DEPLOYMENT, DATABASE_BACKUP, AI_CALL_FAILED
+  detail     String
+  actorEmail String
+  ipAddress  String
+  deviceInfo String
+  createdAt  DateTime @default(now())
+
+  @@index([actorEmail])
+  @@index([createdAt])
+}
