@@ -42,6 +42,7 @@ app.use((req, res, next) => {
     try { config = JSON.parse(fs.readFileSync(configPath, "utf8")); } catch (e) {}
   }
   res.locals.platformLogo = config.logoUrl;
+  res.locals.landingLogo = config.landingLogoUrl || "/logo.svg";
   res.locals.projectName = config.projectName;
   next();
 });

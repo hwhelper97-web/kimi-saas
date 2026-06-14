@@ -207,6 +207,50 @@
         .info { color: var(--nexus-primary); }
         .ai { color: #8b5cf6; }
         .tool { color: #ec4899; }
+
+        /* 📱 Mobile view responsive styling overrides */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto !important;
+                height: auto !important;
+            }
+            header {
+                padding: 1rem 1.5rem !important;
+                height: auto !important;
+                flex-direction: column !important;
+                gap: 1rem !important;
+                align-items: flex-start !important;
+            }
+            .logo-text {
+                font-size: 0.9rem !important;
+            }
+            main {
+                flex-direction: column !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            .sidebar {
+                width: 100% !important;
+                border-right: none !important;
+                border-bottom: 1px solid var(--nexus-border);
+                padding: 1.5rem !important;
+                gap: 1.5rem !important;
+            }
+            .sidebar > div:last-child {
+                display: none !important; /* hide static security text on mobile */
+            }
+            .terminal-container {
+                height: 60vh !important;
+                min-height: 400px !important;
+            }
+            .quantum-shell {
+                padding: 0.5rem 1rem !important;
+            }
+            .shell-logs {
+                padding: 1rem !important;
+                font-size: 0.8rem !important;
+            }
+        }
     </style>
 </head>
 <body>

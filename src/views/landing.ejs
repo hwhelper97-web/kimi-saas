@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= projectName %> | Next-Gen AI & Enterprise SaaS Platforms</title>
-  <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
+  <link rel="icon" type="image/png" href="<%= landingLogo || '' %>">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   
@@ -678,8 +678,8 @@
       
       <!-- Logo Container -->
       <a href="#" class="flex items-center gap-3 font-orbitron font-extrabold text-sm tracking-[2px] text-white hover:opacity-95 transition-opacity flex-shrink-0 whitespace-nowrap">
-        <% if (typeof platformLogo !== 'undefined' && platformLogo) { %>
-          <img src="<%= platformLogo %>" alt="Naxton Logo" class="h-8 w-auto object-contain filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" />
+        <% if (typeof landingLogo !== 'undefined' && landingLogo) { %>
+          <img src="<%= landingLogo %>" alt="Naxton Logo" class="h-8 w-auto object-contain filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" />
         <% } else { %>
           <div class="relative w-8 h-8 flex items-center justify-center">
             <svg class="w-7 h-7 text-cyanaccent filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2728,8 +2728,8 @@
       <!-- Footer Info -->
       <div class="lg:col-span-4 flex flex-col items-start">
         <a href="#" class="flex items-center gap-3 font-orbitron font-extrabold text-sm tracking-[2px] text-white mb-6">
-          <% if (typeof platformLogo !== 'undefined' && platformLogo) { %>
-            <img src="<%= platformLogo %>" alt="Naxton Logo" class="h-8 w-auto object-contain filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" />
+          <% if (typeof landingLogo !== 'undefined' && landingLogo) { %>
+            <img src="<%= landingLogo %>" alt="Naxton Logo" class="h-8 w-auto object-contain filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" />
           <% } else { %>
             <div class="relative w-8 h-8 flex items-center justify-center">
               <svg class="w-7 h-7 text-cyanaccent filter drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
