@@ -815,30 +815,25 @@ You are ${business.aiName || "Sarah"}, the professional receptionist for ${busin
 `;
 
       // 🚀 1.5 PRE-HYDRATE PROMPT
-      const slotService = require("../../services/slot.service");
-      const { getBusinessDates } = require("../../services/date.service");
-      const { todayStr, tomorrowStr } = getBusinessDates(business.timezone || "UTC");
-      
-      const [tSlots, tmSlots, services, staff] = await Promise.all([
-        slotService.getSlotsForDate(business.tenantId, business.id, todayStr), 
-        slotService.getSlotsForDate(business.tenantId, business.id, tomorrowStr),
-        prisma.appointmentService.findMany({ 
+      let servicesList = [];
+      let staffList = [];
+      let availString = "Available upon request (use check_availability tool).";
+
+      if (isApptBiz) {
+        staffList = await prisma.staff.findMany({
           where: { businessId: business.id, isActive: true },
-          include: { category: true }
-        }),
-        prisma.staff.findMany({ where: { businessId: business.id, isActive: true } })
-      ]);
-      
-      const formatAvail = (s) => s.filter(x => x.available).slice(0, 8).map(x => x.time).join(", ");
-      const availString = `Today: ${formatAvail(tSlots) || "Fully booked"}. Tomorrow: ${formatAvail(tmSlots) || "Many slots available."}`;
+          select: { name: true }
+        }).catch(() => []);
+        servicesList = (business.appointmentServices || []).filter(s => s.isActive);
+      }
       
       const vData = {
         business_id: business.id,
         business_name: business.name,
         agent_name: business.aiName || "Sarah",
-        services: services.map(s => `${s.name} ($${s.price})`).join(", "),
+        services: servicesList.map(s => `${s.name} ($${s.price})`).join(", "),
         availability: availString,
-        staff_members: staff.map(s => s.name).join(", "),
+        staff_members: staffList.map(s => s.name).join(", "),
         business_settings: `Hours: ${business.openTime}-${business.closeTime}, Timezone: ${business.timezone || 'UTC'}.`,
         current_date: new Intl.DateTimeFormat('en-US', { 
           weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
