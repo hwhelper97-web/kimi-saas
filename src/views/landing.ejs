@@ -42,14 +42,14 @@
   <!-- Custom CSS for Glow Effects and Animations -->
   <style>
     :root {
-      --bg-darkest: #040506;
-      --bg-gradient-start: #061f26;
-      --bg-gradient-end: #020c0f;
+      --bg-darkest: #050505;
+      --bg-gradient-start: #072129;
+      --bg-gradient-end: #031014;
       --accent-cyan: #22d3ee;
       --accent-teal: #00bcd4;
       --accent-rgb: 34, 211, 238;
-      --glass-bg: rgba(4, 21, 27, 0.65);
-      --glass-border: rgba(34, 211, 238, 0.08);
+      --glass-bg: rgba(4, 17, 22, 0.95);
+      --glass-border: rgba(34, 211, 238, 0.1);
       --btn-gradient: linear-gradient(to right, #042B33, #063944, #0A4A57);
       --text-main: #f8fafc;
       --text-dim: #94a3b8;
@@ -57,79 +57,21 @@
     }
 
     .theme-teal {
-      --bg-darkest: #040506;
-      --bg-gradient-start: #061f26;
-      --bg-gradient-end: #020c0f;
+      --bg-darkest: #050505;
+      --bg-gradient-start: #072129;
+      --bg-gradient-end: #031014;
       --accent-cyan: #22d3ee;
       --accent-teal: #00bcd4;
       --accent-rgb: 34, 211, 238;
-      --glass-bg: rgba(4, 21, 27, 0.65);
-      --glass-border: rgba(34, 211, 238, 0.08);
+      --glass-bg: rgba(4, 17, 22, 0.95);
+      --glass-border: rgba(34, 211, 238, 0.1);
       --btn-gradient: linear-gradient(to right, #042B33, #063944, #0A4A57);
       --text-main: #f8fafc;
       --text-dim: #94a3b8;
       --btn-secondary: rgba(255, 255, 255, 0.05);
     }
 
-    .theme-purple {
-      --bg-darkest: #060409;
-      --bg-gradient-start: #18092a;
-      --bg-gradient-end: #0a0314;
-      --accent-cyan: #f472b6;
-      --accent-teal: #a855f7;
-      --accent-rgb: 168, 85, 247;
-      --glass-bg: rgba(18, 9, 30, 0.65);
-      --glass-border: rgba(168, 85, 247, 0.08);
-      --btn-gradient: linear-gradient(to right, #2c0e3a, #3c1352, #4e196b);
-      --text-main: #f8fafc;
-      --text-dim: #94a3b8;
-      --btn-secondary: rgba(255, 255, 255, 0.05);
-    }
 
-    .theme-green {
-      --bg-darkest: #030503;
-      --bg-gradient-start: #08210e;
-      --bg-gradient-end: #030d05;
-      --accent-cyan: #34d399;
-      --accent-teal: #10b981;
-      --accent-rgb: 16, 185, 129;
-      --glass-bg: rgba(6, 21, 10, 0.65);
-      --glass-border: rgba(16, 185, 129, 0.08);
-      --btn-gradient: linear-gradient(to right, #093116, #0d421e, #135527);
-      --text-main: #f8fafc;
-      --text-dim: #94a3b8;
-      --btn-secondary: rgba(255, 255, 255, 0.05);
-    }
-
-    .theme-gold {
-      --bg-darkest: #070503;
-      --bg-gradient-start: #231609;
-      --bg-gradient-end: #0e0803;
-      --accent-cyan: #fbbf24;
-      --accent-teal: #f59e0b;
-      --accent-rgb: 245, 158, 11;
-      --glass-bg: rgba(23, 14, 6, 0.65);
-      --glass-border: rgba(245, 158, 11, 0.08);
-      --btn-gradient: linear-gradient(to right, #381d09, #4a270b, #5e320d);
-      --text-main: #f8fafc;
-      --text-dim: #94a3b8;
-      --btn-secondary: rgba(255, 255, 255, 0.05);
-    }
-
-    .theme-light {
-      --bg-darkest: #ffffff;
-      --bg-gradient-start: #ffffff;
-      --bg-gradient-end: #f8fafc;
-      --accent-cyan: #0891b2;
-      --accent-teal: #0e7490;
-      --accent-rgb: 14, 116, 144;
-      --glass-bg: rgba(255, 255, 255, 0.75);
-      --glass-border: rgba(14, 116, 144, 0.08);
-      --btn-gradient: linear-gradient(to right, #0891b2, #0e7490, #155e75);
-      --text-main: #0f172a;
-      --text-dim: #475569;
-      --btn-secondary: rgba(14, 116, 144, 0.05);
-    }
 
     * {
       scroll-behavior: smooth;
@@ -156,7 +98,7 @@
     }
 
     .bg-grid-mesh {
-      background-image: radial-gradient(circle at 1.5px 1.5px, rgba(34, 211, 238, 0.04) 1px, transparent 0);
+      background-image: radial-gradient(circle at 1.5px 1.5px, rgba(var(--accent-rgb), 0.04) 1px, transparent 0);
       background-size: 40px 40px;
     }
 
@@ -203,6 +145,271 @@
       box-shadow: 0 0 20px rgba(34, 211, 238, 0.35);
       border-color: rgba(34, 211, 238, 0.4);
       transform: translateY(-1px);
+    }
+
+    /* AI Visual Thinking Graph Styles */
+    .thinking-node {
+      transition: all 0.3s ease;
+    }
+    .thinking-node circle {
+      transition: all 0.3s ease;
+    }
+    .thinking-node text {
+      transition: all 0.3s ease;
+    }
+    .thinking-node.active-stage circle:first-of-type {
+      stroke: var(--accent-cyan);
+      fill: rgba(34, 211, 238, 0.2);
+      filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.6));
+    }
+    .thinking-node.active-stage circle:last-of-type {
+      fill: var(--accent-cyan);
+      filter: drop-shadow(0 0 3px rgba(34, 211, 238, 0.8));
+    }
+    .thinking-node.active-stage + text {
+      fill: #f8fafc !important;
+    }
+    .thinking-link {
+      transition: all 0.3s ease;
+    }
+    .thinking-link.active-link {
+      stroke: var(--accent-cyan);
+      stroke-width: 2px;
+      filter: drop-shadow(0 0 3px rgba(34, 211, 238, 0.5));
+    }
+    .packet-particle {
+      filter: drop-shadow(0 0 2px var(--accent-cyan));
+    }
+
+    /* Jarvis HUD Keyframes and Classes */
+    @keyframes hud-pulse-ring {
+      0% { r: 10px; opacity: 0.8; stroke-width: 1.5px; }
+      100% { r: 95px; opacity: 0; stroke-width: 0.5px; }
+    }
+    .animate-hud-pulse-ring-1 {
+      animation: hud-pulse-ring 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    }
+    .animate-hud-pulse-ring-2 {
+      animation: hud-pulse-ring 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+      animation-delay: 1.5s;
+    }
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+    .animate-scanline {
+      animation: scanline 6s linear infinite;
+    }
+    @keyframes spin-clockwise {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes spin-counterclockwise {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(-360deg); }
+    }
+    .animate-spin-cw {
+      animation: spin-clockwise 15s linear infinite;
+    }
+    .animate-spin-ccw {
+      animation: spin-counterclockwise 12s linear infinite;
+    }
+    .animate-spin-cw-fast {
+      animation: spin-clockwise 3s linear infinite;
+    }
+    .animate-spin-ccw-fast {
+      animation: spin-counterclockwise 2.5s linear infinite;
+    }
+    @keyframes segment-chaser {
+      0%, 100% { opacity: 0.35; filter: drop-shadow(0 0 0px transparent); }
+      50% { opacity: 1; filter: drop-shadow(0 0 3px var(--accent-cyan)); }
+    }
+    .seg-block-0 { animation: segment-chaser 2s infinite; animation-delay: 0.0s; }
+    .seg-block-1 { animation: segment-chaser 2s infinite; animation-delay: 0.15s; }
+    .seg-block-2 { animation: segment-chaser 2s infinite; animation-delay: 0.3s; }
+    .seg-block-3 { animation: segment-chaser 2s infinite; animation-delay: 0.45s; }
+    .seg-block-4 { animation: segment-chaser 2s infinite; animation-delay: 0.6s; }
+    .seg-block-5 { animation: segment-chaser 2s infinite; animation-delay: 0.75s; }
+    .seg-block-6 { animation: segment-chaser 2s infinite; animation-delay: 0.9s; }
+    .seg-block-7 { animation: segment-chaser 2s infinite; animation-delay: 1.05s; }
+    .seg-block-8 { animation: segment-chaser 2s infinite; animation-delay: 1.2s; }
+    .seg-block-9 { animation: segment-chaser 2s infinite; animation-delay: 1.35s; }
+
+    @keyframes scroll-log {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
+    }
+    .animate-scroll-log {
+      animation: scroll-log 18s linear infinite;
+    }
+    .jarvis-hud-container {
+      position: relative;
+      background: transparent;
+      border: none;
+      padding: 0;
+      backdrop-filter: none;
+      box-shadow: none;
+    }
+
+    .hud-grid-bg {
+      background-size: 60px 60px;
+      background-image: 
+        linear-gradient(to right, rgba(var(--accent-rgb), 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(var(--accent-rgb), 0.02) 1px, transparent 1px);
+    }
+
+    .hud-notched-card {
+      position: relative;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--glass-border);
+      clip-path: polygon(
+        0px 10px, 
+        10px 0px, 
+        100% 0px, 
+        100% calc(100% - 10px), 
+        calc(100% - 10px) 100%, 
+        0px 100%
+      );
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .hud-notched-card:hover {
+      border-color: rgba(var(--accent-rgb), 0.35);
+      box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.12);
+      transform: translateY(-2px);
+    }
+
+    /* Advanced CRT scanlines and sweeps */
+    .hud-scanlines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.25) 50%
+      );
+      background-size: 100% 4px;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+    .hud-sweep-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(var(--accent-rgb), 0.08) 50%,
+        transparent 100%
+      );
+      z-index: 2;
+      pointer-events: none;
+      animation: sweep-down 10s linear infinite;
+    }
+    @keyframes sweep-down {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+
+    /* Communication dash animations */
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -20;
+      }
+    }
+    .animate-dash-line {
+      stroke-dasharray: 5, 5;
+      animation: dash 1.5s linear infinite;
+    }
+
+    /* Interactive Cursor HUD Reticle */
+    .hud-cursor-reticle {
+      position: fixed;
+      width: 72px;
+      height: 72px;
+      pointer-events: none;
+      z-index: 100;
+      transform: translate(-50%, -50%) scale(0.9);
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.15s cubic-bezier(0.25, 1, 0.5, 1);
+      mix-blend-mode: screen;
+    }
+    .hud-cursor-reticle.active {
+      opacity: 1;
+    }
+    .hud-cursor-reticle.clicking {
+      transform: translate(-50%, -50%) scale(1.4);
+    }
+    .hud-cursor-coords {
+      font-family: monospace;
+      font-size: 6.5px;
+      color: var(--accent-cyan);
+      text-shadow: 0 0 3px rgba(var(--accent-rgb), 0.5);
+      white-space: nowrap;
+      position: absolute;
+      left: 44px;
+      top: 44px;
+      pointer-events: none;
+    }
+
+    /* Sci-Fi HUD button */
+    .btn-hud-cta {
+      position: relative;
+      background: rgba(var(--accent-rgb), 0.04);
+      border: 1px solid rgba(var(--accent-rgb), 0.2);
+      clip-path: polygon(
+        0 0,
+        calc(100% - 12px) 0,
+        100% 12px,
+        100% 100%,
+        12px 100%,
+        0 calc(100% - 12px)
+      );
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-hud-cta::before {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border: 1px solid rgba(var(--accent-rgb), 0.08);
+      clip-path: polygon(
+        0 0,
+        calc(100% - 11px) 0,
+        100% 11px,
+        100% 100%,
+        11px 100%,
+        0 calc(100% - 11px)
+      );
+      pointer-events: none;
+    }
+    .btn-hud-cta:hover {
+      background: rgba(var(--accent-rgb), 0.12);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.25);
+      color: #ffffff;
+    }
+
+    .nav-active-indicator {
+      position: relative;
+    }
+
+    .nav-active-indicator::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 2px;
+      background-color: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan);
+      border-radius: 1px;
+      transition: all 0.3s ease;
     }
 
     /* Scroll Reveals */
@@ -315,47 +522,7 @@
       transform: translateY(-2px);
     }
 
-    /* Light Theme Styling Overrides */
-    .theme-light h1,
-    .theme-light h2,
-    .theme-light h3,
-    .theme-light h4,
-    .theme-light h5,
-    .theme-light h6 {
-      color: var(--text-main) !important;
-    }
-    .theme-light p {
-      color: var(--text-dim) !important;
-    }
-    .theme-light .bg-clip-text {
-      background-image: linear-gradient(to bottom, var(--text-main) 0%, #475569 100%) !important;
-      color: transparent !important;
-      -webkit-text-fill-color: transparent !important;
-    }
-    .theme-light #stats,
-    .theme-light #technologies,
-    .theme-light #solutions,
-    .theme-light #portfolio,
-    .theme-light #testimonials,
-    .theme-light #faq,
-    .theme-light #final-cta,
-    .theme-light #contact {
-      background-color: rgba(255, 255, 255, 0.4) !important;
-      backdrop-filter: blur(12px) !important;
-    }
-    .theme-light .bg-black\/40 {
-      background-color: rgba(15, 23, 42, 0.05) !important;
-    }
-    .theme-light .bg-black\/60 {
-      background-color: rgba(15, 23, 42, 0.08) !important;
-    }
-    .theme-light .text-slate-300,
-    .theme-light .text-slate-400 {
-      color: var(--text-dim) !important;
-    }
-    .theme-light #mobile-nav {
-      background-color: var(--bg-darkest) !important;
-    }
+
 
     /* Modal Styles */
     .modal-overlay {
@@ -390,11 +557,7 @@
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(var(--accent-rgb), 0.1);
       overflow: hidden;
     }
-    .theme-light .modal-content {
-      background: rgba(255, 255, 255, 0.95);
-      border-color: rgba(var(--accent-rgb), 0.2);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-    }
+
     .modal-overlay.active .modal-content {
       transform: scale(1) translateY(0);
     }
@@ -405,11 +568,7 @@
       color: #ffffff;
       transition: all 0.3s ease;
     }
-    .theme-light .input-premium {
-      background: rgba(255, 255, 255, 0.8);
-      border-color: rgba(var(--accent-rgb), 0.25);
-      color: #0f172a;
-    }
+
     .input-premium:focus {
       border-color: rgba(var(--accent-rgb), 0.6);
       box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.2);
@@ -527,12 +686,24 @@
             </svg>
           </div>
         <% } %>
-        <span><%= projectName.toUpperCase().replace('TECHNOLOGIES', 'TECH') %></span>
+        <% 
+          let logoMain = 'NAXTON';
+          let logoSub = 'TECH';
+          if (typeof projectName !== 'undefined' && projectName) {
+            let logoWords = projectName.toUpperCase().replace('TECHNOLOGIES', 'TECH').split(' ');
+            logoMain = logoWords[0];
+            logoSub = logoWords.slice(1).join(' ') || 'TECH';
+          }
+        %>
+        <div class="flex flex-col items-start leading-none font-orbitron">
+          <span class="text-sm font-black tracking-[3px] text-cyanaccent"><%= logoMain %></span>
+          <span class="text-[7px] font-bold tracking-[2px] text-cyanaccent mt-0.5"><%= logoSub %></span>
+        </div>
       </a>
 
       <!-- Desktop Navigation Menu -->
       <nav class="hidden xl:flex items-center gap-5 text-[11px] font-semibold tracking-wider text-textDim flex-shrink-0">
-        <a href="#" class="hover:text-cyanaccent text-cyanaccent transition-colors">HOME</a>
+        <a href="#" class="nav-active-indicator hover:text-cyanaccent text-white transition-colors">HOME</a>
         <a href="#services" class="hover:text-cyanaccent transition-colors">SERVICES</a>
         <a href="#solutions" class="hover:text-cyanaccent transition-colors">SOLUTIONS</a>
         <a href="#products" class="hover:text-cyanaccent transition-colors">PRODUCTS</a>
@@ -544,17 +715,16 @@
 
       <!-- Action Buttons -->
       <div class="hidden md:flex items-center gap-4 flex-shrink-0">
-        <!-- Theme Controller -->
-        <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-glassBg border border-glassBorder shadow-inner">
-          <button onclick="setTheme('teal')" class="w-3 h-3 rounded-full bg-[#00bcd4] border border-white/20 hover:scale-125 transition-all cursor-pointer" title="Teal Cyber"></button>
-          <button onclick="setTheme('purple')" class="w-3 h-3 rounded-full bg-[#a855f7] border border-white/20 hover:scale-125 transition-all cursor-pointer" title="Amethyst Aura"></button>
-          <button onclick="setTheme('green')" class="w-3 h-3 rounded-full bg-[#10b981] border border-white/20 hover:scale-125 transition-all cursor-pointer" title="Matrix Jade"></button>
-          <button onclick="setTheme('gold')" class="w-3 h-3 rounded-full bg-[#f59e0b] border border-white/20 hover:scale-125 transition-all cursor-pointer" title="Sol Amber"></button>
-          <button onclick="setTheme('light')" class="w-3 h-3 rounded-full bg-[#ffffff] border border-slate-300 hover:scale-125 transition-all cursor-pointer shadow-[0_0_5px_rgba(255,255,255,0.8)]" title="Bright Light"></button>
-        </div>
 
-        <a href="#contact" class="px-4 py-2.5 rounded-lg border border-cyanaccent/30 text-xs font-bold font-orbitron tracking-widest text-cyanaccent bg-cyanaccent/5 hover:bg-cyanaccent/10 hover:border-cyanaccent/50 transition-all">
-          BOOK CONSULTATION
+
+        <a href="#contact" class="relative px-4 py-2 flex items-center gap-2 border border-cyanaccent/35 text-[10px] font-bold font-orbitron tracking-widest text-cyanaccent bg-cyanaccent/5 hover:bg-cyanaccent/15 transition-all duration-300 shadow-[0_0_15px_rgba(var(--accent-rgb),0.05)] hover:shadow-[0_0_20px_rgba(var(--accent-rgb),0.2)] group">
+          <div class="absolute -top-[1px] -left-[1px] w-1.5 h-1.5 border-t border-l border-cyanaccent"></div>
+          <div class="absolute -bottom-[1px] -right-[1px] w-1.5 h-1.5 border-b border-r border-cyanaccent"></div>
+          <svg class="w-3 h-3 flex-shrink-0 text-cyanaccent group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="1.5" />
+            <circle cx="12" cy="12" r="3" fill="currentColor" class="animate-pulse" />
+          </svg>
+          <span>BOOK CONSULTATION</span>
         </a>
         <a href="/login" class="px-4 py-2.5 rounded-lg text-xs font-bold font-orbitron tracking-widest text-white btn-premium">
           GET STARTED
@@ -588,17 +758,7 @@
         <a href="#about" class="mobile-link hover:text-cyanaccent transition-colors">ABOUT</a>
         <a href="#contact" class="mobile-link hover:text-cyanaccent transition-colors">CONTACT</a>
       </nav>
-      <!-- Theme Selection in Drawer -->
-      <div class="mb-6 flex flex-col gap-2 border-t border-glassBorder/40 pt-6">
-        <span class="text-[9px] font-bold font-orbitron text-textDim tracking-widest uppercase block">Select Theme</span>
-        <div class="flex items-center gap-3 py-1.5">
-          <button onclick="setTheme('teal')" class="w-6 h-6 rounded-full bg-[#00bcd4] border border-white/20 hover:scale-110 transition-transform cursor-pointer flex items-center justify-center text-[10px] text-white font-bold"></button>
-          <button onclick="setTheme('purple')" class="w-6 h-6 rounded-full bg-[#a855f7] border border-white/20 hover:scale-110 transition-transform cursor-pointer flex items-center justify-center text-[10px] text-white font-bold"></button>
-          <button onclick="setTheme('green')" class="w-6 h-6 rounded-full bg-[#10b981] border border-white/20 hover:scale-110 transition-transform cursor-pointer flex items-center justify-center text-[10px] text-white font-bold"></button>
-          <button onclick="setTheme('gold')" class="w-6 h-6 rounded-full bg-[#f59e0b] border border-white/20 hover:scale-110 transition-transform cursor-pointer flex items-center justify-center text-[10px] text-white font-bold"></button>
-          <button onclick="setTheme('light')" class="w-6 h-6 rounded-full bg-[#ffffff] border border-slate-300 hover:scale-110 transition-transform cursor-pointer flex items-center justify-center text-[10px] text-slate-800 font-bold" title="Bright Light"></button>
-        </div>
-      </div>
+
 
       <div class="flex flex-col gap-4">
         <a href="#contact" class="mobile-link w-full text-center py-3 rounded-lg border border-cyanaccent/30 text-xs font-bold font-orbitron tracking-wider text-cyanaccent bg-cyanaccent/5 hover:bg-cyanaccent/10 transition-colors">
@@ -611,248 +771,490 @@
     </div>
   </header>
 
+  <!-- Left Floating Social Bar (Jarvis HUD Style) -->
+  <div class="hidden xl:flex fixed left-6 top-1/2 -translate-y-1/2 flex-col items-center gap-4 border border-glassBorder/40 bg-black/45 p-2.5 rounded-lg z-40">
+    <a href="#" class="w-6 h-6 flex items-center justify-center text-textDim hover:text-cyanaccent transition-colors" title="LinkedIn">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+        <rect x="2" y="9" width="4" height="12"/>
+        <circle cx="4" cy="4" r="2"/>
+      </svg>
+    </a>
+    <a href="#" class="w-6 h-6 flex items-center justify-center text-textDim hover:text-cyanaccent transition-colors" title="Twitter/X">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 4l11.733 16h4.267l-11.733 -16z M4 20l6.768 -6.768 M20 4l-6.768 6.768"/>
+      </svg>
+    </a>
+    <a href="#" class="w-6 h-6 flex items-center justify-center text-textDim hover:text-cyanaccent transition-colors" title="Website">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+        <path d="M2 12h20"/>
+      </svg>
+    </a>
+    <a href="#" class="w-6 h-6 flex items-center justify-center text-textDim hover:text-cyanaccent transition-colors" title="Google">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 9H18.5V14.5H9V9Z"/>
+        <path d="M12 2A10 10 0 1 0 22 12H12V2Z"/>
+      </svg>
+    </a>
+  </div>
+
+  <!-- Left Floating Scroll Indicator -->
+  <div class="hidden xl:flex fixed left-7 bottom-10 flex-col items-center gap-3 z-40 font-mono text-[8px] text-textDim uppercase tracking-[3px] select-none pointer-events-none">
+    <span class="transform -rotate-90 origin-center translate-y-[-10px]">Scroll</span>
+    <div class="w-[1px] h-16 bg-gradient-to-b from-cyanaccent to-transparent relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-3 bg-cyanaccent rounded-full animate-bounce"></div>
+    </div>
+  </div>
+
   <!-- ==================== SECTION 2 — HERO ==================== -->
-  <section class="min-h-screen flex items-center justify-center pt-24 pb-16 px-6 relative overflow-hidden" id="home">
+  <section class="min-h-screen flex items-center justify-center pt-24 pb-16 px-6 relative overflow-hidden hud-grid-bg" id="home">
+    
+    <!-- 📺 Advanced CRT/HUD Scanline & Sweep-line Overlays -->
+    <div class="hud-scanlines"></div>
+    <div class="hud-sweep-line"></div>
+
+    <!-- 🌐 Global HUD Screen Frame (inset border with corner brackets) -->
+    <div class="absolute inset-4 border border-glassBorder pointer-events-none z-10 rounded-sm">
+      <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyanaccent pointer-events-none"></div>
+      <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyanaccent pointer-events-none"></div>
+      <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyanaccent pointer-events-none"></div>
+      <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyanaccent pointer-events-none"></div>
+    </div>
+
+    <!-- 📐 Techy Diagonal SVG Line Overlays -->
+    <div class="absolute top-0 left-0 w-full h-32 pointer-events-none overflow-hidden z-10 opacity-25">
+      <svg class="w-full h-full text-cyanaccent" viewBox="0 0 1440 128" fill="none" preserveAspectRatio="none">
+        <path d="M 0 50 L 150 50 L 190 90 L 350 90" stroke="currentColor" stroke-width="0.75" />
+        <circle cx="190" cy="90" r="2" fill="currentColor" />
+        <circle cx="350" cy="90" r="2" fill="currentColor" />
+        
+        <path d="M 1440 50 L 1290 50 L 1250 90 L 1090 90" stroke="currentColor" stroke-width="0.75" />
+        <circle cx="1250" cy="90" r="2" fill="currentColor" />
+        <circle cx="1090" cy="90" r="2" fill="currentColor" />
+      </svg>
+    </div>
+
+    <!-- 🌀 Bottom Left & Bottom Right Background Radars -->
+    <div class="absolute bottom-[-80px] left-[-80px] w-64 h-64 opacity-15 pointer-events-none z-0">
+      <svg class="w-full h-full text-cyanaccent" viewBox="0 0 200 200" fill="none">
+        <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="0.75" stroke-dasharray="4, 12" class="animate-spin-cw origin-center" />
+        <circle cx="100" cy="100" r="60" stroke="currentColor" stroke-width="0.5" />
+        <circle cx="100" cy="100" r="40" stroke="currentColor" stroke-width="0.75" stroke-dasharray="20, 20" class="animate-spin-ccw origin-center" />
+        <circle cx="100" cy="100" r="3" fill="currentColor" class="animate-pulse" />
+        <line x1="100" y1="0" x2="100" y2="200" stroke="currentColor" stroke-width="0.5" opacity="0.3" />
+        <line x1="0" y1="100" x2="200" y2="100" stroke="currentColor" stroke-width="0.5" opacity="0.3" />
+      </svg>
+    </div>
+    <div class="absolute bottom-[-80px] right-[-80px] w-64 h-64 opacity-15 pointer-events-none z-0">
+      <svg class="w-full h-full text-cyanaccent" viewBox="0 0 200 200" fill="none">
+        <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="0.75" stroke-dasharray="10, 20" class="animate-spin-ccw origin-center" />
+        <circle cx="100" cy="100" r="60" stroke="currentColor" stroke-width="0.5" />
+        <circle cx="100" cy="100" r="40" stroke="currentColor" stroke-width="0.75" stroke-dasharray="5, 5" class="animate-spin-cw origin-center" />
+        <circle cx="100" cy="100" r="3" fill="currentColor" class="animate-pulse" />
+        <line x1="100" y1="0" x2="100" y2="200" stroke="currentColor" stroke-width="0.5" opacity="0.3" />
+        <line x1="0" y1="100" x2="200" y2="100" stroke="currentColor" stroke-width="0.5" opacity="0.3" />
+      </svg>
+    </div>
+
     <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
       
       <!-- Hero Left Text -->
-      <div class="lg:col-span-6 flex flex-col items-start text-left reveal animate-fadeIn">
-        <!-- Pulsing badge -->
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyanaccent/5 border border-cyanaccent/20 text-[10px] font-extrabold tracking-[2.5px] text-cyanaccent uppercase mb-6 shadow-[0_0_15px_rgba(34,211,238,0.05)]">
-          <span class="w-2 h-2 rounded-full bg-cyanaccent node-pulse"></span>
-          Future-Ready AI Solutions
+      <div class="lg:col-span-6 flex flex-col items-start text-left reveal animate-fadeIn relative group z-10">
+        
+        <!-- AI • AUTOMATION • INNOVATION HUD Badge -->
+        <div class="inline-flex items-center px-3 py-1 bg-cyanaccent/5 border border-cyanaccent/20 text-[9px] font-bold tracking-[2.5px] text-cyanaccent uppercase mb-6 relative">
+          <div class="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-cyanaccent"></div>
+          <div class="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-cyanaccent"></div>
+          AI • AUTOMATION • INNOVATION
         </div>
         
         <!-- Large Headline -->
-        <h1 class="font-orbitron font-black text-4xl sm:text-5xl xl:text-6xl tracking-tight text-white mb-6 leading-[1.1]">
+        <h1 class="font-orbitron font-black text-4xl sm:text-5xl xl:text-6xl tracking-tight text-white mb-6 leading-[1.1] relative z-10 uppercase">
           <%= projectName.toUpperCase() %><br>
-          <span class="bg-gradient-to-r from-cyanaccent via-tealaccent to-blue-400 bg-clip-text text-transparent">
+          <span class="text-cyanaccent drop-shadow-[0_0_15px_rgba(var(--accent-rgb),0.35)]">
             Intelligent Digital Experiences
           </span>
         </h1>
         
         <!-- Description -->
-        <p class="text-textDim text-sm sm:text-base max-w-xl leading-relaxed mb-8">
+        <p class="text-textDim text-sm sm:text-base max-w-xl leading-relaxed mb-8 relative z-10">
           We engineer next-generation AI Agents, SaaS platforms, enterprise applications, custom automation loops, and scalable cloud solutions built to accelerate business efficiency and growth.
         </p>
         
         <!-- CTA Action row -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
-          <a href="#contact" class="px-8 py-3.5 rounded-lg text-xs font-extrabold font-orbitron tracking-widest text-white text-center btn-premium">
-            START YOUR PROJECT
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center w-full sm:w-auto relative z-10 gap-4">
+          <a href="#contact" class="btn-hud-cta px-8 py-3.5 text-xs font-extrabold font-orbitron tracking-widest text-slate-200 group flex items-center justify-center gap-3">
+            <span class="w-1.5 h-1.5 bg-cyanaccent rounded-full animate-pulse shadow-[0_0_8px_var(--accent-cyan)]"></span>
+            <span>SCHEDULE CONSULTATION</span>
+            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-cyanaccent transition-all duration-300 transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="12" cy="12" r="3" fill="currentColor" class="opacity-0 group-hover:opacity-100 transition-opacity" />
+            </svg>
           </a>
-          <a href="#contact" class="px-8 py-3.5 rounded-lg border border-glassBorder bg-white/5 hover:bg-white/10 hover:border-cyanaccent/30 text-xs font-extrabold font-orbitron tracking-widest text-slate-200 text-center transition-all">
-            SCHEDULE CONSULTATION
-          </a>
+          
+          <button onclick="launchInteractiveVoice()" class="btn-hud-cta px-8 py-3.5 text-xs font-extrabold font-orbitron tracking-widest text-cyanaccent group flex items-center justify-center gap-3 cursor-pointer">
+            <span class="w-1.5 h-1.5 bg-cyanaccent rounded-full animate-ping shadow-[0_0_8px_var(--accent-cyan)]"></span>
+            <span>TRY VOICE DEMO</span>
+            <svg class="w-3.5 h-3.5 text-cyanaccent group-hover:text-white transition-all duration-300 transform group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" fill="currentColor" class="opacity-0 group-hover:opacity-100 transition-opacity" />
+              <path d="M19 10v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8" />
+            </svg>
+          </button>
+        </div>
+ 
+        <!-- Mini Telemetry Diagnostics Panel (Jarvis HUD style) -->
+        <div class="mt-6 w-full grid grid-cols-3 gap-2.5 border-t border-glassBorder/20 pt-4 font-mono text-[8px] text-textDim relative z-10">
+          
+          <!-- Neural Link Notched Card -->
+          <div class="hud-notched-card p-3 flex flex-col gap-1 relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-cyanaccent/70 pointer-events-none"></div>
+            <div class="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-cyanaccent/70 pointer-events-none"></div>
+            
+            <div class="flex items-center justify-between w-full">
+              <span class="text-[7.5px] font-bold text-cyanaccent/70 tracking-wider">NEURAL LINK</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-cyanaccent animate-pulse"></span>
+            </div>
+            
+            <div class="flex items-center justify-between w-full mt-0.5">
+              <span class="text-white font-extrabold text-[9px] leading-none" id="jarvis-neuro-status">SECURE // EST.</span>
+              <svg class="w-8 h-4 text-cyanaccent/70" viewBox="0 0 40 20" fill="none">
+                <path d="M0,10 L10,10 L13,2 L17,18 L20,10 L30,10 L33,6 L37,14 L40,10" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="animate-pulse" />
+              </svg>
+            </div>
+            
+            <div class="flex items-center gap-[3px] mt-1.5">
+              <div class="w-2.5 h-[3px] bg-cyanaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-cyanaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-cyanaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-cyanaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-cyanaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-cyanaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-cyanaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-cyanaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-cyanaccent/30 rounded-sm animate-pulse"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+            </div>
+          </div>
+
+          <!-- Vector Storage Notched Card -->
+          <div class="hud-notched-card p-3 flex flex-col gap-1 relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-tealaccent/70 pointer-events-none"></div>
+            <div class="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-tealaccent/70 pointer-events-none"></div>
+            
+            <div class="flex items-center justify-between w-full">
+              <span class="text-[7.5px] font-bold text-tealaccent/70 tracking-wider">VECTOR STORAGE</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-tealaccent animate-pulse"></span>
+            </div>
+            
+            <div class="flex items-center justify-between w-full mt-0.5">
+              <span class="text-white font-extrabold text-[9px] leading-none" id="jarvis-vector-status">4,096 / OK</span>
+              <svg class="w-4 h-4 text-tealaccent/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="7" height="7" rx="0.5" fill="currentColor" fill-opacity="0.1" />
+                <rect x="14" y="3" width="7" height="7" rx="0.5" fill="currentColor" fill-opacity="0.1" />
+                <rect x="3" y="14" width="7" height="7" rx="0.5" fill="currentColor" fill-opacity="0.1" />
+                <rect x="14" y="14" width="7" height="7" rx="0.5" class="animate-pulse" />
+              </svg>
+            </div>
+            
+            <div class="flex items-center gap-[3px] mt-1.5">
+              <div class="w-2.5 h-[3px] bg-tealaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-tealaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-tealaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-tealaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-tealaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-tealaccent rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-tealaccent/30 rounded-sm animate-pulse"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+            </div>
+          </div>
+
+          <!-- Threat Level Notched Card -->
+          <div class="hud-notched-card p-3 flex flex-col gap-1 relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-slate-400 pointer-events-none"></div>
+            <div class="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-slate-400 pointer-events-none"></div>
+            
+            <div class="flex items-center justify-between w-full">
+              <span class="text-[7.5px] font-bold text-slate-400/70 tracking-wider">THREAT LEVEL</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+            </div>
+            
+            <div class="flex items-center justify-between w-full mt-0.5">
+              <span class="text-white font-extrabold text-[9px] leading-none">0.00% // NULL</span>
+              <svg class="w-4 h-4 text-slate-400/70 animate-spin" style="animation-duration: 6s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <circle cx="12" cy="12" r="9" stroke-dasharray="3, 3" />
+                <line x1="12" y1="3" x2="12" y2="21" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+              </svg>
+            </div>
+            
+            <div class="flex items-center gap-[3px] mt-1.5">
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+              <div class="w-2.5 h-[3px] bg-white/5 rounded-sm"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic System Console Log (Jarvis style) -->
+        <div class="mt-4 w-full hud-notched-card p-3 font-mono text-[7px] text-cyanaccent/70 relative overflow-hidden h-[74px] flex flex-col justify-start shadow-[0_0_15px_rgba(var(--accent-rgb),0.05)] border border-glassBorder">
+          <div class="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-cyanaccent/50 pointer-events-none"></div>
+          <div class="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-cyanaccent/50 pointer-events-none"></div>
+          <div class="flex items-center justify-between border-b border-glassBorder/10 pb-1 mb-1 opacity-60 text-[6.5px]">
+            <span class="font-bold tracking-wider">CONSOLE DIAGNOSTICS // SYS_MONITOR</span>
+            <span class="flex items-center gap-1">
+              <span class="w-1 h-1 rounded-full bg-cyanaccent animate-pulse"></span>
+              <span class="animate-pulse font-extrabold">ONLINE</span>
+            </span>
+          </div>
+          <div class="overflow-hidden relative flex-1 h-[40px]">
+            <div class="absolute inset-0 flex flex-col gap-1 text-left" id="hud-console-scroller">
+              <div class="opacity-50">[SYS_INIT] BOOT SEQUENCE LAUNCHED... OK</div>
+              <div class="opacity-50">[NET_SHIELD] SYNCING ACCELERATED FIREWALLS...</div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Hero Right: Premium Cyber Dashboard / Interactive Simulator -->
       <div class="lg:col-span-6 relative flex items-center justify-center reveal">
         
-        <!-- Behind mockup glow -->
-        <div class="absolute w-72 h-72 rounded-full bg-cyanaccent/10 filter blur-[60px] animate-pulse"></div>
+        <!-- Jarvis HUD Hologram sphere system -->
+        <div class="relative w-full max-w-[560px] h-[560px] flex items-center justify-center overflow-visible select-none">
+          <!-- Behind mockup glow -->
+          <div class="absolute w-80 h-80 rounded-full bg-cyanaccent/5 filter blur-[70px] animate-pulse"></div>
+ 
+          <!-- Central Hologram SVG Sphere -->
+          <svg class="w-[460px] h-[460px] drop-shadow-[0_0_25px_rgba(var(--accent-rgb),0.18)]" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="radarSweepGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="var(--accent-cyan)" stop-opacity="0.35" />
+                <stop offset="50%" stop-color="var(--accent-cyan)" stop-opacity="0.1" />
+                <stop offset="100%" stop-color="var(--accent-cyan)" stop-opacity="0" />
+              </linearGradient>
+            </defs>
 
-        <!-- Central Dashboard & Simulator Card Frame -->
-        <div class="w-full max-w-lg glass-card rounded-xl border border-glassBorder p-4 relative overflow-hidden float-slow">
-          <!-- Frame header controls -->
-          <div class="flex items-center justify-between border-b border-glassBorder pb-3 mb-4">
-            <div class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-red-500/50"></span>
-              <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></span>
-              <span class="w-2.5 h-2.5 rounded-full bg-green-500/50"></span>
+            <!-- Conic Radar sweep animation -->
+            <g class="animate-spin-cw origin-center" style="animation-duration: 5s;">
+              <path d="M 250 250 L 250 90 A 160 160 0 0 1 363 137 Z" fill="url(#radarSweepGrad)" style="mix-blend-mode: screen;" />
+              <line x1="250" y1="250" x2="250" y2="90" stroke="var(--accent-cyan)" stroke-width="1.25" opacity="0.6" />
+            </g>
+
+            <!-- Tilted orbital rings with orbiting tech nodes -->
+            <g class="animate-spin-cw origin-center" style="animation-duration: 18s;">
+              <ellipse cx="250" cy="250" rx="220" ry="40" stroke="var(--accent-cyan)" stroke-width="0.75" stroke-dasharray="8, 16" class="opacity-30 transform rotate-12 origin-center" />
+              <circle cx="50" cy="210" r="3" fill="var(--accent-cyan)" class="animate-pulse" />
+              <circle cx="450" cy="290" r="3.5" fill="var(--accent-cyan)" class="animate-ping" />
+            </g>
+            <g class="animate-spin-ccw origin-center" style="animation-duration: 22s;">
+              <ellipse cx="250" cy="250" rx="220" ry="40" stroke="var(--accent-cyan)" stroke-width="0.75" stroke-dasharray="15, 30" class="opacity-25 transform -rotate-25 origin-center" />
+              <circle cx="430" cy="170" r="2.5" fill="var(--accent-cyan)" class="animate-pulse" />
+            </g>
+
+            <!-- Outer Dial 1 (Fine Compass Ticks) -->
+            <circle cx="250" cy="250" r="242" stroke="var(--accent-cyan)" stroke-width="0.5" stroke-dasharray="1, 8" class="animate-spin-cw origin-center opacity-30" style="animation-duration: 50s;" />
+            <circle cx="250" cy="250" r="235" stroke="var(--accent-cyan)" stroke-width="1" stroke-dasharray="10, 45" class="animate-spin-cw origin-center opacity-40" style="animation-duration: 35s;" />
+            <circle cx="250" cy="250" r="235" stroke="var(--accent-cyan)" stroke-width="1.5" stroke-dasharray="100, 150" class="animate-spin-ccw origin-center opacity-45" style="animation-duration: 25s;" />
+            
+            <!-- Outer Hexagon ring -->
+            <polygon points="250,25 445,137.5 445,362.5 250,475 55,362.5 55,137.5" fill="none" stroke="var(--accent-cyan)" stroke-width="0.75" stroke-dasharray="6, 25" class="animate-spin-cw origin-center opacity-20" style="animation-duration: 45s;" />
+            
+            <!-- Dial 2 (ticks) -->
+            <circle cx="250" cy="250" r="215" stroke="var(--accent-cyan)" stroke-width="0.75" stroke-dasharray="2, 6" class="animate-spin-cw origin-center opacity-25" style="animation-duration: 20s;" />
+            
+            <!-- Rotating Degree Marks -->
+            <g class="animate-spin-cw origin-center opacity-40 text-[7px] font-mono fill-cyanaccent" style="animation-duration: 75s;">
+              <text x="242" y="42">000°</text>
+              <text x="458" y="253">090°</text>
+              <text x="242" y="468">180°</text>
+              <text x="30" y="253">270°</text>
+            </g>
+
+            <!-- Dial 3 (thick segments) -->
+            <circle cx="250" cy="250" r="200" stroke="var(--accent-cyan)" stroke-width="3" stroke-dasharray="40, 180" class="animate-spin-ccw origin-center opacity-50" style="animation-duration: 15s;" />
+            <circle cx="250" cy="250" r="200" stroke="var(--accent-cyan)" stroke-width="1.5" stroke-dasharray="15, 30" class="animate-spin-cw origin-center opacity-35" style="animation-duration: 10s;" />
+ 
+            <!-- Outer Globe ring -->
+            <circle cx="250" cy="250" r="160" stroke="var(--accent-cyan)" stroke-width="1.5" class="opacity-35" />
+            
+            <!-- 3D Globe Latitude/Longitude Paths -->
+            <g class="animate-spin-cw origin-center" style="animation-duration: 35s;">
+              <ellipse cx="250" cy="250" rx="160" ry="65" stroke="var(--accent-cyan)" stroke-width="1" class="opacity-25" />
+              <ellipse cx="250" cy="250" rx="160" ry="115" stroke="var(--accent-cyan)" stroke-width="1" class="opacity-25" />
+              <ellipse cx="250" cy="250" rx="65" ry="160" stroke="var(--accent-cyan)" stroke-width="1" class="opacity-25" />
+              <ellipse cx="250" cy="250" rx="115" ry="160" stroke="var(--accent-cyan)" stroke-width="1" class="opacity-25" />
+              <line x1="250" y1="90" x2="250" y2="410" stroke="var(--accent-cyan)" stroke-width="1" class="opacity-20" />
+              <line x1="90" y1="250" x2="410" y2="250" stroke="var(--accent-cyan)" stroke-width="1" class="opacity-20" />
+            </g>
+            <g class="animate-spin-ccw origin-center" style="animation-duration: 25s;">
+              <ellipse cx="250" cy="250" rx="160" ry="65" stroke="var(--accent-cyan)" stroke-width="1" class="opacity-20 transform rotate-45 origin-center" />
+              <ellipse cx="250" cy="250" rx="65" ry="160" stroke="var(--accent-cyan)" stroke-width="1" class="opacity-20 transform rotate-45 origin-center" />
+              <ellipse cx="250" cy="250" rx="160" ry="65" stroke="var(--accent-cyan)" stroke-width="1" class="opacity-20 transform -rotate-45 origin-center" />
+              <ellipse cx="250" cy="250" rx="65" ry="160" stroke="var(--accent-cyan)" stroke-width="1" class="opacity-20 transform -rotate-45 origin-center" />
+              <!-- floating tech nodes -->
+              <circle cx="130" cy="130" r="2.5" fill="var(--accent-cyan)" class="animate-pulse" />
+              <circle cx="370" cy="370" r="2.5" fill="var(--accent-cyan)" class="animate-pulse" />
+            </g>
+            
+            <!-- Expanding Sonar Radar Echo Rings -->
+            <circle cx="250" cy="250" r="10" fill="none" stroke="var(--accent-cyan)" class="animate-hud-pulse-ring-1 origin-center" />
+            <circle cx="250" cy="250" r="10" fill="none" stroke="var(--accent-cyan)" class="animate-hud-pulse-ring-2 origin-center" />
+
+            <!-- Core glowing arc core -->
+            <circle cx="250" cy="250" r="45" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5" stroke-dasharray="10, 15" class="animate-spin-cw origin-center" style="animation-duration: 7s;" />
+            <circle cx="250" cy="250" r="30" fill="none" stroke="var(--accent-cyan)" stroke-width="2" stroke-dasharray="35, 10" class="animate-spin-ccw origin-center" style="animation-duration: 5s;" />
+            <circle cx="250" cy="250" r="12" fill="var(--accent-cyan)" class="animate-pulse" />
+            
+            <!-- Crosshair Details -->
+            <path d="M 175 175 L 195 195 M 325 325 L 305 305 M 175 325 L 195 305 M 325 175 L 305 195" stroke="var(--accent-cyan)" stroke-width="1" class="opacity-40" />
+            <path d="M 250 10 L 250 30 M 250 470 L 250 490 M 10 250 L 30 250 M 470 250 L 490 250" stroke="var(--accent-cyan)" stroke-width="1.5" class="opacity-60" />
+          </svg>
+ 
+          <!-- 🔗 Sci-Fi HUD Communication Link Lines -->
+          <svg class="absolute inset-0 w-full h-full pointer-events-none z-0 text-cyanaccent/20" viewBox="0 0 560 560" fill="none">
+            <!-- Link to Card 1 (Top Left) -->
+            <path d="M 280 280 L 220 220 L 70 220" stroke="currentColor" stroke-width="0.75" class="opacity-60" />
+            <path d="M 280 280 L 220 220 L 70 220" stroke="var(--accent-cyan)" stroke-width="0.75" class="animate-dash-line" opacity="0.8" />
+            <circle cx="70" cy="220" r="1.5" fill="var(--accent-cyan)" />
+
+            <!-- Link to Card 2 (Top Right) -->
+            <path d="M 280 280 L 340 220 L 490 220" stroke="currentColor" stroke-width="0.75" class="opacity-60" />
+            <path d="M 280 280 L 340 220 L 490 220" stroke="var(--accent-cyan)" stroke-width="0.75" class="animate-dash-line" opacity="0.8" />
+            <circle cx="490" cy="220" r="1.5" fill="var(--accent-cyan)" />
+
+            <!-- Link to Card 3 (Middle Right) -->
+            <path d="M 280 280 L 380 280 L 500 280" stroke="currentColor" stroke-width="0.75" class="opacity-60" />
+            <path d="M 280 280 L 380 280 L 500 280" stroke="var(--accent-cyan)" stroke-width="0.75" class="animate-dash-line" opacity="0.8" />
+            <circle cx="500" cy="280" r="1.5" fill="var(--accent-cyan)" />
+
+            <!-- Link to Card 4 (Bottom Left) -->
+            <path d="M 280 280 L 220 340 L 70 340" stroke="currentColor" stroke-width="0.75" class="opacity-60" />
+            <path d="M 280 280 L 220 340 L 70 340" stroke="var(--accent-cyan)" stroke-width="0.75" class="animate-dash-line" opacity="0.8" />
+            <circle cx="70" cy="340" r="1.5" fill="var(--accent-cyan)" />
+
+            <!-- Link to Card 5 (Bottom Right) -->
+            <path d="M 280 280 L 340 340 L 490 340" stroke="currentColor" stroke-width="0.75" class="opacity-60" />
+            <path d="M 280 280 L 340 340 L 490 340" stroke="var(--accent-cyan)" stroke-width="0.75" class="animate-dash-line" opacity="0.8" />
+            <circle cx="490" cy="340" r="1.5" fill="var(--accent-cyan)" />
+          </svg>
+
+          <!-- 1. Top Left Floating Card: SYSTEM STATUS -->
+          <div class="absolute top-[4%] left-[-12%] bg-black/60 border border-glassBorder p-2.5 rounded font-mono text-[8px] text-textDim min-w-[130px] shadow-[0_0_20px_rgba(var(--accent-rgb),0.08)] transition-all duration-300 hover:border-cyanaccent/50 group">
+            <div class="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-cyanaccent/70 pointer-events-none"></div>
+            <div class="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-cyanaccent/70 pointer-events-none"></div>
+            <div class="text-white font-bold tracking-wider uppercase mb-1 flex items-center justify-between">
+              <span>SYSTEM STATUS</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-cyanaccent animate-pulse"></span>
             </div>
-            <span id="simulator-header-title" class="font-mono text-[10px] text-cyanaccent/50 tracking-widest uppercase flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
-              naxton-cloud-intelligence // v2.4
-            </span>
-            <button id="sound-toggle-btn" onclick="toggleMute()" class="text-textDim hover:text-cyanaccent transition-colors" title="Toggle Voice Sound">
-              <i data-lucide="volume-2" class="w-4 h-4"></i>
-            </button>
-          </div>
-
-          <!-- VIEW 1: Static Live Dashboard Mockup -->
-          <div id="dashboard-mockup-view" class="space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              
-              <!-- Widget 1: Analytics Live -->
-              <div class="bg-black/40 rounded-lg p-3 border border-glassBorder sm:col-span-2">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[10px] font-bold text-slate-300">Live Audio Call Processing</span>
-                  <span class="w-2 h-2 rounded-full bg-green-500 node-pulse"></span>
-                </div>
-                <div class="h-28 flex items-end gap-1.5 px-1 py-2 relative">
-                  <!-- Glowing waveform bar graphs -->
-                  <div class="w-full bg-cyanaccent/20 rounded-t-sm waveform-bar" style="animation-delay: 0.1s; height: 30%"></div>
-                  <div class="w-full bg-cyanaccent/40 rounded-t-sm waveform-bar" style="animation-delay: 0.5s; height: 60%"></div>
-                  <div class="w-full bg-tealaccent/30 rounded-t-sm waveform-bar" style="animation-delay: 0.3s; height: 45%"></div>
-                  <div class="w-full bg-cyanaccent/60 rounded-t-sm waveform-bar animate-pulse" style="height: 80%; animation-duration: 0.9s;"></div>
-                  <div class="w-full bg-tealaccent/70 rounded-t-sm waveform-bar" style="animation-delay: 0.7s; height: 75%"></div>
-                  <div class="w-full bg-cyanaccent/30 rounded-t-sm waveform-bar" style="animation-delay: 0.2s; height: 50%"></div>
-                  <div class="w-full bg-blue-500/40 rounded-t-sm waveform-bar animate-pulse" style="height: 55%;"></div>
-                  <div class="w-full bg-cyanaccent/80 rounded-t-sm waveform-bar" style="animation-delay: 0.8s; height: 90%"></div>
-                  <div class="w-full bg-cyanaccent/40 rounded-t-sm waveform-bar" style="animation-delay: 0.4s; height: 40%"></div>
-                  
-                  <!-- Time tag -->
-                  <span class="absolute bottom-1 right-2 font-mono text-[9px] text-cyanaccent/60">latency: 48ms</span>
-                </div>
-              </div>
-
-              <!-- Widget 2: Stats Ring -->
-              <div class="bg-black/40 rounded-lg p-3 border border-glassBorder flex flex-col justify-between items-center text-center">
-                <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Reliability</span>
-                
-                <!-- Circular graphic -->
-                <div class="relative w-16 h-16 flex items-center justify-center">
-                  <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                    <path class="text-slate-800" stroke-width="2.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    <path class="text-cyanaccent" stroke-dasharray="99.9, 100" stroke-width="2.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  </svg>
-                  <div class="absolute font-mono text-[10px] font-extrabold text-white">99.9%</div>
-                </div>
-                
-                <span class="text-[9px] text-textDim">Core Uptime</span>
-              </div>
-
-              <!-- Widget 3: Live Feed Logs -->
-              <div class="bg-black/40 rounded-lg p-3 border border-glassBorder sm:col-span-3">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[10px] font-bold text-slate-300">Operational Log Feed</span>
-                  <span class="text-[9px] font-mono text-textDim">SYS: OK</span>
-                </div>
-                <div class="font-mono text-[9px] text-slate-400 space-y-1.5 leading-relaxed">
-                  <div class="flex justify-between border-b border-white/5 pb-1">
-                    <span class="text-cyanaccent">[03:14:21]</span>
-                    <span class="text-slate-300">AI Voice Agent: Completed reservation booking</span>
-                    <span class="text-green-400">SUCCESS</span>
-                  </div>
-                  <div class="flex justify-between border-b border-white/5 pb-1">
-                    <span class="text-cyanaccent">[03:15:05]</span>
-                    <span class="text-slate-300">Nexa Flow: Triggered webhook CRM pipeline sync</span>
-                    <span class="text-cyanaccent">DISPATCHED</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-cyanaccent">[03:15:39]</span>
-                    <span class="text-slate-300">Secure Vault: Database API token rotated</span>
-                    <span class="text-tealaccent">ROTATED</span>
-                  </div>
-                </div>
-              </div>
-
+            <div class="flex items-center justify-between text-cyanaccent font-extrabold text-[9px] mb-1">
+              <span>OPERATIONAL</span>
+              <span>99.99%</span>
             </div>
-
-            <!-- Launcher Button -->
-            <button onclick="launchInteractiveVoice()" class="w-full py-3.5 rounded-lg text-xs font-bold font-orbitron tracking-widest text-white btn-premium flex items-center justify-center gap-2.5 shadow-[0_0_20px_rgba(34,211,238,0.25)] border-cyanaccent/30 group cursor-pointer">
-              <i data-lucide="phone-call" class="w-4 h-4 text-cyanaccent group-hover:scale-110 transition-transform"></i>
-              TEST INTERACTIVE VOICE AGENT
-            </button>
-          </div>
-
-          <!-- VIEW 2: Interactive Voice Agent Call Simulator -->
-          <div id="interactive-voice-view" class="hidden flex flex-col justify-between space-y-4">
-            <!-- Active Info -->
-            <div class="flex items-center justify-between bg-cyanaccent/5 border border-cyanaccent/20 rounded-lg p-2.5">
-              <div class="flex items-center gap-2.5">
-                <div class="relative w-2.5 h-2.5">
-                  <span class="absolute inline-flex h-full w-full rounded-full bg-cyanaccent opacity-75 animate-ping"></span>
-                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyanaccent" id="status-dot"></span>
-                </div>
-                <span id="call-status" class="font-orbitron font-extrabold text-[10px] text-white tracking-widest uppercase">DIALING AGENT...</span>
-              </div>
-              <span id="call-timer" class="font-mono text-[10px] text-cyanaccent font-bold">00:00</span>
+            <div class="h-3 flex items-end gap-0.5 opacity-80 mt-1">
+              <div class="w-1 bg-cyanaccent/30 h-[40%] animate-pulse"></div>
+              <div class="w-1 bg-cyanaccent/60 h-[70%]"></div>
+              <div class="w-1 bg-cyanaccent/40 h-[50%] animate-pulse"></div>
+              <div class="w-1 bg-cyanaccent/80 h-[90%]"></div>
+              <div class="w-1 bg-cyanaccent/50 h-[60%]"></div>
+              <div class="w-1 bg-cyanaccent/70 h-[30%]"></div>
+              <div class="w-1 bg-cyanaccent/45 h-[55%] animate-pulse"></div>
+              <div class="w-1 bg-cyanaccent/75 h-[80%]"></div>
             </div>
-
-            <!-- Agent Selector Grid -->
-            <div class="grid grid-cols-3 gap-2" id="agent-selector-grid">
-              <button onclick="selectAgent('nex')" id="agent-btn-nex" class="py-2 px-1 text-center rounded bg-cyanaccent/15 border border-cyanaccent/40 text-white transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1 cursor-pointer">
-                <span class="text-base">🍔</span>
-                <span>NEX (BURGER)</span>
-              </button>
-              <button onclick="selectAgent('aura')" id="agent-btn-aura" class="py-2 px-1 text-center rounded bg-black/40 border border-glassBorder text-textDim hover:text-white transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1 cursor-pointer">
-                <span class="text-base">💆</span>
-                <span>AURA (SPA)</span>
-              </button>
-              <button onclick="selectAgent('cyrus')" id="agent-btn-cyrus" class="py-2 px-1 text-center rounded bg-black/40 border border-glassBorder text-textDim hover:text-white transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1 cursor-pointer">
-                <span class="text-base">💻</span>
-                <span>CYRUS (DEV)</span>
-              </button>
-            </div>
-
-            <!-- Waveform & Visualizer -->
-            <div class="h-16 bg-black/50 border border-glassBorder rounded-lg flex items-center justify-center gap-1 relative overflow-hidden px-4">
-              <div id="sim-wave-1" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-2" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-3" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-4" class="w-1.5 h-2 bg-tealaccent/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-5" class="w-1.5 h-2 bg-tealaccent/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-6" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-7" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-8" class="w-1.5 h-2 bg-blue-500/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-9" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-10" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-11" class="w-1.5 h-2 bg-tealaccent/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-12" class="w-1.5 h-2 bg-tealaccent/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-13" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
-              <div id="sim-wave-14" class="w-1.5 h-2 bg-cyanaccent/80 rounded-full transition-all duration-150"></div>
-              
-              <span class="absolute bottom-1 right-2 font-mono text-[8px] text-cyanaccent/40 uppercase tracking-widest" id="voice-stream-type">SYNTHETIC FEED ACTIVE</span>
-            </div>
-
-            <!-- Terminal log / transcript -->
-            <div class="h-32 bg-black/60 border border-glassBorder rounded-lg p-3 overflow-y-auto font-mono text-[10px] space-y-2 flex flex-col" id="simulator-transcript">
-              <div class="text-cyanaccent/60">[SYS] Secure WebRTC gateway initializing...</div>
-            </div>
-
-            <!-- Presets / Quick Actions -->
-            <div class="space-y-1.5">
-              <span class="text-[9px] font-bold text-textDim uppercase tracking-wider block">Suggested Replies:</span>
-              <div class="flex flex-wrap gap-1.5" id="dialogue-presets">
-                <!-- Dynamically populated -->
-              </div>
-            </div>
-
-            <!-- Custom Input / Controls Row -->
-            <div class="flex items-center gap-2">
-              <input type="text" id="sim-user-input" onkeydown="handleInputKeydown(event)" placeholder="Type a response..." class="flex-1 bg-black/40 border border-glassBorder rounded-lg py-2 px-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyanaccent/40" />
-              
-              <button onclick="toggleSpeechInput()" id="mic-btn" class="w-9 h-9 rounded-lg bg-black/40 border border-glassBorder flex items-center justify-center text-textDim hover:text-cyanaccent hover:border-cyanaccent/30 transition-colors cursor-pointer" title="Speech Input">
-                <i data-lucide="mic" class="w-4 h-4"></i>
-              </button>
-
-              <button onclick="hangUpCall()" class="px-3.5 h-9 rounded-lg bg-red-950/40 border border-red-500/30 text-red-400 hover:bg-red-900/40 hover:border-red-500 transition-colors font-orbitron text-[10px] font-bold tracking-widest uppercase flex items-center justify-center gap-1.5 cursor-pointer">
-                <i data-lucide="phone-off" class="w-3.5 h-3.5"></i>
-                DISCONNECT
-              </button>
+            <div class="text-[6px] text-cyanaccent/40 font-semibold tracking-wider mt-1.5 border-t border-glassBorder/10 pt-1">
+              SECURE CHANNEL // STABLE
             </div>
           </div>
 
+          <!-- 2. Top Right Floating Card: AI AGENTS -->
+          <div class="absolute top-[1%] right-[-6%] bg-black/60 border border-glassBorder p-2.5 rounded font-mono text-[8px] text-textDim min-w-[115px] shadow-[0_0_20px_rgba(var(--accent-rgb),0.08)] transition-all duration-300 hover:border-cyanaccent/50 group">
+            <div class="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-cyanaccent/70 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-cyanaccent/70 pointer-events-none"></div>
+            <div class="text-white font-bold tracking-wider uppercase mb-1.5">AI AGENTS</div>
+            <div class="flex items-center justify-between text-tealaccent font-extrabold text-[9px] mb-1.5">
+              <span>ACTIVE</span>
+              <span>24 / 24</span>
+            </div>
+            <div class="w-full bg-white/5 h-[3px] rounded-full overflow-hidden mb-1">
+              <div class="bg-tealaccent h-full w-[100%] rounded-full animate-pulse"></div>
+            </div>
+            <div class="text-[6px] text-tealaccent/40 font-semibold tracking-wider mt-1 border-t border-glassBorder/10 pt-1">
+              THREAD CORES: OK
+            </div>
+          </div>
+
+          <!-- 3. Middle Right Floating Card: AUTOMATION -->
+          <div class="absolute top-[45%] right-[-18%] bg-black/60 border border-glassBorder p-2.5 rounded font-mono text-[8px] text-textDim min-w-[130px] shadow-[0_0_20px_rgba(var(--accent-rgb),0.08)] transition-all duration-300 hover:border-cyanaccent/50 group">
+            <div class="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-cyanaccent/70 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-cyanaccent/70 pointer-events-none"></div>
+            <div class="text-white font-bold tracking-wider uppercase mb-1">AUTOMATION</div>
+            <div class="flex items-center justify-between text-cyanaccent font-extrabold text-[9px] mb-1.5">
+              <span>WORKFLOWS</span>
+              <span>12B</span>
+            </div>
+            <div class="h-3 flex items-end gap-0.5 opacity-80 mt-1">
+              <div class="w-1 bg-tealaccent/30 h-[50%]"></div>
+              <div class="w-1 bg-tealaccent/60 h-[30%] animate-pulse"></div>
+              <div class="w-1 bg-tealaccent/80 h-[75%]"></div>
+              <div class="w-1 bg-tealaccent/40 h-[60%]"></div>
+              <div class="w-1 bg-tealaccent/50 h-[85%] animate-pulse"></div>
+              <div class="w-1 bg-tealaccent/70 h-[40%]"></div>
+              <div class="w-1 bg-tealaccent/90 h-[95%] animate-pulse"></div>
+            </div>
+            <div class="text-[6px] text-cyanaccent/40 font-semibold tracking-wider mt-1.5 border-t border-glassBorder/10 pt-1">
+              SYNC LOOPS: ON
+            </div>
+          </div>
+
+          <!-- 4. Bottom Left Floating Card: DATA STREAM -->
+          <div class="absolute bottom-[4%] left-[-10%] bg-black/60 border border-glassBorder p-2.5 rounded font-mono text-[8px] text-textDim min-w-[115px] shadow-[0_0_20px_rgba(var(--accent-rgb),0.08)] transition-all duration-300 hover:border-cyanaccent/50 group">
+            <div class="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-cyanaccent/70 pointer-events-none"></div>
+            <div class="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-cyanaccent/70 pointer-events-none"></div>
+            <div class="text-white font-bold tracking-wider uppercase mb-1">DATA STREAM</div>
+            <div class="flex items-center justify-between text-tealaccent font-extrabold text-[9px] mb-1.5">
+              <span>REAL-TIME</span>
+              <span>ON</span>
+            </div>
+            <div class="h-1.5 flex items-center gap-1 opacity-80">
+              <div class="w-1 h-1.5 rounded-full bg-tealaccent animate-ping"></div>
+              <div class="w-16 h-[2px] bg-tealaccent/20 relative rounded-full overflow-hidden">
+                <div class="absolute left-0 top-0 h-full w-[65%] bg-tealaccent rounded-full animate-pulse"></div>
+              </div>
+            </div>
+            <div class="text-[6px] text-tealaccent/40 font-semibold tracking-wider mt-1 border-t border-glassBorder/10 pt-1">
+              LATENCY: 1.2ms
+            </div>
+          </div>
+
+          <!-- 5. Bottom Right Floating Card: PERFORMANCE -->
+          <div class="absolute bottom-[1%] right-[-6%] bg-black/60 border border-glassBorder p-2.5 rounded font-mono text-[8px] text-textDim min-w-[120px] shadow-[0_0_20px_rgba(var(--accent-rgb),0.08)] transition-all duration-300 hover:border-cyanaccent/50 group">
+            <div class="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-cyanaccent/70 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-cyanaccent/70 pointer-events-none"></div>
+            <div class="text-white font-bold tracking-wider uppercase mb-1 flex items-center justify-between">
+              <span>PERFORMANCE</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-cyanaccent animate-ping"></span>
+            </div>
+            <div class="flex items-center justify-between text-cyanaccent font-extrabold text-[9px] mb-1">
+              <span>OPTIMAL</span>
+              <span class="text-slate-400 text-[7px] font-bold">100%</span>
+            </div>
+            <svg class="h-3.5 w-full opacity-80 mt-1" viewBox="0 0 100 15" fill="none">
+              <path d="M0,7 Q12,1 25,7 T50,7 T75,7 T100,7" stroke="var(--accent-cyan)" stroke-width="1.25" stroke-linecap="round" fill="none" class="animate-pulse" />
+            </svg>
+            <div class="text-[6px] text-cyanaccent/40 font-semibold tracking-wider mt-1 border-t border-glassBorder/10 pt-1">
+              STABILITY: 100%
+            </div>
+          </div>
         </div>
-
-        <!-- Floating Card 1: Nexa Voice -->
-        <div class="absolute -top-6 -left-6 glass-card border border-glassBorder p-3 rounded-lg flex items-center gap-3 shadow-2xl float-medium z-10 max-w-[160px]">
-          <div class="w-8 h-8 rounded-full bg-cyanaccent/15 border border-cyanaccent/30 flex items-center justify-center text-cyanaccent">
-            <i data-lucide="mic-2" class="w-4 h-4"></i>
-          </div>
-          <div>
-            <h4 class="text-[10px] font-extrabold text-white tracking-wider">NEXA VOICE</h4>
-            <p class="text-[9px] text-green-400 flex items-center gap-1 mt-0.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-              Live: Active
-            </p>
-          </div>
-        </div>
-
-        <!-- Floating Card 2: Nexa Flow -->
-        <div class="absolute -bottom-6 -right-6 glass-card border border-glassBorder p-3 rounded-lg flex items-center gap-3 shadow-2xl float-fast z-10 max-w-[180px]">
-          <div class="w-8 h-8 rounded-full bg-tealaccent/15 border border-tealaccent/30 flex items-center justify-center text-tealaccent">
-            <i data-lucide="git-branch" class="w-4 h-4"></i>
-          </div>
-          <div>
-            <h4 class="text-[10px] font-extrabold text-white tracking-wider">NEXA FLOW</h4>
-            <p class="text-[9px] text-textDim mt-0.5">Automations: 1,420 / min</p>
-          </div>
-        </div>
-
       </div>
     </div>
   </section>
@@ -860,46 +1262,136 @@
   <!-- ==================== SECTION 3 — TRUST & STATS ==================== -->
   <section class="py-12 border-y border-glassBorder bg-[#041014]/50 backdrop-blur-md relative" id="stats">
     <div class="max-w-7xl mx-auto px-6">
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-8 text-center reveal stagger-reveal">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 reveal stagger-reveal mb-12">
         
-        <!-- Stat Item 1 -->
-        <div class="flex flex-col items-center">
-          <h2 class="font-orbitron font-black text-2xl sm:text-3xl text-white tracking-tight leading-none mb-2 bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent">
-            250+
-          </h2>
-          <p class="text-[10px] sm:text-xs font-bold tracking-widest text-textDim uppercase">Projects Delivered</p>
+        <!-- Stat Item 1: Projects Delivered -->
+        <div class="hud-notched-card p-5 flex items-center gap-4 group">
+          <div class="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-cyanaccent/70 pointer-events-none"></div>
+          <div class="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-cyanaccent/70 pointer-events-none"></div>
+          
+          <span class="absolute top-1 right-2 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">SYS_DELIV // SECURE</span>
+          <span class="absolute bottom-1 left-2.5 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">0x42f // STAT:OK</span>
+          
+          <div class="w-11 h-11 rounded border border-glassBorder bg-white/5 flex items-center justify-center text-cyanaccent flex-shrink-0 group-hover:border-cyanaccent/30 group-hover:bg-cyanaccent/5 transition-all duration-300">
+            <svg class="w-5.5 h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+              <line x1="12" y1="22.08" x2="12" y2="12" />
+            </svg>
+          </div>
+          <div class="text-left font-mono">
+            <div class="font-orbitron font-black text-lg sm:text-xl text-white leading-none mb-1 group-hover:text-cyanaccent transition-colors">
+              250+
+            </div>
+            <div class="text-[7.5px] font-bold tracking-widest text-textDim uppercase leading-tight">
+              Projects Delivered
+            </div>
+          </div>
         </div>
 
-        <!-- Stat Item 2 -->
-        <div class="flex flex-col items-center border-l border-glassBorder/40">
-          <h2 class="font-orbitron font-black text-2xl sm:text-3xl text-cyanaccent tracking-tight leading-none mb-2">
-            99.9%
-          </h2>
-          <p class="text-[10px] sm:text-xs font-bold tracking-widest text-textDim uppercase">Reliability</p>
+        <!-- Stat Item 2: Reliability -->
+        <div class="hud-notched-card p-5 flex items-center gap-4 group">
+          <div class="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-cyanaccent/70 pointer-events-none"></div>
+          <div class="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-cyanaccent/70 pointer-events-none"></div>
+          
+          <span class="absolute top-1 right-2 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">UPTIME // SYNC</span>
+          <span class="absolute bottom-1 left-2.5 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">0x19b // LAT:0.9ms</span>
+          
+          <div class="w-11 h-11 rounded border border-glassBorder bg-white/5 flex items-center justify-center text-cyanaccent flex-shrink-0 group-hover:border-cyanaccent/30 group-hover:bg-cyanaccent/5 transition-all duration-300">
+            <svg class="w-5.5 h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="m9 11 2 2 4-4" />
+            </svg>
+          </div>
+          <div class="text-left font-mono">
+            <div class="font-orbitron font-black text-lg sm:text-xl text-cyanaccent leading-none mb-1 group-hover:text-white transition-colors">
+              99.9%
+            </div>
+            <div class="text-[7.5px] font-bold tracking-widest text-textDim uppercase leading-tight">
+              Reliability
+            </div>
+          </div>
         </div>
 
-        <!-- Stat Item 3 -->
-        <div class="flex flex-col items-center border-l border-glassBorder/40">
-          <h2 class="font-orbitron font-black text-2xl sm:text-3xl text-white tracking-tight leading-none mb-2">
-            24/7
-          </h2>
-          <p class="text-[10px] sm:text-xs font-bold tracking-widest text-textDim uppercase">Live Support</p>
+        <!-- Stat Item 3: Live Support -->
+        <div class="hud-notched-card p-5 flex items-center gap-4 group">
+          <div class="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-cyanaccent/70 pointer-events-none"></div>
+          <div class="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-cyanaccent/70 pointer-events-none"></div>
+          
+          <span class="absolute top-1 right-2 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">SUPPORT // DUAL</span>
+          <span class="absolute bottom-1 left-2.5 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">0x89e // FLUX:ON</span>
+          
+          <div class="w-11 h-11 rounded border border-glassBorder bg-white/5 flex items-center justify-center text-cyanaccent flex-shrink-0 group-hover:border-cyanaccent/30 group-hover:bg-cyanaccent/5 transition-all duration-300">
+            <svg class="w-5.5 h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 14a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2" />
+              <path d="M12 2a9 9 0 0 1 9 9v1H3v-1a9 9 0 0 1 9-9z" />
+            </svg>
+          </div>
+          <div class="text-left font-mono">
+            <div class="font-orbitron font-black text-lg sm:text-xl text-white leading-none mb-1 group-hover:text-cyanaccent transition-colors">
+              24/7
+            </div>
+            <div class="text-[7.5px] font-bold tracking-widest text-textDim uppercase leading-tight">
+              Live Support
+            </div>
+          </div>
         </div>
 
-        <!-- Stat Item 4 -->
-        <div class="flex flex-col items-center border-l border-glassBorder/40">
-          <h2 class="font-orbitron font-black text-2xl sm:text-3xl text-tealaccent tracking-tight leading-none mb-2">
-            GLOBAL
-          </h2>
-          <p class="text-[10px] sm:text-xs font-bold tracking-widest text-textDim uppercase">Clients Reached</p>
+        <!-- Stat Item 4: Clients Reached -->
+        <div class="hud-notched-card p-5 flex items-center gap-4 group">
+          <div class="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-cyanaccent/70 pointer-events-none"></div>
+          <div class="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-cyanaccent/70 pointer-events-none"></div>
+          
+          <span class="absolute top-1 right-2 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">LOCATIONS // ACTV</span>
+          <span class="absolute bottom-1 left-2.5 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">0x7b1 // GLOBAL</span>
+          
+          <div class="w-11 h-11 rounded border border-glassBorder bg-white/5 flex items-center justify-center text-cyanaccent flex-shrink-0 group-hover:border-cyanaccent/30 group-hover:bg-cyanaccent/5 transition-all duration-300">
+            <svg class="w-5.5 h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="2" y1="12" x2="22" y2="12" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+          </div>
+          <div class="text-left font-mono">
+            <div class="font-orbitron font-black text-lg sm:text-xl text-cyanaccent leading-none mb-1 group-hover:text-white transition-colors">
+              GLOBAL
+            </div>
+            <div class="text-[7.5px] font-bold tracking-widest text-textDim uppercase leading-tight">
+              Clients Reached
+            </div>
+          </div>
         </div>
 
-        <!-- Stat Item 5 -->
-        <div class="flex flex-col items-center border-l border-glassBorder/40">
-          <h2 class="font-orbitron font-black text-2xl sm:text-3xl text-white tracking-tight leading-none mb-2">
-            10+
-          </h2>
-          <p class="text-[10px] sm:text-xs font-bold tracking-widest text-textDim uppercase">Tech Partners</p>
+        <!-- Stat Item 5: Tech Partners -->
+        <div class="hud-notched-card p-5 flex items-center gap-4 group">
+          <div class="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-cyanaccent/70 pointer-events-none"></div>
+          <div class="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-cyanaccent/70 pointer-events-none"></div>
+          
+          <span class="absolute top-1 right-2 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">CORES // SYNCED</span>
+          <span class="absolute bottom-1 left-2.5 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">0x3a4 // STABLE</span>
+          
+          <div class="w-11 h-11 rounded border border-glassBorder bg-white/5 flex items-center justify-center text-cyanaccent flex-shrink-0 group-hover:border-cyanaccent/30 group-hover:bg-cyanaccent/5 transition-all duration-300">
+            <svg class="w-5.5 h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="2" />
+              <rect x="9" y="9" width="6" height="6" />
+              <line x1="9" y1="1" x2="9" y2="4" />
+              <line x1="15" y1="1" x2="15" y2="4" />
+              <line x1="9" y1="20" x2="9" y2="23" />
+              <line x1="15" y1="20" x2="15" y2="23" />
+              <line x1="20" y1="9" x2="23" y2="9" />
+              <line x1="20" y1="15" x2="23" y2="15" />
+              <line x1="1" y1="9" x2="4" y2="9" />
+              <line x1="1" y1="15" x2="4" y2="15" />
+            </svg>
+          </div>
+          <div class="text-left font-mono">
+            <div class="font-orbitron font-black text-lg sm:text-xl text-white leading-none mb-1 group-hover:text-cyanaccent transition-colors">
+              10+
+            </div>
+            <div class="text-[7.5px] font-bold tracking-widest text-textDim uppercase leading-tight">
+              Tech Partners
+            </div>
+          </div>
         </div>
 
       </div>
@@ -2267,7 +2759,7 @@
               <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
             </svg>
           </a>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl border border-glassBorder bg-glassBg/40 flex items-center justify-center text-textDim hover:text-cyanaccent hover:border-cyanaccent/40 hover:scale-110 hover:shadow-[0_0_15px_rgba(var(--accent-rgb),0.25)] transition-all duration-300">
+          <a href="https://www.instagram.com/naxtontechnologies?igsh=OHhoY3N1c2dmcnEy" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl border border-glassBorder bg-glassBg/40 flex items-center justify-center text-textDim hover:text-cyanaccent hover:border-cyanaccent/40 hover:scale-110 hover:shadow-[0_0_15px_rgba(var(--accent-rgb),0.25)] transition-all duration-300">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
               <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
@@ -2722,6 +3214,162 @@
     <span class="hidden md:inline">BACK TO TOP</span>
   </button>
 
+  <!-- 🎯 Advanced HUD Cursor Reticle -->
+  <div id="hud-cursor-reticle" class="hud-cursor-reticle">
+    <svg class="w-full h-full text-cyanaccent" viewBox="0 0 100 100" fill="none">
+      <!-- Outer dashed ring -->
+      <circle cx="50" cy="50" r="44" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2, 6" class="animate-spin-cw opacity-40" style="animation-duration: 10s;" />
+      <!-- Inner notch ring -->
+      <circle cx="50" cy="50" r="34" stroke="currentColor" stroke-width="0.75" stroke-dasharray="10, 20" class="animate-spin-ccw opacity-60" style="animation-duration: 6s;" />
+      <!-- Target crosshair notches -->
+      <path d="M 50 15 L 50 25 M 50 75 L 50 85 M 15 50 L 25 50 M 75 50 L 85 50" stroke="currentColor" stroke-width="0.75" opacity="0.7" />
+      <!-- Tiny center reticle ring and center dot -->
+      <circle cx="50" cy="50" r="5" stroke="currentColor" stroke-width="0.5" opacity="0.4" />
+      <circle cx="50" cy="50" r="1" fill="currentColor" />
+    </svg>
+    <div id="hud-cursor-coords" class="hud-cursor-coords">SYS.LOC [X: 000, Y: 000]</div>
+  </div>
+
+  <!-- 🎤 Jarvis HUD Voice AI Simulator Overlay -->
+  <div id="interactive-voice-view" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <!-- Notched Modal Card -->
+    <div class="hud-notched-card w-full max-w-2xl p-6 sm:p-8 relative bg-darkest/90 border border-glassBorder shadow-[0_0_50px_rgba(var(--accent-rgb),0.15)]">
+      <div class="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyanaccent pointer-events-none"></div>
+      <div class="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-cyanaccent pointer-events-none"></div>
+      <div class="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-cyanaccent pointer-events-none"></div>
+      <div class="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-cyanaccent pointer-events-none"></div>
+
+      <!-- Close / Hangup Button -->
+      <button onclick="hangUpCall()" class="absolute top-4 right-4 text-textDim hover:text-red-400 transition-colors cursor-pointer z-10 flex items-center gap-1.5 font-mono text-[9px] border border-glassBorder/40 bg-white/5 px-2.5 py-1 rounded">
+        <i data-lucide="phone-off" class="w-3.5 h-3.5 text-red-500 animate-pulse"></i>
+        <span class="tracking-wider text-slate-300">DISCONNECT</span>
+      </button>
+
+      <!-- Header Title -->
+      <div class="mb-6 text-left border-b border-glassBorder pb-4">
+        <span class="text-[9px] font-bold font-mono tracking-[3px] text-cyanaccent uppercase flex items-center gap-1.5">
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyanaccent animate-pulse" id="status-dot"></span>
+          <span id="call-status">NEXA COGNITIVE NODE // ESTABLISHED</span>
+        </span>
+        <h3 class="font-orbitron font-black text-xl text-white tracking-widest mt-1 uppercase">Voice AI Live Simulator</h3>
+      </div>
+
+      <!-- Agent Selection Row -->
+      <div class="grid grid-cols-3 gap-3 mb-6">
+        <button id="agent-btn-nex" onclick="selectAgent('nex')" class="py-2.5 px-2 text-center rounded bg-cyanaccent/15 border border-cyanaccent/40 text-white transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1 cursor-pointer">
+          <i data-lucide="utensils" class="w-4 h-4 text-cyanaccent"></i>
+          <span>NEX</span>
+          <span class="text-[7px] text-textDim tracking-normal font-sans font-normal normal-case">Pizza Ordering</span>
+        </button>
+        
+        <button id="agent-btn-aura" onclick="selectAgent('aura')" class="py-2.5 px-2 text-center rounded bg-black/40 border border-glassBorder text-textDim hover:text-white transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1 cursor-pointer">
+          <i data-lucide="flower2" class="w-4 h-4 text-tealaccent"></i>
+          <span>AURA</span>
+          <span class="text-[7px] text-textDim tracking-normal font-sans font-normal normal-case">Spa Schedule</span>
+        </button>
+
+        <button id="agent-btn-cyrus" onclick="selectAgent('cyrus')" class="py-2.5 px-2 text-center rounded bg-black/40 border border-glassBorder text-textDim hover:text-white transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1 cursor-pointer">
+          <i data-lucide="terminal" class="w-4 h-4 text-slate-400"></i>
+          <span>CYRUS</span>
+          <span class="text-[7px] text-textDim tracking-normal font-sans font-normal normal-case">Dev Operations</span>
+        </button>
+      </div>
+
+      <!-- Live Stream Stats & Waveform -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
+        <!-- Technical Parameters -->
+        <div class="md:col-span-7 bg-black/40 border border-glassBorder rounded p-4 font-mono text-[9px] text-textDim space-y-2 text-left relative">
+          <div class="absolute top-0 right-0 text-[6px] text-cyanaccent/35 p-1">SYS.ENG.V2</div>
+          <div class="flex justify-between border-b border-glassBorder/10 pb-1">
+            <span>CALL DURATION:</span>
+            <span class="text-white font-bold" id="call-timer">00:00</span>
+          </div>
+          <div class="flex justify-between border-b border-glassBorder/10 pb-1">
+            <span>COGNITIVE STATUS:</span>
+            <span class="text-cyanaccent font-extrabold animate-pulse" id="sim-thinking-status-text">STANDBY</span>
+          </div>
+          <div class="flex justify-between border-b border-glassBorder/10 pb-1">
+            <span>PROCESSING ACTION:</span>
+            <span class="text-slate-300 font-bold" id="sim-thinking-step-text">ready</span>
+          </div>
+          <div class="flex justify-between">
+            <span>VOICE SAMPLING:</span>
+            <span class="text-tealaccent font-bold">ElevenLabs ConvAI [16KHz]</span>
+          </div>
+        </div>
+
+        <!-- Animated Waveform -->
+        <div class="md:col-span-5 bg-black/40 border border-glassBorder rounded p-4 flex flex-col justify-center items-center relative overflow-hidden">
+          <span class="text-[7.5px] font-bold font-orbitron text-slate-400 uppercase tracking-widest mb-2">AUDIO STREAM OUTPUT</span>
+          <div class="h-10 flex items-end gap-1 px-4 my-1.5">
+            <div class="w-1.5 bg-cyanaccent h-3 rounded-full animate-bounce"></div>
+            <div class="w-1.5 bg-cyanaccent h-8 rounded-full animate-bounce" style="animation-delay: 0.15s; animation-duration: 0.8s;"></div>
+            <div class="w-1.5 bg-tealaccent h-5 rounded-full animate-bounce" style="animation-delay: 0.3s; animation-duration: 0.6s;"></div>
+            <div class="w-1.5 bg-tealaccent h-9 rounded-full animate-bounce" style="animation-delay: 0.1s; animation-duration: 0.9s;"></div>
+            <div class="w-1.5 bg-cyanaccent h-4 rounded-full animate-bounce" style="animation-delay: 0.4s; animation-duration: 0.7s;"></div>
+          </div>
+          <span class="text-[7px] font-mono text-cyanaccent/45">STREAM CHANNEL ACTIVE</span>
+        </div>
+      </div>
+
+      <!-- Transcript Command Shell -->
+      <div class="bg-black/60 border border-glassBorder rounded p-4 mb-6 text-left shadow-inner">
+        <div class="flex items-center justify-between border-b border-glassBorder/20 pb-1.5 mb-2 text-[7px] font-mono text-slate-400">
+          <span>REALTIME TRANSCRIPTION FEED // STDOUT</span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-cyanaccent animate-ping"></span>
+            <span>SECURE STREAM</span>
+          </span>
+        </div>
+        <div id="simulator-transcript" class="h-32 overflow-y-auto font-mono text-[9px] space-y-1.5 text-slate-300 pr-1 select-text scrollbar-thin">
+          <div class="text-cyanaccent/60">[SYS] Ready. Click an agent above to begin conversation...</div>
+        </div>
+      </div>
+
+      <!-- Quick Suggested Replies -->
+      <div class="mb-4 text-left">
+        <div class="text-[7px] font-mono text-slate-400 mb-1.5 tracking-wider">SUGGESTED RESPONSES // SELECT PATHWAY:</div>
+        <div id="dialogue-presets" class="flex flex-wrap gap-2 min-h-[22px]">
+          <!-- Suggested buttons will be populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Custom Input Interface -->
+      <div class="flex items-center gap-2.5 border-t border-glassBorder/20 pt-4 mt-2">
+        <div class="flex-1 relative">
+          <input type="text" id="sim-user-input" onkeydown="handleInputKeydown(event)" placeholder="Type a custom query to AI Agent..." class="w-full px-4 py-3 bg-black/60 border border-glassBorder rounded-lg text-xs font-mono text-slate-200 placeholder-slate-500 focus:border-cyanaccent/50 focus:outline-none" />
+          <div class="absolute right-3 top-3.5 text-[6.5px] font-mono text-cyanaccent/30 pointer-events-none">ENTER TO SEND</div>
+        </div>
+        
+        <button onclick="toggleSpeechInput()" id="mic-toggle-btn" class="p-3 bg-white/5 border border-glassBorder rounded-lg text-slate-300 hover:text-cyanaccent hover:border-cyanaccent/40 transition-all cursor-pointer flex items-center justify-center" title="Toggle Microphone">
+          <svg class="w-4 h-4 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+            <path d="M19 10v1a7 7 0 0 1-14 0v-1"></path>
+            <line x1="12" x2="12" y1="19" y2="22"></line>
+          </svg>
+        </button>
+
+        <button onclick="toggleMute()" id="sound-toggle-btn" class="p-3 bg-white/5 border border-glassBorder rounded-lg text-cyanaccent hover:text-cyanaccent/80 hover:border-cyanaccent/40 transition-all cursor-pointer flex items-center justify-center" title="Mute/Unmute Speech">
+          <svg class="w-4 h-4 text-cyanaccent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+        </button>
+
+        <button onclick="hangUpCall()" class="px-5 py-3 bg-red-950/40 border border-red-500/30 hover:bg-red-500 hover:text-white rounded-lg text-red-400 text-xs font-bold font-orbitron tracking-widest transition-all cursor-pointer flex items-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]">
+          <i data-lucide="phone-off" class="w-3.5 h-3.5"></i>
+          <span>HANG UP</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden DOM Placeholders for Voice Simulator compatibility -->
+  <div id="simulator-tabs" class="hidden"></div>
+  <div id="dashboard-mockup-view" class="hidden"></div>
+  <div id="visual-thinking-view" class="hidden"></div>
+
   <!-- ==================== SCRIPTS AND INTERACTIONS ==================== -->
   <script>
     // Safe helpers for Lucide and LocalStorage to prevent browser runtime crashes
@@ -2755,10 +3403,20 @@
     // Initialize Lucide Icons safely
     safeCreateIcons();
 
+    // Trigger voice loading on page load to pre-cache high-fidelity neural voices
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.getVoices();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.getVoices();
+        };
+      }
+    }
+
     // ==========================================
     // MULTI-THEME SELECTOR LOGIC
     // ==========================================
-    const availableThemes = ['teal', 'purple', 'green', 'gold', 'light'];
+    const availableThemes = ['teal'];
     function setTheme(themeName) {
       if (!availableThemes.includes(themeName)) return;
       
@@ -3066,6 +3724,304 @@
     let recognition = null;
     let isListening = false;
 
+    let activeThinkingTab = 'dashboard';
+
+    const thinkingStages = {
+      ingest: {
+        title: "Data Ingestion",
+        desc: "Processes streaming audio feeds or custom input lines. Converts analog or text formats into internal JSON datagram chunks.",
+        latency: "~4ms",
+        threads: "2 Concurrency"
+      },
+      perceive: {
+        title: "Semantic Perception",
+        desc: "Performs syntactic analysis, intent recognition, and entity extraction on raw incoming tokens using localized neural weights.",
+        latency: "~12ms",
+        threads: "4 Concurrency"
+      },
+      act: {
+        title: "Action Selection",
+        desc: "Evaluates the conversational state and determines the next logical response pathway, invoking external API calls if necessary.",
+        latency: "~8ms",
+        threads: "1 Concurrency"
+      },
+      reason: {
+        title: "Reasoning & Cognitive Loop",
+        desc: "Resolves context ambiguity, queries vector storage, and cross-references historical dialog paths to formulate structured responses.",
+        latency: "~24ms",
+        threads: "8 Concurrency"
+      },
+      synthesize: {
+        title: "Synthesis & Utterance",
+        desc: "Compiles response tokens back into localized waveform structures or UI prompt arrays. Triggers audio playback/dispatch channels.",
+        latency: "~15ms",
+        threads: "3 Concurrency"
+      }
+    };
+
+    function switchSimulatorTab(tabId) {
+      if (simulatorActive) return;
+      
+      activeThinkingTab = tabId;
+      
+      const tabBtnDashboard = document.getElementById('tab-btn-dashboard');
+      const tabBtnThinking = document.getElementById('tab-btn-thinking');
+      const dashboardView = document.getElementById('dashboard-mockup-view');
+      const thinkingView = document.getElementById('visual-thinking-view');
+      
+      if (tabId === 'dashboard') {
+        if (tabBtnDashboard) tabBtnDashboard.className = 'flex-1 pb-2.5 text-cyanaccent border-b border-cyanaccent text-center cursor-pointer focus:outline-none transition-all duration-300';
+        if (tabBtnThinking) tabBtnThinking.className = 'flex-1 pb-2.5 text-textDim border-b border-transparent text-center hover:text-white transition-all duration-300 focus:outline-none flex items-center justify-center gap-1.5 cursor-pointer';
+        
+        if (dashboardView) dashboardView.classList.remove('hidden');
+        if (thinkingView) thinkingView.classList.add('hidden');
+      } else {
+        if (tabBtnDashboard) tabBtnDashboard.className = 'flex-1 pb-2.5 text-textDim border-b border-transparent text-center hover:text-white transition-all duration-300 focus:outline-none cursor-pointer';
+        if (tabBtnThinking) tabBtnThinking.className = 'flex-1 pb-2.5 text-cyanaccent border-b border-cyanaccent text-center focus:outline-none flex items-center justify-center gap-1.5 cursor-pointer';
+        
+        if (dashboardView) dashboardView.classList.add('hidden');
+        if (thinkingView) thinkingView.classList.remove('hidden');
+        
+        selectThinkingNode('ingest');
+      }
+    }
+
+    function selectThinkingNode(stageId) {
+      if (!thinkingStages[stageId]) return;
+      
+      const titleEl = document.getElementById('thinking-stage-title');
+      const descEl = document.getElementById('thinking-stage-desc');
+      const latencyEl = document.getElementById('thinking-stage-latency');
+      const threadsEl = document.getElementById('thinking-stage-threads');
+      const stepTextEl = document.getElementById('thinking-step-text');
+      const statusTextEl = document.getElementById('thinking-status-text');
+      
+      if (titleEl) titleEl.innerText = thinkingStages[stageId].title;
+      if (descEl) descEl.innerText = thinkingStages[stageId].desc;
+      if (latencyEl) latencyEl.innerText = thinkingStages[stageId].latency;
+      if (threadsEl) threadsEl.innerText = thinkingStages[stageId].threads;
+      
+      const statusTextMap = {
+        ingest: "listening to env tokens",
+        perceive: "resolving intent vectors",
+        act: "selecting response branch",
+        reason: "cross-referencing dialog maps",
+        synthesize: "rendering text prompts"
+      };
+      
+      if (stepTextEl) stepTextEl.innerText = statusTextMap[stageId] || "idle standby";
+      if (statusTextEl) statusTextEl.innerText = `Cognitive Engine: ${thinkingStages[stageId].title}`;
+      
+      ['ingest', 'perceive', 'act', 'reason', 'synthesize'].forEach(id => {
+        const nodeG = document.getElementById(`node-${id}`);
+        const halo = document.getElementById(`halo-${id}`);
+        if (nodeG) {
+          if (id === stageId) {
+            nodeG.classList.add('active-stage');
+            if (halo) halo.classList.remove('opacity-0');
+          } else {
+            nodeG.classList.remove('active-stage');
+            if (halo) halo.classList.add('opacity-0');
+          }
+        }
+      });
+
+      updateLinksHighlight(stageId);
+    }
+
+    function updateLinksHighlight(stageId) {
+      const links = ['ingest-perceive', 'ingest-act', 'perceive-reason', 'act-reason', 'reason-synthesize'];
+      links.forEach(l => {
+        const path = document.getElementById(`link-${l}`);
+        if (path) path.classList.remove('active-link');
+      });
+
+      if (stageId === 'ingest') {
+        const l1 = document.getElementById('link-ingest-perceive');
+        const l2 = document.getElementById('link-ingest-act');
+        if (l1) l1.classList.add('active-link');
+        if (l2) l2.classList.add('active-link');
+      } else if (stageId === 'perceive') {
+        const l1 = document.getElementById('link-ingest-perceive');
+        const l2 = document.getElementById('link-perceive-reason');
+        if (l1) l1.classList.add('active-link');
+        if (l2) l2.classList.add('active-link');
+      } else if (stageId === 'act') {
+        const l1 = document.getElementById('link-ingest-act');
+        const l2 = document.getElementById('link-act-reason');
+        if (l1) l1.classList.add('active-link');
+        if (l2) l2.classList.add('active-link');
+      } else if (stageId === 'reason') {
+        const l1 = document.getElementById('link-perceive-reason');
+        const l2 = document.getElementById('link-act-reason');
+        const l3 = document.getElementById('link-reason-synthesize');
+        if (l1) l1.classList.add('active-link');
+        if (l2) l2.classList.add('active-link');
+        if (l3) l3.classList.add('active-link');
+      } else if (stageId === 'synthesize') {
+        const l1 = document.getElementById('link-reason-synthesize');
+        if (l1) l1.classList.add('active-link');
+      }
+    }
+
+    function updateSimulatorThinkingState(state) {
+      const statusText = document.getElementById('sim-thinking-status-text');
+      const stepText = document.getElementById('sim-thinking-step-text');
+      
+      const nodes = ['ingest', 'perceive', 'act', 'reason', 'synthesize'];
+      
+      nodes.forEach(id => {
+        const nodeG = document.getElementById(`sim-node-${id}`);
+        const halo = document.getElementById(`sim-halo-${id}`);
+        if (nodeG) nodeG.classList.remove('active-stage');
+        if (halo) halo.classList.add('opacity-0');
+      });
+      
+      const links = ['ingest-perceive', 'ingest-act', 'perceive-reason', 'act-reason', 'reason-synthesize'];
+      links.forEach(l => {
+        const path = document.getElementById(`sim-link-${l}`);
+        if (path) path.classList.remove('active-link');
+      });
+
+      if (state === 'dialing' || state === 'connecting') {
+        if (statusText) statusText.innerText = "Cognitive Engine: Dialing";
+        if (stepText) stepText.innerText = "initializing line connection";
+        
+        const nodeIngest = document.getElementById('sim-node-ingest');
+        const haloIngest = document.getElementById('sim-halo-ingest');
+        if (nodeIngest) nodeIngest.classList.add('active-stage');
+        if (haloIngest) haloIngest.classList.remove('opacity-0');
+      } 
+      else if (state === 'listening') {
+        if (statusText) statusText.innerText = "Cognitive Engine: Listening";
+        if (stepText) stepText.innerText = "listening to user audio stream";
+        
+        const nodeIngest = document.getElementById('sim-node-ingest');
+        const haloIngest = document.getElementById('sim-halo-ingest');
+        if (nodeIngest) nodeIngest.classList.add('active-stage');
+        if (haloIngest) haloIngest.classList.remove('opacity-0');
+      }
+      else if (state === 'recording') {
+        if (statusText) statusText.innerText = "Cognitive Engine: Ingesting";
+        if (stepText) stepText.innerText = "converting speech to text tokens";
+        
+        const nodeIngest = document.getElementById('sim-node-ingest');
+        const haloIngest = document.getElementById('sim-halo-ingest');
+        const nodePerceive = document.getElementById('sim-node-perceive');
+        const haloPerceive = document.getElementById('sim-halo-perceive');
+        if (nodeIngest) nodeIngest.classList.add('active-stage');
+        if (haloIngest) haloIngest.classList.remove('opacity-0');
+        if (nodePerceive) nodePerceive.classList.add('active-stage');
+        if (haloPerceive) haloPerceive.classList.remove('opacity-0');
+        
+        const l1 = document.getElementById('sim-link-ingest-perceive');
+        if (l1) l1.classList.add('active-link');
+      }
+      else if (state === 'perceiving') {
+        if (statusText) statusText.innerText = "Cognitive Engine: Perceiving";
+        if (stepText) stepText.innerText = "parsing semantic intent";
+        
+        const nodePerceive = document.getElementById('sim-node-perceive');
+        const haloPerceive = document.getElementById('sim-halo-perceive');
+        if (nodePerceive) nodePerceive.classList.add('active-stage');
+        if (haloPerceive) haloPerceive.classList.remove('opacity-0');
+        
+        const l1 = document.getElementById('sim-link-ingest-perceive');
+        if (l1) l1.classList.add('active-link');
+      }
+      else if (state === 'reasoning') {
+        if (statusText) statusText.innerText = "Cognitive Engine: Reasoning";
+        if (stepText) stepText.innerText = "generating decision vector";
+        
+        const nodeReason = document.getElementById('sim-node-reason');
+        const haloReason = document.getElementById('sim-halo-reason');
+        const nodeAct = document.getElementById('sim-node-act');
+        const haloAct = document.getElementById('sim-halo-act');
+        if (nodeReason) nodeReason.classList.add('active-stage');
+        if (haloReason) haloReason.classList.remove('opacity-0');
+        if (nodeAct) nodeAct.classList.add('active-stage');
+        if (haloAct) haloAct.classList.remove('opacity-0');
+        
+        const l1 = document.getElementById('sim-link-perceive-reason');
+        const l2 = document.getElementById('sim-link-act-reason');
+        if (l1) l1.classList.add('active-link');
+        if (l2) l2.classList.add('active-link');
+      }
+      else if (state === 'synthesizing') {
+        if (statusText) statusText.innerText = "Cognitive Engine: Synthesizing";
+        if (stepText) stepText.innerText = "synthesizing speech utterance";
+        
+        const nodeSynth = document.getElementById('sim-node-synthesize');
+        const haloSynth = document.getElementById('sim-halo-synthesize');
+        if (nodeSynth) nodeSynth.classList.add('active-stage');
+        if (haloSynth) haloSynth.classList.remove('opacity-0');
+        
+        const l1 = document.getElementById('sim-link-reason-synthesize');
+        if (l1) l1.classList.add('active-link');
+      }
+    }
+
+    // Jarvis Interactive HUD Scan trigger
+    let jarvisScanInterval = null;
+    function triggerJarvisScan() {
+      const outerRing = document.getElementById('jarvis-outer-ring');
+      const midRing = document.getElementById('jarvis-mid-ring');
+      const loadText = document.getElementById('jarvis-telemetry-load');
+      const pingText = document.getElementById('jarvis-telemetry-ping');
+      const neuroText = document.getElementById('jarvis-neuro-status');
+      const neuroBar = document.getElementById('jarvis-neuro-bar');
+      const vectorText = document.getElementById('jarvis-vector-status');
+      const vectorBar = document.getElementById('jarvis-vector-bar');
+
+      if (!outerRing || !midRing) return;
+
+      // Speed up rotation
+      outerRing.classList.remove('animate-spin-cw');
+      outerRing.classList.add('animate-spin-cw-fast');
+      midRing.classList.remove('animate-spin-ccw');
+      midRing.classList.add('animate-spin-ccw-fast');
+
+      // Change status to scanning
+      if (neuroText) {
+        neuroText.innerText = "SCANNING...";
+        neuroText.className = "text-cyanaccent font-extrabold text-[9px] animate-pulse";
+      }
+
+      let progress = 0;
+      if (jarvisScanInterval) clearInterval(jarvisScanInterval);
+      
+      jarvisScanInterval = setInterval(() => {
+        progress += 10;
+        
+        // Randomize load & ping
+        if (loadText) loadText.innerText = (10 + Math.random() * 80).toFixed(1) + "%";
+        if (pingText) pingText.innerText = Math.floor(10 + Math.random() * 90) + "ms";
+
+        if (progress >= 100) {
+          clearInterval(jarvisScanInterval);
+          
+          // Restore normal rotation
+          outerRing.classList.remove('animate-spin-cw-fast');
+          outerRing.classList.add('animate-spin-cw');
+          midRing.classList.remove('animate-spin-ccw-fast');
+          midRing.classList.add('animate-spin-ccw');
+          
+          // Restore static data with minor variations
+          if (neuroText) {
+            neuroText.innerText = "SECURE // EST.";
+            neuroText.className = "text-white font-extrabold text-[9px]";
+          }
+          if (loadText) loadText.innerText = "12.4%";
+          if (pingText) pingText.innerText = "18ms";
+          
+          // Randomize bar widths slightly
+          if (neuroBar) neuroBar.style.width = (75 + Math.random() * 20) + "%";
+          if (vectorBar) vectorBar.style.width = (60 + Math.random() * 30) + "%";
+          if (vectorText) vectorText.innerText = Math.floor(3000 + Math.random() * 2000) + " / OK";
+        }
+      }, 150);
+    }
+
     // Helper to extract active accent RGB values
     function getActiveAccentRgb() {
       const styles = getComputedStyle(document.documentElement);
@@ -3283,21 +4239,49 @@
       if (isMuted) return;
 
       activeUtterance = new SpeechSynthesisUtterance(text);
-      activeUtterance.rate = 0.95; // Warm human speaking rate
-      activeUtterance.pitch = currentAgent === 'cyrus' ? 0.90 : (currentAgent === 'aura' ? 1.10 : 1.0);
+      activeUtterance.rate = 0.98; // Warm human speaking rate
+      activeUtterance.pitch = currentAgent === 'cyrus' ? 0.92 : (currentAgent === 'aura' ? 1.08 : 0.97);
 
-      // Select matching voice
+      // Select matching voice prioritizing high-fidelity, human-like neural voices
       const voices = speechSynth.getVoices();
       let selectedVoice = null;
-      if (currentAgent === 'aura') {
-        selectedVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female')) ||
-                        voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('zira')) ||
-                        voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('google'));
-      } else if (currentAgent === 'cyrus') {
-        selectedVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('male')) ||
-                        voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('david')) ||
-                        voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('google'));
+      const lowerAgent = currentAgent.toLowerCase();
+
+      // Priority list of voice searches for each agent to keep behavior identical/symmetrical
+      if (lowerAgent === 'aura') {
+        // Aura: Female natural voice (Jenny, Aria, Samantha, etc.)
+        selectedVoice = 
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('jenny') && v.name.toLowerCase().includes('online')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('aria') && v.name.toLowerCase().includes('online')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('natural') && v.name.toLowerCase().includes('female')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('google') && v.name.toLowerCase().includes('female')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('samantha')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('zira'));
+      } else if (lowerAgent === 'cyrus') {
+        // Cyrus: Deep/Tech British or English Male voice (Andrew, Ryan, Daniel, etc.)
+        selectedVoice = 
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('andrew') && v.name.toLowerCase().includes('online')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('ryan') && v.name.toLowerCase().includes('online')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('natural') && v.name.toLowerCase().includes('male')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('google') && v.name.toLowerCase().includes('uk') && v.name.toLowerCase().includes('male')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('daniel')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('david') && v.name.toLowerCase().includes('online')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('male')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('david'));
       } else {
+        // Nex: Warm Friendly US Male voice (Guy, Steffan, Google Male, etc.)
+        selectedVoice = 
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('guy') && v.name.toLowerCase().includes('online')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('steffan') && v.name.toLowerCase().includes('online')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('natural') && v.name.toLowerCase().includes('male')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('google') && v.name.toLowerCase().includes('us english') && v.name.toLowerCase().includes('male')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('google') && v.name.toLowerCase().includes('male')) ||
+          voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('male')) ||
+          voices.find(v => v.lang.startsWith('en'));
+      }
+
+      if (!selectedVoice) {
         selectedVoice = voices.find(v => v.lang.startsWith('en'));
       }
       if (selectedVoice) activeUtterance.voice = selectedVoice;
@@ -3306,12 +4290,14 @@
         startWaveformAnimation();
         document.getElementById('call-status').innerText = 'AGENT SPEAKING...';
         document.getElementById('status-dot').className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500';
+        updateSimulatorThinkingState('synthesizing');
       };
 
       activeUtterance.onend = () => {
         stopWaveformAnimation();
         document.getElementById('call-status').innerText = 'LISTENING...';
         document.getElementById('status-dot').className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-500 animate-pulse';
+        updateSimulatorThinkingState('listening');
       };
 
       speechSynth.speak(activeUtterance);
@@ -3321,14 +4307,15 @@
     function toggleMute() {
       isMuted = !isMuted;
       const btn = document.getElementById('sound-toggle-btn');
-      if (isMuted) {
-        btn.innerHTML = '<i data-lucide="volume-x" class="w-4 h-4 text-red-500"></i>';
-        if (speechSynth) speechSynth.cancel();
-        stopWaveformAnimation();
-      } else {
-        btn.innerHTML = '<i data-lucide="volume-2" class="w-4 h-4 text-cyanaccent"></i>';
+      if (btn) {
+        if (isMuted) {
+          btn.innerHTML = '<svg class="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" x2="17" y1="9" y2="15"></line><line x1="17" x2="23" y1="9" y2="15"></line></svg>';
+          if (speechSynth) speechSynth.cancel();
+          stopWaveformAnimation();
+        } else {
+          btn.innerHTML = '<svg class="w-4 h-4 text-cyanaccent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+        }
       }
-      safeCreateIcons();
     }
 
     // Waveform Animation during Speaking
@@ -3355,7 +4342,8 @@
     function initSpeechRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        document.getElementById('mic-btn').style.display = 'none';
+        const micBtn = document.getElementById('mic-toggle-btn');
+        if (micBtn) micBtn.style.display = 'none';
         return;
       }
 
@@ -3366,15 +4354,20 @@
 
       recognition.onstart = () => {
         isListening = true;
-        document.getElementById('mic-btn').innerHTML = '<i data-lucide="mic-off" class="w-4 h-4 text-red-500 animate-pulse"></i>';
+        const micBtn = document.getElementById('mic-toggle-btn');
+        if (micBtn) {
+          micBtn.innerHTML = '<svg class="w-4 h-4 text-red-500 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" x2="23" y1="1" y2="23"></line><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V5a3 3 0 0 0-5.94-.6"></path><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>';
+        }
         document.getElementById('call-status').innerText = 'RECORDING SPEECH...';
-        safeCreateIcons();
+        updateSimulatorThinkingState('recording');
       };
 
       recognition.onend = () => {
         isListening = false;
-        document.getElementById('mic-btn').innerHTML = '<i data-lucide="mic" class="w-4 h-4 text-textDim"></i>';
-        safeCreateIcons();
+        const micBtn = document.getElementById('mic-toggle-btn');
+        if (micBtn) {
+          micBtn.innerHTML = '<svg class="w-4 h-4 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v1a7 7 0 0 1-14 0v-1"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>';
+        }
       };
 
       recognition.onresult = (event) => {
@@ -3401,7 +4394,9 @@
     // Launch Simulator View
     function launchInteractiveVoice() {
       simulatorActive = true;
+      document.getElementById('simulator-tabs').classList.add('hidden');
       document.getElementById('dashboard-mockup-view').classList.add('hidden');
+      document.getElementById('visual-thinking-view').classList.add('hidden');
       document.getElementById('interactive-voice-view').classList.remove('hidden');
       
       // Reset simulator variables
@@ -3421,7 +4416,7 @@
       // Initialize speech recognition if possible
       if (!recognition) initSpeechRecognition();
     }
-
+ 
     // Hangup Simulator
     function hangUpCall() {
       simulatorActive = false;
@@ -3429,11 +4424,16 @@
       if (waveInterval) clearInterval(waveInterval);
       if (speechSynth) speechSynth.cancel();
       if (recognition && isListening) recognition.stop();
-
+ 
       document.getElementById('interactive-voice-view').classList.add('hidden');
-      document.getElementById('dashboard-mockup-view').classList.remove('hidden');
+      document.getElementById('simulator-tabs').classList.remove('hidden');
+      if (activeThinkingTab === 'dashboard') {
+        document.getElementById('dashboard-mockup-view').classList.remove('hidden');
+      } else {
+        document.getElementById('visual-thinking-view').classList.remove('hidden');
+      }
     }
-
+ 
     // Select Agent Profile
     function selectAgent(agentKey) {
       currentAgent = agentKey;
@@ -3450,12 +4450,13 @@
           }
         }
       });
-
+ 
       // Clear Transcript log
       const log = document.getElementById('simulator-transcript');
       if (log) log.innerHTML = '';
       
       addTranscriptLine('SYS', `Connecting to ${agentsData[agentKey].name} Voice Node...`);
+      updateSimulatorThinkingState('connecting');
       setTimeout(() => {
         addTranscriptLine('SYS', `Realtime media connection active.`);
         addTranscriptLine('AGENT', agentsData[agentKey].initText);
@@ -3507,6 +4508,11 @@
     function selectDialogueOption(text, nextStep) {
       addTranscriptLine('USER', text);
       
+      updateSimulatorThinkingState('perceiving');
+      setTimeout(() => {
+        updateSimulatorThinkingState('reasoning');
+      }, 300);
+      
       if (nextStep === 'hangup') {
         setTimeout(() => hangUpCall(), 1200);
         return;
@@ -3528,6 +4534,11 @@
     // Process typed response
     function processUserInputText(inputText) {
       if (!inputText.trim()) return;
+      
+      updateSimulatorThinkingState('perceiving');
+      setTimeout(() => {
+        updateSimulatorThinkingState('reasoning');
+      }, 300);
       
       // Match key terms or respond generically
       let matchedStep = null;
@@ -3853,8 +4864,124 @@
     resizeCanvas();
     drawNetwork();
 
+    // ==========================================
+    // INTERACTIVE HUD CURSOR RETICLE
+    // ==========================================
+    const homeSection = document.getElementById('home');
+    const hudReticle = document.getElementById('hud-cursor-reticle');
+    const hudCoordsText = document.getElementById('hud-cursor-coords');
+
+    let mouseX = 0, mouseY = 0; // target position
+    let reticleX = 0, reticleY = 0; // current interpolated position
+    let isInsideHome = false;
+
+    if (homeSection && hudReticle) {
+      homeSection.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        
+        // Update raw coordinates relative to the home container
+        const rect = homeSection.getBoundingClientRect();
+        const localX = Math.round(e.clientX - rect.left);
+        const localY = Math.round(e.clientY - rect.top);
+        if (hudCoordsText) {
+          hudCoordsText.innerText = `SYS.LOC [X: ${localX}, Y: ${localY}]`;
+        }
+      });
+
+      homeSection.addEventListener('mouseenter', () => {
+        isInsideHome = true;
+        hudReticle.classList.add('active');
+      });
+
+      homeSection.addEventListener('mouseleave', () => {
+        isInsideHome = false;
+        hudReticle.classList.remove('active');
+      });
+
+      homeSection.addEventListener('mousedown', () => {
+        hudReticle.classList.add('clicking');
+      });
+
+      window.addEventListener('mouseup', () => {
+        hudReticle.classList.remove('clicking');
+      });
+
+      // Smooth interpolation loop (lerp)
+      function updateReticlePosition() {
+        if (isInsideHome) {
+          reticleX += (mouseX - reticleX) * 0.15;
+          reticleY += (mouseY - reticleY) * 0.15;
+          hudReticle.style.left = `${reticleX}px`;
+          hudReticle.style.top = `${reticleY}px`;
+        }
+        requestAnimationFrame(updateReticlePosition);
+      }
+      // Initialize position to center
+      reticleX = window.innerWidth / 2;
+      reticleY = window.innerHeight / 2;
+      updateReticlePosition();
+    }
+
+    // ==========================================
+    // DYNAMIC SYSTEM CONSOLE LOGS LOOP
+    // ==========================================
+    const consoleScroller = document.getElementById('hud-console-scroller');
+    const systemLogMessages = [
+      "[SYS_INIT] BOOT SEQUENCE LAUNCHED... OK",
+      "[NET_SHIELD] SYNCING ACCELERATED FIREWALLS... DONE",
+      "[LLM_COGNITIVE] WEAVING NEURAL LOGIC NODES... [24/24]",
+      "[VECTOR_STORE] SEARCHING TARGET EMBEDDINGS... [4096-DIM]",
+      "[THREAT_DETECTOR] ANALYZING INCOMING FLUX... NULL",
+      "[API] ELEVENLABS INTERFACE LOADED // DYNAMIC AUDIOS",
+      "[API] TWILIO VOICE ENGINE STATUS: ACTIVE",
+      "[AI_MODEL] CACHE INTEGRITY CHECK: 100% SECURE",
+      "[COGNITIVE] CONVERSATIONAL STATE SYNCED // STABLE",
+      "[SYS_MONITOR] HEURISTIC ANOMALY DETECTOR: STABLE",
+      "[SYS_LOAD] MEMORY USAGE: 14.8MB // BUFFER SECURE",
+      "[SYSTEM] SYNC COMPLETE. COGNITIVE RUNTIME READY"
+    ];
+
+    let currentLogIndex = 2; // start after the placeholder items
+
+    function spawnNextSystemLog() {
+      if (!consoleScroller) return;
+
+      const nextMsg = systemLogMessages[currentLogIndex];
+      currentLogIndex = (currentLogIndex + 1) % systemLogMessages.length;
+
+      // Create new line
+      const logLine = document.createElement('div');
+      logLine.className = 'opacity-0 transition-opacity duration-300 font-mono text-[7px] text-cyanaccent/85';
+      logLine.innerText = nextMsg;
+      
+      consoleScroller.appendChild(logLine);
+
+      // Fade-in effect
+      setTimeout(() => {
+        logLine.classList.remove('opacity-0');
+        logLine.classList.add('opacity-75');
+      }, 50);
+
+      // Keep only last 4 lines inside scroller
+      while (consoleScroller.children.length > 4) {
+        consoleScroller.removeChild(consoleScroller.firstChild);
+      }
+
+      // Scroll to bottom
+      consoleScroller.scrollTop = consoleScroller.scrollHeight;
+
+      // Schedule next log entry
+      const nextTime = Math.random() * 1500 + 1500;
+      setTimeout(spawnNextSystemLog, nextTime);
+    }
+
+    if (consoleScroller) {
+      setTimeout(spawnNextSystemLog, 2000);
+    }
+
     // Load theme on start safely after all variables and functions are defined
-    const savedTheme = safeGetItem('theme') || 'teal';
+    const savedTheme = safeGetItem('theme') === 'light' ? 'teal' : (safeGetItem('theme') || 'teal');
     setTheme(savedTheme);
   </script>
 </body>
