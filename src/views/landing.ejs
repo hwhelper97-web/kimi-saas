@@ -484,7 +484,15 @@
     }
 
     #mobile-nav {
-      background-color: var(--bg-darkest) !important;
+      background-color: #030c10 !important;
+      background-image: radial-gradient(circle at 100% 0%, rgba(34, 211, 238, 0.08) 0%, transparent 60%) !important;
+      border-left: 1px solid rgba(34, 211, 238, 0.15) !important;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.95) !important;
+    }
+
+    #mobile-nav-backdrop {
+      background-color: rgba(0, 0, 0, 0.65) !important;
+      backdrop-filter: blur(4px) !important;
     }
 
     /* Premium Button Shimmer & Scale Updates */
@@ -738,7 +746,11 @@
 
       <!-- Mobile Menu Button -->
       <button class="xl:hidden w-10 h-10 rounded-lg bg-glassBg border border-glassBorder flex items-center justify-center text-slate-300 hover:text-cyanaccent hover:border-cyanaccent/30 transition-all cursor-pointer" id="mobile-menu-btn" aria-label="Toggle Menu">
-        <i data-lucide="menu" class="w-5 h-5"></i>
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" x2="20" y1="12" y2="12" />
+          <line x1="4" x2="20" y1="6" y2="6" />
+          <line x1="4" x2="20" y1="18" y2="18" />
+        </svg>
       </button>
     </div>
 
@@ -750,7 +762,10 @@
       <div class="flex items-center justify-between mb-8">
         <h3 class="font-orbitron font-extrabold text-xs text-white tracking-[2px]">MENU</h3>
         <button id="close-menu-btn" class="w-8 h-8 rounded-lg bg-glassBg border border-glassBorder flex items-center justify-center text-slate-400 hover:text-cyanaccent transition-colors cursor-pointer">
-          <i data-lucide="x" class="w-4 h-4"></i>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
         </button>
       </div>
       <nav class="flex flex-col gap-6 text-sm font-semibold tracking-widest text-textDim mb-12">
@@ -1278,7 +1293,7 @@
           <span class="absolute bottom-1 left-2.5 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">0x42f // STAT:OK</span>
           
           <div class="w-11 h-11 rounded border border-glassBorder bg-white/5 flex items-center justify-center text-cyanaccent flex-shrink-0 group-hover:border-cyanaccent/30 group-hover:bg-cyanaccent/5 transition-all duration-300">
-            <svg class="w-5.5 h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
               <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
               <line x1="12" y1="22.08" x2="12" y2="12" />
@@ -1303,7 +1318,7 @@
           <span class="absolute bottom-1 left-2.5 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">0x19b // LAT:0.9ms</span>
           
           <div class="w-11 h-11 rounded border border-glassBorder bg-white/5 flex items-center justify-center text-cyanaccent flex-shrink-0 group-hover:border-cyanaccent/30 group-hover:bg-cyanaccent/5 transition-all duration-300">
-            <svg class="w-5.5 h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               <path d="m9 11 2 2 4-4" />
             </svg>
@@ -1327,7 +1342,7 @@
           <span class="absolute bottom-1 left-2.5 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">0x89e // FLUX:ON</span>
           
           <div class="w-11 h-11 rounded border border-glassBorder bg-white/5 flex items-center justify-center text-cyanaccent flex-shrink-0 group-hover:border-cyanaccent/30 group-hover:bg-cyanaccent/5 transition-all duration-300">
-            <svg class="w-5.5 h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 14a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2" />
               <path d="M12 2a9 9 0 0 1 9 9v1H3v-1a9 9 0 0 1 9-9z" />
             </svg>
@@ -1351,7 +1366,7 @@
           <span class="absolute bottom-1 left-2.5 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">0x7b1 // GLOBAL</span>
           
           <div class="w-11 h-11 rounded border border-glassBorder bg-white/5 flex items-center justify-center text-cyanaccent flex-shrink-0 group-hover:border-cyanaccent/30 group-hover:bg-cyanaccent/5 transition-all duration-300">
-            <svg class="w-5.5 h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10" />
               <line x1="2" y1="12" x2="22" y2="12" />
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
@@ -1376,7 +1391,7 @@
           <span class="absolute bottom-1 left-2.5 text-[5.5px] font-mono text-cyanaccent/35 pointer-events-none tracking-wider">0x3a4 // STABLE</span>
           
           <div class="w-11 h-11 rounded border border-glassBorder bg-white/5 flex items-center justify-center text-cyanaccent flex-shrink-0 group-hover:border-cyanaccent/30 group-hover:bg-cyanaccent/5 transition-all duration-300">
-            <svg class="w-5.5 h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <rect x="4" y="4" width="16" height="16" rx="2" />
               <rect x="9" y="9" width="6" height="6" />
               <line x1="9" y1="1" x2="9" y2="4" />
