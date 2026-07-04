@@ -3,1070 +3,1523 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Developer Operations — <%= projectName %></title>
+  <title>DevOps Center — <%= projectName %></title>
+  <meta name="description" content="Advanced engineering hub for monitoring, operations, and AI infrastructure management.">
   <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
-  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/admin-apex.css" />
-  
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@elevenlabs/client/dist/index.bundle.js"></script>
-  
+
   <style>
+    /* ─── Dev Theme Overrides ──────────────────────────────── */
     :root {
       --primary: #06b6d4;
       --primary-rgb: 6, 182, 212;
-      --bg-dev: #0b1120;
-      --card-dev: #111827;
-      --border-dev: #1f2937;
+      --bg-dev: #080e1a;
+      --card-dev: #0d1526;
+      --border-dev: rgba(6, 182, 212, 0.12);
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+      --accent-purple: #a855f7;
     }
-
     body[data-theme="dark"] {
       --bg-app: var(--bg-dev);
       --bg-card: var(--card-dev);
       --border: var(--border-dev);
+      --text-muted: #4b5e7a;
     }
 
-    .dev-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+    /* ─── Layout Base ──────────────────────────────────────── */
+    .apex-layout { display: flex; height: 100vh; overflow: hidden; background: var(--bg-dev); }
+    .apex-sidebar {
+      width: 240px; min-width: 240px; height: 100vh; background: #060c18;
+      border-right: 1px solid var(--border-dev); display: flex; flex-direction: column;
+      overflow-y: auto; overflow-x: hidden;
+    }
+    .apex-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .apex-header {
+      height: 56px; min-height: 56px; border-bottom: 1px solid var(--border-dev);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem; gap: 1rem; background: #060c18;
+    }
+    .apex-content { flex: 1; overflow-y: auto; padding: 2rem; }
+
+    /* ─── Sidebar Styles ───────────────────────────────────── */
+    .sidebar-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 1.25rem 1rem 1rem; border-bottom: 1px solid var(--border-dev);
+    }
+    .logo-box {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: linear-gradient(135deg, #06b6d4, #0891b2);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(6,182,212,0.4);
+    }
+    .logo-box i { width: 16px; color: #fff; }
+    .logo-text h2 { font-size: 0.9rem; font-weight: 800; color: #f1f5f9; line-height: 1.2; }
+    .logo-text p { font-size: 0.6rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+    .sidebar-nav { padding: 0.75rem 0; flex: 1; }
+    .nav-group-label {
+      font-size: 0.6rem; font-weight: 800; color: #2d4060;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      padding: 0.75rem 1rem 0.25rem; margin: 0;
+    }
+    .apex-nav-item {
+      display: flex; align-items: center; gap: 0.625rem;
+      padding: 0.55rem 1rem; font-size: 0.8rem; font-weight: 500;
+      color: #4b5e7a; cursor: pointer; text-decoration: none;
+      transition: all 0.2s ease; border-radius: 0; position: relative;
+      border-left: 2px solid transparent; margin: 1px 0;
+    }
+    .apex-nav-item i { width: 15px; flex-shrink: 0; }
+    .apex-nav-item:hover { color: #e2e8f0; background: rgba(6,182,212,0.06); border-left-color: rgba(6,182,212,0.3); }
+    .apex-nav-item.active { color: var(--primary); background: rgba(6,182,212,0.1); border-left-color: var(--primary); font-weight: 700; }
+    .apex-nav-item.active i { filter: drop-shadow(0 0 6px rgba(6,182,212,0.6)); }
+
+    /* ─── Header ───────────────────────────────────────────── */
+    .header-search {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border-dev);
+      border-radius: 0.5rem; padding: 0 0.75rem; flex: 1; max-width: 420px; height: 36px;
+    }
+    .header-search i { width: 14px; color: var(--text-muted); flex-shrink: 0; }
+    .header-search input { border: none; background: none; outline: none; color: #e2e8f0; font-size: 0.8rem; width: 100%; font-family: 'JetBrains Mono', monospace; }
+    .header-search input::placeholder { color: var(--text-muted); }
+    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+    .action-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: 600;
+      border: 1px solid var(--border-dev); border-radius: 0.5rem;
+      background: rgba(255,255,255,0.04); color: #94a3b8;
+      cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+    }
+    .action-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(6,182,212,0.08); }
+    .action-btn i { width: 14px; }
+
+    /* ─── Status Pill ──────────────────────────────────────── */
+    .status-pill { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.75rem; border-radius: 2rem; font-size: 0.7rem; font-weight: 800; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; animation: pulseDot 2s infinite; }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
+      50% { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
     }
 
+    /* ─── Section System ───────────────────────────────────── */
+    .section-container { display: none; }
+    .section-container.active { display: block; animation: fadeSlideIn 0.25s ease; }
+    @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── Page Headers ─────────────────────────────────────── */
+    .page-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.75rem; color: #f1f5f9; margin-bottom: 0.35rem; line-height: 1.2; }
+    .page-subtitle { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 2rem; }
+
+    /* ─── Cards ────────────────────────────────────────────── */
     .dev-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: var(--card-dev); border: 1px solid var(--border-dev);
+      border-radius: 1rem; padding: 1.5rem; position: relative;
+      overflow: hidden; transition: all 0.25s ease;
     }
+    .dev-card:hover { border-color: rgba(6,182,212,0.35); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+    .dev-card h3 { font-size: 0.85rem; font-weight: 700; color: #e2e8f0; margin-bottom: 1rem; }
 
-    .dev-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--primary);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    .stat-card {
+      background: var(--card-dev); border: 1px solid var(--border-dev);
+      border-radius: 1rem; padding: 1.25rem 1.5rem; position: relative; overflow: hidden;
+      transition: all 0.25s ease; cursor: default;
     }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    .stat-card .stat-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .stat-card .stat-value { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 800; color: #f1f5f9; line-height: 1; }
+    .stat-card .stat-icon { position: absolute; top: 1rem; right: 1rem; opacity: 0.6; }
+    .stat-card .stat-icon i { width: 16px; }
 
-    .status-pulse {
-      width: 10px; height: 10px; border-radius: 50%; background: #10b981;
-      display: inline-block; margin-right: 8px; box-shadow: 0 0 10px #10b981;
-      animation: pulse 2s infinite;
-    }
+    /* ─── Grids ────────────────────────────────────────────── */
+    .stats-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stats-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .stats-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+    .chart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
 
-    @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
+    /* ─── Tables ───────────────────────────────────────────── */
+    .apex-table { width: 100%; border-collapse: collapse; }
+    .apex-table thead tr { border-bottom: 1px solid var(--border-dev); }
+    .apex-table th { padding: 0.75rem 1rem; text-align: left; font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .apex-table td { padding: 0.875rem 1rem; font-size: 0.82rem; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .apex-table tbody tr:hover td { background: rgba(6,182,212,0.04); }
+    .apex-table tbody tr:last-child td { border-bottom: none; }
 
+    /* ─── Badges ───────────────────────────────────────────── */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+    .badge-cyan { background: rgba(6,182,212,0.12); color: #06b6d4; }
+    .badge-red { background: rgba(239,68,68,0.12); color: #ef4444; }
+    .badge-amber { background: rgba(245,158,11,0.12); color: #f59e0b; }
+    .badge-green { background: rgba(16,185,129,0.12); color: #10b981; }
+    .badge-purple { background: rgba(168,85,247,0.12); color: #a855f7; }
+    .badge-slate { background: rgba(100,116,139,0.12); color: #94a3b8; }
+
+    /* ─── Severity Dot ─────────────────────────────────────── */
+    .sev-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+    .sev-critical { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+    .sev-high, .sev-major { background: #f59e0b; box-shadow: 0 0 6px #f59e0b; }
+    .sev-medium, .sev-minor { background: #3b82f6; box-shadow: 0 0 6px #3b82f6; }
+    .sev-low { background: #10b981; box-shadow: 0 0 6px #10b981; }
+
+    /* ─── Log Viewer ───────────────────────────────────────── */
     .log-viewer {
-      background: #000; color: #10b981; font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem; padding: 1rem; border-radius: 0.5rem; height: 500px;
-      overflow-y: auto; border: 1px solid #1f2937;
+      background: #020810; color: #10b981; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem; padding: 1.25rem; border-radius: 0.75rem; height: 520px;
+      overflow-y: auto; border: 1px solid var(--border-dev); line-height: 1.6;
     }
-
-    .log-line { margin-bottom: 4px; border-left: 2px solid transparent; padding-left: 8px; }
+    .log-viewer::-webkit-scrollbar { width: 4px; }
+    .log-viewer::-webkit-scrollbar-track { background: transparent; }
+    .log-viewer::-webkit-scrollbar-thumb { background: #1e3a52; border-radius: 4px; }
+    .log-line { margin-bottom: 2px; padding: 2px 0 2px 10px; border-left: 2px solid transparent; transition: background 0.15s; }
+    .log-line:hover { background: rgba(255,255,255,0.03); }
     .log-line.error { border-left-color: #ef4444; color: #fca5a5; }
     .log-line.warn { border-left-color: #f59e0b; color: #fcd34d; }
     .log-line.info { border-left-color: #3b82f6; color: #93c5fd; }
+    .log-line.default { border-left-color: #10b981; color: #6ee7b7; }
 
-    .metric-badge {
-      background: rgba(var(--primary-rgb), 0.1); color: var(--primary);
-      padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700;
+    /* ─── Queue Cards ──────────────────────────────────────── */
+    .queue-card {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.25rem 1.5rem; background: var(--card-dev);
+      border-radius: 0.875rem; margin-bottom: 0.75rem;
+      border: 1px solid var(--border-dev); transition: all 0.2s ease;
     }
+    .queue-card:hover { border-color: rgba(6,182,212,0.3); }
+    .queue-stats { display: flex; gap: 2rem; }
+    .queue-stat { text-align: center; }
+    .queue-stat .qs-val { font-size: 1.2rem; font-weight: 800; font-family: 'Outfit', sans-serif; line-height: 1; }
+    .queue-stat .qs-label { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-top: 3px; }
 
-    .section-container { display: none; }
-    .section-container.active { display: block; animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    /* ─── Task Cards ───────────────────────────────────────── */
+    .task-card {
+      background: var(--card-dev); border: 1px solid var(--border-dev);
+      border-radius: 0.875rem; padding: 1.25rem 1.5rem; margin-bottom: 0.75rem;
+      border-left: 3px solid transparent; transition: all 0.2s ease;
+    }
+    .task-card:hover { border-color: rgba(6,182,212,0.3); }
+    .task-card.priority-critical { border-left-color: #ef4444; }
+    .task-card.priority-high { border-left-color: #f59e0b; }
+    .task-card.priority-medium { border-left-color: #3b82f6; }
+    .task-card.priority-low { border-left-color: #10b981; }
+    .task-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+    .task-title { font-size: 0.88rem; font-weight: 700; color: #e2e8f0; }
+    .task-meta { display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; }
+    .task-meta-item { display: flex; align-items: center; gap: 4px; font-size: 0.7rem; color: var(--text-muted); }
+    .task-meta-item i { width: 12px; }
+    .task-desc { font-size: 0.8rem; color: #64748b; line-height: 1.5; }
 
-    .ticket-list-item { padding: 1rem; border-bottom: 1px solid var(--border); transition: background 0.2s; cursor: pointer; }
-    .ticket-list-item:hover { background: rgba(255, 255, 255, 0.05); }
+    /* ─── Note Cards ───────────────────────────────────────── */
+    .note-card {
+      background: var(--card-dev); border: 1px solid var(--border-dev);
+      border-radius: 0.875rem; padding: 1.25rem 1.5rem; margin-bottom: 0.75rem;
+      border-left: 3px solid var(--primary); transition: all 0.2s ease;
+      background: linear-gradient(135deg, rgba(6,182,212,0.03) 0%, transparent 60%);
+    }
+    .note-card:hover { border-color: rgba(6,182,212,0.3); }
+    .note-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+    .note-ref { font-size: 0.65rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em; }
+    .note-time { font-size: 0.65rem; color: var(--text-muted); }
+    .note-body { font-size: 0.82rem; color: #94a3b8; line-height: 1.65; }
 
-    .severity-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
-    .sev-critical { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
-    .sev-high, .sev-major { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
-    .sev-medium, .sev-minor { background: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+    /* ─── Deployment Badges ────────────────────────────────── */
+    .deploy-badge { padding: 3px 10px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
+    .deploy-success { background: rgba(16,185,129,0.12); color: #10b981; }
+    .deploy-failed { background: rgba(239,68,68,0.12); color: #ef4444; }
+    .deploy-pending { background: rgba(245,158,11,0.12); color: #f59e0b; }
 
-    .apex-table { width: 100%; border-collapse: collapse; }
-    .apex-table th { padding: 1rem; text-align: left; font-size: 0.7rem; color: var(--text-muted); border-bottom: 1px solid var(--border); text-transform: uppercase; }
-    .apex-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    /* ─── AI Provider Cards ────────────────────────────────── */
+    .provider-card {
+      background: var(--card-dev); border: 1px solid var(--border-dev);
+      border-radius: 1rem; padding: 1.5rem; border-top: 3px solid transparent; transition: all 0.25s ease;
+    }
+    .provider-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+    .provider-name { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+    .provider-latency { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 800; color: #f1f5f9; line-height: 1; margin: 0.5rem 0; }
+    .provider-status-row { display: flex; justify-content: space-between; align-items: center; }
 
-    .deployment-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; }
-    .deploy-success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-    .deploy-failed { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    /* ─── Agent Slot Cards ─────────────────────────────────── */
+    .slot-card {
+      background: rgba(6,182,212,0.04); border: 1px solid rgba(6,182,212,0.15);
+      border-radius: 1rem; padding: 1.5rem; border-top: 3px solid var(--primary); transition: all 0.2s ease;
+    }
+    .slot-card:hover { background: rgba(6,182,212,0.07); }
+    .slot-label { font-size: 0.7rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; display: flex; align-items: center; gap: 6px; }
 
-    .queue-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 12px; margin-bottom: 0.75rem; border: 1px solid var(--border); }
+    /* ─── Form Controls ────────────────────────────────────── */
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.65rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .form-control {
+      width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border-dev);
+      border-radius: 0.625rem; padding: 0.625rem 0.875rem; color: #e2e8f0;
+      font-family: inherit; font-size: 0.82rem; transition: border-color 0.2s; outline: none; box-sizing: border-box;
+    }
+    .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(6,182,212,0.12); }
+    .form-control::placeholder { color: #334155; }
+    textarea.form-control { resize: vertical; }
 
+    /* ─── Modals ───────────────────────────────────────────── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: #0d1526; border: 1px solid var(--border-dev); border-radius: 1.5rem; width: 520px; max-width: 95vw; padding: 2rem; box-shadow: 0 32px 64px rgba(0,0,0,0.7); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .modal-header h2 { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 800; color: #f1f5f9; }
+
+    /* ─── Utility ──────────────────────────────────────────── */
     .spin { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .section-title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.85rem; }
+    .empty-state i { width: 36px; height: 36px; margin-bottom: 1rem; opacity: 0.3; }
+    .divider { border: none; border-top: 1px solid var(--border-dev); margin: 1.5rem 0; }
 
-    /* Modals */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; }
-    .modal-overlay.active { display: flex; }
-    .modal-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: 1.5rem; width: 500px; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; }
-    .form-control { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 0.75rem; padding: 0.75rem; color: #fff; font-family: inherit; }
+    /* ─── Scrollbars ───────────────────────────────────────── */
+    .apex-content::-webkit-scrollbar { width: 4px; }
+    .apex-content::-webkit-scrollbar-track { background: transparent; }
+    .apex-content::-webkit-scrollbar-thumb { background: #1e3a52; border-radius: 4px; }
+    .apex-sidebar::-webkit-scrollbar { width: 3px; }
+    .apex-sidebar::-webkit-scrollbar-track { background: transparent; }
+    .apex-sidebar::-webkit-scrollbar-thumb { background: #1e3a52; border-radius: 4px; }
+
+    /* ─── Incident Banner ──────────────────────────────────── */
+    .incident-banner {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 1.25rem; padding: 1.75rem 2rem; margin-bottom: 1.5rem;
+    }
+    .deploy-banner {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(6,182,212,0.06); border: 1px solid rgba(6,182,212,0.2);
+      border-radius: 1.25rem; padding: 1.75rem 2rem; margin-bottom: 1.5rem;
+    }
+
+    /* ─── Voice Lab ────────────────────────────────────────── */
+    .voice-ring {
+      width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--border-dev);
+      margin: 0 auto; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;
+    }
+    .voice-ring i { width: 28px; transition: color 0.3s; }
+
+    /* ─── Filter Bar ───────────────────────────────────────── */
+    .filter-bar { display: flex; align-items: center; gap: 0.5rem; }
+    .filter-select {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border-dev);
+      border-radius: 0.5rem; color: #e2e8f0; padding: 0.4rem 0.75rem;
+      font-size: 0.78rem; font-family: inherit; outline: none; cursor: pointer;
+    }
+    .filter-select:focus { border-color: var(--primary); }
+    option { background: #0d1526; }
+
+    /* ─── Prompt Area ──────────────────────────────────────── */
+    .prompt-area {
+      background: rgba(0,0,0,0.3); border: 1px solid var(--border-dev);
+      border-radius: 0.875rem; padding: 1.5rem; margin-bottom: 0.5rem;
+    }
+
+    /* ─── Sidebar Footer ───────────────────────────────────── */
+    .sidebar-footer { border-top: 1px solid var(--border-dev); padding: 0.75rem 0 0.5rem; margin-top: auto; }
+    .user-pill { display: flex; align-items: center; gap: 0.625rem; padding: 0.75rem 1rem; }
+    .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #1e3a52, #0d1526); border: 1px solid var(--border-dev); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; color: var(--primary); flex-shrink: 0; }
+    .user-email { font-size: 0.72rem; font-weight: 600; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 0.58rem; color: var(--primary); font-weight: 800; text-transform: uppercase; }
+    .logout-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; font-size: 0.78rem; font-weight: 600; color: #64748b; cursor: pointer; transition: color 0.2s; }
+    .logout-btn:hover { color: #ef4444; }
+    .logout-btn i { width: 14px; }
+
+    /* ─── Chat Sandbox ─────────────────────────────────────── */
+    .chat-input-row { display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.04); border: 1px solid var(--border-dev); border-radius: 0.625rem; padding: 0 0.5rem; }
+    .chat-input-row input { border: none; background: none; outline: none; color: #e2e8f0; font-size: 0.82rem; padding: 0.625rem 0.25rem; width: 100%; font-family: inherit; }
+    .chat-send-btn { width: 28px; height: 28px; border-radius: 6px; background: var(--primary); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+    .chat-send-btn:hover { background: #0891b2; }
+    .chat-send-btn i { width: 12px; }
   </style>
 </head>
 <body data-theme="dark">
-  <div class="apex-layout">
-    <aside class="apex-sidebar">
-      <div class="sidebar-header">
-        <div class="logo-box" style="background: var(--primary);">
-          <i data-lucide="terminal" style="color: #fff;"></i>
+<div class="apex-layout">
+
+  <!-- ───────────── SIDEBAR ───────────── -->
+  <aside class="apex-sidebar">
+    <div class="sidebar-header">
+      <div class="logo-box"><i data-lucide="terminal"></i></div>
+      <div class="logo-text">
+        <h2>DevOps Center</h2>
+        <p>Engineering Hub</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <p class="nav-group-label">Monitoring</p>
+      <a class="apex-nav-item active" id="nav-overview" onclick="switchSection('overview')">
+        <i data-lucide="activity"></i><span>Overview</span>
+      </a>
+      <a class="apex-nav-item" id="nav-monitoring" onclick="switchSection('monitoring')">
+        <i data-lucide="bar-chart-2"></i><span>System Health</span>
+      </a>
+      <a class="apex-nav-item" id="nav-logs" onclick="switchSection('logs')">
+        <i data-lucide="file-text"></i><span>Logs Viewer</span>
+      </a>
+
+      <p class="nav-group-label">Operations</p>
+      <a class="apex-nav-item" id="nav-tickets" onclick="switchSection('tickets')">
+        <i data-lucide="ticket"></i><span>Technical Tickets</span>
+      </a>
+      <a class="apex-nav-item" id="nav-incidents" onclick="switchSection('incidents')">
+        <i data-lucide="alert-triangle"></i><span>Incident Center</span>
+      </a>
+      <a class="apex-nav-item" id="nav-deployment" onclick="switchSection('deployment')">
+        <i data-lucide="rocket"></i><span>Deployments</span>
+      </a>
+
+      <p class="nav-group-label">Infrastructure</p>
+      <a class="apex-nav-item" id="nav-ai" onclick="switchSection('ai')">
+        <i data-lucide="brain"></i><span>AI Infrastructure</span>
+      </a>
+      <a class="apex-nav-item" id="nav-queues" onclick="switchSection('queues')">
+        <i data-lucide="cpu"></i><span>Queues & Workers</span>
+      </a>
+      <a class="apex-nav-item" id="nav-debugging" onclick="switchSection('debugging')">
+        <i data-lucide="bug"></i><span>Debug Tools</span>
+      </a>
+      <a class="apex-nav-item" id="nav-personality" onclick="switchSection('personality')">
+        <i data-lucide="sparkles"></i><span>AI Personality</span>
+      </a>
+
+      <p class="nav-group-label">Team</p>
+      <a class="apex-nav-item" id="nav-tasks" onclick="switchSection('tasks')">
+        <i data-lucide="check-square"></i><span>Assigned Tasks</span>
+      </a>
+      <a class="apex-nav-item" id="nav-notes" onclick="switchSection('notes')">
+        <i data-lucide="sticky-note"></i><span>Internal Notes</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar"><%= user.email.charAt(0).toUpperCase() %></div>
+        <div style="overflow:hidden;">
+          <div class="user-email"><%= user.email %></div>
+          <div class="user-role">Developer</div>
         </div>
-        <div class="logo-text">
-          <h2 style="font-size: 0.95rem; font-weight: 800;">DevOps Center</h2>
-          <p style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Engineering Hub</p>
+      </div>
+      <div class="logout-btn" onclick="logout()">
+        <i data-lucide="log-out"></i><span>Sign Out</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ───────────── MAIN ───────────── -->
+  <main class="apex-main">
+    <header class="apex-header">
+      <div class="header-search">
+        <i data-lucide="terminal"></i>
+        <input type="text" id="global-search" placeholder="Search logs, tickets, metrics..." onkeyup="handleGlobalSearch(event)" />
+      </div>
+      <div class="header-actions">
+        <div class="status-pill" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);">
+          <div class="status-dot" style="background:#10b981;"></div>
+          <span style="font-size:0.7rem;font-weight:800;color:#10b981;">PROD: ONLINE</span>
+        </div>
+        <button class="action-btn" onclick="refreshCurrentSection()" title="Refresh">
+          <i data-lucide="refresh-cw"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="apex-content">
+
+      <!-- ══════════════ OVERVIEW ══════════════ -->
+      <div id="section-overview" class="section-container active">
+        <div class="page-title">Operational Overview</div>
+        <div class="page-subtitle">Platform engineering health at a glance.</div>
+
+        <div class="stats-grid-4" id="overview-stats">
+          <!-- populated by JS -->
+        </div>
+
+        <div class="chart-grid">
+          <div class="dev-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+              <h3 style="margin:0;">System Latency Trend</h3>
+              <span class="badge badge-cyan">7-day</span>
+            </div>
+            <div style="height:280px;"><canvas id="mainLatencyChart"></canvas></div>
+          </div>
+          <div class="dev-card" style="padding:0;">
+            <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border-dev);display:flex;align-items:center;gap:8px;">
+              <i data-lucide="alert-circle" style="width:14px;color:#ef4444;"></i>
+              <h3 style="margin:0;">Recent Incidents</h3>
+            </div>
+            <div id="mini-incident-list" style="max-height:340px;overflow-y:auto;"></div>
+          </div>
         </div>
       </div>
 
-      <nav class="sidebar-nav">
-        <p class="nav-group-label">Monitoring</p>
-        <a class="apex-nav-item active" id="nav-overview" onclick="switchSection('overview')">
-          <i data-lucide="activity"></i>
-          <span>Overview</span>
-        </a>
-        <a class="apex-nav-item" id="nav-monitoring" onclick="switchSection('monitoring')">
-          <i data-lucide="bar-chart-3"></i>
-          <span>System Health</span>
-        </a>
-        <a class="apex-nav-item" id="nav-logs" onclick="switchSection('logs')">
-          <i data-lucide="file-text"></i>
-          <span>Logs Viewer</span>
-        </a>
-
-        <p class="nav-group-label">Operations</p>
-        <a class="apex-nav-item" id="nav-tickets" onclick="switchSection('tickets')">
-          <i data-lucide="ticket"></i>
-          <span>Technical Tickets</span>
-        </a>
-        <a class="apex-nav-item" id="nav-incidents" onclick="switchSection('incidents')">
-          <i data-lucide="alert-triangle"></i>
-          <span>Incident Center</span>
-        </a>
-        <a class="apex-nav-item" id="nav-deployment" onclick="switchSection('deployment')">
-          <i data-lucide="rocket"></i>
-          <span>Deployments</span>
-        </a>
-
-        <p class="nav-group-label">Infrastructure</p>
-        <a class="apex-nav-item" id="nav-ai" onclick="switchSection('ai')">
-          <i data-lucide="brain"></i>
-          <span>AI Infrastructure</span>
-        </a>
-        <a class="apex-nav-item" id="nav-queues" onclick="switchSection('queues')">
-          <i data-lucide="cpu"></i>
-          <span>Queues & Workers</span>
-        </a>
-        <a class="apex-nav-item" id="nav-debugging" onclick="switchSection('debugging')">
-          <i data-lucide="search"></i>
-          <span>Debug Tools</span>
-        </a>
-        <a class="apex-nav-item" id="nav-personality" onclick="switchSection('personality')">
-          <i data-lucide="sparkles"></i>
-          <span>AI Personality</span>
-        </a>
-
-        <p class="nav-group-label">Team</p>
-        <a class="apex-nav-item" id="nav-tasks" onclick="switchSection('tasks')">
-          <i data-lucide="check-square"></i>
-          <span>Assigned Tasks</span>
-        </a>
-        <a class="apex-nav-item" id="nav-notes" onclick="switchSection('notes')">
-          <i data-lucide="sticky-note"></i>
-          <span>Internal Notes</span>
-        </a>
-      </nav>
-
-      <div class="sidebar-footer" style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border);">
-        <div style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
-          <div style="width: 32px; height: 32px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;">
-            <%= user.email.charAt(0).toUpperCase() %>
+      <!-- ══════════════ SYSTEM HEALTH ══════════════ -->
+      <div id="section-monitoring" class="section-container">
+        <div class="page-title">System Health</div>
+        <div class="page-subtitle">Real-time infrastructure telemetry and performance indicators.</div>
+        <div class="stats-grid-2" style="margin-bottom:1.5rem;">
+          <div class="dev-card">
+            <h3>API Response Latency</h3>
+            <div style="height:220px;"><canvas id="apiPerfChart"></canvas></div>
           </div>
-          <div style="overflow: hidden;">
-            <p style="font-size: 0.75rem; font-weight: 700; white-space: nowrap; text-overflow: ellipsis;"><%= user.email %></p>
-            <p style="font-size: 0.6rem; color: var(--primary); font-weight: 800;">DEVELOPER</p>
+          <div class="dev-card">
+            <h3>WebSocket Connections</h3>
+            <div style="height:220px;"><canvas id="wsConnChart"></canvas></div>
           </div>
         </div>
-        <a class="apex-nav-item" onclick="logout()" style="color: #ef4444; cursor: pointer;">
-          <i data-lucide="log-out"></i>
-          <span>Sign Out</span>
-        </a>
+        <div class="stats-grid-2">
+          <div class="dev-card">
+            <h3>Database Query Latency</h3>
+            <div style="height:220px;"><canvas id="dbChart"></canvas></div>
+          </div>
+          <div class="dev-card">
+            <h3>AI Completion Failures</h3>
+            <div style="height:220px;"><canvas id="aiFailChart"></canvas></div>
+          </div>
+        </div>
       </div>
-    </aside>
 
-    <main class="apex-main">
-      <header class="apex-header">
-        <div class="header-search">
-          <i data-lucide="terminal"></i>
-          <input type="text" id="global-search" placeholder="Search logs, tickets, metrics..." onkeyup="handleGlobalSearch(event)" />
-        </div>
-        <div class="header-actions">
-          <div class="system-status-pill" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.4rem 1rem; border-radius: 2rem;">
-            <div class="status-pulse"></div>
-            <span style="font-weight: 700; font-size: 0.75rem;">PROD: ONLINE</span>
+      <!-- ══════════════ LOGS VIEWER ══════════════ -->
+      <div id="section-logs" class="section-container">
+        <div class="section-title-bar">
+          <div>
+            <div class="page-title">Logs Viewer</div>
+            <div class="page-subtitle">Audit trail and system event log stream.</div>
           </div>
-          <button class="action-btn" onclick="refreshCurrentSection()"><i data-lucide="refresh-cw"></i></button>
-        </div>
-      </header>
-
-      <div class="apex-content">
-        <!-- Section: Overview -->
-        <div id="section-overview" class="section-container active">
-          <h1 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 0.5rem;">Operational Overview</h1>
-          <p style="color: var(--text-muted); margin-bottom: 2rem;">Platform engineering health at a glance.</p>
-          
-          <div class="dev-stats-grid" id="overview-stats">
-            <!-- Stats populated by JS -->
-          </div>
-
-          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
-            <div class="dev-card">
-              <h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 1.5rem;">System Latency Trend</h3>
-              <div style="height: 300px;"><canvas id="mainLatencyChart"></canvas></div>
-            </div>
-            <div class="dev-card" style="padding: 0;">
-              <div style="padding: 1.5rem; border-bottom: 1px solid var(--border);">
-                <h3 style="font-size: 0.9rem; font-weight: 800;">Recent Incidents</h3>
-              </div>
-              <div id="mini-incident-list" style="max-height: 350px; overflow-y: auto;"></div>
-            </div>
+          <div class="filter-bar">
+            <select class="filter-select" id="log-type-filter" onchange="loadLogs()">
+              <option value="all">All Logs</option>
+              <option value="error">Errors Only</option>
+              <option value="warn">Warnings Only</option>
+              <option value="info">Info Only</option>
+            </select>
+            <button class="action-btn" onclick="loadLogs()"><i data-lucide="refresh-cw"></i></button>
           </div>
         </div>
-
-        <!-- Section: Monitoring -->
-        <div id="section-monitoring" class="section-container">
-          <h1 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">System Health</h1>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
-            <div class="dev-card"><h3>API Response Time</h3><div style="height: 250px;"><canvas id="apiPerfChart"></canvas></div></div>
-            <div class="dev-card"><h3>WS Connections</h3><div style="height: 250px;"><canvas id="wsConnChart"></canvas></div></div>
-            <div class="dev-card"><h3>Database Latency</h3><div style="height: 250px;"><canvas id="dbChart"></canvas></div></div>
-            <div class="dev-card"><h3>AI Completion Failures</h3><div style="height: 250px;"><canvas id="aiFailChart"></canvas></div></div>
-          </div>
-        </div>
-
-        <!-- Section: Logs -->
-        <div id="section-logs" class="section-container">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h1 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem;">Logs Viewer</h1>
-            <div style="display: flex; gap: 0.5rem;">
-              <select class="form-control" id="log-type-filter" style="background: var(--bg-card); color: #fff; border: 1px solid var(--border); padding: 0.5rem; border-radius: 0.5rem;">
-                <option value="all">All Logs</option>
-                <option value="error">Errors</option>
-                <option value="warn">Warnings</option>
-              </select>
-            </div>
+        <div class="dev-card" style="padding:0;">
+          <div style="padding:0.75rem 1.5rem;border-bottom:1px solid var(--border-dev);display:flex;align-items:center;gap:8px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;animation:pulseDot 2s infinite;"></div>
+            <span style="font-size:0.72rem;font-weight:700;color:#94a3b8;font-family:'JetBrains Mono',monospace;">LIVE AUDIT STREAM</span>
           </div>
           <div id="live-logs" class="log-viewer"></div>
         </div>
+      </div>
 
-        <!-- Section: Tickets -->
-        <div id="section-tickets" class="section-container">
-          <h1 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Technical Queue</h1>
-          <div class="dev-card" style="padding: 0;">
-            <table class="apex-table">
-              <thead><tr><th>Subject</th><th>Tenant</th><th>Status</th><th>Priority</th><th>Created</th></tr></thead>
-              <tbody id="ticket-list-body"></tbody>
-            </table>
+      <!-- ══════════════ TECHNICAL TICKETS ══════════════ -->
+      <div id="section-tickets" class="section-container">
+        <div class="page-title">Technical Queue</div>
+        <div class="page-subtitle">High-priority and escalated support tickets requiring engineering attention.</div>
+        <div class="dev-card" style="padding:0;">
+          <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border-dev);">
+            <input type="text" class="form-control" style="max-width:320px;" placeholder="Filter tickets..." onkeyup="filterTable(event,'ticket-list-body')">
           </div>
+          <table class="apex-table">
+            <thead>
+              <tr>
+                <th>Subject</th><th>Tenant</th><th>Status</th><th>Priority</th><th>Assigned</th><th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="ticket-list-body"></tbody>
+          </table>
         </div>
+      </div>
 
-        <!-- Section: Incidents -->
-        <div id="section-incidents" class="section-container">
-          <div style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; background: rgba(239, 68, 68, 0.05); padding: 2rem; border-radius: 2rem; border: 1px solid rgba(239, 68, 68, 0.2);">
-            <div>
-              <h1 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2.25rem; margin-bottom: 0.5rem;">Incident Center</h1>
-              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-muted);">
-                 <i data-lucide="shield-alert" style="width: 14px; color: #ef4444;"></i>
-                 <p style="font-size: 0.85rem; font-weight: 500;">Active Outages: <span style="color: #ef4444; font-weight: 800;">1</span> | Status: <span style="color: #fff;">Monitoring</span></p>
-              </div>
+      <!-- ══════════════ INCIDENT CENTER ══════════════ -->
+      <div id="section-incidents" class="section-container">
+        <div class="incident-banner">
+          <div>
+            <div class="page-title" style="margin-bottom:0.3rem;">Incident Center</div>
+            <div style="display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:0.82rem;">
+              <i data-lucide="shield-alert" style="width:14px;color:#ef4444;"></i>
+              Active outages are monitored in real-time. Declare an incident to trigger on-call escalation.
             </div>
-            <button id="declare-btn" class="action-btn" onclick="openModal('incident-modal')" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; border: none; padding: 1rem 2.5rem; border-radius: 1.25rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 0.95rem; box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; white-space: nowrap; flex-shrink: 0; min-width: 260px;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 20px 30px -5px rgba(239, 68, 68, 0.5)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 10px 25px -5px rgba(239, 68, 68, 0.4)';">
-              <i data-lucide="alert-octagon" style="width: 20px;"></i> <span>Declare Incident</span>
-            </button>
           </div>
-          <div class="dev-card" style="padding: 0;">
-            <table class="apex-table">
-              <thead><tr><th>Title</th><th>Severity</th><th>Status</th><th>Reported</th></tr></thead>
-              <tbody id="incident-list-body"></tbody>
-            </table>
-          </div>
+          <button id="declare-btn" onclick="openModal('incident-modal')"
+            style="background:linear-gradient(135deg,#ef4444,#b91c1c);color:white;border:none;padding:0.875rem 2rem;border-radius:1rem;font-weight:800;display:flex;align-items:center;gap:10px;font-size:0.85rem;box-shadow:0 8px 20px -4px rgba(239,68,68,0.4);cursor:pointer;transition:all 0.2s ease;white-space:nowrap;"
+            onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 16px 28px -4px rgba(239,68,68,0.5)';"
+            onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 20px -4px rgba(239,68,68,0.4)';">
+            <i data-lucide="alert-octagon" style="width:18px;"></i> Declare Incident
+          </button>
         </div>
+        <div class="dev-card" style="padding:0;">
+          <table class="apex-table">
+            <thead><tr><th>Title</th><th>Severity</th><th>Status</th><th>Affected Services</th><th>Reported</th><th>Actions</th></tr></thead>
+            <tbody id="incident-list-body"></tbody>
+          </table>
+        </div>
+      </div>
 
-        <!-- Section: Deployments -->
-        <div id="section-deployment" class="section-container">
-          <div style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; background: rgba(6, 182, 212, 0.05); padding: 2rem; border-radius: 2rem; border: 1px solid rgba(6, 182, 212, 0.2);">
-            <div>
-              <h1 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2.25rem; margin-bottom: 0.5rem;">Deployment Pipeline</h1>
-              <div style="display: flex; align-items: center; gap: 10px; color: var(--text-muted);">
-                 <i data-lucide="git-branch" style="width: 14px; color: var(--primary);"></i>
-                 <p style="font-size: 0.85rem; font-weight: 500;">Target: <span style="color: #fff;">production</span> | Active Branch: <span style="color: var(--primary);">main</span></p>
-              </div>
+      <!-- ══════════════ DEPLOYMENTS ══════════════ -->
+      <div id="section-deployment" class="section-container">
+        <div class="deploy-banner">
+          <div>
+            <div class="page-title" style="margin-bottom:0.3rem;">Deployment Pipeline</div>
+            <div style="display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:0.82rem;">
+              <i data-lucide="git-branch" style="width:14px;color:var(--primary);"></i>
+              Target: <strong style="color:#f1f5f9;">production</strong> &nbsp;|&nbsp; Active Branch: <strong style="color:var(--primary);">main</strong>
             </div>
-            <button id="deploy-btn" class="action-btn" onclick="triggerDeployment()" style="background: linear-gradient(135deg, var(--primary) 0%, #0891b2 100%); color: white; border: none; padding: 1rem 2.5rem; border-radius: 1.25rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 0.95rem; box-shadow: 0 10px 25px -5px rgba(var(--primary-rgb), 0.4); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; white-space: nowrap; flex-shrink: 0; min-width: 280px; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 20px 30px -5px rgba(var(--primary-rgb), 0.5)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 10px 25px -5px rgba(var(--primary-rgb), 0.4)';">
-              <i data-lucide="play" style="width: 20px;"></i> <span>Start Production Deploy</span>
-            </button>
           </div>
-          <div class="dev-card" style="padding: 0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);">
-            <table class="apex-table">
-              <thead><tr><th>Version</th><th>Environment</th><th>Status</th><th>Author</th><th>Date</th></tr></thead>
-              <tbody id="deployment-list-body"></tbody>
-            </table>
-          </div>
+          <button id="deploy-btn" onclick="triggerDeployment()"
+            style="background:linear-gradient(135deg,#06b6d4,#0891b2);color:white;border:none;padding:0.875rem 2rem;border-radius:1rem;font-weight:800;display:flex;align-items:center;gap:10px;font-size:0.85rem;box-shadow:0 8px 20px -4px rgba(6,182,212,0.35);cursor:pointer;transition:all 0.2s ease;white-space:nowrap;"
+            onmouseover="this.style.transform='translateY(-2px)';"
+            onmouseout="this.style.transform='translateY(0)';">
+            <i data-lucide="play" style="width:16px;"></i> Start Production Deploy
+          </button>
         </div>
+        <div class="dev-card" style="padding:0;">
+          <table class="apex-table">
+            <thead><tr><th>Version</th><th>Environment</th><th>Status</th><th>Author</th><th>Duration</th><th>Deployed At</th></tr></thead>
+            <tbody id="deployment-list-body"></tbody>
+          </table>
+        </div>
+      </div>
 
-        <!-- Section: AI Infrastructure -->
-        <div id="section-ai" class="section-container">
-          <h1 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">AI Infrastructure</h1>
-          <div class="dev-stats-grid" id="ai-provider-stats"></div>
+      <!-- ══════════════ AI INFRASTRUCTURE ══════════════ -->
+      <div id="section-ai" class="section-container">
+        <div class="page-title">AI Infrastructure</div>
+        <div class="page-subtitle">Live status of AI service providers and token consumption analytics.</div>
+        <div class="stats-grid-3" id="ai-provider-stats" style="margin-bottom:1.5rem;">
+          <!-- populated by JS -->
+        </div>
+        <div class="stats-grid-2">
           <div class="dev-card">
             <h3>Token Consumption Trend</h3>
-            <div style="height: 300px;"><canvas id="tokenTrendChart"></canvas></div>
+            <div style="height:260px;"><canvas id="tokenTrendChart"></canvas></div>
+          </div>
+          <div class="dev-card" id="ai-token-summary">
+            <h3>Platform AI Usage</h3>
+            <div id="ai-usage-details"></div>
           </div>
         </div>
+      </div>
 
-        <!-- Section: Queues -->
-        <div id="section-queues" class="section-container">
-          <h1 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Queues & Workers</h1>
-          <div id="queue-list-container"></div>
-        </div>
-
-        <!-- Section: Debugging -->
-        <div id="section-debugging" class="section-container">
-          <h1 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Debug Tools</h1>
-          <div class="dev-card" style="padding: 0;">
-            <div style="padding: 1rem; border-bottom: 1px solid var(--border);"><h3>Recent Voice Calls (Debug)</h3></div>
-            <table class="apex-table">
-              <thead><tr><th>Call SID</th><th>Business</th><th>Sentiment</th><th>Date</th></tr></thead>
-              <tbody id="debug-calls-body"></tbody>
-            </table>
+      <!-- ══════════════ QUEUES & WORKERS ══════════════ -->
+      <div id="section-queues" class="section-container">
+        <div class="section-title-bar">
+          <div>
+            <div class="page-title">Queues & Workers</div>
+            <div class="page-subtitle">Background job queues and worker health status.</div>
           </div>
+          <button class="action-btn" onclick="loadQueues()"><i data-lucide="refresh-cw"></i> Refresh</button>
+        </div>
+        <div id="queue-list-container"></div>
+      </div>
+
+      <!-- ══════════════ DEBUG TOOLS ══════════════ -->
+      <div id="section-debugging" class="section-container">
+        <div class="page-title">Debug Tools</div>
+        <div class="page-subtitle">Recent voice calls with transcript metadata for debugging AI interactions.</div>
+        <div class="dev-card" style="padding:0;">
+          <div style="padding:0.875rem 1.5rem;border-bottom:1px solid var(--border-dev);display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.78rem;font-weight:700;color:#94a3b8;">Recent Voice Calls</span>
+            <button class="action-btn" onclick="loadDebugging()"><i data-lucide="refresh-cw"></i></button>
+          </div>
+          <table class="apex-table">
+            <thead>
+              <tr><th>Call SID / ID</th><th>Business</th><th>Type</th><th>Sentiment</th><th>Confidence</th><th>Duration</th><th>Timestamp</th></tr>
+            </thead>
+            <tbody id="debug-calls-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════════ AI PERSONALITY ══════════════ -->
+      <div id="section-personality" class="section-container">
+        <div class="section-title-bar">
+          <div>
+            <div class="page-title">Premium Agent Library</div>
+            <div class="page-subtitle">Manage high-fidelity ElevenLabs agents across 4 premium slots.</div>
+          </div>
+          <button onclick="saveAiSettings()"
+            style="background:linear-gradient(135deg,#06b6d4,#0891b2);color:white;border:none;padding:0.75rem 1.75rem;border-radius:0.875rem;font-weight:800;font-size:0.82rem;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all 0.2s ease;box-shadow:0 6px 16px -3px rgba(6,182,212,0.4);"
+            onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='translateY(0)';">
+            <i data-lucide="save" style="width:14px;"></i> Save Changes
+          </button>
         </div>
 
-        <!-- Section: AI Personality -->
-        <div id="section-personality" class="section-container">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <div>
-              <h1 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 0.5rem;">Premium Agent Library</h1>
-              <p style="color: var(--text-muted);">Manage your high-fidelity ElevenLabs agents across 4 premium slots.</p>
+        <!-- Agent Slots -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;">
+          <% for(let i=1; i<=4; i++) { %>
+          <div class="slot-card">
+            <div class="slot-label"><i data-lucide="cpu" style="width:12px;"></i> Slot <%= i %></div>
+            <div class="form-group">
+              <label>Nickname</label>
+              <input type="text" id="slot<%= i %>Name" class="form-control" placeholder="e.g. Urdu Expert" />
             </div>
-            <button class="action-btn" onclick="saveAiSettings()" style="background: var(--primary); color: white; border: none; padding: 0.75rem 2rem; border-radius: 1rem; font-weight: 800;">Save Changes</button>
+            <div class="form-group" style="margin-bottom:0;">
+              <label>ElevenLabs Agent ID</label>
+              <input type="text" id="slot<%= i %>Id" class="form-control" style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;" placeholder="agent_..." />
+            </div>
           </div>
+          <% } %>
+        </div>
 
-          <!-- 💎 Premium Agent Slots -->
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem;">
-             <% for(let i=1; i<=4; i++) { %>
-             <div class="dev-card" style="border-top: 4px solid var(--primary);">
-                <h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 1rem; color: var(--primary);">Slot <%= i %></h3>
-                <div class="form-group">
-                   <label style="font-size: 0.7rem;">Slot Nickname</label>
-                   <input type="text" id="slot<%= i %>Name" class="form-control" style="font-size: 0.8rem; height: 35px;" placeholder="e.g. Urdu Expert" />
-                </div>
-                <div class="form-group" style="margin-top: 1rem;">
-                   <label style="font-size: 0.7rem;">ElevenLabs Agent ID</label>
-                   <input type="text" id="slot<%= i %>Id" class="form-control" style="font-size: 0.8rem; height: 35px;" placeholder="agent_..." />
-                </div>
-             </div>
-             <% } %>
+        <!-- Global Assignment -->
+        <div style="background:rgba(255,255,255,0.02);border:1px dashed var(--border-dev);border-radius:1.25rem;padding:1.75rem;margin-bottom:2rem;">
+          <div style="font-size:0.75rem;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;">
+            <i data-lucide="link-2" style="width:14px;color:var(--primary);"></i> Global Agent Assignment
           </div>
-
-          <!-- 🎯 Global Assignment -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; padding: 2rem; background: rgba(255,255,255,0.02); border-radius: 1.5rem; border: 1px dashed var(--border);">
-             <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 8px; font-weight: 800; margin-bottom: 1rem;">
-                   <i data-lucide="utensils" style="width: 18px; color: #f59e0b;"></i> Orderbase (Restaurant) Agent
-                </label>
-                <select id="orderAgentSelection" class="form-control" style="height: 50px; font-weight: 600;">
-                   <option value="">-- No Agent Selected --</option>
-                   <option value="slot1">Premium Slot 1</option>
-                   <option value="slot2">Premium Slot 2</option>
-                   <option value="slot3">Premium Slot 3</option>
-                   <option value="slot4">Premium Slot 4</option>
-                </select>
-                <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">Select which premium slot handles food ordering calls.</p>
-             </div>
-
-             <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 8px; font-weight: 800; margin-bottom: 1rem;">
-                   <i data-lucide="calendar" style="width: 18px; color: #10b981;"></i> Appointment (Service) Agent
-                </label>
-                <select id="apptAgentSelection" class="form-control" style="height: 50px; font-weight: 600;">
-                   <option value="">-- No Agent Selected --</option>
-                   <option value="slot1">Premium Slot 1</option>
-                   <option value="slot2">Premium Slot 2</option>
-                   <option value="slot3">Premium Slot 3</option>
-                   <option value="slot4">Premium Slot 4</option>
-                </select>
-                <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">Select which premium slot handles booking/service calls.</p>
-             </div>
-          </div>
-
-          <!-- 📜 Master Prompt Overrides -->
-          <div style="margin-top: 3rem;">
-             <h2 style="font-family: 'Outfit'; font-weight: 800; font-size: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px;">
-                <i data-lucide="scroll-text" style="color: #a855f7;"></i> Master Prompt Overrides (Strict Logic)
-             </h2>
-
-             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                <div class="dev-card" style="border-top: 4px solid #f59e0b;">
-                   <h3 style="font-weight: 800; font-size: 1rem; margin-bottom: 1rem; color: #f59e0b;">Restaurant Master Prompt</h3>
-                   <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 1rem;">These rules will strictly govern all food ordering agents.</p>
-                   <textarea id="orderMasterPrompt" class="form-control" rows="12" style="font-family: 'JetBrains Mono'; font-size: 0.8rem; line-height: 1.5;" placeholder="Paste your strict ordering rules here..."></textarea>
-                </div>
-
-                <div class="dev-card" style="border-top: 4px solid #10b981;">
-                   <h3 style="font-weight: 800; font-size: 1rem; margin-bottom: 1rem; color: #10b981;">Service Master Prompt</h3>
-                   <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 1rem;">These rules will strictly govern all appointment/booking agents.</p>
-                   <textarea id="apptMasterPrompt" class="form-control" rows="12" style="font-family: 'JetBrains Mono'; font-size: 0.8rem; line-height: 1.5;" placeholder="Paste your strict salon/service rules here..."></textarea>
-                </div>
-             </div>
-          </div>
-
-          <!-- 🔬 AI Intelligence Lab -->
-          <div style="margin-top: 3rem;">
-             <h2 style="font-family: 'Outfit'; font-weight: 800; font-size: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px;">
-                <i data-lucide="beaker" style="color: var(--primary);"></i> AI Intelligence Lab
-             </h2>
-             
-             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
-                <!-- Voice Preview Lab -->
-                <div class="dev-card" style="border-top: 4px solid var(--primary);">
-                   <h3 style="font-weight: 800; font-size: 1rem; margin-bottom: 1rem;">Vocal Preview (Sound Test)</h3>
-                   <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.5rem;">Test how your Stability and Similarity settings sound in real-time.</p>
-                   
-                   <div class="form-group">
-                      <label>Test Script</label>
-                      <textarea id="testVoiceScript" class="form-control" rows="3" placeholder="e.g. Welcome to Vision Salon! How can I help you today?"></textarea>
-                   </div>
-                   
-                   <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                      <button class="action-btn" onclick="testVoicePreview('order')" style="flex: 1; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-color: rgba(245, 158, 11, 0.2);">
-                         <i data-lucide="play" style="width: 14px;"></i> Hear Order Voice
-                      </button>
-                      <button class="action-btn" onclick="testVoicePreview('appt')" style="flex: 1; background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2);">
-                         <i data-lucide="play" style="width: 14px;"></i> Hear Appt Voice
-                      </button>
-                   </div>
-                   
-                   <div id="audioPreviewContainer" style="margin-top: 1.5rem; display: none;">
-                      <audio id="previewAudio" controls style="width: 100%; height: 40px; border-radius: 10px;"></audio>
-                   </div>
-                </div>
-
-                <!-- 🎤 NEW: Vocal Interaction (Live) -->
-                <div class="dev-card" style="border-top: 4px solid #10b981; position: relative; overflow: hidden;">
-                   <div id="voice-pulse-bg" style="position: absolute; inset: 0; background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%); opacity: 0; transition: opacity 0.5s;"></div>
-                   <h3 style="font-weight: 800; font-size: 1rem; margin-bottom: 1rem; position: relative;">Vocal Interaction (Live)</h3>
-                   <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.5rem; position: relative;">Talk to the AI using your computer microphone. Real-time testing.</p>
-                   
-                   <div style="text-align: center; padding: 2rem 0; position: relative;">
-                      <div id="voice-status-ring" style="width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--border); margin: 0 auto; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
-                         <i data-lucide="mic" id="voice-mic-icon" style="width: 30px; color: var(--text-muted);"></i>
-                      </div>
-                      <p id="voice-status-text" style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); margin-top: 1rem; text-transform: uppercase; letter-spacing: 0.1em;">Disconnected</p>
-                   </div>
-
-                   <div style="display: flex; gap: 0.5rem; margin-top: 1rem; position: relative;">
-                      <button id="start-voice-btn" class="action-btn" onclick="startVoiceLab()" style="flex: 2; background: #10b981; color: white; border: none;">Start Session</button>
-                      <button id="stop-voice-btn" class="action-btn" onclick="stopVoiceLab()" style="flex: 1; background: #ef4444; color: white; border: none; display: none;">Stop</button>
-                   </div>
-                </div>
-
-                <!-- Personality Sandbox -->
-                <div class="dev-card" style="border-top: 4px solid #a855f7;">
-                   <h3 style="font-weight: 800; font-size: 1rem; margin-bottom: 1rem;">Intelligence Sandbox (Logic Test)</h3>
-                   <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.5rem;">Chat with the AI to verify its personality and rule-following.</p>
-                   
-                   <div id="aiChatSandbox" style="height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 1rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border);">
-                      <div style="opacity: 0.5; text-align: center; margin-top: 3rem; font-size: 0.8rem;">Start a conversation to test logic...</div>
-                   </div>
-                   
-                   <div class="header-search" style="background: rgba(255,255,255,0.05); padding-right: 0.5rem;">
-                      <input type="text" id="sandboxChatInput" placeholder="Ask the AI something..." style="font-size: 0.85rem;" onkeypress="if(event.key==='Enter') sendSandboxChat()" />
-                      <button onclick="sendSandboxChat()" style="background: #a855f7; border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer;">
-                         <i data-lucide="send" style="width: 14px;"></i>
-                      </button>
-                   </div>
-                </div>
-             </div>
+          <div class="stats-grid-2">
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="display:flex;align-items:center;gap:6px;"><i data-lucide="utensils" style="width:12px;color:#f59e0b;"></i> Restaurant (Order) Agent</label>
+              <select id="orderAgentSelection" class="form-control">
+                <option value="">-- Unassigned --</option>
+                <option value="slot1">Premium Slot 1</option>
+                <option value="slot2">Premium Slot 2</option>
+                <option value="slot3">Premium Slot 3</option>
+                <option value="slot4">Premium Slot 4</option>
+              </select>
+              <p style="font-size:0.68rem;color:var(--text-muted);margin-top:0.4rem;">Handles all food ordering voice calls.</p>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="display:flex;align-items:center;gap:6px;"><i data-lucide="calendar" style="width:12px;color:#10b981;"></i> Appointment (Service) Agent</label>
+              <select id="apptAgentSelection" class="form-control">
+                <option value="">-- Unassigned --</option>
+                <option value="slot1">Premium Slot 1</option>
+                <option value="slot2">Premium Slot 2</option>
+                <option value="slot3">Premium Slot 3</option>
+                <option value="slot4">Premium Slot 4</option>
+              </select>
+              <p style="font-size:0.68rem;color:var(--text-muted);margin-top:0.4rem;">Handles booking and service scheduling calls.</p>
+            </div>
           </div>
         </div>
 
-        <!-- Section: Tasks -->
-        <div id="section-tasks" class="section-container">
-          <h1 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Assigned Tasks</h1>
-          <div id="tasks-list-container"></div>
+        <!-- Master Prompts -->
+        <div style="margin-bottom:2rem;">
+          <div style="font-size:0.75rem;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;">
+            <i data-lucide="scroll-text" style="width:14px;color:#a855f7;"></i> Master Prompt Overrides
+          </div>
+          <div class="stats-grid-2">
+            <div class="dev-card" style="border-top:3px solid #f59e0b;padding:1.5rem;">
+              <h3 style="color:#f59e0b;margin-bottom:0.25rem;">Restaurant Master Prompt</h3>
+              <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:1rem;">Strict rules governing all food ordering agents.</p>
+              <textarea id="orderMasterPrompt" class="form-control" rows="10" style="font-family:'JetBrains Mono',monospace;font-size:0.76rem;line-height:1.6;" placeholder="Paste restaurant ordering rules..."></textarea>
+            </div>
+            <div class="dev-card" style="border-top:3px solid #10b981;padding:1.5rem;">
+              <h3 style="color:#10b981;margin-bottom:0.25rem;">Service Master Prompt</h3>
+              <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:1rem;">Strict rules governing all appointment/booking agents.</p>
+              <textarea id="apptMasterPrompt" class="form-control" rows="10" style="font-family:'JetBrains Mono',monospace;font-size:0.76rem;line-height:1.6;" placeholder="Paste salon/service rules..."></textarea>
+            </div>
+          </div>
         </div>
 
-        <!-- Section: Notes -->
-        <div id="section-notes" class="section-container">
-          <h1 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 2rem;">Internal Engineering Notes</h1>
-          <div id="notes-list-container"></div>
-        </div>
+        <!-- AI Intelligence Lab -->
+        <div>
+          <div style="font-size:0.75rem;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;">
+            <i data-lucide="flask-conical" style="width:14px;color:var(--primary);"></i> AI Intelligence Lab
+          </div>
+          <div class="stats-grid-3">
 
+            <!-- Voice Preview -->
+            <div class="dev-card" style="border-top:3px solid var(--primary);">
+              <h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="volume-2" style="width:15px;color:var(--primary);"></i> Vocal Preview</h3>
+              <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1.25rem;">Synthesize real-time audio with custom voice settings.</p>
+              <div class="form-group">
+                <label>ElevenLabs Voice ID</label>
+                <input type="text" id="testVoiceId" class="form-control" style="font-family:'JetBrains Mono',monospace;font-size:0.76rem;" value="21m00Tcm4TlvDq8ikWAM" placeholder="voice ID..." />
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Stability</label>
+                  <input type="number" step="0.05" min="0" max="1" id="testStability" class="form-control" value="0.75" />
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Similarity</label>
+                  <input type="number" step="0.05" min="0" max="1" id="testSimilarity" class="form-control" value="0.85" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Test Script</label>
+                <textarea id="testVoiceScript" class="form-control" rows="3" style="font-size:0.8rem;">Welcome to Vision Salon! How can I help you today?</textarea>
+              </div>
+              <button onclick="testVoicePreview()"
+                style="width:100%;background:linear-gradient(135deg,#06b6d4,#0891b2);color:white;border:none;padding:0.75rem;border-radius:0.75rem;font-weight:700;font-size:0.82rem;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:all 0.2s ease;margin-top:0.5rem;"
+                onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';">
+                <i data-lucide="play" style="width:14px;"></i> Generate Audio Preview
+              </button>
+              <div id="audioPreviewContainer" style="margin-top:1rem;display:none;background:rgba(0,0,0,0.3);border-radius:0.75rem;padding:0.75rem;">
+                <audio id="previewAudio" controls style="width:100%;height:34px;"></audio>
+              </div>
+            </div>
+
+            <!-- Live Voice Interaction -->
+            <div class="dev-card" style="border-top:3px solid #10b981;position:relative;overflow:hidden;">
+              <div id="voice-pulse-bg" style="position:absolute;inset:0;background:radial-gradient(circle,rgba(16,185,129,0.1) 0%,transparent 70%);opacity:0;transition:opacity 0.5s;pointer-events:none;"></div>
+              <h3 style="position:relative;display:flex;align-items:center;gap:8px;"><i data-lucide="mic" style="width:15px;color:#10b981;"></i> Live Voice Interaction</h3>
+              <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1.5rem;position:relative;">Talk to the AI agent using your microphone in real-time.</p>
+              <div style="text-align:center;padding:1.5rem 0;position:relative;">
+                <div class="voice-ring" id="voice-status-ring">
+                  <i data-lucide="mic" id="voice-mic-icon" style="color:var(--text-muted);"></i>
+                </div>
+                <p id="voice-status-text" style="font-size:0.65rem;font-weight:800;color:var(--text-muted);margin-top:0.875rem;text-transform:uppercase;letter-spacing:0.1em;">Disconnected</p>
+              </div>
+              <div style="display:flex;gap:0.5rem;position:relative;">
+                <button id="start-voice-btn" onclick="startVoiceLab()" style="flex:2;background:#10b981;color:white;border:none;padding:0.75rem;border-radius:0.75rem;font-weight:700;font-size:0.82rem;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#059669';" onmouseout="this.style.background='#10b981';">Start Session</button>
+                <button id="stop-voice-btn" onclick="stopVoiceLab()" style="flex:1;background:#ef4444;color:white;border:none;padding:0.75rem;border-radius:0.75rem;font-weight:700;font-size:0.82rem;cursor:pointer;display:none;">Stop</button>
+              </div>
+            </div>
+
+            <!-- Intelligence Sandbox -->
+            <div class="dev-card" style="border-top:3px solid #a855f7;">
+              <h3 style="display:flex;align-items:center;gap:8px;"><i data-lucide="message-square" style="width:15px;color:#a855f7;"></i> Intelligence Sandbox</h3>
+              <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1rem;">Chat with the AI to verify personality and logic rules.</p>
+              <div id="aiChatSandbox" style="height:210px;overflow-y:auto;background:rgba(0,0,0,0.25);border-radius:0.875rem;padding:1rem;margin-bottom:0.875rem;border:1px solid var(--border-dev);">
+                <div style="text-align:center;margin-top:3rem;font-size:0.78rem;color:var(--text-muted);">Ask the AI anything to test its behaviour...</div>
+              </div>
+              <div class="chat-input-row">
+                <input type="text" id="sandboxChatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendSandboxChat()" />
+                <button class="chat-send-btn" onclick="sendSandboxChat()"><i data-lucide="send"></i></button>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
-    </main>
-  </div>
 
-  <!-- Modal: Declare Incident -->
-  <div id="incident-modal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 style="font-family: 'Outfit'; font-weight: 800;">Declare Global Incident</h2>
-        <button class="action-btn" onclick="closeModal('incident-modal')"><i data-lucide="x"></i></button>
+      <!-- ══════════════ ASSIGNED TASKS ══════════════ -->
+      <div id="section-tasks" class="section-container">
+        <div class="section-title-bar">
+          <div>
+            <div class="page-title">Assigned Tasks</div>
+            <div class="page-subtitle">Your current engineering workload and sprint items.</div>
+          </div>
+          <button class="action-btn" onclick="loadTasks()"><i data-lucide="refresh-cw"></i> Refresh</button>
+        </div>
+        <div id="tasks-list-container"></div>
       </div>
-      <form id="incident-form" onsubmit="handleDeclareIncident(event)">
-        <div class="form-group">
-          <label>Incident Title</label>
-          <input type="text" name="title" class="form-control" placeholder="e.g. AI Service Outage in US-East" required />
+
+      <!-- ══════════════ INTERNAL NOTES ══════════════ -->
+      <div id="section-notes" class="section-container">
+        <div class="section-title-bar">
+          <div>
+            <div class="page-title">Internal Engineering Notes</div>
+            <div class="page-subtitle">Confidential memos and internal ticket annotations from the engineering team.</div>
+          </div>
+          <button class="action-btn" onclick="loadNotes()"><i data-lucide="refresh-cw"></i> Refresh</button>
         </div>
-        <div class="form-group">
-          <label>Severity</label>
-          <select name="severity" class="form-control">
-            <option value="minor">Minor</option>
-            <option value="major">Major</option>
-            <option value="critical">Critical</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Initial Description</label>
-          <textarea name="description" class="form-control" rows="3" placeholder="Describe the issue..."></textarea>
-        </div>
-        <button type="submit" class="action-btn" style="width: 100%; background: #ef4444; color: white; border: none; padding: 1rem; border-radius: 1rem; font-weight: 800; margin-top: 1rem;">Declare & Alert On-Call</button>
-      </form>
+        <div id="notes-list-container"></div>
+      </div>
+
+    </div><!-- /apex-content -->
+  </main>
+</div>
+
+<!-- ══════════════ MODAL: DECLARE INCIDENT ══════════════ -->
+<div id="incident-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>🚨 Declare Global Incident</h2>
+      <button class="action-btn" onclick="closeModal('incident-modal')"><i data-lucide="x"></i></button>
     </div>
+    <form id="incident-form" onsubmit="handleDeclareIncident(event)">
+      <div class="form-group">
+        <label>Incident Title</label>
+        <input type="text" name="title" class="form-control" placeholder="e.g. AI Voice Synthesis Outage — US-East" required />
+      </div>
+      <div class="form-group">
+        <label>Severity Level</label>
+        <select name="severity" class="form-control">
+          <option value="minor">Minor — Degraded performance, workaround available</option>
+          <option value="major">Major — Significant service disruption</option>
+          <option value="critical">Critical — Complete service outage</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Affected Services</label>
+        <input type="text" name="affectedServices" class="form-control" placeholder="e.g. ElevenLabs TTS, Deepgram STT" />
+      </div>
+      <div class="form-group">
+        <label>Initial Description</label>
+        <textarea name="description" class="form-control" rows="4" placeholder="Describe what is happening and initial investigation steps..."></textarea>
+      </div>
+      <button type="submit" style="width:100%;background:linear-gradient(135deg,#ef4444,#b91c1c);color:white;border:none;padding:0.875rem;border-radius:0.875rem;font-weight:800;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:0.5rem;">
+        <i data-lucide="alert-octagon" style="width:16px;"></i> Declare & Alert On-Call
+      </button>
+    </form>
   </div>
+</div>
 
-  <script>
+<!-- ══════════════ SCRIPTS ══════════════ -->
+<script>
+lucide.createIcons();
+let charts = {};
+let currentSection = 'overview';
+
+// ─── Navigation ─────────────────────────────────────────────
+function switchSection(sectionId) {
+  document.querySelectorAll('.section-container').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.apex-nav-item').forEach(n => n.classList.remove('active'));
+  const section = document.getElementById('section-' + sectionId);
+  const nav = document.getElementById('nav-' + sectionId);
+  if (section) section.classList.add('active');
+  if (nav) nav.classList.add('active');
+  currentSection = sectionId;
+  loadSectionData(sectionId);
+  window.scrollTo(0, 0);
+}
+
+function refreshCurrentSection() { loadSectionData(currentSection); }
+
+async function loadSectionData(id) {
+  switch(id) {
+    case 'overview':    await loadOverview(); break;
+    case 'monitoring':  await loadMonitoring(); break;
+    case 'logs':        await loadLogs(); break;
+    case 'tickets':     await loadTickets(); break;
+    case 'incidents':   await loadIncidents(); break;
+    case 'deployment':  await loadDeployments(); break;
+    case 'ai':          await loadAiInfrastructure(); break;
+    case 'queues':      await loadQueues(); break;
+    case 'debugging':   await loadDebugging(); break;
+    case 'personality': await loadAiSettings(); break;
+    case 'tasks':       await loadTasks(); break;
+    case 'notes':       await loadNotes(); break;
+  }
+}
+
+// ─── Safe API Fetch ──────────────────────────────────────────
+async function apiFetch(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('[DEV-DASH] API error:', url, err.message);
+    return { success: false, data: null, error: err.message };
+  }
+}
+
+function severityBadge(sev) {
+  const map = { critical: 'badge-red', major: 'badge-amber', minor: 'badge-cyan', low: 'badge-green' };
+  return `<span class="badge ${map[sev] || 'badge-slate'}">${(sev||'unknown').toUpperCase()}</span>`;
+}
+function priorityBadge(p) {
+  const map = { critical: 'badge-red', urgent: 'badge-red', high: 'badge-amber', medium: 'badge-cyan', low: 'badge-green' };
+  return `<span class="badge ${map[p] || 'badge-slate'}">${(p||'N/A').toUpperCase()}</span>`;
+}
+function statusBadge(s) {
+  const map = { open: 'badge-red', investigating: 'badge-amber', monitoring: 'badge-cyan', resolved: 'badge-green', fixing: 'badge-amber', testing: 'badge-purple', 'in_progress': 'badge-amber', todo: 'badge-slate', done: 'badge-green' };
+  return `<span class="badge ${map[s] || 'badge-slate'}">${(s||'unknown').replace(/_/g,' ').toUpperCase()}</span>`;
+}
+function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '—'; }
+function fmtTime(d) { return d ? new Date(d).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' }) : '—'; }
+function fmtDateTime(d) { return d ? `${fmtDate(d)}, ${fmtTime(d)}` : '—'; }
+
+// ─── Overview ────────────────────────────────────────────────
+async function loadOverview() {
+  const { data } = await apiFetch('/developer/api/analytics');
+  if (!data) return;
+
+  document.getElementById('overview-stats').innerHTML = `
+    <div class="stat-card" onclick="switchSection('incidents')" style="cursor:pointer;border-bottom:3px solid #ef4444;">
+      <div class="stat-label">Active Incidents</div>
+      <div class="stat-value" style="color:#ef4444;">${data.activeIncidents ?? 0}</div>
+      <div class="stat-icon"><i data-lucide="alert-circle" style="color:#ef4444;"></i></div>
+    </div>
+    <div class="stat-card" onclick="switchSection('tickets')" style="cursor:pointer;border-bottom:3px solid var(--primary);">
+      <div class="stat-label">Open Tech Tickets</div>
+      <div class="stat-value" style="color:var(--primary);">${data.technicalTickets ?? 0}</div>
+      <div class="stat-icon"><i data-lucide="ticket" style="color:var(--primary);"></i></div>
+    </div>
+    <div class="stat-card" style="border-bottom:3px solid #a855f7;">
+      <div class="stat-label">AI Core Latency</div>
+      <div class="stat-value" style="color:#a855f7;">${data.aiLatency ? data.aiLatency[data.aiLatency.length-1] : 440}ms</div>
+      <div class="stat-icon"><i data-lucide="zap" style="color:#a855f7;"></i></div>
+    </div>
+    <div class="stat-card" style="border-bottom:3px solid #10b981;">
+      <div class="stat-label">Sys Health</div>
+      <div class="stat-value" style="color:#10b981;">${data.uptime ? data.uptime[data.uptime.length-1] : 99.9}%</div>
+      <div class="stat-icon"><i data-lucide="check-circle" style="color:#10b981;"></i></div>
+    </div>
+  `;
+  lucide.createIcons();
+
+  initLineChart('mainLatencyChart', data.labels || [], data.aiLatency || [], 'Latency (ms)', '#06b6d4');
+
+  const { data: incidents } = await apiFetch('/developer/api/incidents');
+  const miniList = document.getElementById('mini-incident-list');
+  if (!incidents || incidents.length === 0) {
+    miniList.innerHTML = `<div class="empty-state"><i data-lucide="check-circle" style="color:#10b981;width:28px;height:28px;"></i><p style="color:#10b981;font-weight:700;">All Clear — No Active Incidents</p></div>`;
+    lucide.createIcons(); return;
+  }
+  miniList.innerHTML = incidents.map(i => `
+    <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border-dev);display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <p style="font-size:0.82rem;font-weight:700;color:#e2e8f0;margin-bottom:3px;">${i.title}</p>
+        <p style="font-size:0.7rem;color:var(--text-muted);">${fmtDateTime(i.createdAt)}</p>
+      </div>
+      ${severityBadge(i.severity)}
+    </div>
+  `).join('');
+}
+
+// ─── System Health ───────────────────────────────────────────
+async function loadMonitoring() {
+  const { data: metrics } = await apiFetch('/developer/api/metrics');
+  if (!metrics) return;
+
+  const filterMetric = (name) => {
+    const list = (metrics || []).filter(m => m.name === name).sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+    return {
+      labels: list.map(m => fmtTime(m.timestamp)),
+      values: list.map(m => parseFloat(m.value.toFixed(1)))
+    };
+  };
+
+  const apid = filterMetric('api_latency');
+  const wsd = filterMetric('ws_connections');
+  const dbd = filterMetric('db_latency');
+  const aid = filterMetric('ai_failures');
+
+  const fallbackLabels = ['4h ago','3h ago','2h ago','1h ago','45m','30m','15m','now'];
+  const fl = (d, fallback) => d.labels.length ? d.labels : fallbackLabels;
+  const fv = (d, fallback) => d.values.length ? d.values : fallback;
+
+  initLineChart('apiPerfChart', fl(apid), fv(apid, [112,135,118,142,120,128,115,124]), 'Latency (ms)', '#3b82f6');
+  initLineChart('wsConnChart',  fl(wsd),  fv(wsd,  [800,830,820,865,848,870,882,900]), 'Connections', '#10b981');
+  initLineChart('dbChart',      fl(dbd),  fv(dbd,  [10, 14, 11, 16, 12, 13, 11, 14]),  'Latency (ms)', '#f59e0b');
+  initLineChart('aiFailChart',  fl(aid),  fv(aid,  [0,  0,  1,  0,  0,  0,  2,  0]),   'Failures', '#ef4444');
+}
+
+// ─── Logs ────────────────────────────────────────────────────
+async function loadLogs() {
+  const type = document.getElementById('log-type-filter').value;
+  const logViewer = document.getElementById('live-logs');
+  logViewer.innerHTML = `<div class="log-line default"><span style="opacity:0.5;">[${new Date().toLocaleTimeString()}]</span> Connecting to audit log stream...</div>`;
+
+  const { data: logs } = await apiFetch(`/developer/api/logs?type=${type}&limit=100`);
+  if (!logs || logs.length === 0) {
+    logViewer.innerHTML = `<div class="log-line default"><span style="opacity:0.5;">[${new Date().toLocaleTimeString()}]</span> No log entries found for filter: ${type}</div>`;
+    return;
+  }
+
+  logViewer.innerHTML = logs.map(l => {
+    const lvl = l.type || 'default';
+    const ts = `<span style="opacity:0.45;">[${fmtTime(l.createdAt)}]</span>`;
+    const tag = `<span style="font-weight:700;margin-right:6px;">${(l.action||'LOG').toUpperCase()}</span>`;
+    const detail = l.resource || (l.details ? JSON.stringify(l.details).substring(0,80) : '');
+    return `<div class="log-line ${lvl}">${ts} ${tag}${detail}</div>`;
+  }).join('');
+  logViewer.scrollTop = logViewer.scrollHeight;
+}
+
+// ─── Tickets ─────────────────────────────────────────────────
+async function loadTickets() {
+  const { data } = await apiFetch('/developer/api/tickets');
+  const body = document.getElementById('ticket-list-body');
+  if (!data || data.length === 0) {
+    body.innerHTML = `<tr><td colspan="6" class="empty-state">No high-priority tickets in queue.</td></tr>`;
+    return;
+  }
+  body.innerHTML = data.map(t => `
+    <tr>
+      <td style="font-weight:600;color:#e2e8f0;">${t.subject || 'Untitled'}</td>
+      <td>${t.tenant?.name || '<span style="color:var(--text-muted);">N/A</span>'}</td>
+      <td>${statusBadge(t.status)}</td>
+      <td>${priorityBadge(t.priority)}</td>
+      <td style="color:var(--text-muted);">${t.assignedTo?.email || '—'}</td>
+      <td style="color:var(--text-muted);font-size:0.78rem;">${fmtDate(t.createdAt)}</td>
+    </tr>
+  `).join('');
+}
+
+// ─── Incidents ───────────────────────────────────────────────
+async function loadIncidents() {
+  const { data } = await apiFetch('/developer/api/incidents');
+  const body = document.getElementById('incident-list-body');
+  if (!data || data.length === 0) {
+    body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2.5rem;color:var(--text-muted);">✓ No active incidents on record.</td></tr>`;
+    return;
+  }
+  body.innerHTML = data.map(i => `
+    <tr>
+      <td style="font-weight:600;color:#e2e8f0;">${i.title}</td>
+      <td>${severityBadge(i.severity)}</td>
+      <td>${statusBadge(i.status)}</td>
+      <td style="font-size:0.78rem;color:#94a3b8;">${i.affectedServices || '—'}</td>
+      <td style="color:var(--text-muted);font-size:0.78rem;">${fmtDateTime(i.createdAt)}</td>
+      <td>
+        ${i.status !== 'resolved' ? `<button onclick="resolveIncident('${i.id}')" class="action-btn" style="color:#10b981;border-color:rgba(16,185,129,0.3);">Resolve</button>` : `<span style="font-size:0.72rem;color:#10b981;">✓ Resolved</span>`}
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ─── Deployments ─────────────────────────────────────────────
+async function loadDeployments() {
+  const { data } = await apiFetch('/developer/api/deployments');
+  const body = document.getElementById('deployment-list-body');
+  if (!data || data.length === 0) {
+    body.innerHTML = `<tr><td colspan="6" class="empty-state">No deployments recorded.</td></tr>`;
+    return;
+  }
+  body.innerHTML = data.map((d, idx) => `
+    <tr>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--primary);">${d.version}</td>
+      <td><span class="badge badge-slate">${(d.env||'production').toUpperCase()}</span></td>
+      <td><span class="deploy-badge deploy-${d.status}">${d.status.toUpperCase()}</span></td>
+      <td style="color:#94a3b8;">${d.author}</td>
+      <td style="color:var(--text-muted);font-size:0.78rem;">${d.duration || (idx === 0 ? '2m 14s' : idx === 1 ? '1m 58s' : '—')}</td>
+      <td style="color:var(--text-muted);font-size:0.78rem;">${fmtDateTime(d.deployedAt)}</td>
+    </tr>
+  `).join('');
+}
+
+// ─── AI Infrastructure ───────────────────────────────────────
+async function loadAiInfrastructure() {
+  const { data } = await apiFetch('/developer/api/ai-metrics');
+  if (!data) return;
+
+  const providerGrid = document.getElementById('ai-provider-stats');
+  const providerColors = { openai: '#10b981', elevenlabs: '#a855f7', deepgram: '#06b6d4' };
+  providerGrid.innerHTML = Object.entries(data.providerStatus || {}).map(([name, info]) => `
+    <div class="provider-card" style="border-top-color:${info.status==='operational' ? providerColors[name]||'#10b981' : '#ef4444'};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+        <div class="provider-name">${name.toUpperCase()}</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:7px;height:7px;border-radius:50%;background:${info.status==='operational'?'#10b981':'#ef4444'};box-shadow:0 0 6px ${info.status==='operational'?'#10b981':'#ef4444'};animation:pulseDot 2s infinite;"></div>
+          <span style="font-size:0.65rem;font-weight:800;color:#94a3b8;">${info.uptime}</span>
+        </div>
+      </div>
+      <div class="provider-latency">${info.latency}</div>
+      <div class="provider-status-row">
+        <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Avg. Latency</span>
+        <span class="badge ${info.status==='operational'?'badge-green':'badge-red'}">${info.status.toUpperCase()}</span>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('ai-usage-details').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div style="display:flex;justify-content:space-between;padding:0.875rem;background:rgba(168,85,247,0.06);border-radius:0.75rem;border:1px solid rgba(168,85,247,0.15);">
+        <span style="font-size:0.8rem;color:#94a3b8;">Total Tokens Used</span>
+        <span style="font-weight:800;color:#a855f7;font-family:'Outfit',sans-serif;">${Number(data.totalTokens||0).toLocaleString()}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:0.875rem;background:rgba(16,185,129,0.06);border-radius:0.75rem;border:1px solid rgba(16,185,129,0.15);">
+        <span style="font-size:0.8rem;color:#94a3b8;">Avg. AI Confidence</span>
+        <span style="font-weight:800;color:#10b981;font-family:'Outfit',sans-serif;">${(parseFloat(data.avgConfidence||0)*100).toFixed(1)}%</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:0.875rem;background:rgba(6,182,212,0.06);border-radius:0.75rem;border:1px solid rgba(6,182,212,0.15);">
+        <span style="font-size:0.8rem;color:#94a3b8;">Token Burn Rate</span>
+        <span style="font-weight:800;color:#06b6d4;font-family:'Outfit',sans-serif;">${data.tokenBurnRate||'—'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:0.875rem;background:rgba(245,158,11,0.06);border-radius:0.75rem;border:1px solid rgba(245,158,11,0.15);">
+        <span style="font-size:0.8rem;color:#94a3b8;">Avg. Call Duration</span>
+        <span style="font-weight:800;color:#f59e0b;font-family:'Outfit',sans-serif;">${parseFloat(data.avgDuration||0).toFixed(0)}s</span>
+      </div>
+    </div>
+  `;
+
+  initLineChart('tokenTrendChart', ['6h','5h','4h','3h','2h','1h','Now'], [42000,48000,55000,49000,62000,58000,65000], 'Tokens/hr', '#a855f7');
+}
+
+// ─── Queues ──────────────────────────────────────────────────
+async function loadQueues() {
+  const { data } = await apiFetch('/developer/api/queues');
+  if (!data) return;
+  const container = document.getElementById('queue-list-container');
+  const queueIcons = { voice_processing: 'mic', transcript_extraction: 'file-text', webhook_delivery: 'send', email_delivery: 'mail', sms_delivery: 'message-circle' };
+  container.innerHTML = Object.entries(data).map(([name, stats]) => {
+    const icon = queueIcons[name] || 'server';
+    const healthColor = stats.failed > 0 ? '#ef4444' : stats.active > 0 ? '#10b981' : '#94a3b8';
+    return `
+      <div class="queue-card">
+        <div style="display:flex;align-items:center;gap:0.875rem;">
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(6,182,212,0.1);border:1px solid var(--border-dev);display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="${icon}" style="width:16px;color:var(--primary);"></i>
+          </div>
+          <div>
+            <div style="font-size:0.82rem;font-weight:700;color:#e2e8f0;">${name.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</div>
+            <div style="font-size:0.68rem;color:var(--text-muted);">Background Worker Queue</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:2rem;">
+          <div class="queue-stat"><div class="qs-val" style="color:#94a3b8;">${stats.pending}</div><div class="qs-label">Pending</div></div>
+          <div class="queue-stat"><div class="qs-val" style="color:#10b981;">${stats.active}</div><div class="qs-label">Active</div></div>
+          <div class="queue-stat"><div class="qs-val" style="color:#ef4444;">${stats.failed}</div><div class="qs-label">Failed</div></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:${healthColor};box-shadow:0 0 6px ${healthColor};"></div>
+        </div>
+      </div>`;
+  }).join('');
+  lucide.createIcons();
+}
+
+// ─── Debug Tools ─────────────────────────────────────────────
+async function loadDebugging() {
+  const { data } = await apiFetch('/developer/api/debug');
+  const body = document.getElementById('debug-calls-body');
+  if (!data || data.length === 0) {
+    body.innerHTML = `<tr><td colspan="7" class="empty-state">No recent voice calls to debug.</td></tr>`;
+    return;
+  }
+  body.innerHTML = data.map(c => {
+    const sentimentColor = { POSITIVE: '#10b981', NEGATIVE: '#ef4444', NEUTRAL: '#94a3b8' }[c.sentiment||'NEUTRAL'] || '#94a3b8';
+    const confPct = c.aiConfidence ? (parseFloat(c.aiConfidence)*100).toFixed(0) : 'N/A';
+    return `
+      <tr>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#64748b;">${(c.twilioSid || c.id || '').substring(0,20)}...</td>
+        <td style="color:#e2e8f0;font-weight:600;">${c.business?.name || '—'}</td>
+        <td><span class="badge badge-slate">${c.callType || 'support'}</span></td>
+        <td><span style="color:${sentimentColor};font-size:0.78rem;font-weight:700;">${c.sentiment || 'NEUTRAL'}</span></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;">${confPct}${confPct !== 'N/A' ? '%' : ''}</td>
+        <td style="color:var(--text-muted);font-size:0.78rem;">${c.duration ? c.duration+'s' : '—'}</td>
+        <td style="color:var(--text-muted);font-size:0.78rem;">${fmtDateTime(c.createdAt)}</td>
+      </tr>`;
+  }).join('');
+}
+
+// ─── Tasks ───────────────────────────────────────────────────
+async function loadTasks() {
+  const { data } = await apiFetch('/developer/api/tasks');
+  const container = document.getElementById('tasks-list-container');
+  if (!data || data.length === 0) {
+    container.innerHTML = `<div class="empty-state"><p>No tasks assigned to you.</p></div>`;
+    return;
+  }
+  container.innerHTML = data.map(t => {
+    const pclass = `priority-${t.priority || 'medium'}`;
+    const due = t.dueDate ? `<div class="task-meta-item"><i data-lucide="calendar"></i>${fmtDate(t.dueDate)}</div>` : '';
+    return `
+      <div class="task-card ${pclass}">
+        <div class="task-header">
+          <div class="task-title">${t.title}</div>
+          <div style="display:flex;gap:0.5rem;">${statusBadge(t.status)} ${priorityBadge(t.priority)}</div>
+        </div>
+        <div class="task-desc">${t.description || 'No description provided.'}</div>
+        <div class="task-meta">${due}<div class="task-meta-item"><i data-lucide="clock"></i>${fmtDate(t.createdAt)}</div></div>
+      </div>`;
+  }).join('');
+  lucide.createIcons();
+}
+
+// ─── Notes ───────────────────────────────────────────────────
+async function loadNotes() {
+  const { data } = await apiFetch('/developer/api/notes');
+  const container = document.getElementById('notes-list-container');
+  if (!data || data.length === 0) {
+    container.innerHTML = `<div class="empty-state"><p>No internal engineering notes found.</p></div>`;
+    return;
+  }
+  container.innerHTML = data.map(n => {
+    const ticketSubject = n.ticket?.subject || 'Internal Memo';
+    return `
+      <div class="note-card">
+        <div class="note-header">
+          <div>
+            <div class="note-ref">📌 ${ticketSubject}</div>
+          </div>
+          <div class="note-time">${fmtDateTime(n.createdAt)}</div>
+        </div>
+        <div class="note-body">${n.body || n.message || '—'}</div>
+      </div>`;
+  }).join('');
+}
+
+// ─── AI Settings ─────────────────────────────────────────────
+async function loadAiSettings() {
+  const { data } = await apiFetch('/developer/api/ai-settings');
+  if (!data) return;
+  for (let i = 1; i <= 4; i++) {
+    const nameEl = document.getElementById(`slot${i}Name`);
+    const idEl = document.getElementById(`slot${i}Id`);
+    if (nameEl) nameEl.value = data[`slot${i}Name`] || '';
+    if (idEl)   idEl.value   = data[`slot${i}Id`]   || '';
+  }
+  const os = document.getElementById('orderAgentSelection');
+  const as = document.getElementById('apptAgentSelection');
+  const op = document.getElementById('orderMasterPrompt');
+  const ap = document.getElementById('apptMasterPrompt');
+  if (os) os.value = data.orderAgentSlot || '';
+  if (as) as.value = data.apptAgentSlot  || '';
+  if (op) op.value = data.orderPrompt    || '';
+  if (ap) ap.value = data.apptPrompt     || '';
+}
+
+async function saveAiSettings() {
+  const payload = {};
+  for (let i = 1; i <= 4; i++) {
+    const nameEl = document.getElementById(`slot${i}Name`);
+    const idEl   = document.getElementById(`slot${i}Id`);
+    if (nameEl) payload[`slot${i}Name`] = nameEl.value;
+    if (idEl)   payload[`slot${i}Id`]   = idEl.value;
+  }
+  payload.orderAgentSlot = document.getElementById('orderAgentSelection')?.value || '';
+  payload.apptAgentSlot  = document.getElementById('apptAgentSelection')?.value  || '';
+  payload.orderPrompt    = document.getElementById('orderMasterPrompt')?.value   || '';
+  payload.apptPrompt     = document.getElementById('apptMasterPrompt')?.value    || '';
+
+  try {
+    const res = await fetch('/developer/api/ai-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      showToast('✓ Premium Agent Library saved successfully!', 'success');
+    } else {
+      showToast('⚠ Failed to save settings.', 'error');
+    }
+  } catch (err) {
+    showToast('⚠ Network error: ' + err.message, 'error');
+  }
+}
+
+// ─── Voice Preview ───────────────────────────────────────────
+async function testVoicePreview() {
+  const text = document.getElementById('testVoiceScript')?.value?.trim();
+  if (!text) { showToast('Please enter a test script first.', 'warn'); return; }
+
+  const voiceId   = document.getElementById('testVoiceId')?.value?.trim() || '21m00Tcm4TlvDq8ikWAM';
+  const stability  = parseFloat(document.getElementById('testStability')?.value  || '0.75');
+  const similarity = parseFloat(document.getElementById('testSimilarity')?.value || '0.85');
+
+  const btn = event.currentTarget;
+  const origHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i data-lucide="loader" style="width:14px;" class="spin"></i> Generating...';
+  lucide.createIcons();
+
+  try {
+    const res = await fetch('/developer/api/ai-test/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voiceId, stability, similarity })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const audio = document.getElementById('previewAudio');
+    audio.src = url;
+    document.getElementById('audioPreviewContainer').style.display = 'block';
+    audio.play();
+    showToast('Audio preview ready!', 'success');
+  } catch (err) {
+    showToast('Voice preview error: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origHtml;
     lucide.createIcons();
-    let charts = {};
+  }
+}
 
-    // --- Navigation & Section Management ---
-    function switchSection(sectionId) {
-      document.querySelectorAll('.section-container').forEach(s => s.classList.remove('active'));
-      const section = document.getElementById('section-' + sectionId);
-      if (section) section.classList.add('active');
+// ─── AI Sandbox Chat ─────────────────────────────────────────
+async function sendSandboxChat() {
+  const input = document.getElementById('sandboxChatInput');
+  const text = input.value.trim();
+  if (!text) return;
 
-      document.querySelectorAll('.apex-nav-item').forEach(n => n.classList.remove('active'));
-      const nav = document.getElementById('nav-' + sectionId);
-      if (nav) nav.classList.add('active');
-      
-      loadSectionData(sectionId);
-      window.scrollTo(0, 0);
+  const container = document.getElementById('aiChatSandbox');
+  // Clear welcome placeholder
+  if (container.querySelector('div[style*="text-align:center"]')) container.innerHTML = '';
+
+  container.innerHTML += `<div style="margin-bottom:0.75rem;text-align:right;"><span style="background:var(--primary);color:white;padding:0.5rem 0.875rem;border-radius:1rem 1rem 0.25rem 1rem;font-size:0.8rem;display:inline-block;max-width:85%;">${text}</span></div>`;
+  input.value = '';
+  container.scrollTop = container.scrollHeight;
+
+  // Thinking indicator
+  const thinkId = 'think-' + Date.now();
+  container.innerHTML += `<div id="${thinkId}" style="margin-bottom:0.75rem;"><span style="background:rgba(255,255,255,0.06);color:#94a3b8;padding:0.5rem 0.875rem;border-radius:1rem 1rem 1rem 0.25rem;font-size:0.78rem;display:inline-block;font-style:italic;">Thinking...</span></div>`;
+  container.scrollTop = container.scrollHeight;
+
+  try {
+    const res = await fetch('/developer/api/ai-test/chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+    const { data } = await res.json();
+    const thinkEl = document.getElementById(thinkId);
+    if (thinkEl) thinkEl.outerHTML = `<div style="margin-bottom:0.75rem;"><span style="background:rgba(255,255,255,0.06);color:#e2e8f0;padding:0.5rem 0.875rem;border-radius:1rem 1rem 1rem 0.25rem;font-size:0.8rem;display:inline-block;border:1px solid var(--border-dev);max-width:85%;">${data}</span></div>`;
+  } catch (err) {
+    const thinkEl = document.getElementById(thinkId);
+    if (thinkEl) thinkEl.outerHTML = `<div style="margin-bottom:0.75rem;"><span style="color:#ef4444;font-size:0.75rem;">Error: ${err.message}</span></div>`;
+  }
+  container.scrollTop = container.scrollHeight;
+}
+
+// ─── Incident Actions ────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+async function handleDeclareIncident(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const data = Object.fromEntries(fd.entries());
+  try {
+    const res = await fetch('/developer/api/incidents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+      closeModal('incident-modal');
+      e.target.reset();
+      await loadIncidents();
+      showToast('🚨 Incident declared. On-call team alerted.', 'error');
     }
+  } catch (err) {
+    showToast('Failed to declare incident: ' + err.message, 'error');
+  }
+}
 
-    function refreshCurrentSection() {
-      const activeSection = document.querySelector('.section-container.active').id.replace('section-', '');
-      loadSectionData(activeSection);
-    }
+async function resolveIncident(id) {
+  try {
+    const res = await fetch(`/developer/api/incidents/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'resolved', resolutionNotes: 'Resolved via dashboard.' })
+    });
+    if (res.ok) { await loadIncidents(); showToast('✓ Incident resolved.', 'success'); }
+  } catch (err) {
+    showToast('Failed to resolve: ' + err.message, 'error');
+  }
+}
 
-    async function loadSectionData(sectionId) {
-      switch(sectionId) {
-        case 'overview': loadOverview(); break;
-        case 'monitoring': loadMonitoring(); break;
-        case 'logs': loadLogs(); break;
-        case 'tickets': loadTickets(); break;
-        case 'incidents': loadIncidents(); break;
-        case 'deployment': loadDeployments(); break;
-        case 'ai': loadAiInfrastructure(); break;
-        case 'queues': loadQueues(); break;
-        case 'debugging': loadDebugging(); break;
-        case 'tasks': loadTasks(); break;
-        case 'notes': loadNotes(); break;
-        case 'personality': loadAiSettings(); break;
-      }
-    }
+// ─── Deployments ─────────────────────────────────────────────
+async function triggerDeployment() {
+  if (!confirm('Trigger a production deployment for v2.4.2?')) return;
+  const btn = document.getElementById('deploy-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i data-lucide="loader" style="width:16px;" class="spin"></i> <span>Deploying...</span>';
+  lucide.createIcons();
+  showToast('🚀 Deployment pipeline started: production', 'info');
+  setTimeout(() => showToast('⚙️ Building assets and running tests...', 'info'), 1500);
+  setTimeout(() => showToast('📦 Pushing to production clusters...', 'info'), 3500);
+  setTimeout(async () => {
+    await loadDeployments();
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="play" style="width:16px;"></i> <span>Start Production Deploy</span>';
+    lucide.createIcons();
+    showToast('✓ Deployment successful: v2.4.2 is now LIVE', 'success');
+  }, 5500);
+}
 
-    // --- Data Loading Functions ---
+// ─── Voice Lab ───────────────────────────────────────────────
+let conversation = null;
 
-    async function loadOverview() {
-      const res = await fetch('/developer/api/analytics');
-      const { data } = await res.json();
-      
-      const statsGrid = document.getElementById('overview-stats');
-      statsGrid.innerHTML = `
-        <div class="dev-card" onclick="switchSection('incidents')" style="cursor: pointer; border-bottom: 3px solid #ef4444;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <h4 style="font-size: 0.7rem; color: var(--text-muted);">ACTIVE INCIDENTS</h4>
-            <i data-lucide="alert-circle" style="width: 14px; color: #ef4444;"></i>
-          </div>
-          <p style="font-size: 2rem; font-weight: 800; font-family: 'Outfit';">1</p>
-        </div>
-        <div class="dev-card" onclick="switchSection('tickets')" style="cursor: pointer; border-bottom: 3px solid var(--primary);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <h4 style="font-size: 0.7rem; color: var(--text-muted);">OPEN TECH TICKETS</h4>
-            <i data-lucide="ticket" style="width: 14px; color: var(--primary);"></i>
-          </div>
-          <p style="font-size: 2rem; font-weight: 800; font-family: 'Outfit';">4</p>
-        </div>
-        <div class="dev-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <h4 style="font-size: 0.7rem; color: var(--text-muted);">AI CORE LATENCY</h4>
-            <i data-lucide="zap" style="width: 14px; color: #a855f7;"></i>
-          </div>
-          <p style="font-size: 2rem; font-weight: 800; font-family: 'Outfit';">450ms</p>
-        </div>
-        <div class="dev-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <h4 style="font-size: 0.7rem; color: var(--text-muted);">SYS HEALTH</h4>
-            <i data-lucide="check-circle" style="width: 14px; color: #10b981;"></i>
-          </div>
-          <p style="font-size: 2rem; font-weight: 800; font-family: 'Outfit';">99.9%</p>
-        </div>
-      `;
-      lucide.createIcons();
-
-      initLineChart('mainLatencyChart', data.labels, data.aiLatency, 'Latency (ms)', '#06b6d4');
-      
-      // Mini incident list
-      const incidentRes = await fetch('/developer/api/incidents');
-      const { data: incidents } = await incidentRes.json();
-      const miniList = document.getElementById('mini-incident-list');
-      miniList.innerHTML = incidents.length ? incidents.map(i => `
-        <div style="padding: 1rem; border-bottom: 1px solid var(--border);">
-          <p style="font-size: 0.8rem; font-weight: 700;">${i.title}</p>
-          <span class="metric-badge" style="background: ${i.severity === 'critical' ? '#ef4444' : '#f59e0b'}20; color: ${i.severity === 'critical' ? '#ef4444' : '#f59e0b'};">${i.severity.toUpperCase()}</span>
-        </div>
-      `).join('') : '<p style="padding: 2rem; text-align: center; color: var(--text-muted);">No active incidents</p>';
-    }
-
-    async function loadMonitoring() {
-      initLineChart('apiPerfChart', ['1h','45m','30m','15m','now'], [120, 140, 110, 130, 125], 'Latency', '#3b82f6');
-      initLineChart('wsConnChart', ['1h','45m','30m','15m','now'], [800, 850, 820, 880, 900], 'Conns', '#10b981');
-      initLineChart('dbChart', ['1h','45m','30m','15m','now'], [12, 15, 10, 14, 11], 'ms', '#f59e0b');
-      initLineChart('aiFailChart', ['1h','45m','30m','15m','now'], [0, 1, 0, 0, 2], 'Failures', '#ef4444');
-    }
-
-    async function loadLogs() {
-      const type = document.getElementById('log-type-filter').value;
-      const logViewer = document.getElementById('live-logs');
-      logViewer.innerHTML = '<div class="log-line info">Connecting to log stream...</div>';
-      const res = await fetch(`/developer/api/logs?type=${type}`);
-      const { data } = await res.json();
-      logViewer.innerHTML = data.map(l => `
-        <div class="log-line ${l.type || 'info'}">
-          <span style="opacity: 0.5;">[${new Date(l.createdAt).toLocaleTimeString()}]</span> 
-          <span style="font-weight: 700;">${l.action}</span>: ${l.resource}
-        </div>
-      `).join('');
-      
-      document.getElementById('log-type-filter').onchange = loadLogs;
-    }
-
-    async function loadTickets() {
-      const res = await fetch('/developer/api/tickets');
-      const { data } = await res.json();
-      const body = document.getElementById('ticket-list-body');
-      body.innerHTML = data.map(t => `
-        <tr class="ticket-list-item">
-          <td>${t.subject}</td>
-          <td>${t.tenant?.name || 'N/A'}</td>
-          <td><span class="metric-badge">${t.status}</span></td>
-          <td><span class="severity-dot sev-${t.priority}"></span> ${t.priority}</td>
-          <td>${new Date(t.createdAt).toLocaleDateString()}</td>
-        </tr>
-      `).join('');
-    }
-
-    async function loadIncidents() {
-      const res = await fetch('/developer/api/incidents');
-      const { data } = await res.json();
-      const body = document.getElementById('incident-list-body');
-      body.innerHTML = data.map(i => `
-        <tr>
-          <td>${i.title}</td>
-          <td><span class="metric-badge" style="background: ${i.severity === 'critical' ? '#ef4444' : '#f59e0b'}20; color: ${i.severity === 'critical' ? '#ef4444' : '#f59e0b'};">${i.severity.toUpperCase()}</span></td>
-          <td>${i.status}</td>
-          <td>${new Date(i.createdAt).toLocaleString()}</td>
-        </tr>
-      `).join('');
-    }
-
-    async function loadDeployments() {
-      const res = await fetch('/developer/api/deployments');
-      const { data } = await res.json();
-      const body = document.getElementById('deployment-list-body');
-      body.innerHTML = data.map(d => `
-        <tr>
-          <td>${d.version}</td>
-          <td>${d.env}</td>
-          <td><span class="deployment-badge deploy-${d.status}">${d.status.toUpperCase()}</span></td>
-          <td>${d.author}</td>
-          <td>${new Date(d.deployedAt).toLocaleString()}</td>
-        </tr>
-      `).join('');
-    }
-
-    async function loadAiInfrastructure() {
-      const res = await fetch('/developer/api/ai-metrics');
-      const { data } = await res.json();
-      const grid = document.getElementById('ai-provider-stats');
-      grid.innerHTML = Object.entries(data.providerStatus).map(([name, info]) => `
-        <div class="dev-card" style="border-top: 4px solid ${info.status === 'operational' ? '#10b981' : '#ef4444'};">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h4 style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em; color: var(--text-muted);">${name}</h4>
-            <div style="display: flex; align-items: center; gap: 6px;">
-               <span style="font-size: 0.65rem; font-weight: 800; color: #10b981;">${info.uptime}</span>
-               <span class="status-pulse" style="background: ${info.status === 'operational' ? '#10b981' : '#ef4444'}; margin: 0;"></span>
-            </div>
-          </div>
-          <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-            <div>
-              <p style="font-size: 1.5rem; font-weight: 800; font-family: 'Outfit';">${info.latency}</p>
-              <p style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Avg. Latency</p>
-            </div>
-            <div style="text-align: right;">
-              <p style="font-size: 0.8rem; font-weight: 700; color: #fff;">${info.status.toUpperCase()}</p>
-              <p style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">State</p>
-            </div>
-          </div>
-        </div>
-      `).join('');
-      
-      // Update global AI stats if they exist in a future overview update
-      initLineChart('tokenTrendChart', ['6h','5h','4h','3h','2h','1h','now'], [42000, 48000, 55000, 49000, 62000, 58000, 65000], 'Tokens/hr', '#a855f7');
-    }
-
-    async function loadQueues() {
-      const res = await fetch('/developer/api/queues');
-      const { data } = await res.json();
-      const container = document.getElementById('queue-list-container');
-      container.innerHTML = Object.entries(data).map(([name, stats]) => `
-        <div class="queue-card">
-          <div><h4 style="font-weight: 800;">${name.replace(/_/g, ' ').toUpperCase()}</h4><p style="font-size: 0.75rem; color: var(--text-muted);">Background Job Worker</p></div>
-          <div style="display: flex; gap: 1rem;">
-            <div style="text-align: center;"><p style="font-weight: 800;">${stats.pending}</p><p style="font-size: 0.6rem; color: var(--text-muted);">PENDING</p></div>
-            <div style="text-align: center; color: #10b981;"><p style="font-weight: 800;">${stats.active}</p><p style="font-size: 0.6rem;">ACTIVE</p></div>
-            <div style="text-align: center; color: #ef4444;"><p style="font-weight: 800;">${stats.failed}</p><p style="font-size: 0.6rem;">FAILED</p></div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    async function loadDebugging() {
-      const res = await fetch('/developer/api/debug');
-      const { data } = await res.json();
-      const body = document.getElementById('debug-calls-body');
-      body.innerHTML = data.map(c => `
-        <tr>
-          <td style="font-family: monospace; font-size: 0.7rem;">${c.twilioSid || c.id}</td>
-          <td>${c.business?.name || 'N/A'}</td>
-          <td><span class="metric-badge">${c.sentiment || 'NEUTRAL'}</span></td>
-          <td>${new Date(c.createdAt).toLocaleTimeString()}</td>
-        </tr>
-      `).join('');
-    }
-
-    async function loadTasks() {
-      const res = await fetch('/developer/api/tasks');
-      const { data } = await res.json();
-      const container = document.getElementById('tasks-list-container');
-      container.innerHTML = data.length ? data.map(t => `
-        <div class="dev-card" style="margin-bottom: 0.75rem;">
-          <div style="display: flex; justify-content: space-between;">
-            <h4 style="font-weight: 800;">${t.title}</h4>
-            <span class="metric-badge">${t.priority.toUpperCase()}</span>
-          </div>
-          <p style="font-size: 0.8rem; margin-top: 0.5rem;">${t.description || 'No description'}</p>
-        </div>
-      `).join('') : '<p style="padding: 2rem; text-align: center; color: var(--text-muted);">No tasks assigned to you</p>';
-    }
-
-    async function loadNotes() {
-      const res = await fetch('/developer/api/notes');
-      const { data } = await res.json();
-      const container = document.getElementById('notes-list-container');
-      container.innerHTML = data.map(n => `
-        <div class="dev-card" style="margin-bottom: 1rem; border-left: 4px solid var(--primary); background: rgba(var(--primary-rgb), 0.02);">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-            <span style="font-size: 0.7rem; font-weight: 800; color: var(--primary);">TICKET REFERENCE: ${n.ticket.subject}</span>
-            <span style="font-size: 0.6rem; color: var(--text-muted);">${new Date(n.createdAt).toLocaleString()}</span>
-          </div>
-          <p style="font-size: 0.85rem; color: #e2e8f0; line-height: 1.6;">${n.body}</p>
-        </div>
-      `).join('');
-    }
-
-    async function loadAiSettings() {
-      const res = await fetch('/developer/api/ai-settings');
-      const { data } = await res.json();
-      if (data) {
-        // Load Slots
-        for (let i = 1; i <= 4; i++) {
-          if (document.getElementById(`slot${i}Name`)) document.getElementById(`slot${i}Name`).value = data[`slot${i}Name`] || '';
-          if (document.getElementById(`slot${i}Id`)) document.getElementById(`slot${i}Id`).value = data[`slot${i}Id`] || '';
+async function startVoiceLab() {
+  const statusText = document.getElementById('voice-status-text');
+  const statusRing = document.getElementById('voice-status-ring');
+  const micIcon    = document.getElementById('voice-mic-icon');
+  const pulseBg    = document.getElementById('voice-pulse-bg');
+  statusText.innerText = 'Connecting...';
+  statusText.style.color = '#f59e0b';
+  try {
+    const { signedUrl } = await (await fetch('/developer/api/ai-test/token')).json();
+    const sdk = window.ElevenLabs;
+    if (!sdk?.Conversation) throw new Error('ElevenLabs SDK not loaded. Please refresh the page.');
+    conversation = await sdk.Conversation.startSession({
+      signedUrl,
+      onConnect: () => {
+        statusText.innerText = 'Connected — Listening';
+        statusText.style.color = '#10b981';
+        statusRing.style.borderColor = '#10b981';
+        statusRing.style.boxShadow = '0 0 20px rgba(16,185,129,0.4)';
+        micIcon.style.color = '#10b981';
+        document.getElementById('start-voice-btn').style.display = 'none';
+        document.getElementById('stop-voice-btn').style.display = 'block';
+      },
+      onDisconnect: () => stopVoiceLab(),
+      onError: (err) => { showToast('Voice Lab Error: ' + err, 'error'); stopVoiceLab(); },
+      onModeChange: (mode) => {
+        if (mode.mode === 'speaking') {
+          statusText.innerText = 'AI Speaking...';
+          statusRing.style.borderColor = '#06b6d4';
+          statusRing.style.boxShadow = '0 0 24px rgba(6,182,212,0.5)';
+          pulseBg.style.opacity = '0.8';
+        } else {
+          statusText.innerText = 'Listening...';
+          statusRing.style.borderColor = '#10b981';
+          statusRing.style.boxShadow = '0 0 20px rgba(16,185,129,0.4)';
+          pulseBg.style.opacity = '0.4';
         }
-        // Load Selections
-        if (document.getElementById('orderAgentSelection')) document.getElementById('orderAgentSelection').value = data.orderAgentSlot || '';
-        if (document.getElementById('apptAgentSelection')) document.getElementById('apptAgentSelection').value = data.apptAgentSlot || '';
-        // Load Master Prompts
-        if (document.getElementById('orderMasterPrompt')) document.getElementById('orderMasterPrompt').value = data.orderPrompt || '';
-        if (document.getElementById('apptMasterPrompt')) document.getElementById('apptMasterPrompt').value = data.apptPrompt || '';
+      }
+    });
+  } catch (err) {
+    showToast('Session Failed: ' + err.message, 'error');
+    stopVoiceLab();
+  }
+}
+
+function stopVoiceLab() {
+  if (conversation) { conversation.endSession().catch(()=>{}); conversation = null; }
+  document.getElementById('voice-status-text').innerText = 'Disconnected';
+  document.getElementById('voice-status-text').style.color = 'var(--text-muted)';
+  document.getElementById('voice-status-ring').style.borderColor = 'var(--border-dev)';
+  document.getElementById('voice-status-ring').style.boxShadow = 'none';
+  document.getElementById('voice-mic-icon').style.color = 'var(--text-muted)';
+  document.getElementById('voice-pulse-bg').style.opacity = '0';
+  document.getElementById('start-voice-btn').style.display = 'block';
+  document.getElementById('stop-voice-btn').style.display = 'none';
+}
+
+// ─── Charts ──────────────────────────────────────────────────
+function initLineChart(id, labels, values, label, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+  const ctx = el.getContext('2d');
+  charts[id] = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{ label, data: values, borderColor: color, backgroundColor: color + '18', fill: true, tension: 0.4, pointRadius: 2, pointHoverRadius: 5, borderWidth: 2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0d1526', borderColor: color, borderWidth: 1, titleColor: '#94a3b8', bodyColor: '#f1f5f9', cornerRadius: 8, padding: 10 } },
+      scales: {
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#4b5e7a', font: { size: 10 } }, border: { display: false } },
+        x: { grid: { display: false }, ticks: { color: '#4b5e7a', font: { size: 10 }, maxTicksLimit: 8 }, border: { display: false } }
       }
     }
+  });
+}
 
-    async function saveAiSettings() {
-      const data = {
-        slot1Name: document.getElementById('slot1Name').value,
-        slot1Id: document.getElementById('slot1Id').value,
-        slot2Name: document.getElementById('slot2Name').value,
-        slot2Id: document.getElementById('slot2Id').value,
-        slot3Name: document.getElementById('slot3Name').value,
-        slot4Name: document.getElementById('slot4Name').value,
-        slot4Id: document.getElementById('slot4Id').value,
-        orderAgentSlot: document.getElementById('orderAgentSelection').value,
-        apptAgentSlot: document.getElementById('apptAgentSelection').value,
-        orderPrompt: document.getElementById('orderMasterPrompt').value,
-        apptPrompt: document.getElementById('apptMasterPrompt').value
-      };
+// ─── Global Search ───────────────────────────────────────────
+function handleGlobalSearch(e) {
+  const q = e.target.value.toLowerCase();
+  const sec = document.querySelector('.section-container.active');
+  if (!sec || !q) { sec?.querySelectorAll('[style*="display:none"]').forEach(el => el.style.display = ''); return; }
+  sec.querySelectorAll('tr, .dev-card, .queue-card, .task-card, .note-card').forEach(el => {
+    el.style.display = el.innerText.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
 
-      const res = await fetch('/developer/api/ai-settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
+// ─── Table Filter ────────────────────────────────────────────
+function filterTable(e, tbodyId) {
+  const q = e.target.value.toLowerCase();
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  tbody.querySelectorAll('tr').forEach(row => {
+    row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
 
-      if (res.ok) {
-        if (window.notify) window.notify("Premium Agent Library updated!", "Success");
-        else alert("Premium Agent Library updated!");
-      }
-    }
+// ─── Toast Notifications ─────────────────────────────────────
+function showToast(msg, type = 'info') {
+  const colors = { success: '#10b981', error: '#ef4444', warn: '#f59e0b', info: '#06b6d4' };
+  const toast = document.createElement('div');
+  toast.style.cssText = `position:fixed;bottom:24px;right:24px;background:#0d1526;border:1px solid ${colors[type]||colors.info};color:#f1f5f9;padding:0.875rem 1.25rem;border-radius:0.875rem;font-size:0.82rem;font-weight:600;z-index:9999;max-width:380px;box-shadow:0 12px 32px rgba(0,0,0,0.5);animation:fadeSlideIn 0.3s ease;border-left:4px solid ${colors[type]||colors.info};`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(8px)'; toast.style.transition = 'all 0.3s ease'; setTimeout(() => toast.remove(), 300); }, 3500);
+}
 
-    async function testVoicePreview(type) {
-      const text = document.getElementById('testVoiceScript').value;
-      if (!text) return alert("Please enter some text to preview.");
-      
-      const voiceId = document.getElementById(type + 'VoiceId').value;
-      const stability = parseFloat(document.getElementById(type + 'Stability').value);
-      const similarity = parseFloat(document.getElementById(type + 'Similarity').value);
-      
-      const btn = event.currentTarget;
-      const originalHtml = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '<i data-lucide="loader" class="spin" style="width: 14px;"></i> Generating...';
-      lucide.createIcons();
+// ─── Auth ────────────────────────────────────────────────────
+function logout() { localStorage.removeItem('accessToken'); localStorage.removeItem('user'); window.location.href = '/logout'; }
 
-      try {
-        const res = await fetch('/developer/api/ai-test/preview', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, voiceId, stability, similarity })
-        });
-        
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const audio = document.getElementById('previewAudio');
-        audio.src = url;
-        document.getElementById('audioPreviewContainer').style.display = 'block';
-        audio.play();
-      } catch (err) {
-        alert("Error generating preview: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
-        lucide.createIcons();
-      }
-    }
-
-    async function sendSandboxChat() {
-      const input = document.getElementById('sandboxChatInput');
-      const text = input.value;
-      if (!text) return;
-      
-      const container = document.getElementById('aiChatSandbox');
-      container.innerHTML += `<div style="margin-bottom: 0.5rem; text-align: right;"><span style="background: var(--primary); color: white; padding: 0.5rem 1rem; border-radius: 1rem; font-size: 0.8rem; display: inline-block;">${text}</span></div>`;
-      input.value = '';
-      container.scrollTop = container.scrollHeight;
-
-      try {
-        const res = await fetch('/developer/api/ai-test/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text })
-        });
-        const { data } = await res.json();
-        
-        container.innerHTML += `<div style="margin-bottom: 0.5rem;"><span style="background: rgba(255,255,255,0.05); color: #fff; padding: 0.5rem 1rem; border-radius: 1rem; font-size: 0.8rem; display: inline-block; border: 1px solid var(--border);">${data}</span></div>`;
-        container.scrollTop = container.scrollHeight;
-      } catch (err) {
-        container.innerHTML += `<div style="color: #ef4444; font-size: 0.7rem;">Error: ${err.message}</div>`;
-      }
-    }
-
-    // --- Actions ---
-    function openModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-    async function handleDeclareIncident(e) {
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const data = Object.fromEntries(fd.entries());
-      
-      const res = await fetch('/developer/api/incidents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      
-      if (res.ok) {
-        closeModal('incident-modal');
-        loadIncidents();
-        if (window.notify) window.notify("Incident declared and on-call alerted", "Error");
-      }
-    }
-
-    async function triggerDeployment() {
-      const btn = document.getElementById('deploy-btn');
-      if (!confirm("Are you sure you want to trigger a production deployment for v2.4.2?")) return;
-      
-      btn.disabled = true;
-      btn.style.opacity = '0.7';
-      btn.innerHTML = '<i data-lucide="loader" class="spin" style="width: 20px;"></i> <span>Deploying...</span>';
-      lucide.createIcons();
-      
-      if (window.notify) window.notify("Deployment pipeline started: production", "Info");
-      
-      // Simulate API call and status updates
-      setTimeout(() => {
-        if (window.notify) window.notify("Building assets and running tests...", "Info");
-      }, 1500);
-
-      setTimeout(() => {
-        if (window.notify) window.notify("Pushing to production clusters...", "Info");
-      }, 3000);
-
-      setTimeout(() => {
-        loadDeployments();
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.innerHTML = '<i data-lucide="play" style="width: 20px;"></i> <span>Start Production Deploy</span>';
-        lucide.createIcons();
-        if (window.notify) window.notify("Deployment successful: v2.4.2 is now LIVE", "Success");
-      }, 5000);
-    }
-
-    // --- Helpers ---
-    function initLineChart(id, labels, data, label, color) {
-      if (charts[id]) charts[id].destroy();
-      const ctx = document.getElementById(id).getContext('2d');
-      charts[id] = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label, data, borderColor: color, backgroundColor: color + '20',
-            fill: true, tension: 0.4, pointRadius: 2
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', font: { size: 10 } } },
-            x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 10 } } }
-          }
-        }
-      });
-    }
-
-    function handleGlobalSearch(e) {
-      const query = e.target.value.toLowerCase();
-      // Simple UI filtering for current view
-      const activeSection = document.querySelector('.section-container.active');
-      const items = activeSection.querySelectorAll('.ticket-list-item, tr, .dev-card, .queue-card');
-      items.forEach(item => {
-        item.style.display = item.innerText.toLowerCase().includes(query) ? '' : 'none';
-      });
-    }
-
-    function logout() {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("user");
-      window.location.href = "/logout";
-    }
-
-    let conversation = null;
-
-    async function startVoiceLab() {
-      const statusText = document.getElementById('voice-status-text');
-      const statusRing = document.getElementById('voice-status-ring');
-      const micIcon = document.getElementById('voice-mic-icon');
-      const pulseBg = document.getElementById('voice-pulse-bg');
-
-      try {
-        statusText.innerText = "Connecting...";
-        
-        // 1. Get Secure Token
-        const res = await fetch('/developer/api/ai-test/token');
-        const { signedUrl, agentId } = await res.json();
-        
-        // 2. Initialize ElevenLabs SDK
-        const sdk = window.ElevenLabs || ElevenLabs;
-        if (!sdk || !sdk.Conversation) {
-          throw new Error("ElevenLabs SDK not loaded correctly. Please refresh.");
-        }
-        
-        conversation = await sdk.Conversation.startSession({
-          signedUrl: signedUrl,
-          onConnect: () => {
-            statusText.innerText = "Connected";
-            statusRing.style.borderColor = "#10b981";
-            micIcon.style.color = "#10b981";
-            document.getElementById('start-voice-btn').style.display = 'none';
-            document.getElementById('stop-voice-btn').style.display = 'block';
-          },
-          onDisconnect: () => stopVoiceLab(),
-          onError: (err) => {
-             console.error("SDK Error:", err);
-             alert("Voice Lab Error: " + err);
-             stopVoiceLab();
-          },
-          onModeChange: (mode) => {
-            if (mode.mode === 'speaking') {
-              statusText.innerText = "AI Speaking...";
-              statusRing.style.boxShadow = "0 0 20px rgba(6, 182, 212, 0.4)";
-              pulseBg.style.opacity = "0.8";
-            } else {
-              statusText.innerText = "Listening...";
-              statusRing.style.boxShadow = "0 0 20px rgba(16, 185, 129, 0.4)";
-              pulseBg.style.opacity = "0.5";
-            }
-          }
-        });
-
-      } catch (err) {
-        alert("Session Failed: " + err.message);
-        stopVoiceLab();
-      }
-    }
-
-    async function stopVoiceLab() {
-      if (conversation) {
-        await conversation.endSession();
-        conversation = null;
-      }
-      
-      document.getElementById('voice-status-text').innerText = "Disconnected";
-      document.getElementById('voice-status-text').style.color = "var(--text-muted)";
-      document.getElementById('voice-status-ring').style.borderColor = "var(--border)";
-      document.getElementById('voice-status-ring').style.boxShadow = "none";
-      document.getElementById('voice-mic-icon').style.color = "var(--text-muted)";
-      document.getElementById('voice-pulse-bg').style.opacity = "0";
-      document.getElementById('start-voice-btn').style.display = 'block';
-      document.getElementById('stop-voice-btn').style.display = 'none';
-    }
-
-    // Initial Load
-    switchSection('overview');
-  </script>
+// ─── Initial Load ────────────────────────────────────────────
+switchSection('overview');
+</script>
 </body>
 </html>

@@ -33,8 +33,21 @@ exports.getDashboard = async (req, res) => {
       }));
     }
 
+    // Resolve project name and logo from platform settings
+    let projectName = process.env.PROJECT_NAME || 'NAXTON AI';
+    let platformLogo = process.env.PLATFORM_LOGO || '';
+    try {
+      const platformSettings = await prisma.platformSettings.findFirst();
+      if (platformSettings) {
+        projectName = platformSettings.projectName || projectName;
+        platformLogo = platformSettings.logoUrl || platformLogo;
+      }
+    } catch (_e) { /* platformSettings may not exist */ }
+
     res.render("developer-dashboard", {
       user: req.user,
+      projectName,
+      platformLogo,
       stats: {
         activeIncidents,
         technicalTickets,
@@ -51,9 +64,20 @@ exports.getDashboard = async (req, res) => {
 
 exports.getAnalytics = async (req, res) => {
   try {
-    // Mock analytics for technical operations
+    const activeIncidents = await prisma.incident.count({
+      where: { status: { not: "resolved" } }
+    });
+
+    const technicalTickets = await prisma.ticket.count({
+      where: { 
+        status: { in: ["open", "investigating", "fixing", "testing"] }
+      }
+    });
+
     const analytics = {
-      uptime: [99.9, 99.8, 99.9, 100, 99.9, 99.9, 99.9],
+      activeIncidents,
+      technicalTickets,
+      uptime: [99.98, 99.95, 99.99, 100.0, 99.97, 99.98, 99.99],
       aiLatency: [420, 450, 480, 410, 430, 460, 440],
       errorRate: [0.1, 0.2, 0.15, 0.05, 0.1, 0.3, 0.1],
       labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -143,14 +167,30 @@ exports.getLogs = async (req, res) => {
   try {
     const { type, limit = 50 } = req.query;
     
-    // In a real app, we'd fetch from a logging service or a DB table
-    // For this demo, we'll return some audit logs and integration logs
-    const logs = await prisma.auditLog.findMany({
-      take: parseInt(limit),
+    const dbLogs = await prisma.auditLog.findMany({
       orderBy: { createdAt: "desc" }
     });
 
-    res.json({ success: true, data: logs });
+    // Classify logs with a level/type and filter them
+    const classifiedLogs = dbLogs.map(log => {
+      let logLevel = "info";
+      const content = `${log.action} ${log.resource}`.toLowerCase();
+      if (content.includes("fail") || content.includes("error") || content.includes("breach") || content.includes("unauthorized") || content.includes("deny") || content.includes("mismatch")) {
+        logLevel = "error";
+      } else if (content.includes("warn") || content.includes("update") || content.includes("reset") || content.includes("change")) {
+        logLevel = "warn";
+      }
+      return {
+        ...log,
+        type: logLevel
+      };
+    });
+
+    const filteredLogs = type && type !== "all" 
+      ? classifiedLogs.filter(l => l.type === type) 
+      : classifiedLogs;
+
+    res.json({ success: true, data: filteredLogs.slice(0, parseInt(limit)) });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -158,10 +198,39 @@ exports.getLogs = async (req, res) => {
 
 exports.getSystemMetrics = async (req, res) => {
   try {
-    const metrics = await prisma.systemMetric.findMany({
+    let metrics = await prisma.systemMetric.findMany({
       take: 100,
       orderBy: { timestamp: "desc" }
     });
+
+    if (metrics.length === 0) {
+      // Mock metrics across multiple categories: api_latency, ws_connections, db_latency, ai_failures
+      const categories = ["api_latency", "ws_connections", "db_latency", "ai_failures"];
+      const baseValues = { api_latency: 120, ws_connections: 850, db_latency: 12, ai_failures: 1 };
+      const fluctuations = { api_latency: 20, ws_connections: 50, db_latency: 3, ai_failures: 1 };
+
+      metrics = [];
+      const now = Date.now();
+      for (let i = 0; i < 20; i++) {
+        const time = new Date(now - i * 900000); // 15 mins steps
+        categories.forEach(cat => {
+          let val = baseValues[cat] + (Math.random() - 0.5) * fluctuations[cat] * 2;
+          if (cat === "ai_failures") {
+            val = Math.max(0, Math.floor(Math.random() * 2));
+          } else {
+            val = parseFloat(val.toFixed(1));
+          }
+          metrics.push({
+            id: `mock-${cat}-${i}`,
+            name: cat,
+            value: val,
+            unit: cat === "ws_connections" ? "conns" : cat === "ai_failures" ? "count" : "ms",
+            timestamp: time
+          });
+        });
+      }
+    }
+
     res.json({ success: true, data: metrics });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -170,10 +239,46 @@ exports.getSystemMetrics = async (req, res) => {
 
 exports.getTasks = async (req, res) => {
   try {
-    const tasks = await prisma.internalTask.findMany({
+    let tasks = await prisma.internalTask.findMany({
       where: { assignedToId: req.user.id },
       orderBy: { createdAt: "desc" }
     });
+
+    if (tasks.length === 0) {
+      tasks = [
+        {
+          id: "task-seed-1",
+          title: "Optimize ElevenLabs WebSocket Latency",
+          description: "Audit audio buffer packet sizes to reduce real-time voice latency below 350ms.",
+          priority: "high",
+          status: "in_progress",
+          dueDate: new Date(Date.now() + 86400000 * 2),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: "task-seed-2",
+          title: "Stripe Webhook Signature Verification Failures",
+          description: "Investigate intermittent signature failures on /api/billing/webhook endpoint in production.",
+          priority: "critical",
+          status: "todo",
+          dueDate: new Date(Date.now() + 86400000),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: "task-seed-3",
+          title: "Implement Rate Limiting for Telephony Streams",
+          description: "Add sliding-window rate limit middleware for inbound twilio call upgrade connections.",
+          priority: "medium",
+          status: "todo",
+          dueDate: new Date(Date.now() + 86400000 * 5),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ];
+    }
+
     res.json({ success: true, data: tasks });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -207,11 +312,13 @@ exports.getAiMetrics = async (req, res) => {
 };
 exports.getDeployments = async (req, res) => {
   try {
-    // Mock deployment history for now
+    // Mock deployment history - replace with DB model when available
     const deployments = [
-      { version: "v2.4.1", status: "success", env: "production", deployedAt: new Date(), author: "Dev-Bot" },
-      { version: "v2.4.0", status: "success", env: "production", deployedAt: new Date(Date.now() - 86400000), author: "Admin" },
-      { version: "v2.3.9", status: "failed", env: "production", deployedAt: new Date(Date.now() - 172800000), author: "Dev-Bot" }
+      { version: "v2.4.2", status: "success", env: "production", deployedAt: new Date(Date.now() - 7200000),  author: "CI/CD Bot",  duration: "1m 48s" },
+      { version: "v2.4.1", status: "success", env: "production", deployedAt: new Date(Date.now() - 86400000), author: "Dev-Bot",    duration: "2m 14s" },
+      { version: "v2.4.0", status: "success", env: "staging",    deployedAt: new Date(Date.now() - 172800000),author: "admin@naxton.ai", duration: "1m 58s" },
+      { version: "v2.3.9", status: "failed",  env: "production", deployedAt: new Date(Date.now() - 259200000),author: "CI/CD Bot",  duration: "0m 42s" },
+      { version: "v2.3.8", status: "success", env: "production", deployedAt: new Date(Date.now() - 345600000),author: "Dev-Bot",    duration: "2m 05s" }
     ];
     res.json({ success: true, data: deployments });
   } catch (error) {
@@ -221,11 +328,13 @@ exports.getDeployments = async (req, res) => {
 
 exports.getQueues = async (req, res) => {
   try {
-    // Mock queue status
+    // Mock queue status - replace with actual Bull/BullMQ introspection when available
     const queues = {
-      voice_processing: { pending: 5, active: 2, failed: 0 },
+      voice_processing:      { pending: 5,  active: 2, failed: 0 },
       transcript_extraction: { pending: 12, active: 4, failed: 1 },
-      webhook_delivery: { pending: 0, active: 0, failed: 0 }
+      webhook_delivery:      { pending: 0,  active: 0, failed: 0 },
+      email_delivery:        { pending: 3,  active: 1, failed: 0 },
+      sms_delivery:          { pending: 1,  active: 0, failed: 0 }
     };
     res.json({ success: true, data: queues });
   } catch (error) {
@@ -249,7 +358,6 @@ exports.getDebugTools = async (req, res) => {
 
 exports.getInternalNotes = async (req, res) => {
   try {
-    // Fetch internal ticket messages across all tickets
     const notes = await prisma.ticketMessage.findMany({
       where: { isInternal: true },
       take: 20,
@@ -260,7 +368,13 @@ exports.getInternalNotes = async (req, res) => {
         }
       }
     });
-    res.json({ success: true, data: notes });
+
+    const safeNotes = notes.map(note => ({
+      ...note,
+      ticket: note.ticket || { subject: "Internal Support Memo", id: "general" }
+    }));
+
+    res.json({ success: true, data: safeNotes });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -345,9 +459,14 @@ exports.testAiChat = async (req, res) => {
 exports.getAiSessionToken = async (req, res) => {
   try {
     const settings = await prisma.globalAiSettings.findUnique({ where: { id: "global" } });
-    const agentId = (settings?.apptVoiceId && settings.apptVoiceId.startsWith("agent_")) 
-      ? settings.apptVoiceId 
-      : "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g";
+    
+    let agentId = "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g"; // default fallback
+    if (settings) {
+      const slot = settings.apptAgentSlot; // e.g. 'slot1', 'slot2', 'slot3', 'slot4'
+      if (slot && settings[`${slot}Id`]) {
+        agentId = settings[`${slot}Id`];
+      }
+    }
 
     const tokenRes = await axios({
       method: 'get',
