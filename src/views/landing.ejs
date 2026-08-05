@@ -307,142 +307,60 @@
         </div>
       </div>
 
-      <!-- Right Column: Interactive SaaS Console / Dashboard Mockup -->
+      <!-- Right Column: Robot Agent Hero Card -->
       <div class="lg:col-span-6 w-full flex justify-center lg:justify-end">
-        <div class="w-full max-w-lg glass-card rounded-3xl p-5 border border-slate-200/60 shadow-xl relative overflow-hidden bg-white/70">
-          
-          <!-- Mockup Header -->
-          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-            <div class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
-              <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
-              <span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>
-            </div>
-            <div class="text-[10px] font-mono text-textDim uppercase tracking-widest flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 bg-success rounded-full animate-ping"></span>
-              <span>Naxton Realtime Console v4.0</span>
-            </div>
-          </div>
+        <div class="w-full max-w-lg relative">
 
-          <!-- Console Navigation Tabs -->
-          <div id="simulator-tabs" class="flex gap-4 border-b border-slate-100 pb-2 mb-4 text-[10px] font-bold tracking-wider text-textDim uppercase">
-            <button id="tab-btn-dashboard" onclick="switchSimulatorTab('dashboard')" class="flex-1 pb-2.5 text-primary border-b border-primary text-center focus:outline-none transition-all duration-300">
-              Operational Metrics
-            </button>
-            <button id="tab-btn-thinking" onclick="switchSimulatorTab('thinking')" class="flex-1 pb-2.5 text-textDim border-b border-transparent text-center hover:text-textMain transition-all duration-300 focus:outline-none flex items-center justify-center gap-1.5">
-              <i data-lucide="brain" class="w-3.5 h-3.5"></i>
-              <span>Cognitive Log Stream</span>
-            </button>
-          </div>
-
-          <!-- Tab Content 1: Live Analytics Dashboard -->
-          <div id="dashboard-mockup-view" class="space-y-4">
-            <!-- Grid of simple parameters -->
-            <div class="grid grid-cols-2 gap-3">
-              <div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-4 flex flex-col justify-start text-left">
-                <span class="text-[9px] font-bold text-textDim tracking-widest uppercase">System CPU Load</span>
-                <span class="text-xl font-bold font-orbitron text-primary mt-1">12.4%</span>
+          <!-- Premium Robot Card -->
+          <div onclick="launchInteractiveVoice()" class="group/robot relative rounded-3xl overflow-hidden cursor-pointer border border-slate-200/60 shadow-2xl bg-gradient-to-b from-[#EEF6FF] to-white" style="min-height:460px">
+            
+            <!-- Top Status Bar -->
+            <div class="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-5 pt-5">
+              <div class="bg-white/90 border border-slate-200/70 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 shadow-sm">
+                <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                <span class="text-[10px] font-black font-orbitron text-slate-800 uppercase tracking-widest">AI Agent Online</span>
               </div>
-              <div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-4 flex flex-col justify-start text-left">
-                <span class="text-[9px] font-bold text-textDim tracking-widest uppercase">Active Vectors</span>
-                <span class="text-xl font-bold font-orbitron text-secondary mt-1">4,096 / OK</span>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                <span class="w-2 h-2 rounded-full bg-slate-300"></span>
               </div>
             </div>
 
-            <!-- Interactive Robot Card -->
-            <div onclick="launchInteractiveVoice()" class="group/robot relative bg-slate-50/50 border border-slate-100 rounded-2xl overflow-hidden h-52 cursor-pointer transition-all duration-300 hover:border-primary/20 hover:shadow-lg flex items-center justify-center">
-              <img src="/nexa_robot_agent.jpg" alt="Naxton AI Robot Agent" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/robot:scale-105" />
-              <!-- Glassmorphic Overlay for Status -->
-              <div class="absolute top-3 left-3 bg-white/85 border border-slate-200/50 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm z-10">
-                <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
-                <span class="text-[9px] font-bold font-orbitron text-textMain uppercase tracking-wider">AI Agent Online</span>
-              </div>
-              
-              <!-- Play overlay trigger button -->
-              <div class="absolute inset-0 bg-slate-900/10 group-hover/robot:bg-slate-900/20 transition-colors flex items-center justify-center z-10">
-                <div class="w-12 h-12 rounded-full bg-white/95 shadow-md flex items-center justify-center text-primary group-hover/robot:scale-110 transition-transform duration-300">
-                  <svg class="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                  </svg>
+            <!-- Robot Image (full card) -->
+            <img src="/nexa_robot_agent.jpg" alt="Naxton AI Agent Robot" class="w-full h-full object-cover object-center absolute inset-0 transition-transform duration-700 group-hover/robot:scale-105" style="min-height:460px" />
+
+            <!-- Stats floating cards (right side) -->
+            <div class="absolute right-4 top-16 flex flex-col gap-3 z-20">
+              <div class="bg-white/95 backdrop-blur-sm border border-slate-200/60 rounded-2xl px-4 py-3 shadow-md text-left">
+                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Automation</p>
+                <div class="w-20 h-1 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full w-4/5 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
                 </div>
               </div>
-              
-              <!-- Click to talk overlay info -->
-              <div class="absolute bottom-3 left-3 right-3 bg-white/80 border border-slate-200/50 backdrop-blur-md px-3 py-2 rounded-xl text-center shadow-sm z-10">
-                <p class="text-[9px] font-bold font-orbitron text-textMain uppercase tracking-wider">Click to Start Live Voice Conversation</p>
+              <div class="bg-white/95 backdrop-blur-sm border border-slate-200/60 rounded-2xl px-4 py-3 shadow-md text-left">
+                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Performance</p>
+                <p class="text-lg font-black font-orbitron text-primary leading-none">98.6%</p>
               </div>
-            </div>
-          </div>
-
-          <!-- Tab Content 2: Visual Thinking Flow Node (Initially hidden) -->
-          <div id="visual-thinking-view" class="hidden space-y-4">
-            <div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-4 flex flex-col text-left">
-              <span class="text-[8px] font-bold font-mono text-textDim tracking-widest uppercase mb-1">Active Cognitive Node Details</span>
-              <h4 id="thinking-stage-title" class="font-bold text-sm text-textMain mb-1">Data Ingestion</h4>
-              <p id="thinking-stage-desc" class="text-[10px] text-textDim leading-relaxed min-h-[30px]">
-                Processes streaming audio feeds or custom input lines. Converts analog or text formats into internal JSON datagram chunks.
-              </p>
-              
-              <div class="grid grid-cols-2 gap-4 border-t border-slate-200/50 pt-2.5 mt-2.5 font-mono text-[9px] text-textDim">
-                <div>LATENCY PATH: <span id="thinking-stage-latency" class="text-primary font-bold">~4ms</span></div>
-                <div>THREADS ACTIVE: <span id="thinking-stage-threads" class="text-secondary font-bold">2 Concurrency</span></div>
+              <div class="bg-white/95 backdrop-blur-sm border border-slate-200/60 rounded-2xl px-4 py-3 shadow-md text-left">
+                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Tasks Completed</p>
+                <p class="text-lg font-black font-orbitron text-secondary leading-none">12,540+</p>
               </div>
             </div>
 
-            <!-- Node Diagram Canvas Mock using SVGs -->
-            <div class="relative w-full h-40 bg-slate-900/5 border border-slate-100 rounded-2xl flex items-center justify-center overflow-hidden">
-              <svg class="w-full h-full max-w-[400px]" viewBox="0 0 400 160">
-                <defs>
-                  <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 2 L 10 5 L 0 8 z" fill="#94A3B8"/>
-                  </marker>
-                </defs>
-
-                <!-- Flow Lines Paths -->
-                <path id="link-ingest-perceive" d="M 60 80 Q 100 40 140 40" fill="none" stroke="#E2E8F0" stroke-width="1.5" marker-end="url(#arrow)" />
-                <path id="link-ingest-act" d="M 60 80 Q 100 120 140 120" fill="none" stroke="#E2E8F0" stroke-width="1.5" marker-end="url(#arrow)" />
-                <path id="link-perceive-reason" d="M 170 40 Q 210 40 250 80" fill="none" stroke="#E2E8F0" stroke-width="1.5" marker-end="url(#arrow)" />
-                <path id="link-act-reason" d="M 170 120 Q 210 120 250 80" fill="none" stroke="#E2E8F0" stroke-width="1.5" marker-end="url(#arrow)" />
-                <path id="link-reason-synthesize" d="M 280 80 H 330" fill="none" stroke="#E2E8F0" stroke-width="1.5" marker-end="url(#arrow)" />
-
-                <!-- Ingest Node -->
-                <g id="node-ingest" onclick="selectThinkingNode('ingest')" class="cursor-pointer">
-                  <circle cx="50" cy="80" r="16" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1.5" />
-                  <circle cx="50" cy="80" r="22" stroke="#38BDF8" stroke-width="1" class="opacity-0 animate-ping" id="halo-ingest" />
-                  <text x="50" y="83" font-family="Plus Jakarta Sans" font-size="8" font-weight="800" text-anchor="middle" fill="#475569">ING</text>
-                </g>
-
-                <!-- Perceive Node -->
-                <g id="node-perceive" onclick="selectThinkingNode('perceive')" class="cursor-pointer">
-                  <circle cx="155" cy="40" r="16" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1.5" />
-                  <circle cx="155" cy="40" r="22" stroke="#38BDF8" stroke-width="1" class="opacity-0 animate-ping" id="halo-perceive" />
-                  <text x="155" y="43" font-family="Plus Jakarta Sans" font-size="8" font-weight="800" text-anchor="middle" fill="#475569">PRC</text>
-                </g>
-
-                <!-- Act Node -->
-                <g id="node-act" onclick="selectThinkingNode('act')" class="cursor-pointer">
-                  <circle cx="155" cy="120" r="16" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1.5" />
-                  <circle cx="155" cy="120" r="22" stroke="#38BDF8" stroke-width="1" class="opacity-0 animate-ping" id="halo-act" />
-                  <text x="155" y="123" font-family="Plus Jakarta Sans" font-size="8" font-weight="800" text-anchor="middle" fill="#475569">ACT</text>
-                </g>
-
-                <!-- Reason Node -->
-                <g id="node-reason" onclick="selectThinkingNode('reason')" class="cursor-pointer">
-                  <circle cx="265" cy="80" r="16" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1.5" />
-                  <circle cx="265" cy="80" r="22" stroke="#38BDF8" stroke-width="1" class="opacity-0 animate-ping" id="halo-reason" />
-                  <text x="265" y="83" font-family="Plus Jakarta Sans" font-size="8" font-weight="800" text-anchor="middle" fill="#475569">RSN</text>
-                </g>
-
-                <!-- Synthesize Node -->
-                <g id="node-synthesize" onclick="selectThinkingNode('synthesize')" class="cursor-pointer">
-                  <circle cx="345" cy="80" r="16" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1.5" />
-                  <circle cx="345" cy="80" r="22" stroke="#38BDF8" stroke-width="1" class="opacity-0 animate-ping" id="halo-synthesize" />
-                  <text x="345" y="83" font-family="Plus Jakarta Sans" font-size="8" font-weight="800" text-anchor="middle" fill="#475569">SYN</text>
-                </g>
-              </svg>
+            <!-- Bottom CTA bar -->
+            <div class="absolute bottom-0 left-0 right-0 z-20 bg-white/85 backdrop-blur-md border-t border-slate-200/50 px-5 py-4 flex items-center justify-between">
+              <div>
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Naxton AI</p>
+                <p class="text-[11px] font-black font-orbitron text-slate-800 uppercase tracking-wide">Speak to an Agent</p>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-lg group-hover/robot:scale-110 transition-transform duration-300">
+                <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+              </div>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -510,14 +428,14 @@
         <div class="w-16 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full"></div>
       </div>
 
-      <!-- Services Grid (11 items) -->
+      <!-- Services Grid (11 items) with solid visible icon backgrounds -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         
         <!-- Service Item 1 -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6">
-              <i data-lucide="brain" class="w-6 h-6"></i>
+            <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.14Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.14Z"/></svg>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">AI Development</h3>
             <p class="text-xs text-textDim leading-relaxed">
@@ -533,8 +451,8 @@
         <!-- Service Item 2 -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6">
-              <i data-lucide="bot" class="w-6 h-6"></i>
+            <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="10" x="3" y="11" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" x2="8" y1="16" y2="16"/><line x1="16" x2="16" y1="16" y2="16"/></svg>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">AI Agents</h3>
             <p class="text-xs text-textDim leading-relaxed">
@@ -550,8 +468,8 @@
         <!-- Service Item 3 -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6">
-              <i data-lucide="code" class="w-6 h-6"></i>
+            <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">Custom Software</h3>
             <p class="text-xs text-textDim leading-relaxed">
@@ -567,8 +485,8 @@
         <!-- Service Item 4 -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6">
-              <i data-lucide="layers" class="w-6 h-6"></i>
+            <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">SaaS Development</h3>
             <p class="text-xs text-textDim leading-relaxed">
@@ -584,8 +502,8 @@
         <!-- Service Item 5 -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6">
-              <i data-lucide="cloud" class="w-6 h-6"></i>
+            <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">Cloud Solutions</h3>
             <p class="text-xs text-textDim leading-relaxed">
@@ -601,8 +519,8 @@
         <!-- Service Item 6 -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6">
-              <i data-lucide="git-pull-request" class="w-6 h-6"></i>
+            <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" x2="6" y1="9" y2="21"/></svg>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">DevOps & CI/CD</h3>
             <p class="text-xs text-textDim leading-relaxed">
@@ -618,8 +536,8 @@
         <!-- Service Item 7 -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6">
-              <i data-lucide="refresh-cw" class="w-6 h-6"></i>
+            <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">Workflow Automation</h3>
             <p class="text-xs text-textDim leading-relaxed">
@@ -635,8 +553,8 @@
         <!-- Service Item 8 -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6">
-              <i data-lucide="smartphone" class="w-6 h-6"></i>
+            <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">Mobile Apps</h3>
             <p class="text-xs text-textDim leading-relaxed">
@@ -652,7 +570,7 @@
         <!-- Service Item 9 -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
               <i data-lucide="key" class="w-6 h-6"></i>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">API Development</h3>
@@ -669,7 +587,7 @@
         <!-- Service Item 10 -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
               <i data-lucide="users" class="w-6 h-6"></i>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">CRM Systems</h3>
@@ -686,7 +604,7 @@
         <!-- Service Item 11 -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
               <i data-lucide="mic" class="w-6 h-6"></i>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">Voice AI</h3>
@@ -909,8 +827,8 @@
         
         <!-- Healthcare -->
         <div class="glass-card rounded-3xl p-6 bg-white text-left">
-          <div class="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-4">
-            <i data-lucide="heart" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white mb-4 shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Healthcare</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -920,8 +838,8 @@
 
         <!-- Travel -->
         <div class="glass-card rounded-3xl p-6 bg-white text-left">
-          <div class="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-4">
-            <i data-lucide="plane" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white mb-4 shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 2c-2-2-4-2-5.5-.5L10 5 1.8 6.2c-.5.1-.9.5-.7 1.1l1.9 1.9 2.3-.4L8 11l-5 5c-.4.4-.4.9 0 1.2l1.2 1.2c.4.4.9.4 1.2 0L11 13l2 2.7.4 2.3 1.9 1.9c.6.2 1-.2 1.1-.7Z"/></svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Travel</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -931,8 +849,8 @@
 
         <!-- Restaurants -->
         <div class="glass-card rounded-3xl p-6 bg-white text-left">
-          <div class="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-4">
-            <i data-lucide="utensils-crosserve" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white mb-4 shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Restaurants</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -942,8 +860,8 @@
 
         <!-- Retail -->
         <div class="glass-card rounded-3xl p-6 bg-white text-left">
-          <div class="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-4">
-            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white mb-4 shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Retail</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -953,8 +871,8 @@
 
         <!-- Finance -->
         <div class="glass-card rounded-3xl p-6 bg-white text-left">
-          <div class="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-4">
-            <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white mb-4 shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Finance</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -964,8 +882,8 @@
 
         <!-- Education -->
         <div class="glass-card rounded-3xl p-6 bg-white text-left">
-          <div class="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-4">
-            <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white mb-4 shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Education</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -975,8 +893,8 @@
 
         <!-- Government -->
         <div class="glass-card rounded-3xl p-6 bg-white text-left">
-          <div class="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-4">
-            <i data-lucide="landmark" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white mb-4 shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="22"/><line x1="10" x2="10" y1="18" y2="22"/><line x1="14" x2="14" y1="18" y2="22"/><line x1="18" x2="18" y1="18" y2="22"/><polygon points="1 18 12 2 23 18"/></svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Government</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -986,8 +904,8 @@
 
         <!-- Construction -->
         <div class="glass-card rounded-3xl p-6 bg-white text-left">
-          <div class="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-4">
-            <i data-lucide="hard-hat" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white mb-4 shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z"/><path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5"/><path d="M4 15V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/></svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Construction</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
@@ -997,8 +915,8 @@
 
         <!-- Real Estate -->
         <div class="glass-card rounded-3xl p-6 bg-white text-left">
-          <div class="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-4">
-            <i data-lucide="home" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white mb-4 shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           </div>
           <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Real Estate</h4>
           <p class="text-[11px] text-textDim leading-relaxed">
