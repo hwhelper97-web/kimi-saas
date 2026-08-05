@@ -222,9 +222,7 @@
       <!-- Desktop Navigation Menu -->
       <nav class="hidden lg:flex items-center gap-7 text-xs font-bold tracking-wider text-textDim uppercase">
         <a href="#services" class="hover:text-primary transition-colors">Services</a>
-        <a href="#solutions" class="hover:text-primary transition-colors">Solutions</a>
         <a href="#products" class="hover:text-primary transition-colors">Products</a>
-        <a href="#technologies" class="hover:text-primary transition-colors">Technology</a>
         <a href="#industries" class="hover:text-primary transition-colors">Industries</a>
         <a href="#about" class="hover:text-primary transition-colors">About</a>
         <a href="#contact" class="hover:text-primary transition-colors">Contact</a>
@@ -257,9 +255,7 @@
     
     <nav class="flex flex-col gap-6 text-sm font-bold tracking-wider text-textDim uppercase mb-auto">
       <a href="#services" class="mobile-link hover:text-primary transition-colors">Services</a>
-      <a href="#solutions" class="mobile-link hover:text-primary transition-colors">Solutions</a>
       <a href="#products" class="mobile-link hover:text-primary transition-colors">Products</a>
-      <a href="#technologies" class="mobile-link hover:text-primary transition-colors">Technology</a>
       <a href="#industries" class="mobile-link hover:text-primary transition-colors">Industries</a>
       <a href="#about" class="mobile-link hover:text-primary transition-colors">About</a>
       <a href="#contact" class="mobile-link hover:text-primary transition-colors">Contact</a>
@@ -353,35 +349,29 @@
               </div>
             </div>
 
-            <!-- Graph box -->
-            <div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-4 text-left relative overflow-hidden h-36 flex flex-col justify-between">
-              <div class="flex justify-between items-center mb-1">
-                <span class="text-[9px] font-bold text-textDim tracking-widest uppercase">Latency Streams</span>
-                <span class="text-[8px] font-mono text-primary">18ms AVG</span>
+            <!-- Interactive Robot Card -->
+            <div onclick="launchInteractiveVoice()" class="group/robot relative bg-slate-50/50 border border-slate-100 rounded-2xl overflow-hidden h-52 cursor-pointer transition-all duration-300 hover:border-primary/20 hover:shadow-lg flex items-center justify-center">
+              <img src="/nexa_robot_agent.jpg" alt="Naxton AI Robot Agent" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/robot:scale-105" />
+              <!-- Glassmorphic Overlay for Status -->
+              <div class="absolute top-3 left-3 bg-white/85 border border-slate-200/50 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm z-10">
+                <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
+                <span class="text-[9px] font-bold font-orbitron text-textMain uppercase tracking-wider">AI Agent Online</span>
               </div>
-              <!-- Mini chart graph mock using div heights -->
-              <div class="h-16 flex items-end justify-between gap-1 px-1">
-                <div class="flex-1 bg-slate-200 h-8 rounded-t"></div>
-                <div class="flex-1 bg-slate-200 h-10 rounded-t"></div>
-                <div class="flex-1 bg-primary/30 h-12 rounded-t"></div>
-                <div class="flex-1 bg-primary/40 h-8 rounded-t"></div>
-                <div class="flex-1 bg-primary h-14 rounded-t"></div>
-                <div class="flex-1 bg-secondary h-16 rounded-t animate-pulse"></div>
-                <div class="flex-1 bg-primary/50 h-10 rounded-t"></div>
-                <div class="flex-1 bg-slate-200 h-6 rounded-t"></div>
+              
+              <!-- Play overlay trigger button -->
+              <div class="absolute inset-0 bg-slate-900/10 group-hover/robot:bg-slate-900/20 transition-colors flex items-center justify-center z-10">
+                <div class="w-12 h-12 rounded-full bg-white/95 shadow-md flex items-center justify-center text-primary group-hover/robot:scale-110 transition-transform duration-300">
+                  <svg class="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  </svg>
+                </div>
               </div>
-              <div class="flex justify-between text-[7px] font-mono text-textDim border-t border-slate-100 pt-1.5 mt-1">
-                <span>00:00 SEC</span>
-                <span>00:30 SEC</span>
-                <span>LIVE FEED</span>
+              
+              <!-- Click to talk overlay info -->
+              <div class="absolute bottom-3 left-3 right-3 bg-white/80 border border-slate-200/50 backdrop-blur-md px-3 py-2 rounded-xl text-center shadow-sm z-10">
+                <p class="text-[9px] font-bold font-orbitron text-textMain uppercase tracking-wider">Click to Start Live Voice Conversation</p>
               </div>
             </div>
-
-            <!-- Launch Live Voice button inside mockup -->
-            <button onclick="launchInteractiveVoice()" class="w-full py-3.5 rounded-2xl text-xs font-bold tracking-wider text-white btn-gradient flex items-center justify-center gap-2">
-              <i data-lucide="play-circle" class="w-4 h-4"></i>
-              <span>TRIGGER DYNAMIC VOICE DEMO</span>
-            </button>
           </div>
 
           <!-- Tab Content 2: Visual Thinking Flow Node (Initially hidden) -->
@@ -715,103 +705,7 @@
     </div>
   </section>
 
-  <!-- 🌟 Why Choose Naxton Section -->
-  <section class="py-24 px-6 border-t border-slate-100 bg-[#F8FBFF] relative" id="solutions">
-    <div class="max-w-7xl mx-auto relative z-10">
-      
-      <div class="max-w-3xl mx-auto text-center mb-20">
-        <span class="text-xs font-bold font-orbitron tracking-[4px] text-primary uppercase">Why Naxton Technologies</span>
-        <h2 class="font-orbitron font-black text-3xl sm:text-4xl text-textMain mt-2 mb-4">ENTERPRISE GRADE EXCELLENCE</h2>
-        <div class="w-16 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full"></div>
-      </div>
 
-      <!-- Why Choose Us Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        
-        <div class="glass-card rounded-3xl p-6 bg-white flex flex-col items-start text-left">
-          <div class="w-10 h-10 rounded-2xl bg-success/10 flex items-center justify-center text-success mb-5">
-            <i data-lucide="shield-check" class="w-5 h-5"></i>
-          </div>
-          <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Enterprise Security</h4>
-          <p class="text-[11px] text-textDim leading-relaxed">
-            Every database query, API token, and client record is secured with strict Row-Level Security, JWT authorization, and environmental parameter locks.
-          </p>
-        </div>
-
-        <div class="glass-card rounded-3xl p-6 bg-white flex flex-col items-start text-left">
-          <div class="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-5">
-            <i data-lucide="cloud" class="w-5 h-5"></i>
-          </div>
-          <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Cloud Native</h4>
-          <p class="text-[11px] text-textDim leading-relaxed">
-            Engineered natively for resilient PaaS platforms (AWS/Railway) featuring redundant routing, autoscaling load balancing, and secure caches.
-          </p>
-        </div>
-
-        <div class="glass-card rounded-3xl p-6 bg-white flex flex-col items-start text-left">
-          <div class="w-10 h-10 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary mb-5">
-            <i data-lucide="maximize" class="w-5 h-5"></i>
-          </div>
-          <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Scalable Architecture</h4>
-          <p class="text-[11px] text-textDim leading-relaxed">
-            Multi-tenant frameworks designed to support infinite expansion loops, high concurrency loads, and microservices databases.
-          </p>
-        </div>
-
-        <div class="glass-card rounded-3xl p-6 bg-white flex flex-col items-start text-left">
-          <div class="w-10 h-10 rounded-2xl bg-accent/20 flex items-center justify-center text-primary mb-5">
-            <i data-lucide="sparkles" class="w-5 h-5"></i>
-          </div>
-          <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">AI-First Engineering</h4>
-          <p class="text-[11px] text-textDim leading-relaxed">
-            We weave language model pathways directly into operational procedures, converting raw telemetry inputs into business predictions.
-          </p>
-        </div>
-
-        <div class="glass-card rounded-3xl p-6 bg-white flex flex-col items-start text-left">
-          <div class="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-5">
-            <i data-lucide="zap" class="w-5 h-5"></i>
-          </div>
-          <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Fast Delivery</h4>
-          <p class="text-[11px] text-textDim leading-relaxed">
-            We deploy agile iterations to guarantee rapid deployment loops, moving from conceptual system design to live production platforms quickly.
-          </p>
-        </div>
-
-        <div class="glass-card rounded-3xl p-6 bg-white flex flex-col items-start text-left">
-          <div class="w-10 h-10 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary mb-5">
-            <i data-lucide="cpu" class="w-5 h-5"></i>
-          </div>
-          <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Modern Tech Stack</h4>
-          <p class="text-[11px] text-textDim leading-relaxed">
-            We build exclusively with high-velocity stacks (Next.js, Node, Postgres, Prisma, Tailwind) to prevent technological debt.
-          </p>
-        </div>
-
-        <div class="glass-card rounded-3xl p-6 bg-white flex flex-col items-start text-left">
-          <div class="w-10 h-10 rounded-2xl bg-success/10 flex items-center justify-center text-success mb-5">
-            <i data-lucide="heart-handshake" class="w-5 h-5"></i>
-          </div>
-          <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">24/7 SLA Support</h4>
-          <p class="text-[11px] text-textDim leading-relaxed">
-            Continuous environment telemetry monitoring guarantees rapid response intervals, securing 99.9% operational performance uptime.
-          </p>
-        </div>
-
-        <div class="glass-card rounded-3xl p-6 bg-white flex flex-col items-start text-left">
-          <div class="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-5">
-            <i data-lucide="users" class="w-5 h-5"></i>
-          </div>
-          <h4 class="font-orbitron font-bold text-xs tracking-wider text-textMain uppercase mb-2">Dedicated Teams</h4>
-          <p class="text-[11px] text-textDim leading-relaxed">
-            A premium division of system architects, DevOps engineers, and UI experts focused entirely on building your operational software.
-          </p>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
 
   <!-- 💻 Featured Products Section -->
   <section class="py-24 px-6 relative" id="products">
@@ -1117,50 +1011,7 @@
     </div>
   </section>
 
-  <!-- ⚙️ Technology Stack Section -->
-  <section class="py-24 px-6 relative" id="technologies">
-    <div class="max-w-7xl mx-auto relative z-10 text-center">
-      
-      <div class="max-w-3xl mx-auto text-center mb-16">
-        <span class="text-xs font-bold font-orbitron tracking-[4px] text-primary uppercase">Modern Tech Integrations</span>
-        <h2 class="font-orbitron font-black text-3xl sm:text-4xl text-textMain mt-2 mb-4">OUR ARCHITECTURAL STACK</h2>
-        <div class="w-16 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full"></div>
-      </div>
 
-      <!-- Tech Stack Grid -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-6">
-        <div class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center">
-          <i data-lucide="blocks" class="w-6 h-6 text-primary mb-2"></i>
-          <span class="text-[10px] font-bold font-orbitron text-textMain tracking-wider">NEXT.JS</span>
-        </div>
-        <div class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center">
-          <i data-lucide="atom" class="w-6 h-6 text-primary mb-2"></i>
-          <span class="text-[10px] font-bold font-orbitron text-textMain tracking-wider">REACT</span>
-        </div>
-        <div class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center">
-          <i data-lucide="terminal" class="w-6 h-6 text-primary mb-2"></i>
-          <span class="text-[10px] font-bold font-orbitron text-textMain tracking-wider">NODE.JS</span>
-        </div>
-        <div class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center">
-          <i data-lucide="sparkles" class="w-6 h-6 text-primary mb-2"></i>
-          <span class="text-[10px] font-bold font-orbitron text-textMain tracking-wider">OPENAI</span>
-        </div>
-        <div class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center">
-          <i data-lucide="container" class="w-6 h-6 text-primary mb-2"></i>
-          <span class="text-[10px] font-bold font-orbitron text-textMain tracking-wider">DOCKER</span>
-        </div>
-        <div class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center">
-          <i data-lucide="server" class="w-6 h-6 text-primary mb-2"></i>
-          <span class="text-[10px] font-bold font-orbitron text-textMain tracking-wider">AWS</span>
-        </div>
-        <div class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center">
-          <i data-lucide="database" class="w-6 h-6 text-primary mb-2"></i>
-          <span class="text-[10px] font-bold font-orbitron text-textMain tracking-wider">POSTGRES</span>
-        </div>
-      </div>
-
-    </div>
-  </section>
 
   <!-- 📈 Development Process Timeline Section -->
   <section class="py-24 px-6 border-t border-slate-100 bg-[#F8FBFF] relative" id="about">
@@ -1718,65 +1569,48 @@
   </div>
 
   <!-- 👤 Footer Section -->
-  <footer class="border-t border-slate-200/60 py-16 px-6 bg-white relative z-10 text-xs text-textDim">
-    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10">
+  <footer class="border-t border-slate-200/60 py-10 px-6 bg-white relative z-10 text-xs text-textDim">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
       
       <!-- Left Column: Branding -->
-      <div class="md:col-span-4 space-y-4 text-left">
+      <div class="flex flex-col items-start text-left space-y-2">
         <span class="font-orbitron font-black text-sm tracking-[2px] bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"><%= safeLogoMain %></span>
         <p class="max-w-xs leading-relaxed text-[11px]">
-          Engineering next-generation AI Agents, SaaS platforms, cloud infrastructure, and custom automation loops to accelerate business efficiency.
+          Engineering intelligent software for modern businesses.
         </p>
-        <div class="flex items-center gap-3">
-          <a href="https://github.com" class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center hover:text-primary hover:border-primary/30 transition-all" aria-label="Github Repo">
-            <i data-lucide="github" class="w-4 h-4"></i>
-          </a>
-          <a href="https://linkedin.com" class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center hover:text-primary hover:border-primary/30 transition-all" aria-label="LinkedIn Profile">
-            <i data-lucide="linkedin" class="w-4 h-4"></i>
-          </a>
-        </div>
       </div>
 
-      <!-- Middle Columns: Links -->
-      <div class="md:col-span-2 text-left">
-        <h4 class="font-orbitron font-bold text-[10px] tracking-wider text-textMain uppercase mb-4">Solutions</h4>
-        <ul class="space-y-2.5">
-          <li><a href="#services" class="hover:text-primary transition-colors">AI Agents</a></li>
-          <li><a href="#services" class="hover:text-primary transition-colors">SaaS Architectures</a></li>
-          <li><a href="#services" class="hover:text-primary transition-colors">Data Pipelines</a></li>
-        </ul>
-      </div>
+      <!-- Center Links: Clean inline row -->
+      <nav class="flex flex-wrap gap-x-8 gap-y-2 text-left font-orbitron font-bold tracking-wider text-[10px] text-textMain uppercase">
+        <a href="#services" class="hover:text-primary transition-colors">Services</a>
+        <a href="#products" class="hover:text-primary transition-colors">Products</a>
+        <a href="#industries" class="hover:text-primary transition-colors">Industries</a>
+        <a href="#about" class="hover:text-primary transition-colors">About Us</a>
+        <a href="#" onclick="openDocModal('privacy'); return false;" class="hover:text-primary transition-colors">Privacy</a>
+        <a href="#" onclick="openDocModal('terms'); return false;" class="hover:text-primary transition-colors">Terms</a>
+      </nav>
 
-      <div class="md:col-span-2 text-left">
-        <h4 class="font-orbitron font-bold text-[10px] tracking-wider text-textMain uppercase mb-4">Products</h4>
-        <ul class="space-y-2.5">
-          <li><a href="#products" class="hover:text-primary transition-colors">Nexa Core</a></li>
-          <li><a href="#products" class="hover:text-primary transition-colors">Nexa Flow</a></li>
-          <li><a href="#products" class="hover:text-primary transition-colors">Nexa Voice</a></li>
-        </ul>
-      </div>
-
-      <div class="md:col-span-2 text-left">
-        <h4 class="font-orbitron font-bold text-[10px] tracking-wider text-textMain uppercase mb-4">Company</h4>
-        <ul class="space-y-2.5">
-          <li><a href="#about" class="hover:text-primary transition-colors">About Us</a></li>
-          <li><a href="#services" class="hover:text-primary transition-colors">Tech Stack</a></li>
-          <li><a href="#testimonials" class="hover:text-primary transition-colors">Testimonials</a></li>
-        </ul>
-      </div>
-
-      <div class="md:col-span-2 text-left">
-        <h4 class="font-orbitron font-bold text-[10px] tracking-wider text-textMain uppercase mb-4">Legal</h4>
-        <ul class="space-y-2.5">
-          <li><a href="#" onclick="openDocModal('privacy'); return false;" class="hover:text-primary transition-colors">Privacy Policy</a></li>
-          <li><a href="#" onclick="openDocModal('terms'); return false;" class="hover:text-primary transition-colors">Terms of Service</a></li>
-        </ul>
+      <!-- Right Column: High-contrast Social Icons -->
+      <div class="flex items-center gap-3">
+        <a href="https://github.com" class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-textDim hover:text-primary hover:border-primary/30 transition-all" aria-label="Github Repo">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
+            <path d="M9 18c-4.51 2-5-2-7-2"></path>
+          </svg>
+        </a>
+        <a href="https://linkedin.com" class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-textDim hover:text-primary hover:border-primary/30 transition-all" aria-label="LinkedIn Profile">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+            <rect width="4" height="12" x="2" y="9"></rect>
+            <circle cx="4" cy="4" r="2"></circle>
+          </svg>
+        </a>
       </div>
 
     </div>
 
     <!-- Copyright -->
-    <div class="max-w-7xl mx-auto border-t border-slate-200/50 mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-textDim/50">
+    <div class="max-w-7xl mx-auto border-t border-slate-200/50 mt-8 pt-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-textDim/50">
       <span>&copy; <%= new Date().getFullYear() %> <%= safeProjectName %>. All rights reserved.</span>
       <span>System Status: 100% Operational</span>
     </div>
