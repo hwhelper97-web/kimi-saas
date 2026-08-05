@@ -13,19 +13,20 @@ async function handleVoiceLabSession(socket, io) {
 
   try {
     // 1. Fetch Global Settings
-    const globalSettings = await prisma.globalAiSettings.findUnique({ where: { id: "global" } }) || {
-      apptVoiceId: "21m00Tcm4TlvDq8ikWAM",
-      apptStability: 0.8,
-      apptSimilarity: 0.8,
-      apptStyle: 0.1
-    };
+    const globalSettings = await prisma.globalAiSettings.findUnique({ where: { id: "global" } });
 
-    // 2. Determine Agent/Voice
-    const userProvidedId = globalSettings.apptVoiceId;
-    const isAgentId = userProvidedId.startsWith("agent_");
-    
-    // We use a base agent if it's just a Voice ID
-    const baseAgentId = isAgentId ? userProvidedId : "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g";
+    // 2. Determine Agent ID from Slot Mapping
+    let baseAgentId = "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g"; // default fallback
+    let isAgentId = true;
+    let userProvidedId = baseAgentId;
+
+    if (globalSettings) {
+      const slot = globalSettings.apptAgentSlot; // e.g. 'slot1', 'slot2', 'slot3', 'slot4'
+      if (slot && globalSettings[`${slot}Id`]) {
+        baseAgentId = globalSettings[`${slot}Id`];
+        userProvidedId = baseAgentId;
+      }
+    }
     
     const elUrl = `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${baseAgentId}`;
     const headers = { "xi-api-key": process.env.ELEVENLABS_API_KEY };
