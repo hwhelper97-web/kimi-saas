@@ -567,11 +567,11 @@
           </a>
         </div>
 
-        <!-- Service Item 9 -->
+        <!-- Service Item 9: API Development -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
             <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
-              <i data-lucide="key" class="w-6 h-6"></i>
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">API Development</h3>
             <p class="text-xs text-textDim leading-relaxed">
@@ -580,15 +580,15 @@
           </div>
           <a href="#contact" class="text-xs font-extrabold font-orbitron tracking-widest text-primary hover:text-secondary flex items-center gap-1.5 uppercase mt-6">
             <span>Learn More</span>
-            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </a>
         </div>
 
-        <!-- Service Item 10 -->
+        <!-- Service Item 10: CRM Systems -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
             <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
-              <i data-lucide="users" class="w-6 h-6"></i>
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">CRM Systems</h3>
             <p class="text-xs text-textDim leading-relaxed">
@@ -597,15 +597,15 @@
           </div>
           <a href="#contact" class="text-xs font-extrabold font-orbitron tracking-widest text-primary hover:text-secondary flex items-center gap-1.5 uppercase mt-6">
             <span>Learn More</span>
-            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </a>
         </div>
 
-        <!-- Service Item 11 -->
+        <!-- Service Item 11: Voice AI -->
         <div class="glass-card rounded-3xl p-8 relative flex flex-col justify-between h-80">
           <div>
             <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white mb-6 shadow-md">
-              <i data-lucide="mic" class="w-6 h-6"></i>
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
             </div>
             <h3 class="font-orbitron font-extrabold text-sm tracking-wider text-textMain uppercase mb-3">Voice AI</h3>
             <p class="text-xs text-textDim leading-relaxed">
@@ -614,7 +614,7 @@
           </div>
           <a href="#contact" class="text-xs font-extrabold font-orbitron tracking-widest text-primary hover:text-secondary flex items-center gap-1.5 uppercase mt-6">
             <span>Learn More</span>
-            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </a>
         </div>
 
@@ -1271,121 +1271,6 @@
     </div>
   </div>
 
-  <!-- 🎤 Voice AI Live Simulator Overlay -->
-  <div id="interactive-voice-view" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 items-center justify-center p-4 hidden">
-    <div class="w-full max-w-2xl bg-white border border-slate-200 shadow-2xl rounded-3xl p-6 sm:p-8 relative">
-      
-      <!-- Close Button -->
-      <button onclick="hangUpCall()" class="absolute top-4 right-4 text-textDim hover:text-red-500 transition-colors cursor-pointer z-10 flex items-center gap-1.5 font-mono text-[9px] border border-slate-200/80 bg-slate-50 px-2.5 py-1 rounded">
-        <i data-lucide="phone-off" class="w-3.5 h-3.5 text-red-500"></i>
-        <span class="tracking-wider">DISCONNECT</span>
-      </button>
-
-      <!-- Modal Header -->
-      <div class="mb-6 text-left border-b border-slate-100 pb-4">
-        <span class="text-[9px] font-bold font-mono tracking-[3px] text-primary uppercase flex items-center gap-1.5">
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-success animate-ping" id="status-dot"></span>
-          <span id="call-status">REALTIME AGENT NODE // ACTIVE</span>
-        </span>
-        <h3 class="font-orbitron font-black text-xl text-textMain tracking-widest mt-1 uppercase">Voice AI Live Simulator</h3>
-      </div>
-
-      <!-- Agent Selection Grid -->
-      <div class="grid grid-cols-3 gap-3 mb-6">
-        <button id="agent-btn-nex" onclick="selectAgent('nex')" class="py-3 px-2 text-center rounded-2xl bg-primary/5 border border-primary/20 text-primary transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1.5 cursor-pointer">
-          <i data-lucide="utensils" class="w-4 h-4 text-primary"></i>
-          <span>NEX</span>
-          <span class="text-[7px] text-textDim font-sans font-normal tracking-normal normal-case block">Restaurant Booking</span>
-        </button>
-        <button id="agent-btn-aura" onclick="selectAgent('aura')" class="py-3 px-2 text-center rounded-2xl bg-slate-50 border border-slate-100 text-textDim hover:text-primary transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1.5 cursor-pointer">
-          <i data-lucide="flower2" class="w-4 h-4 text-textDim"></i>
-          <span>AURA</span>
-          <span class="text-[7px] text-textDim font-sans font-normal tracking-normal normal-case block">Spa Scheduling</span>
-        </button>
-        <button id="agent-btn-cyrus" onclick="selectAgent('cyrus')" class="py-3 px-2 text-center rounded-2xl bg-slate-50 border border-slate-100 text-textDim hover:text-primary transition-all font-orbitron text-[9px] font-bold tracking-wider flex flex-col items-center gap-1.5 cursor-pointer">
-          <i data-lucide="shield" class="w-4 h-4 text-textDim"></i>
-          <span>CYRUS</span>
-          <span class="text-[7px] text-textDim font-sans font-normal tracking-normal normal-case block">Dev API Support</span>
-        </button>
-      </div>
-
-      <!-- Audio Stream parameters -->
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
-        
-        <!-- Live values -->
-        <div class="md:col-span-7 bg-slate-50 border border-slate-100 rounded-2xl p-4 font-mono text-[9px] text-textDim space-y-2 text-left">
-          <div class="flex justify-between border-b border-slate-200/50 pb-1">
-            <span>CALL DURATION:</span>
-            <span class="text-textMain font-bold" id="call-timer">00:00</span>
-          </div>
-          <div class="flex justify-between border-b border-slate-200/50 pb-1">
-            <span>COGNITIVE STATE:</span>
-            <span class="text-primary font-extrabold animate-pulse" id="sim-thinking-status-text">LISTENING</span>
-          </div>
-          <div class="flex justify-between">
-            <span>PROCESSING ACTION:</span>
-            <span class="text-textMain font-bold" id="sim-thinking-step-text">ready</span>
-          </div>
-        </div>
-
-        <!-- Waveform Visualization -->
-        <div class="md:col-span-5 bg-slate-50 border border-slate-100 rounded-2xl p-4 flex flex-col justify-center items-center relative overflow-hidden">
-          <span class="text-[8px] font-bold font-orbitron text-textDim uppercase tracking-widest mb-2">AUDIO STREAM OUTPUT</span>
-          <div class="h-10 flex items-end gap-1.5 px-4 my-1">
-            <div id="sim-wave-1" class="w-1 bg-primary h-2 rounded-full transition-all duration-100"></div>
-            <div id="sim-wave-2" class="w-1 bg-primary h-2 rounded-full transition-all duration-100"></div>
-            <div id="sim-wave-3" class="w-1 bg-primary h-2 rounded-full transition-all duration-100"></div>
-            <div id="sim-wave-4" class="w-1 bg-secondary h-2 rounded-full transition-all duration-100"></div>
-            <div id="sim-wave-5" class="w-1 bg-secondary h-2 rounded-full transition-all duration-100"></div>
-            <div id="sim-wave-6" class="w-1 bg-primary h-2 rounded-full transition-all duration-100"></div>
-            <div id="sim-wave-7" class="w-1 bg-primary h-2 rounded-full transition-all duration-100"></div>
-            <div id="sim-wave-8" class="w-1 bg-primary h-2 rounded-full transition-all duration-100"></div>
-          </div>
-          <span class="text-[7.5px] font-mono text-primary/60 mt-1">STREAM CHANNEL ACTIVE</span>
-        </div>
-
-      </div>
-
-      <!-- Realtime Transcription Feed -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-6 text-left">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2.5 text-[8px] font-mono text-slate-500">
-          <span>REALTIME TRANSCRIPTION FEED // STDOUT</span>
-          <span class="flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-success animate-ping"></span>
-            <span>SECURE STREAM</span>
-          </span>
-        </div>
-        <div id="simulator-transcript" class="h-28 overflow-y-auto font-mono text-[10px] space-y-2 text-slate-300 pr-1 scrollbar-thin">
-          <div class="text-primary/60">[SYS] Ready. Click an agent above to begin conversation...</div>
-        </div>
-      </div>
-
-      <!-- Dialogue Presets suggestions -->
-      <div class="mb-4 text-left">
-        <div class="text-[8px] font-mono text-textDim mb-2 tracking-wider">SUGGESTED RESPONSES // SELECT PATHWAY:</div>
-        <div id="dialogue-presets" class="flex flex-wrap gap-2 min-h-[26px]">
-          <!-- Suggestion buttons populated dynamically -->
-        </div>
-      </div>
-
-      <!-- Custom text Input row -->
-      <div class="flex items-center gap-2.5 border-t border-slate-100 pt-4 mt-2">
-        <div class="flex-1 relative">
-          <input type="text" id="sim-user-input" onkeydown="handleInputKeydown(event)" placeholder="Type a custom query to AI Agent..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-textMain placeholder-slate-400 focus:border-primary/50 focus:outline-none" />
-          <div class="absolute right-3 top-3.5 text-[7px] font-mono text-textDim/30 pointer-events-none">ENTER</div>
-        </div>
-        
-        <button onclick="toggleSpeechInput()" id="mic-toggle-btn" class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-textDim hover:text-primary hover:border-primary/30 transition-all flex items-center justify-center" title="Toggle Microphone">
-          <i data-lucide="mic" class="w-4 h-4"></i>
-        </button>
-        <button onclick="toggleMute()" id="sound-toggle-btn" class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-primary hover:text-primary/85 hover:border-primary/30 transition-all flex items-center justify-center" title="Mute/Unmute">
-          <i data-lucide="volume-2" class="w-4 h-4"></i>
-        </button>
-      </div>
-
-    </div>
-  </div>
-
   <!-- 🏢 Product Previews Modals -->
   <div id="product-preview-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 items-center justify-center p-4 hidden">
     <div class="w-full max-w-2xl bg-white border border-slate-200 shadow-2xl rounded-3xl p-6 sm:p-8 relative">
@@ -1486,52 +1371,106 @@
     </div>
   </div>
 
-  <!-- 👤 Footer Section -->
-  <footer class="border-t border-slate-200/60 py-10 px-6 bg-white relative z-10 text-xs text-textDim">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-      
-      <!-- Left Column: Branding -->
-      <div class="flex flex-col items-start text-left space-y-2">
-        <span class="font-orbitron font-black text-sm tracking-[2px] bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"><%= safeLogoMain %></span>
-        <p class="max-w-xs leading-relaxed text-[11px]">
-          Engineering intelligent software for modern businesses.
+  <!-- 👤 Footer Section - Professional 3-Column Layout -->
+  <footer class="bg-[#0F172A] relative z-10">
+
+    <!-- Top footer: 3 columns -->
+    <div class="max-w-7xl mx-auto px-6 pt-14 pb-10 grid grid-cols-1 md:grid-cols-3 gap-12">
+
+      <!-- Col 1: Brand -->
+      <div class="space-y-5">
+        <div>
+          <span class="font-orbitron font-black text-base tracking-[3px] bg-gradient-to-r from-[#38BDF8] to-[#2563EB] bg-clip-text text-transparent"><%= safeLogoMain %></span>
+          <p class="text-[11px] text-slate-400 mt-1 font-orbitron tracking-widest uppercase"><%= safeLogoSub %></p>
+        </div>
+        <p class="text-[12px] text-slate-400 leading-relaxed max-w-xs">
+          Engineering intelligent AI software, custom SaaS platforms, and scalable automation systems for modern businesses worldwide.
         </p>
+        <!-- Social Icons - clear white icons on dark bg -->
+        <div class="flex items-center gap-3 pt-1">
+          <a href="https://linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn"
+             class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center text-slate-300 hover:bg-[#2563EB] hover:border-[#2563EB] hover:text-white transition-all duration-200">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="Twitter / X"
+             class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center text-slate-300 hover:bg-[#0F172A] hover:border-white/30 hover:text-white transition-all duration-200">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.73-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram"
+             class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center text-slate-300 hover:bg-gradient-to-br hover:from-[#833ab4] hover:via-[#fd1d1d] hover:to-[#fcb045] hover:border-transparent hover:text-white transition-all duration-200">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+          </a>
+          <a href="https://github.com" target="_blank" rel="noopener" aria-label="GitHub"
+             class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center text-slate-300 hover:bg-slate-700 hover:border-slate-600 hover:text-white transition-all duration-200">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+          </a>
+        </div>
       </div>
 
-      <!-- Center Links: Clean inline row -->
-      <nav class="flex flex-wrap gap-x-8 gap-y-2 text-left font-orbitron font-bold tracking-wider text-[10px] text-textMain uppercase">
-        <a href="#services" class="hover:text-primary transition-colors">Services</a>
-        <a href="#products" class="hover:text-primary transition-colors">Products</a>
-        <a href="#industries" class="hover:text-primary transition-colors">Industries</a>
-        <a href="#about" class="hover:text-primary transition-colors">About Us</a>
-        <a href="#" onclick="openDocModal('privacy'); return false;" class="hover:text-primary transition-colors">Privacy</a>
-        <a href="#" onclick="openDocModal('terms'); return false;" class="hover:text-primary transition-colors">Terms</a>
-      </nav>
+      <!-- Col 2: Navigation links -->
+      <div class="grid grid-cols-2 gap-8">
+        <div>
+          <h4 class="font-orbitron font-bold text-[10px] tracking-[3px] text-slate-500 uppercase mb-5">Services</h4>
+          <ul class="space-y-3 text-[12px] text-slate-400">
+            <li><a href="#services" class="hover:text-white transition-colors">AI Development</a></li>
+            <li><a href="#services" class="hover:text-white transition-colors">AI Agents</a></li>
+            <li><a href="#services" class="hover:text-white transition-colors">SaaS Platforms</a></li>
+            <li><a href="#services" class="hover:text-white transition-colors">Cloud Solutions</a></li>
+            <li><a href="#services" class="hover:text-white transition-colors">Voice AI</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-orbitron font-bold text-[10px] tracking-[3px] text-slate-500 uppercase mb-5">Products</h4>
+          <ul class="space-y-3 text-[12px] text-slate-400">
+            <li><a href="#products" class="hover:text-white transition-colors">Nexa Core</a></li>
+            <li><a href="#products" class="hover:text-white transition-colors">Nexa Flow</a></li>
+            <li><a href="#products" class="hover:text-white transition-colors">Nexa Voice</a></li>
+            <li><a href="#products" class="hover:text-white transition-colors">TravelHub OS</a></li>
+          </ul>
+        </div>
+      </div>
 
-      <!-- Right Column: High-contrast Social Icons -->
-      <div class="flex items-center gap-3">
-        <a href="https://github.com" class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-textDim hover:text-primary hover:border-primary/30 transition-all" aria-label="Github Repo">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
-            <path d="M9 18c-4.51 2-5-2-7-2"></path>
-          </svg>
-        </a>
-        <a href="https://linkedin.com" class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-textDim hover:text-primary hover:border-primary/30 transition-all" aria-label="LinkedIn Profile">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-            <rect width="4" height="12" x="2" y="9"></rect>
-            <circle cx="4" cy="4" r="2"></circle>
-          </svg>
-        </a>
+      <!-- Col 3: Contact & Legal -->
+      <div class="space-y-6">
+        <div>
+          <h4 class="font-orbitron font-bold text-[10px] tracking-[3px] text-slate-500 uppercase mb-5">Contact</h4>
+          <ul class="space-y-3 text-[12px] text-slate-400">
+            <li class="flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-[#38BDF8] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>California, USA</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-[#38BDF8] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <a href="mailto:hello@naxtontechnologies.com" class="hover:text-white transition-colors">hello@naxtontechnologies.com</a>
+            </li>
+            <li class="flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-[#38BDF8] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <a href="https://naxtontechnologies.com" class="hover:text-white transition-colors">naxtontechnologies.com</a>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-orbitron font-bold text-[10px] tracking-[3px] text-slate-500 uppercase mb-4">Legal</h4>
+          <div class="flex gap-4 text-[12px] text-slate-400">
+            <a href="#" onclick="openDocModal('privacy'); return false;" class="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="#" onclick="openDocModal('terms'); return false;" class="hover:text-white transition-colors">Terms of Use</a>
+          </div>
+        </div>
       </div>
 
     </div>
 
-    <!-- Copyright -->
-    <div class="max-w-7xl mx-auto border-t border-slate-200/50 mt-8 pt-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-textDim/50">
-      <span>&copy; <%= new Date().getFullYear() %> <%= safeProjectName %>. All rights reserved.</span>
-      <span>System Status: 100% Operational</span>
+    <!-- Bottom bar -->
+    <div class="border-t border-white/5">
+      <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <span class="text-[11px] text-slate-500">&copy; <%= new Date().getFullYear() %> <%= safeProjectName %>. All rights reserved.</span>
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-[11px] text-slate-500">System Status: 100% Operational</span>
+        </div>
+      </div>
     </div>
+
   </footer>
 
   <!-- ==================== SCRIPTS & DYNAMIC BEHAVIORS ==================== -->
