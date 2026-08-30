@@ -19,6 +19,7 @@ const supportManagerRoutes = require("./modules/support-manager/support-manager.
 const productManagerRoutes = require("./modules/product-manager/product-manager.routes");
 const appointmentRoutes = require("./modules/appointment/appointment.routes");
 const servicesRoutes = require("./modules/appointment/services.routes");
+const demoRoutes = require("./modules/demo/demo.routes");
 
 const authMiddleware = require("./middleware/auth.middleware");
 
@@ -67,6 +68,10 @@ app.get("/superadmin", (req, res) => {
 
 app.get("/superadmin/terminal", (req, res) => {
   res.render("superadmin-terminal");
+});
+
+app.get("/superadmin/demos", (req, res) => {
+  res.render("admin-demo-center");
 });
 
 app.get("/login", (req, res) => {
@@ -179,6 +184,9 @@ app.get("/product-manager", authMiddleware, (req, res) => {
   }
   res.redirect("/product/dashboard");
 });
+
+// Live AI Demo Center Routes
+app.use(demoRoutes);
 
 // Public Menu Access
 app.use("/", require("./modules/public/public.routes"));

@@ -247,4 +247,26 @@ router.post(
   controller.provisionPlatformNumber
 );
 
+// --- DEMO CENTER ADMIN ---
+router.get(
+  "/demos",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.getAdminDemoMetrics
+);
+
+router.post(
+  "/demos/:token/extend",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.extendAdminDemo
+);
+
+router.post(
+  "/demos/:token/deactivate",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.deactivateAdminDemo
+);
+
 module.exports = router;

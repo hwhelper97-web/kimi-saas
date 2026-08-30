@@ -1215,3 +1215,58 @@ exports.uploadLogo = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+/* ======================================
+   DEMO CENTER ADMIN MANAGEMENT
+====================================== */
+exports.getAdminDemoMetrics = async (req, res) => {
+  try {
+    const demoService = require("../demo/demo.service");
+    const { status, search, page, limit } = req.query;
+    const result = await demoService.listAllDemoSessions({ status, search, page: parseInt(page) || 1, limit: parseInt(limit) || 50 });
+
+    const totalActive = await prisma.demoSession.count({ where: { status: "ACTIVE" } });
+    const totalExpired = await prisma.demoSession.count({ where: { status: "EXPIRED" } });
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const todayDemos = await prisma.demoSession.count({ where: { createdAt: { gte: today } } });
+
+    res.json({
+      success: true,
+      data: {
+        demos: result.demos,
+        total: result.total,
+        totalActive,
+        totalExpired,
+        todayDemos
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.extendAdminDemo = async (req, res) => {
+  try {
+    const demoService = require("../demo/demo.service");
+    const { token } = req.params;
+    const updated = await demoService.extendSession(token);
+    if (!updated) return res.status(404).json({ success: false, message: "Demo not found" });
+    res.json({ success: true, message: "Demo extended by 24 hours.", session: updated });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.deactivateAdminDemo = async (req, res) => {
+  try {
+    const demoService = require("../demo/demo.service");
+    const { token } = req.params;
+    const updated = await demoService.deactivateSession(token);
+    if (!updated) return res.status(404).json({ success: false, message: "Demo not found" });
+    res.json({ success: true, message: "Demo deactivated successfully.", session: updated });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

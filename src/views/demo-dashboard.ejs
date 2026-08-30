@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#0F172A]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#38BDF8',
+            secondary: '#2563EB',
+            accent: '#7DD3FC',
+            bgDark: '#0F172A',
+            cardDark: '#1E293B',
+            textMain: '#F8FAFC',
+            textDim: '#94A3B8'
+          },
+          fontFamily: {
+            orbitron: ['Orbitron', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-sans bg-[#0F172A] text-textMain antialiased min-h-full flex flex-col">
+
+  <!-- Top Banner Header -->
+  <header class="w-full bg-[#1E293B]/90 backdrop-blur-md border-b border-slate-700/80 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      
+      <!-- Brand & Business Info -->
+      <div class="flex items-center gap-4">
+        <a href="/" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-orbitron font-black text-lg shadow-lg">
+          N
+        </a>
+        <div class="flex flex-col text-left">
+          <div class="flex items-center gap-2">
+            <span class="font-orbitron font-black text-sm tracking-[2px] text-white"><%= session.businessName %></span>
+            <span id="badge-status" class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider <%= session.isExpired ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' %>">
+              <%= session.isExpired ? '🔴 EXPIRED' : '🟢 LIVE DEMO ACTIVE' %>
+            </span>
+          </div>
+          <span class="text-[10px] text-textDim flex items-center gap-2">
+            <span>AI Receptionist: <strong class="text-primary font-bold"><%= session.aiName %></strong></span>
+            <span>&bull;</span>
+            <span>Type: <strong class="text-slate-300 font-bold uppercase"><%= session.businessType %></strong></span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Expiration Timer & CTA -->
+      <div class="flex items-center gap-6">
+        <div class="hidden md:flex flex-col items-end">
+          <span class="text-[9px] font-mono text-slate-400 uppercase tracking-widest">Demo Expiration</span>
+          <span id="countdown-timer" class="font-mono text-base font-bold text-emerald-400">23:59:59</span>
+        </div>
+        <a href="#convert-card" class="px-5 py-2.5 rounded-full text-xs font-black tracking-wider text-white bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all uppercase shadow-md">
+          Become a Customer
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Dashboard Main Grid -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-8 space-y-8">
+
+    <!-- CALL INSTRUCTIONS & PHONE HERO -->
+    <div class="bg-gradient-to-r from-[#1E293B] via-[#0F172A] to-[#1E293B] border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        
+        <!-- Left: Phone number & Action -->
+        <div class="lg:col-span-7 space-y-4 text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary uppercase tracking-widest">
+            <i data-lucide="phone-call" class="w-3.5 h-3.5 animate-pulse"></i>
+            <span>STEP 1: CALL YOUR AI RECEPTIONIST</span>
+          </div>
+          
+          <h2 class="font-orbitron font-black text-2xl sm:text-3xl text-white tracking-tight">
+            Dial <span class="text-primary font-mono select-all" id="demo-phone-display"><%= session.phoneNumber || "+1 (800) 555-0199" %></span>
+          </h2>
+          
+          <p class="text-xs sm:text-sm text-textDim leading-relaxed max-w-xl">
+            Call this number directly from your cell phone. Speak naturally to <strong class="text-white font-bold"><%= session.aiName %></strong>. <%= session.businessType === 'restaurant' ? 'Order items from your menu, ask for totals, and confirm your order.' : 'Ask for service availability, pick a time, and confirm your booking.' %>
+          </p>
+
+          <div class="flex items-center gap-4 text-xs text-slate-400 font-mono">
+            <span>CALLS REMAINING: <strong class="text-emerald-400 font-bold" id="calls-remaining"><%= session.maxCalls - session.callCount %> / <%= session.maxCalls %></strong></span>
+            <span>&bull;</span>
+            <span>MAX DURATION: <strong class="text-slate-200"><%= session.maxCallDuration %> mins</strong></span>
+          </div>
+        </div>
+
+        <!-- Right: Live Call Status Indicator Card -->
+        <div class="lg:col-span-5 bg-[#0F172A]/80 border border-slate-700 rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-3 shadow-inner">
+          <div class="relative">
+            <div id="status-pulse-ring" class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center animate-pulse">
+              <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-slate-900 font-bold shadow-lg" id="status-icon">
+                <i data-lucide="phone" class="w-5 h-5"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="font-orbitron font-bold text-sm tracking-wider text-white uppercase" id="call-status-heading">● WAITING FOR CALL</div>
+            <p class="text-[11px] text-textDim mt-1" id="call-status-subtext">Dial the number above to launch live interaction.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3-COLUMN REAL-TIME EVENT GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- PANEL 1: LIVE TRANSCRIPT (lg:col-span-5) -->
+      <div class="lg:col-span-5 bg-[#1E293B] border border-slate-700/80 rounded-3xl p-6 flex flex-col h-[520px] shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
+          <div class="flex items-center gap-2">
+            <i data-lucide="message-square" class="w-4 h-4 text-primary"></i>
+            <h3 class="font-orbitron font-bold text-xs uppercase tracking-wider text-white">Live Conversation Transcript</h3>
+          </div>
+          <span class="text-[9px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">REALTIME WS</span>
+        </div>
+
+        <!-- Transcript Feed Scroll -->
+        <div id="transcript-feed" class="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin text-xs">
+          <div class="text-center py-12 text-slate-500 font-mono text-[11px]">
+            [Waiting for call connection...] <br/>
+            Transcripts will stream here in real time as you speak.
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 2: AI THINKING & ACTIVITY LOGS (lg:col-span-3) -->
+      <div class="lg:col-span-3 bg-[#1E293B] border border-slate-700/80 rounded-3xl p-6 flex flex-col h-[520px] shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
+          <div class="flex items-center gap-2">
+            <i data-lucide="cpu" class="w-4 h-4 text-secondary"></i>
+            <h3 class="font-orbitron font-bold text-xs uppercase tracking-wider text-white">AI Reasoning Log</h3>
+          </div>
+          <span class="text-[9px] font-mono text-secondary bg-secondary/10 px-2 py-0.5 rounded-full border border-secondary/20">EVENTS</span>
+        </div>
+
+        <!-- Activity Stream -->
+        <div id="activity-feed" class="flex-1 overflow-y-auto space-y-2.5 pr-1 scrollbar-thin text-[11px] font-mono">
+          <div class="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700 text-slate-400">
+            ✓ Demo environment active
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700 text-slate-400">
+            ✓ AI Agent context loaded
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700 text-slate-400">
+            ✓ Telephony stream listening
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 3: LIVE ACTION RESULT (ORDER OR APPOINTMENT) (lg:col-span-4) -->
+      <div class="lg:col-span-4 bg-[#1E293B] border border-slate-700/80 rounded-3xl p-6 flex flex-col h-[520px] shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
+          <div class="flex items-center gap-2">
+            <i data-lucide="<%= session.businessType === 'restaurant' ? 'shopping-bag' : 'calendar-check' %>" class="w-4 h-4 text-emerald-400"></i>
+            <h3 class="font-orbitron font-bold text-xs uppercase tracking-wider text-white">
+              <%= session.businessType === 'restaurant' ? 'Live Order Panel' : 'Live Appointment Panel' %>
+            </h3>
+          </div>
+          <span class="text-[9px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">DB ACTION</span>
+        </div>
+
+        <!-- Result Container -->
+        <div id="action-result-container" class="flex-1 overflow-y-auto pr-1">
+          <% if (session.businessType === 'restaurant') { %>
+            <% if (session.business.orders && session.business.orders.length > 0) { %>
+              <% const latest = session.business.orders[0]; %>
+              <div class="p-5 rounded-2xl bg-slate-800/80 border border-emerald-500/30 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                  <div>
+                    <span class="text-[10px] font-mono text-slate-400 uppercase">ORDER ID</span>
+                    <h4 class="font-orbitron font-bold text-sm text-emerald-400">#DEMO-<%= latest.orderNumber %></h4>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">CONFIRMED ✓</span>
+                </div>
+                <div class="space-y-2 text-xs">
+                  <% (latest.items || []).forEach(item => { %>
+                    <div class="flex justify-between text-slate-300">
+                      <span><%= item.quantity %>x <%= item.menuItem ? item.menuItem.name : 'Item' %></span>
+                      <span class="font-mono font-bold">$<%= (item.unitPrice * item.quantity).toFixed(2) %></span>
+                    </div>
+                  <% }) %>
+                </div>
+                <div class="border-t border-slate-700 pt-3 flex justify-between font-bold text-sm text-white">
+                  <span>TOTAL</span>
+                  <span class="font-mono text-emerald-400">$<%= latest.total.toFixed(2) %></span>
+                </div>
+              </div>
+            <% } else { %>
+              <div class="h-full flex flex-col items-center justify-center text-center text-slate-500 space-y-2 p-6">
+                <i data-lucide="shopping-cart" class="w-10 h-10 text-slate-600 mb-2"></i>
+                <p class="font-bold text-xs uppercase text-slate-400">No Orders Created Yet</p>
+                <p class="text-[11px] text-slate-500">Call the AI and request food items to see the backend order created live.</p>
+              </div>
+            <% } %>
+          <% } else { %>
+            <% if (session.business.appointments && session.business.appointments.length > 0) { %>
+              <% const latestAppt = session.business.appointments[0]; %>
+              <div class="p-5 rounded-2xl bg-slate-800/80 border border-emerald-500/30 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                  <div>
+                    <span class="text-[10px] font-mono text-slate-400 uppercase">APPOINTMENT</span>
+                    <h4 class="font-orbitron font-bold text-sm text-emerald-400"><%= latestAppt.customerName %></h4>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">CONFIRMED ✓</span>
+                </div>
+                <div class="space-y-2 text-xs text-slate-300">
+                  <div>Service: <strong class="text-white"><%= latestAppt.service ? latestAppt.service.name : 'Appointment' %></strong></div>
+                  <div>Time: <strong class="text-primary"><%= new Date(latestAppt.appointmentTime).toLocaleString() %></strong></div>
+                  <div>Source: <strong class="text-emerald-400 uppercase">AI Receptionist</strong></div>
+                </div>
+              </div>
+            <% } else { %>
+              <div class="h-full flex flex-col items-center justify-center text-center text-slate-500 space-y-2 p-6">
+                <i data-lucide="calendar" class="w-10 h-10 text-slate-600 mb-2"></i>
+                <p class="font-bold text-xs uppercase text-slate-400">No Appointments Booked Yet</p>
+                <p class="text-[11px] text-slate-500">Call the AI and book a service to see calendar reservation created live.</p>
+              </div>
+            <% } %>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CALL HISTORY TABLE -->
+    <div class="bg-[#1E293B] border border-slate-700/80 rounded-3xl p-6 shadow-xl">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-6">
+        <h3 class="font-orbitron font-bold text-xs uppercase tracking-wider text-white">Call Log History</h3>
+        <span class="text-xs text-slate-400 font-mono" id="call-count-label">Total Calls: <%= session.business.calls ? session.business.calls.length : 0 %></span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-800/80 font-orbitron text-[10px] text-slate-400 uppercase tracking-wider">
+            <tr>
+              <th class="py-3 px-4">Timestamp</th>
+              <th class="py-3 px-4">Caller</th>
+              <th class="py-3 px-4">Duration</th>
+              <th class="py-3 px-4">Outcome</th>
+              <th class="py-3 px-4">Action Taken</th>
+            </tr>
+          </thead>
+          <tbody id="call-history-body" class="divide-y divide-slate-700 text-slate-300 font-mono">
+            <% if (session.business.calls && session.business.calls.length > 0) { %>
+              <% session.business.calls.forEach(c => { %>
+                <tr>
+                  <td class="py-3 px-4"><%= new Date(c.createdAt).toLocaleTimeString() %></td>
+                  <td class="py-3 px-4"><%= c.fromNumber %></td>
+                  <td class="py-3 px-4"><%= c.duration %>s</td>
+                  <td class="py-3 px-4">
+                    <span class="px-2 py-0.5 rounded text-[9px] font-bold <%= c.outcome === 'success' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-300' %> uppercase">
+                      <%= c.outcome || 'Completed' %>
+                    </span>
+                  </td>
+                  <td class="py-3 px-4 text-slate-200"><%= c.actionTaken || 'AI Handled' %></td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="5" class="py-6 text-center text-slate-500">No calls recorded yet. Dial the phone number to start your first call.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- POST-DEMO HIGH-CONVERTING CONVERSION CTA -->
+    <div id="convert-card" class="bg-gradient-to-r from-secondary via-primary to-secondary rounded-3xl p-8 text-center text-white shadow-2xl space-y-6 relative overflow-hidden">
+      <div class="max-w-2xl mx-auto space-y-3">
+        <h2 class="font-orbitron font-black text-2xl sm:text-3xl tracking-tight uppercase">
+          Your AI Just Completed a Real Interaction.
+        </h2>
+        <p class="text-sm text-blue-100 leading-relaxed">
+          Imagine deploying <%= session.aiName %> to handle 100% of your business calls 24/7 without missing a single customer order or appointment.
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+        <a href="/login" class="px-8 py-4 rounded-full text-xs font-black tracking-wider text-slate-900 bg-white hover:bg-blue-50 shadow-xl transition-all uppercase">
+          START WITH NAXTON TODAY &rarr;
+        </a>
+        <a href="/#contact" class="px-8 py-4 rounded-full text-xs font-bold tracking-wider text-white border border-white/30 hover:bg-white/10 transition-all uppercase">
+          TALK TO OUR TEAM
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    const businessId = "<%= session.businessId %>";
+    const sessionToken = "<%= session.token %>";
+    let expiresSeconds = <%= session.remainingSeconds %>;
+
+    // Countdown Timer
+    setInterval(() => {
+      if (expiresSeconds > 0) {
+        expiresSeconds--;
+        const h = String(Math.floor(expiresSeconds / 3600)).padStart(2, '0');
+        const m = String(Math.floor((expiresSeconds % 3600) / 60)).padStart(2, '0');
+        const s = String(expiresSeconds % 60).padStart(2, '0');
+        document.getElementById('countdown-timer').innerText = `${h}:${m}:${s}`;
+      } else {
+        document.getElementById('countdown-timer').innerText = '00:00:00';
+        document.getElementById('badge-status').innerText = '🔴 EXPIRED';
+        document.getElementById('badge-status').className = 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30';
+      }
+    }, 1000);
+
+    // Socket.io Realtime Listeners
+    const socket = io();
+
+    socket.on('connect', () => {
+      console.log('[Socket] Connected to Live Demo Gateway');
+      socket.emit('join_business', businessId);
+    });
+
+    // Realtime Transcript
+    socket.on('call_transcribed', (data) => {
+      appendTranscript(data.role, data.text);
+      logActivity(`✓ Spoken: "${data.text.slice(0, 40)}..."`);
+    });
+
+    // Realtime Call Started
+    socket.on('call_started', (data) => {
+      document.getElementById('call-status-heading').innerText = '● AI CONNECTED / LIVE';
+      document.getElementById('call-status-heading').className = 'font-orbitron font-bold text-sm tracking-wider text-emerald-400 uppercase';
+      document.getElementById('call-status-subtext').innerText = 'Call connected. AI Receptionist active.';
+      document.getElementById('status-ring')?.classList.add('bg-emerald-500/30');
+      logActivity(`✓ Incoming call connected from ${data.from || 'Caller'}`);
+    });
+
+    // Realtime New Order
+    socket.on('new_order', (order) => {
+      logActivity(`✓ Order created live: #${order.orderNumber || order.id} ($${order.total})`);
+      renderOrderResult(order);
+    });
+
+    // Realtime New Appointment
+    socket.on('new_appointment', (appt) => {
+      logActivity(`✓ Appointment created live: ${appt.customerName}`);
+      renderAppointmentResult(appt);
+    });
+
+    function appendTranscript(role, text) {
+      const feed = document.getElementById('transcript-feed');
+      if (feed.innerText.includes('[Waiting for call connection...]')) {
+        feed.innerHTML = '';
+      }
+
+      const isUser = role === 'user' || role === 'USER';
+      const div = document.createElement('div');
+      div.className = `p-3 rounded-2xl border ${isUser ? 'bg-slate-800/90 border-slate-700 text-slate-200 ml-6' : 'bg-primary/10 border-primary/20 text-primary font-medium mr-6'}`;
+      div.innerHTML = `
+        <div class="text-[9px] font-mono opacity-70 mb-1">${isUser ? '👤 CUSTOMER' : '🤖 AI RECEPTIONIST'} &bull; ${new Date().toLocaleTimeString()}</div>
+        <div>${text}</div>
+      `;
+      feed.appendChild(div);
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    function logActivity(message) {
+      const feed = document.getElementById('activity-feed');
+      const div = document.createElement('div');
+      div.className = 'p-2.5 rounded-xl bg-slate-800/80 border border-emerald-500/30 text-emerald-300 font-mono animate-fade-in';
+      div.innerText = message;
+      feed.appendChild(div);
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    function renderOrderResult(order) {
+      const container = document.getElementById('action-result-container');
+      const itemsHtml = (order.items || []).map(i => `
+        <div class="flex justify-between text-slate-300">
+          <span>${i.quantity}x ${i.menuItem ? i.menuItem.name : 'Item'}</span>
+          <span class="font-mono font-bold">$${((i.unitPrice || 10) * i.quantity).toFixed(2)}</span>
+        </div>
+      `).join('');
+
+      container.innerHTML = `
+        <div class="p-5 rounded-2xl bg-slate-800/80 border border-emerald-500/30 space-y-4 animate-fade-in">
+          <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+            <div>
+              <span class="text-[10px] font-mono text-slate-400 uppercase">ORDER CONFIRMED</span>
+              <h4 class="font-orbitron font-bold text-sm text-emerald-400">#DEMO-${order.orderNumber || '101'}</h4>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">CONFIRMED ✓</span>
+          </div>
+          <div class="space-y-2 text-xs">
+            ${itemsHtml}
+          </div>
+          <div class="border-t border-slate-700 pt-3 flex justify-between font-bold text-sm text-white">
+            <span>TOTAL</span>
+            <span class="font-mono text-emerald-400">$${(order.total || 0).toFixed(2)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAppointmentResult(appt) {
+      const container = document.getElementById('action-result-container');
+      container.innerHTML = `
+        <div class="p-5 rounded-2xl bg-slate-800/80 border border-emerald-500/30 space-y-4 animate-fade-in">
+          <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+            <div>
+              <span class="text-[10px] font-mono text-slate-400 uppercase">APPOINTMENT CONFIRMED</span>
+              <h4 class="font-orbitron font-bold text-sm text-emerald-400">${appt.customerName}</h4>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">CONFIRMED ✓</span>
+          </div>
+          <div class="space-y-2 text-xs text-slate-300">
+            <div>Service: <strong class="text-white">${appt.service ? appt.service.name : 'Appointment'}</strong></div>
+            <div>Time: <strong class="text-primary">${new Date(appt.appointmentTime).toLocaleString()}</strong></div>
+            <div>Source: <strong class="text-emerald-400 uppercase">AI Receptionist</strong></div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Periodic poll to stay in sync
+    setInterval(async () => {
+      try {
+        const res = await fetch(`/api/demo/session/${sessionToken}`);
+        const data = await res.json();
+        if (data.success && data.session) {
+          const s = data.session;
+          document.getElementById('calls-remaining').innerText = `${s.maxCalls - s.callCount} / ${s.maxCalls}`;
+          if (s.isExpired) {
+            document.getElementById('badge-status').innerText = '🔴 EXPIRED';
+            document.getElementById('badge-status').className = 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30';
+          }
+        }
+      } catch (e) {}
+    }, 10000);
+  </script>
+</body>
+</html>

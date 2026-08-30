@@ -44,12 +44,38 @@ async function getCallRoute(toNumber) {
     include: { business: true }
   });
 
-  if (!phoneConfig) {
-    // Fallback to legacy Business lookup
-    const business = await prisma.business.findFirst({
-      where: { phoneNumber: { contains: normalizedTo } }
+  const targetBusiness = phoneConfig ? phoneConfig.business : await prisma.business.findFirst({
+    where: { phoneNumber: { contains: normalizedTo } }
+  });
+
+  if (targetBusiness) {
+    // 🛡️ DEMO CENTER EXPIRATION & LIMIT CHECK
+    const activeDemo = await prisma.demoSession.findFirst({
+      where: { businessId: targetBusiness.id },
+      orderBy: { createdAt: "desc" }
     });
-    return { action: 'AI', business, config: null };
+
+    if (activeDemo) {
+      const now = new Date();
+      const isExpired = activeDemo.expiresAt < now || activeDemo.callCount >= activeDemo.maxCalls || activeDemo.status === "EXPIRED";
+
+      if (isExpired) {
+        if (activeDemo.status !== "EXPIRED") {
+          await prisma.demoSession.update({ where: { id: activeDemo.id }, data: { status: "EXPIRED" } });
+        }
+        return { action: 'EXPIRED_DEMO', business: targetBusiness, config: phoneConfig };
+      }
+
+      // Record call start for active demo session
+      await prisma.demoSession.update({
+        where: { id: activeDemo.id },
+        data: { callCount: { increment: 1 } }
+      });
+    }
+  }
+
+  if (!phoneConfig) {
+    return { action: 'AI', business: targetBusiness, config: null };
   }
 
   // 2. Check AI answering toggle

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#F8FBFF]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563EB',
+            secondary: '#38BDF8',
+            accent: '#7DD3FC',
+            textMain: '#0F172A',
+            textDim: '#475569',
+            borderClr: '#E2E8F0'
+          },
+          fontFamily: {
+            orbitron: ['Orbitron', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-sans text-textMain antialiased h-full flex flex-col bg-[#F8FBFF]">
+
+  <!-- Header -->
+  <header class="w-full bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-orbitron font-black text-lg shadow-md">
+          N
+        </div>
+        <div class="flex flex-col">
+          <span class="font-orbitron font-black text-sm tracking-[2px] bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"><%= projectName %></span>
+          <span class="text-[9px] font-bold text-emerald-600 tracking-widest uppercase flex items-center gap-1">
+            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span>
+            LIVE DEMO CENTER
+          </span>
+        </div>
+      </a>
+
+      <div class="flex items-center gap-4">
+        <a href="/" class="text-xs font-bold text-textDim hover:text-primary uppercase transition-colors hidden sm:inline-block">
+          Return to Main Site
+        </a>
+        <a href="/login" class="px-5 py-2.5 rounded-full text-xs font-bold tracking-wider text-primary border border-primary/20 hover:bg-primary/5 transition-all uppercase">
+          Access Portal
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Setup Container -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-6 py-12">
+    
+    <!-- Hero Header -->
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-black text-emerald-700 uppercase tracking-widest mb-4 shadow-sm">
+        <i data-lucide="zap" class="w-4 h-4 text-emerald-600"></i>
+        <span>Instant 24-Hour Trial — No Credit Card Required</span>
+      </div>
+      <h1 class="font-orbitron font-black text-3xl sm:text-4xl text-textMain tracking-tight mb-3">
+        Build Your AI Receptionist & <span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Call It Live</span>
+      </h1>
+      <p class="text-sm sm:text-base text-textDim leading-relaxed">
+        Don't just see AI in action. Experience a real phone call with an AI agent tailored to your business in under 2 minutes.
+      </p>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="mb-10">
+      <div class="flex items-center justify-between text-xs font-bold text-textDim uppercase tracking-wider mb-3">
+        <span id="step-indicator-text" class="text-primary font-black">Step 1 of 3 — Select Business Model</span>
+        <span id="step-percentage">33% Completed</span>
+      </div>
+      <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+        <div id="step-progress-bar" class="bg-gradient-to-r from-primary to-secondary h-2 rounded-full transition-all duration-500 w-1/3"></div>
+      </div>
+    </div>
+
+    <!-- Multi-Step Form Card -->
+    <div class="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
+
+      <!-- STEP 1: BUSINESS TYPE SELECTION -->
+      <div id="wizard-step-1" class="space-y-8">
+        <div>
+          <h2 class="font-orbitron font-bold text-lg text-textMain uppercase mb-2">What type of business are you demonstrating?</h2>
+          <p class="text-xs text-textDim">Select your operational model to configure the appropriate AI function calling capabilities.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Option A: Order Based -->
+          <div onclick="selectBusinessType('restaurant')" id="card-type-restaurant" class="group border-2 border-slate-200 hover:border-primary rounded-3xl p-6 cursor-pointer transition-all duration-300 bg-white hover:shadow-lg relative overflow-hidden">
+            <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-colors">
+              <i data-lucide="utensils" class="w-6 h-6"></i>
+            </div>
+            <div class="inline-block px-3 py-1 rounded-full bg-slate-100 text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-3">
+              Restaurants &amp; Order Businesses
+            </div>
+            <h3 class="font-orbitron font-black text-base text-textMain uppercase mb-2">🍕 Order-Based AI</h3>
+            <p class="text-xs text-textDim leading-relaxed mb-4">
+              AI answers calls, presents your menu, takes custom orders, calculates subtotals &amp; tax, and confirms orders live in database.
+            </p>
+            <div class="text-xs font-black text-primary uppercase tracking-wider flex items-center gap-1">
+              <span>Select Order Demo</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+
+          <!-- Option B: Appointment Based -->
+          <div onclick="selectBusinessType('appointment')" id="card-type-appointment" class="group border-2 border-slate-200 hover:border-primary rounded-3xl p-6 cursor-pointer transition-all duration-300 bg-white hover:shadow-lg relative overflow-hidden">
+            <div class="w-12 h-12 rounded-2xl bg-secondary/10 text-primary flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-colors">
+              <i data-lucide="calendar" class="w-6 h-6"></i>
+            </div>
+            <div class="inline-block px-3 py-1 rounded-full bg-slate-100 text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-3">
+              Salons, Clinics &amp; Services
+            </div>
+            <h3 class="font-orbitron font-black text-base text-textMain uppercase mb-2">📅 Appointment-Based AI</h3>
+            <p class="text-xs text-textDim leading-relaxed mb-4">
+              AI answers calls, presents service menus, checks live calendar availability, schedules appointments, and confirms bookings.
+            </p>
+            <div class="text-xs font-black text-primary uppercase tracking-wider flex items-center gap-1">
+              <span>Select Appointment Demo</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- STEP 2: BUSINESS & AI CONFIGURATION -->
+      <div id="wizard-step-2" class="space-y-8 hidden">
+        <div>
+          <h2 class="font-orbitron font-bold text-lg text-textMain uppercase mb-2">Configure Business &amp; AI Details</h2>
+          <p class="text-xs text-textDim">Provide basic information so your AI agent knows who it is representing.</p>
+        </div>
+
+        <form id="demo-config-form" class="space-y-6">
+          <input type="hidden" id="form-businessType" value="restaurant" />
+
+          <!-- Business Info Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-textMain uppercase mb-2">Business Name *</label>
+              <input type="text" id="form-businessName" required placeholder="e.g. Bella Pizza or Luxe Salon" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-textMain uppercase mb-2">Your Name (Contact) *</label>
+              <input type="text" id="form-ownerName" required placeholder="e.g. Alex Morgan" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-textMain uppercase mb-2">Work Email Address *</label>
+              <input type="email" id="form-email" required placeholder="alex@business.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-textMain uppercase mb-2">Your Phone Number (Optional)</label>
+              <input type="tel" id="form-phone" placeholder="+1 (555) 000-0000" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-textMain uppercase mb-2">City</label>
+              <input type="text" id="form-city" value="San Francisco" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-textMain uppercase mb-2">AI Assistant Name</label>
+              <input type="text" id="form-aiName" value="Sarah" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-textMain uppercase mb-2">Custom AI Phone Greeting</label>
+            <textarea id="form-customGreeting" rows="2" placeholder="Auto-generated greeting will be used if left blank" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-textMain placeholder-slate-400 focus:border-primary focus:outline-none"></textarea>
+          </div>
+
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+            <button type="button" onclick="goToStep(1)" class="px-6 py-3 rounded-full text-xs font-bold text-textDim border border-slate-200 hover:bg-slate-50 uppercase">
+              Back
+            </button>
+            <button type="button" onclick="goToStep(3)" class="px-8 py-3.5 rounded-full text-xs font-black tracking-wider text-white btn-gradient uppercase">
+              Next: Configure Offerings &rarr;
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- STEP 3: ITEMS / SERVICES PRE-LOADER & FINAL LAUNCH -->
+      <div id="wizard-step-3" class="space-y-8 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="font-orbitron font-bold text-lg text-textMain uppercase mb-1" id="step-3-title">Customize Demo Offerings</h2>
+            <p class="text-xs text-textDim" id="step-3-subtitle">Pre-loaded sample items your AI will offer during phone calls.</p>
+          </div>
+          <button onclick="addCustomRow()" class="px-4 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>Add Item</span>
+          </button>
+        </div>
+
+        <!-- Dynamic Items Table -->
+        <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 border-b border-slate-200 font-orbitron text-[10px] text-textDim uppercase tracking-wider">
+              <tr>
+                <th class="py-3 px-4">Name</th>
+                <th class="py-3 px-4 w-28">Price ($)</th>
+                <th class="py-3 px-4 w-32 hidden sm:table-cell" id="col-extra-header">Duration (min)</th>
+                <th class="py-3 px-4 w-12 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="items-table-body" class="divide-y divide-slate-200">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Launch Callout -->
+        <div class="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
+          <i data-lucide="phone-call" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+          <div class="text-xs text-emerald-950 space-y-1">
+            <p class="font-bold uppercase tracking-wider">Ready to Test Your AI Receptionist!</p>
+            <p class="text-emerald-800">
+              Clicking <strong class="font-black">CREATE MY AI DEMO</strong> will provision a temporary 24-hour demo environment, configure your AI agent, and assign a live phone number for you to call.
+            </p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+          <button type="button" onclick="goToStep(2)" class="px-6 py-3 rounded-full text-xs font-bold text-textDim border border-slate-200 hover:bg-slate-50 uppercase">
+            Back
+          </button>
+          <button type="button" onclick="submitDemoCreation()" id="btn-submit-demo" class="px-10 py-4 rounded-full text-xs font-black tracking-wider text-white bg-gradient-to-r from-emerald-500 via-teal-600 to-primary shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all uppercase flex items-center gap-2">
+            <span>CREATE MY AI DEMO</span>
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full border-t border-slate-200/80 bg-white py-6 text-center text-xs text-textDim">
+    <p>&copy; <%= new Date().getFullYear() %> <%= projectName %>. All rights reserved. Live Demo Center Isolation Protocol Enabled.</p>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    let selectedType = 'restaurant';
+    let currentStep = 1;
+
+    const sampleRestaurants = [
+      { name: "Pizza Margherita", price: 12.0, duration: 15 },
+      { name: "Chicken Fajita Pizza", price: 15.0, duration: 20 },
+      { name: "Pepperoni Pizza", price: 16.0, duration: 18 },
+      { name: "Garlic Bread", price: 5.0, duration: 10 },
+      { name: "Soft Drink", price: 2.5, duration: 2 }
+    ];
+
+    const sampleAppointments = [
+      { name: "Haircut & Styling", price: 25.0, duration: 30 },
+      { name: "Beard Trim & Grooming", price: 15.0, duration: 20 },
+      { name: "Full Color & Highlight", price: 65.0, duration: 60 }
+    ];
+
+    function selectBusinessType(type) {
+      selectedType = type;
+      document.getElementById('form-businessType').value = type;
+      
+      document.getElementById('card-type-restaurant').classList.remove('border-primary', 'ring-2', 'ring-primary/20');
+      document.getElementById('card-type-appointment').classList.remove('border-primary', 'ring-2', 'ring-primary/20');
+      
+      if (type === 'restaurant') {
+        document.getElementById('card-type-restaurant').classList.add('border-primary', 'ring-2', 'ring-primary/20');
+        if (!document.getElementById('form-businessName').value) {
+          document.getElementById('form-businessName').value = 'Bella Pizza';
+        }
+      } else {
+        document.getElementById('card-type-appointment').classList.add('border-primary', 'ring-2', 'ring-primary/20');
+        if (!document.getElementById('form-businessName').value) {
+          document.getElementById('form-businessName').value = 'Luxe Salon & Spa';
+        }
+      }
+
+      goToStep(2);
+    }
+
+    function goToStep(step) {
+      currentStep = step;
+      document.getElementById('wizard-step-1').classList.add('hidden');
+      document.getElementById('wizard-step-2').classList.add('hidden');
+      document.getElementById('wizard-step-3').classList.add('hidden');
+
+      document.getElementById(`wizard-step-${step}`).classList.remove('hidden');
+
+      const progress = document.getElementById('step-progress-bar');
+      const text = document.getElementById('step-indicator-text');
+      const pct = document.getElementById('step-percentage');
+
+      if (step === 1) {
+        progress.style.width = '33%';
+        text.innerText = 'Step 1 of 3 — Select Business Model';
+        pct.innerText = '33% Completed';
+      } else if (step === 2) {
+        progress.style.width = '66%';
+        text.innerText = 'Step 2 of 3 — Business & AI Info';
+        pct.innerText = '66% Completed';
+      } else if (step === 3) {
+        progress.style.width = '100%';
+        text.innerText = 'Step 3 of 3 — Review Offerings & Launch';
+        pct.innerText = '100% Ready';
+        populateItemsTable();
+      }
+    }
+
+    function populateItemsTable() {
+      const tbody = document.getElementById('items-table-body');
+      const colExtraHeader = document.getElementById('col-extra-header');
+      tbody.innerHTML = '';
+
+      const items = selectedType === 'restaurant' ? sampleRestaurants : sampleAppointments;
+      colExtraHeader.innerText = selectedType === 'restaurant' ? 'Prep Time (m)' : 'Duration (m)';
+
+      items.forEach((item, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="py-2.5 px-4">
+            <input type="text" value="${item.name}" class="item-name-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
+          </td>
+          <td class="py-2.5 px-4">
+            <input type="number" step="0.5" value="${item.price}" class="item-price-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
+          </td>
+          <td class="py-2.5 px-4 hidden sm:table-cell">
+            <input type="number" value="${item.duration}" class="item-duration-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
+          </td>
+          <td class="py-2.5 px-4 text-center">
+            <button onclick="this.closest('tr').remove()" class="text-slate-400 hover:text-red-500 p-1">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function addCustomRow() {
+      const tbody = document.getElementById('items-table-body');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="py-2.5 px-4">
+          <input type="text" placeholder="New Item Name" class="item-name-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
+        </td>
+        <td class="py-2.5 px-4">
+          <input type="number" step="0.5" value="15.00" class="item-price-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
+        </td>
+        <td class="py-2.5 px-4 hidden sm:table-cell">
+          <input type="number" value="30" class="item-duration-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
+        </td>
+        <td class="py-2.5 px-4 text-center">
+          <button onclick="this.closest('tr').remove()" class="text-slate-400 hover:text-red-500 p-1">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+      lucide.createIcons();
+    }
+
+    async function submitDemoCreation() {
+      const btn = document.getElementById('btn-submit-demo');
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin mr-2">⚙️</span> Building Your AI Agent...`;
+
+      const businessName = document.getElementById('form-businessName').value || 'Demo Business';
+      const ownerName = document.getElementById('form-ownerName').value || 'Demo Customer';
+      const email = document.getElementById('form-email').value || 'demo@naxton.ai';
+      const phone = document.getElementById('form-phone').value;
+      const city = document.getElementById('form-city').value;
+      const aiName = document.getElementById('form-aiName').value;
+      const customGreeting = document.getElementById('form-customGreeting').value;
+      const businessType = document.getElementById('form-businessType').value;
+
+      // Extract custom items/services
+      const rows = document.querySelectorAll('#items-table-body tr');
+      const items = [];
+      const services = [];
+
+      rows.forEach(r => {
+        const name = r.querySelector('.item-name-input')?.value;
+        const price = parseFloat(r.querySelector('.item-price-input')?.value) || 10;
+        const durationMinutes = parseInt(r.querySelector('.item-duration-input')?.value) || 30;
+
+        if (name && name.trim()) {
+          if (businessType === 'restaurant') {
+            items.push({ name, price, prepTime: durationMinutes });
+          } else {
+            services.push({ name, price, durationMinutes });
+          }
+        }
+      });
+
+      const payload = {
+        businessName,
+        ownerName,
+        email,
+        phone,
+        city,
+        aiName,
+        customGreeting,
+        businessType,
+        menuItems: items,
+        services
+      };
+
+      try {
+        const res = await fetch('/api/demo/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success && data.redirectUrl) {
+          window.location.href = data.redirectUrl;
+        } else {
+          alert(data.error || 'Failed to create demo. Please try again.');
+          btn.disabled = false;
+          btn.innerHTML = `<span>CREATE MY AI DEMO</span><i data-lucide="sparkles" class="w-4 h-4"></i>`;
+          lucide.createIcons();
+        }
+      } catch (err) {
+        alert('Network error. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = `<span>CREATE MY AI DEMO</span><i data-lucide="sparkles" class="w-4 h-4"></i>`;
+        lucide.createIcons();
+      }
+    }
+  </script>
+</body>
+</html>

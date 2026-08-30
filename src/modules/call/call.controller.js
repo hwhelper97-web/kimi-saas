@@ -207,6 +207,16 @@ exports.incoming = async (req, res) => {
     const business = route.business;
     const config = route.config;
 
+    if (route.action === 'EXPIRED_DEMO') {
+      console.log(`[ROUTING] Call blocked: Demo session expired for ${business?.name}`);
+      return res.send(`
+<Response>
+  <Say voice="Polly.Joanna-Neural">Thank you for calling. This interactive AI receptionist demo has expired or reached its maximum call limit. Please visit Naxton Technologies to activate AI receptionists for your business.</Say>
+  <Hangup/>
+</Response>
+      `.trim());
+    }
+
     // 💳 1.5. BILLING CHECK: Ensure tenant is within limits
     const billingService = require("../../services/billing.service");
     const billingStatus = await billingService.canMakeCall(config?.tenantId || business?.tenantId);
