@@ -28,6 +28,13 @@ router.post(
 
 // Delete tenant (Secure)
 router.delete(
+  "/tenants/bulk",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.deleteMultipleTenants
+);
+
+router.delete(
   "/tenants/:tenantId",
   authMiddleware,
   allowRoles(ROLES.SUPERADMIN),

@@ -1513,10 +1513,27 @@
             </div>
           </div>
 
+          <!-- Bulk Selection Action Bar -->
+          <div id="tenantBulkBar" style="display: none; align-items: center; justify-content: space-between; padding: 0.75rem 1.25rem; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; margin-bottom: 1rem; backdrop-filter: blur(8px);">
+            <div style="display: flex; align-items: center; gap: 0.75rem; color: #f8fafc; font-size: 0.85rem; font-weight: 700;">
+              <i data-lucide="check-square" style="width: 18px; color: var(--danger);"></i>
+              <span id="bulkSelectCount">0 tenants selected</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <button onclick="clearTenantSelection()" class="apex-btn apex-btn-sm apex-btn-glass" style="font-size: 0.75rem;">Clear Selection</button>
+              <button onclick="promptBulkDeleteTenants()" class="apex-btn apex-btn-sm" style="background: var(--danger); color: white; border: none; font-weight: 800; font-size: 0.75rem;">
+                <i data-lucide="trash-2" style="width: 14px; margin-right: 6px;"></i> DELETE SELECTED TENANTS
+              </button>
+            </div>
+          </div>
+
           <div class="apex-card table-container-responsive" style="padding: 0;">
             <table class="apex-table">
               <thead>
                 <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
+                  <th style="padding: 1rem 0.5rem 1rem 1rem; width: 40px; text-align: center;">
+                    <input type="checkbox" id="selectAllTenants" onchange="toggleSelectAllTenants(this.checked)" style="accent-color: var(--primary); cursor: pointer; width: 16px; height: 16px; border-radius: 4px;" title="Select all visible tenants" />
+                  </th>
                   <th style="padding: 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Business / Tenant</th>
                   <th style="padding: 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Subscription Plan</th>
                   <th style="padding: 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Usage Capacity</th>
@@ -1525,7 +1542,7 @@
                 </tr>
               </thead>
               <tbody id="tenantList">
-                <tr><td colspan="5" style="text-align: center; padding: 4rem; color: var(--text-muted);">Fetching platform data...</td></tr>
+                <tr><td colspan="6" style="text-align: center; padding: 4rem; color: var(--text-muted);">Fetching platform data...</td></tr>
               </tbody>
             </table>
           </div>
@@ -3789,7 +3806,7 @@
     function renderTenantTable(data) {
       const container = document.getElementById("tenantList");
       if (!data.length) { 
-        container.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:5rem; color:var(--text-muted);">No active tenants found.</td></tr>`; 
+        container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:5rem; color:var(--text-muted);">No active tenants found.</td></tr>`; 
         return; 
       }
       
@@ -3814,9 +3831,13 @@
 
         const isDemo = t.isDemoAccount;
         const isMaster = t.name === "Naxton Platform Hub";
+        const isChecked = selectedTenantIds.has(t.id);
 
         return `
           <tr class="tenant-row" style="animation-delay: ${index * 0.05}s; ${isMaster ? 'opacity: 0.8; background: rgba(var(--primary-rgb), 0.02);' : ''}">
+            <td style="padding: 1.25rem 0.5rem 1.25rem 1rem; text-align: center; width: 40px;">
+              <input type="checkbox" class="tenant-checkbox" value="${t.id}" data-name="${t.name}" onchange="updateBulkTenantSelection()" style="accent-color: var(--primary); cursor: pointer; width: 16px; height: 16px; border-radius: 4px;" ${isMaster ? 'disabled title="Master tenant cannot be deleted"' : ''} ${isChecked ? 'checked' : ''} />
+            </td>
             <td style="padding: 1.25rem 1rem;">
               <div style="display:flex; align-items:center; gap:0.75rem;">
                 <div style="width: 36px; height: 36px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
@@ -4281,11 +4302,110 @@
       finally { btn.disabled = false; btn.innerHTML = "LAUNCH CLIENT INSTANCE"; lucide.createIcons(); }
     }
 
+    let selectedTenantIds = new Set();
+
+    function toggleSelectAllTenants(isChecked) {
+      const checkboxes = document.querySelectorAll('.tenant-checkbox:not(:disabled)');
+      checkboxes.forEach(cb => {
+        cb.checked = isChecked;
+        if (isChecked) selectedTenantIds.add(cb.value);
+        else selectedTenantIds.delete(cb.value);
+      });
+      updateBulkTenantUI();
+    }
+
+    function updateBulkTenantSelection() {
+      selectedTenantIds.clear();
+      const checkboxes = document.querySelectorAll('.tenant-checkbox:checked');
+      checkboxes.forEach(cb => selectedTenantIds.add(cb.value));
+
+      const allCheckboxes = document.querySelectorAll('.tenant-checkbox:not(:disabled)');
+      const selectAllCb = document.getElementById('selectAllTenants');
+      if (selectAllCb) {
+        selectAllCb.checked = allCheckboxes.length > 0 && selectedTenantIds.size === allCheckboxes.length;
+      }
+
+      updateBulkTenantUI();
+    }
+
+    function updateBulkTenantUI() {
+      const bar = document.getElementById('tenantBulkBar');
+      const countEl = document.getElementById('bulkSelectCount');
+      if (bar && countEl) {
+        if (selectedTenantIds.size > 0) {
+          bar.style.display = 'flex';
+          countEl.innerText = `${selectedTenantIds.size} tenant${selectedTenantIds.size > 1 ? 's' : ''} selected`;
+        } else {
+          bar.style.display = 'none';
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function clearTenantSelection() {
+      selectedTenantIds.clear();
+      const selectAllCb = document.getElementById('selectAllTenants');
+      if (selectAllCb) selectAllCb.checked = false;
+      document.querySelectorAll('.tenant-checkbox').forEach(cb => cb.checked = false);
+      updateBulkTenantUI();
+    }
+
+    function promptBulkDeleteTenants() {
+      if (selectedTenantIds.size === 0) return;
+      document.getElementById("confirmAdminPassword").value = "";
+      document.getElementById("deleteModal").style.display = "flex";
+      
+      const modalMsg = document.querySelector("#deleteModal p");
+      if (modalMsg) {
+        modalMsg.innerText = `This action will permanently purge ${selectedTenantIds.size} selected tenants and all their associated businesses, calls, menu items, and orders. This cannot be undone.`;
+      }
+
+      document.getElementById("finalDeleteBtn").onclick = () => confirmBulkDeleteTenants();
+    }
+
+    async function confirmBulkDeleteTenants() {
+      const password = document.getElementById("confirmAdminPassword").value;
+      if (!password) return showError("Superadmin password required");
+      
+      const btn = document.getElementById("finalDeleteBtn");
+      btn.disabled = true; btn.innerHTML = `PURGING ${selectedTenantIds.size} TENANTS...`;
+
+      try {
+        const tenantIdsArr = Array.from(selectedTenantIds);
+        const res = await fetch(`/api/superadmin/tenants/bulk`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({ tenantIds: tenantIdsArr, adminPassword: password })
+        });
+        const r = await res.json();
+        if (r.success) {
+          showSuccess(r.message || `Purged ${r.deletedCount} tenants!`);
+          closeDeleteModal();
+          clearTenantSelection();
+          loadTenants();
+        } else {
+          showError(r.message);
+        }
+      } catch (e) {
+        showError("Network error during bulk delete");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = "PURGE ACCOUNT";
+      }
+    }
+
     let tenantToDelete = null;
     function openDeleteModal(id) {
       tenantToDelete = id;
       document.getElementById("confirmAdminPassword").value = "";
       document.getElementById("deleteModal").style.display = "flex";
+      const modalMsg = document.querySelector("#deleteModal p");
+      if (modalMsg) {
+        modalMsg.innerText = "This action will permanently purge this tenant and all associated businesses, menu items, and orders. This cannot be undone.";
+      }
       document.getElementById("finalDeleteBtn").onclick = () => confirmDeleteTenant(id);
     }
 
