@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-900">
+<html lang="en" class="h-full bg-[#07090E]">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Demo Center — SuperAdmin Control</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
@@ -16,151 +16,294 @@
           colors: {
             primary: '#38BDF8',
             secondary: '#2563EB',
-            bgDark: '#0F172A',
-            cardDark: '#1E293B',
+            bgDark: '#07090E',
+            cardBg: 'rgba(15, 23, 42, 0.75)',
             textMain: '#F8FAFC',
-            textDim: '#94A3B8'
+            textDim: '#94A3B8',
+            borderClr: 'rgba(255, 255, 255, 0.08)'
           },
           fontFamily: {
-            orbitron: ['Orbitron', 'sans-serif'],
+            outfit: ['Outfit', 'sans-serif'],
             sans: ['Plus Jakarta Sans', 'sans-serif']
           }
         }
       }
     }
   </script>
-</head>
-<body class="font-sans bg-slate-900 text-textMain antialiased min-h-full flex flex-col">
+  <style>
+    /* Ambient Animated Glowing Orbs */
+    .orb {
+      position: fixed;
+      width: 50vmax;
+      height: 50vmax;
+      max-width: 600px;
+      max-height: 600px;
+      border-radius: 50%;
+      z-index: -2;
+      filter: blur(100px);
+      pointer-events: none;
+      opacity: 0.2;
+      animation: floatOrb 18s ease-in-out infinite alternate;
+    }
+    .orb-1 { top: -15%; left: -10%; background: radial-gradient(circle, rgba(56, 189, 248, 0.8) 0%, rgba(37, 99, 235, 0.2) 70%, transparent 100%); }
+    .orb-2 { bottom: -20%; right: -10%; background: radial-gradient(circle, rgba(99, 102, 241, 0.8) 0%, rgba(139, 92, 246, 0.2) 70%, transparent 100%); animation-delay: -9s; }
 
-  <!-- Navigation Bar -->
-  <header class="w-full bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <a href="/superadmin" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-orbitron font-black text-sm">
-        SA
-      </a>
-      <div>
-        <h1 class="font-orbitron font-bold text-sm tracking-wider text-white uppercase">Naxton Demo Center Control</h1>
-        <p class="text-[10px] text-slate-400">SuperAdmin Lead &amp; Live Demo Monitoring</p>
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(40px, 60px) scale(1.08); }
+      100% { transform: translate(-30px, 30px) scale(0.95); }
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+    }
+
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Modal Animation */
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animate-modal { animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    /* Toast Animation */
+    @keyframes toastSlideIn {
+      from { opacity: 0; transform: translateY(-20px) scale(0.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .animate-toast { animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  </style>
+</head>
+<body class="font-sans bg-[#07090E] text-textMain antialiased min-h-full flex flex-col relative selection:bg-primary selection:text-slate-900">
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="grid-overlay"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- Confirmation Modal Container -->
+  <div id="confirm-modal-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-panel rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative border border-slate-700/80 animate-modal text-left">
+      <div id="modal-icon-wrapper" class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4 border border-amber-500/20">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+      </div>
+      <h3 id="modal-title" class="font-outfit font-bold text-lg sm:text-xl text-white mb-2">Confirm Action</h3>
+      <p id="modal-body" class="text-xs text-textDim mb-6 leading-relaxed">Are you sure you want to proceed with this operation?</p>
+
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+        <button onclick="closeConfirmModal(false)" class="px-5 py-2.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-300 hover:bg-slate-800 transition-all">
+          Cancel
+        </button>
+        <button id="modal-confirm-btn" onclick="closeConfirmModal(true)" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-outfit font-extrabold text-xs uppercase shadow-lg hover:opacity-95 transition-all">
+          Confirm
+        </button>
       </div>
     </div>
+  </div>
 
-    <div class="flex items-center gap-4">
-      <a href="/superadmin" class="text-xs font-bold text-slate-300 hover:text-white uppercase transition-colors">
-        Superadmin Hub
-      </a>
-      <a href="/demo" target="_blank" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-primary/20 border border-primary/30 hover:bg-primary/30 transition-all uppercase">
-        Open Public Demo Wizard &rarr;
-      </a>
+  <!-- Navigation Bar -->
+  <header class="w-full glass-panel sticky top-0 z-40 px-6 py-4 border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/superadmin" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-slate-950 font-outfit font-black text-base shadow-lg shadow-primary/20">
+          SA
+        </a>
+        <div>
+          <h1 class="font-outfit font-bold text-base tracking-wide text-white flex items-center gap-2">
+            <span>Naxton Demo Center Control</span>
+            <span class="px-2 py-0.5 text-[9px] font-mono rounded-full bg-primary/10 text-primary border border-primary/20">LIVE OPS</span>
+          </h1>
+          <p class="text-[11px] text-textDim">SuperAdmin Lead &amp; Prospect Live Demo Monitoring</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a href="/superadmin" class="text-xs font-bold text-textDim hover:text-primary transition-colors flex items-center gap-1.5">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>SuperAdmin Hub</span>
+        </a>
+        <a href="/demo" target="_blank" class="px-4 py-2.5 rounded-xl text-xs font-outfit font-extrabold tracking-wider text-slate-950 bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary/20 hover:opacity-95 transition-all uppercase flex items-center gap-2">
+          <span>Open Public Demo Wizard</span>
+          <i data-lucide="external-link" class="w-4 h-4"></i>
+        </a>
+      </div>
     </div>
   </header>
 
   <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-8">
     
-    <!-- Top Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 text-left">
-        <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest block mb-1">TOTAL DEMO SESSIONS</span>
-        <span class="text-3xl font-black font-orbitron text-primary" id="stat-total-demos">0</span>
+    <!-- Top Metrics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      
+      <div class="glass-panel rounded-2xl p-5 text-left relative overflow-hidden group border border-slate-800 hover:border-primary/40 transition-all">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[11px] font-bold text-textDim uppercase tracking-wider">Total Demo Sessions</span>
+          <div class="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-extrabold font-outfit text-white tracking-tight" id="stat-total-demos">0</div>
+        <div class="text-[10px] text-textDim mt-2 flex items-center gap-1">
+          <span class="text-primary font-bold">100%</span> tracked in PostgreSQL
+        </div>
       </div>
-      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 text-left">
-        <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest block mb-1">ACTIVE DEMOS</span>
-        <span class="text-3xl font-black font-orbitron text-emerald-400" id="stat-active-demos">0</span>
+
+      <div class="glass-panel rounded-2xl p-5 text-left relative overflow-hidden group border border-slate-800 hover:border-emerald-500/40 transition-all">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[11px] font-bold text-textDim uppercase tracking-wider">Active 12H Demos</span>
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+            <i data-lucide="phone-call" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-extrabold font-outfit text-emerald-400 tracking-tight" id="stat-active-demos">0</div>
+        <div class="text-[10px] text-textDim mt-2 flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          Handling live prospect calls
+        </div>
       </div>
-      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 text-left">
-        <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest block mb-1">TODAY'S PROSPECTS</span>
-        <span class="text-3xl font-black font-orbitron text-secondary" id="stat-today-demos">0</span>
+
+      <div class="glass-panel rounded-2xl p-5 text-left relative overflow-hidden group border border-slate-800 hover:border-secondary/40 transition-all">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[11px] font-bold text-textDim uppercase tracking-wider">Today's Prospects</span>
+          <div class="w-8 h-8 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
+            <i data-lucide="users" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-extrabold font-outfit text-primary tracking-tight" id="stat-today-demos">0</div>
+        <div class="text-[10px] text-textDim mt-2">New leads captured today</div>
       </div>
-      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 text-left">
-        <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest block mb-1">EXPIRED DEMOS</span>
-        <span class="text-3xl font-black font-orbitron text-red-400" id="stat-expired-demos">0</span>
+
+      <div class="glass-panel rounded-2xl p-5 text-left relative overflow-hidden group border border-slate-800 hover:border-rose-500/40 transition-all">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[11px] font-bold text-textDim uppercase tracking-wider">Expired Demos</span>
+          <div class="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center">
+            <i data-lucide="clock" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-extrabold font-outfit text-rose-400 tracking-tight" id="stat-expired-demos">0</div>
+        <div class="text-[10px] text-textDim mt-2">Numbers ready for release</div>
       </div>
+
     </div>
 
     <!-- Filters & Search Bar -->
-    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="glass-panel rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800">
       <div class="flex items-center gap-2">
-        <button onclick="filterStatus('')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-primary text-slate-900" id="btn-filter-all">All</button>
-        <button onclick="filterStatus('ACTIVE')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-700 text-slate-300 hover:bg-slate-600" id="btn-filter-active">Active</button>
-        <button onclick="filterStatus('EXPIRED')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-700 text-slate-300 hover:bg-slate-600" id="btn-filter-expired">Expired</button>
-      </div>
-
-      <div class="w-full sm:w-72 relative">
-        <input type="text" id="search-input" onkeyup="handleSearchKey(event)" placeholder="Search business, email, owner..." class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-primary focus:outline-none" />
-      </div>
-    </div>
-
-    <!-- SMTP Email Delivery System Panel -->
-    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 text-left space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h3 class="font-orbitron font-bold text-sm text-white uppercase flex items-center gap-2">
-            <span>📧 SMTP Email Delivery System</span>
-            <span id="smtp-status-badge" class="px-2 py-0.5 text-[9px] rounded-full bg-slate-700 text-slate-300 font-sans">Checking...</span>
-          </h3>
-          <p class="text-xs text-slate-400">Configure SMTP credentials (Gmail, SendGrid, Resend, cPanel) so demo dashboard links deliver directly to customer inbox.</p>
-        </div>
-        <button onclick="toggleSmtpForm()" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-bold text-slate-200 transition-colors">
-          Configure SMTP &rarr;
+        <button onclick="filterStatus('')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-primary text-slate-950 shadow-md shadow-primary/20 transition-all" id="btn-filter-all">
+          All Sessions
+        </button>
+        <button onclick="filterStatus('ACTIVE')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-textDim hover:text-white hover:bg-slate-700 transition-all" id="btn-filter-active">
+          🟢 Active
+        </button>
+        <button onclick="filterStatus('EXPIRED')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-textDim hover:text-white hover:bg-slate-700 transition-all" id="btn-filter-expired">
+          🔴 Expired
         </button>
       </div>
 
-      <div id="smtp-form-container" class="hidden pt-4 border-t border-slate-700 space-y-4 font-sans text-xs">
+      <div class="w-full sm:w-80 relative">
+        <i data-lucide="search" class="w-4 h-4 text-textDim absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+        <input type="text" id="search-input" onkeyup="handleSearchKey(event)" placeholder="Search business, email, owner..." class="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-white placeholder-textDim focus:border-primary focus:outline-none transition-all" />
+      </div>
+    </div>
+
+    <!-- Email & SMTP Delivery Engine Panel -->
+    <div class="glass-panel rounded-2xl p-6 text-left space-y-4 border border-slate-800">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h3 class="font-outfit font-bold text-base text-white flex items-center gap-2">
+            <i data-lucide="mail" class="w-5 h-5 text-primary"></i>
+            <span>Email &amp; Resend Delivery Engine</span>
+            <span id="smtp-status-badge" class="px-2.5 py-0.5 text-[10px] rounded-full bg-slate-800 text-textDim border border-slate-700 font-sans">Checking...</span>
+          </h3>
+          <p class="text-xs text-textDim mt-1">Configure Resend API key or SMTP credentials so demo dashboard links deliver instantly to prospect inboxes.</p>
+        </div>
+        <button onclick="toggleSmtpForm()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white border border-slate-700 transition-all flex items-center gap-2">
+          <span>Configure Credentials</span>
+          <i data-lucide="chevron-down" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div id="smtp-form-container" class="hidden pt-5 border-t border-slate-800 space-y-5 font-sans text-xs">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 mb-1">SMTP Host (e.g., smtp.gmail.com)</label>
-            <input type="text" id="smtpHost" placeholder="smtp.gmail.com" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-primary focus:outline-none" />
+            <label class="block text-[11px] font-bold text-primary mb-1">Resend API Key (Recommended)</label>
+            <input type="text" id="resendApiKey" placeholder="re_N2vAMRoB_..." class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-slate-800 rounded-xl text-white text-xs focus:border-primary focus:outline-none" />
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 mb-1">SMTP Port (587 or 465)</label>
-            <input type="number" id="smtpPort" placeholder="587" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-primary focus:outline-none" />
+            <label class="block text-[11px] font-bold text-textDim mb-1">Sender Email / From Address</label>
+            <input type="text" id="smtpFrom" placeholder='"Naxton AI" <onboarding@resend.dev>' class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-slate-800 rounded-xl text-white text-xs focus:border-primary focus:outline-none" />
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 mb-1">Sender Email / From Address</label>
-            <input type="text" id="smtpFrom" placeholder='"Naxton AI" <demo@naxtontechnologies.com>' class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-primary focus:outline-none" />
+            <label class="block text-[11px] font-bold text-textDim mb-1">SMTP Host (Optional if using Resend)</label>
+            <input type="text" id="smtpHost" placeholder="smtp.gmail.com" class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-slate-800 rounded-xl text-white text-xs focus:border-primary focus:outline-none" />
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 mb-1">SMTP Username / Email</label>
-            <input type="text" id="smtpUser" placeholder="your-email@gmail.com" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-primary focus:outline-none" />
+            <label class="block text-[11px] font-bold text-textDim mb-1">SMTP Port (587 or 465)</label>
+            <input type="number" id="smtpPort" placeholder="587" class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-slate-800 rounded-xl text-white text-xs focus:border-primary focus:outline-none" />
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 mb-1">SMTP Password / App Password</label>
-            <input type="password" id="smtpPass" placeholder="••••••••••••" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-primary focus:outline-none" />
+            <label class="block text-[11px] font-bold text-textDim mb-1">SMTP Username / Email</label>
+            <input type="text" id="smtpUser" placeholder="your-email@gmail.com" class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-slate-800 rounded-xl text-white text-xs focus:border-primary focus:outline-none" />
           </div>
-          <div class="flex items-end">
-            <button onclick="saveSmtpSettings()" class="w-full py-2 bg-primary hover:bg-primary/90 text-slate-900 font-bold rounded-xl transition-all uppercase text-xs">
-              Save SMTP Settings
-            </button>
+          <div>
+            <label class="block text-[11px] font-bold text-textDim mb-1">SMTP Password / App Password</label>
+            <input type="password" id="smtpPass" placeholder="••••••••••••" class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-slate-800 rounded-xl text-white text-xs focus:border-primary focus:outline-none" />
           </div>
         </div>
 
+        <div class="flex justify-end">
+          <button onclick="saveSmtpSettings()" class="px-6 py-2.5 bg-gradient-to-r from-primary to-secondary text-slate-950 font-outfit font-extrabold rounded-xl transition-all uppercase text-xs shadow-md hover:opacity-95">
+            Save Email Settings
+          </button>
+        </div>
+
         <!-- Test Email Dispatcher -->
-        <div class="pt-3 border-t border-slate-700/60 flex flex-col sm:flex-row items-center gap-3">
-          <input type="email" id="testEmailInput" placeholder="Enter recipient email address to test..." class="w-full sm:w-80 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-primary focus:outline-none" />
-          <button onclick="sendTestEmail()" class="w-full sm:w-auto px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-bold rounded-xl transition-all text-xs uppercase flex items-center justify-center gap-2">
-            <span>🚀 Send Test Email</span>
+        <div class="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center gap-3">
+          <input type="email" id="testEmailInput" placeholder="Enter recipient email address to test..." class="w-full sm:w-80 px-3.5 py-2.5 bg-slate-900/90 border border-slate-800 rounded-xl text-white text-xs focus:border-primary focus:outline-none" />
+          <button onclick="sendTestEmail()" class="w-full sm:w-auto px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-outfit font-extrabold rounded-xl transition-all text-xs uppercase flex items-center justify-center gap-2 shadow-md">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>Send Test Email</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Demo List Table -->
-    <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+    <!-- Live Demo Sessions Table -->
+    <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
-          <thead class="bg-slate-900/60 font-orbitron text-[10px] text-slate-400 uppercase tracking-wider">
+          <thead class="bg-slate-900/80 font-outfit text-[11px] text-textDim uppercase tracking-wider border-b border-slate-800">
             <tr>
-              <th class="py-3.5 px-4">Business &amp; Contact</th>
-              <th class="py-3.5 px-4">Model</th>
-              <th class="py-3.5 px-4">Created / Expires</th>
-              <th class="py-3.5 px-4 text-center">Calls</th>
-              <th class="py-3.5 px-4 text-center">Actions Created</th>
-              <th class="py-3.5 px-4">Status</th>
-              <th class="py-3.5 px-4 text-right">Controls</th>
+              <th class="py-4 px-5">Business &amp; Contact</th>
+              <th class="py-4 px-5">Model</th>
+              <th class="py-4 px-5">Created / Expires</th>
+              <th class="py-4 px-5 text-center">Calls</th>
+              <th class="py-4 px-5 text-center">Actions Created</th>
+              <th class="py-4 px-5">Status</th>
+              <th class="py-4 px-5 text-right">Controls</th>
             </tr>
           </thead>
-          <tbody id="demo-table-body" class="divide-y divide-slate-700/80 text-slate-300 font-mono">
+          <tbody id="demo-table-body" class="divide-y divide-slate-800/80 text-slate-300">
             <tr>
-              <td colspan="7" class="py-8 text-center text-slate-500 font-sans">Loading demo sessions...</td>
+              <td colspan="7" class="py-12 text-center text-textDim font-sans">
+                <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2 text-primary"></i>
+                Loading demo sessions...
+              </td>
             </tr>
           </tbody>
         </table>
@@ -169,19 +312,90 @@
 
   </main>
 
+  <!-- Script Implementation -->
   <script>
     lucide.createIcons();
 
-    let currentStatusFilter = '';
-    let currentSearch = '';
+    let currentFilter = '';
+    let confirmResolver = null;
+
+    // 🔔 Professional Custom Toast Notification
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      const isSuccess = type === 'success';
+      const isError = type === 'error';
+      
+      const bgColor = isSuccess ? 'bg-emerald-950/90 border-emerald-500/30 text-emerald-200' : isError ? 'bg-rose-950/90 border-rose-500/30 text-rose-200' : 'bg-amber-950/90 border-amber-500/30 text-amber-200';
+      const iconName = isSuccess ? 'check-circle' : isError ? 'alert-circle' : 'info';
+      const iconColor = isSuccess ? 'text-emerald-400' : isError ? 'text-rose-400' : 'text-amber-400';
+
+      toast.className = `glass-panel ${bgColor} border px-4 py-3 rounded-2xl shadow-2xl text-xs font-medium flex items-center gap-3 animate-toast pointer-events-auto max-w-md`;
+      toast.innerHTML = `
+        <i data-lucide="${iconName}" class="w-4 h-4 ${iconColor} shrink-0"></i>
+        <span class="flex-1">${message}</span>
+        <button onclick="this.parentElement.remove()" class="text-textDim hover:text-white p-1">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
+      `;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // 🛑 Professional Custom Confirmation Modal (Replaces browser confirm)
+    function customConfirm({ title, body, confirmText = 'Confirm', variant = 'amber' }) {
+      return new Promise((resolve) => {
+        confirmResolver = resolve;
+        
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-body').innerText = body;
+        
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+        confirmBtn.innerText = confirmText;
+        
+        const iconWrapper = document.getElementById('modal-icon-wrapper');
+        
+        if (variant === 'rose') {
+          confirmBtn.className = 'px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-rose-600 text-white font-outfit font-extrabold text-xs uppercase shadow-lg hover:opacity-95 transition-all';
+          iconWrapper.className = 'w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mb-4 border border-rose-500/20';
+        } else if (variant === 'emerald') {
+          confirmBtn.className = 'px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-slate-950 font-outfit font-extrabold text-xs uppercase shadow-lg hover:opacity-95 transition-all';
+          iconWrapper.className = 'w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 border border-emerald-500/20';
+        } else {
+          confirmBtn.className = 'px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-outfit font-extrabold text-xs uppercase shadow-lg hover:opacity-95 transition-all';
+          iconWrapper.className = 'w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4 border border-amber-500/20';
+        }
+
+        document.getElementById('confirm-modal-backdrop').classList.remove('hidden');
+        lucide.createIcons();
+      });
+    }
+
+    function closeConfirmModal(result) {
+      document.getElementById('confirm-modal-backdrop').classList.add('hidden');
+      if (confirmResolver) {
+        confirmResolver(result);
+        confirmResolver = null;
+      }
+    }
 
     async function loadAdminDemos() {
       try {
-        const query = new URLSearchParams();
-        if (currentStatusFilter) query.append('status', currentStatusFilter);
-        if (currentSearch) query.append('search', currentSearch);
+        const query = document.getElementById('search-input').value.trim();
+        let url = '/api/superadmin/demos?';
+        if (currentFilter) url += `status=${currentFilter}&`;
+        if (query) url += `search=${encodeURIComponent(query)}&`;
 
-        const res = await fetch(`/api/superadmin/demos?${query.toString()}`);
+        const res = await fetch(url);
         const json = await res.json();
 
         if (json.success && json.data) {
@@ -191,117 +405,157 @@
           document.getElementById('stat-today-demos').innerText = todayDemos || 0;
           document.getElementById('stat-expired-demos').innerText = totalExpired || 0;
 
-          renderTable(demos || []);
+          renderDemoTable(demos || []);
         }
       } catch (e) {
-        console.error('Failed to load demos:', e);
+        console.error('Failed loading admin demo metrics:', e);
       }
-    }
-
-    function renderTable(demos) {
-      const tbody = document.getElementById('demo-table-body');
-      if (demos.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500 font-sans">No demo sessions found matching criteria.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = demos.map(d => {
-        const isActive = d.status === 'ACTIVE';
-        const ordersCount = d.business?._count?.orders || 0;
-        const apptsCount = d.business?._count?.appointments || 0;
-        const totalActions = ordersCount + apptsCount;
-
-        return `
-          <tr class="hover:bg-slate-700/40 transition-colors">
-            <td class="py-3.5 px-4 font-sans">
-              <div class="font-bold text-white">${d.businessName}</div>
-              <div class="text-[11px] text-slate-400">${d.contactName} &bull; <a href="mailto:${d.email}" class="text-primary hover:underline">${d.email}</a></div>
-            </td>
-            <td class="py-3.5 px-4 uppercase text-[10px]">
-              <span class="px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-bold">${d.businessType}</span>
-            </td>
-            <td class="py-3.5 px-4 text-[11px]">
-              <div>In: ${new Date(d.createdAt).toLocaleDateString()}</div>
-              <div class="text-slate-500">Exp: ${new Date(d.expiresAt).toLocaleTimeString()}</div>
-            </td>
-            <td class="py-3.5 px-4 text-center font-bold text-white">
-              ${d.callCount} / ${d.maxCalls}
-            </td>
-            <td class="py-3.5 px-4 text-center font-bold ${totalActions > 0 ? 'text-emerald-400' : 'text-slate-500'}">
-              ${totalActions} ${d.businessType === 'restaurant' ? 'Orders' : 'Bookings'}
-            </td>
-            <td class="py-3.5 px-4">
-              <span class="px-2.5 py-0.5 rounded-full text-[9px] font-bold ${isActive ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}">
-                ${d.status}
-              </span>
-            </td>
-            <td class="py-3.5 px-4 text-right space-x-2 font-sans">
-              <a href="/demo/live/${d.token}" target="_blank" class="px-2.5 py-1 rounded-lg bg-primary/20 text-primary border border-primary/30 hover:bg-primary hover:text-slate-900 transition-colors text-[11px] font-bold">
-                View Live
-              </a>
-              <button onclick="extendDemo('${d.token}')" class="px-2.5 py-1 rounded-lg bg-slate-700 text-slate-200 hover:bg-slate-600 transition-colors text-[11px] font-bold">
-                +24h
-              </button>
-              <button onclick="releasePhone('${d.token}')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500 hover:text-slate-900 transition-colors text-[11px] font-bold" title="Unbind phone number and return to UNASSIGNED inventory">
-                Release Phone
-              </button>
-              ${isActive ? `
-                <button onclick="deactivateDemo('${d.token}')" class="px-2.5 py-1 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-colors text-[11px] font-bold">
-                  Stop
-                </button>
-              ` : ''}
-            </td>
-          </tr>
-        `;
-      }).join('');
     }
 
     function filterStatus(status) {
-      currentStatusFilter = status;
-      document.querySelectorAll('.filter-btn').forEach(b => {
-        b.className = 'filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-700 text-slate-300 hover:bg-slate-600';
+      currentFilter = status;
+
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.className = 'filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-textDim hover:text-white hover:bg-slate-700 transition-all';
       });
-      if (status === '') document.getElementById('btn-filter-all').className = 'filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-primary text-slate-900';
-      if (status === 'ACTIVE') document.getElementById('btn-filter-active').className = 'filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-900';
-      if (status === 'EXPIRED') document.getElementById('btn-filter-expired').className = 'filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-red-500 text-white';
+
+      if (!status) document.getElementById('btn-filter-all').className = 'filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-primary text-slate-950 shadow-md shadow-primary/20 transition-all';
+      if (status === 'ACTIVE') document.getElementById('btn-filter-active').className = 'filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 transition-all';
+      if (status === 'EXPIRED') document.getElementById('btn-filter-expired').className = 'filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-rose-500 text-white shadow-md shadow-rose-500/20 transition-all';
 
       loadAdminDemos();
     }
 
     function handleSearchKey(e) {
-      currentSearch = e.target.value;
       loadAdminDemos();
     }
 
+    function renderDemoTable(demos) {
+      const tbody = document.getElementById('demo-table-body');
+      if (!demos || demos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-textDim text-xs font-sans">No demo sessions found matching criteria.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = demos.map(d => {
+        const isExpired = d.status === 'EXPIRED';
+        const statusBadge = isExpired
+          ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30 font-bold uppercase"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>Expired</span>`
+          : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold uppercase"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>Active</span>`;
+
+        const dateCreated = new Date(d.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const dateExpires = new Date(d.expiresAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+        const ordersCount = d.business?._count?.orders || 0;
+        const apptsCount = d.business?._count?.appointments || 0;
+        const totalActions = ordersCount + apptsCount;
+
+        return `
+          <tr class="hover:bg-slate-800/50 transition-colors">
+            <td class="p-4 font-sans">
+              <div class="font-bold text-white text-sm">${d.businessName || 'N/A'}</div>
+              <div class="text-[11px] text-textDim">${d.contactName || ''} &bull; <a href="mailto:${d.email}" class="text-primary hover:underline">${d.email || ''}</a></div>
+              <div class="text-[11px] text-sky-400 font-mono mt-1 font-semibold flex items-center gap-1">
+                <i data-lucide="phone" class="w-3 h-3"></i>
+                <span>${d.phoneNumber || 'Unassigned Inventory'}</span>
+              </div>
+            </td>
+            <td class="p-4">
+              <span class="px-2.5 py-1 text-[10px] rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-outfit font-bold uppercase tracking-wider">${d.businessType}</span>
+            </td>
+            <td class="p-4 text-[11px] font-sans">
+              <div class="text-slate-300">In: ${dateCreated}</div>
+              <div class="${isExpired ? 'text-rose-400 font-semibold' : 'text-emerald-400 font-semibold'}">Exp: ${dateExpires}</div>
+            </td>
+            <td class="p-4 font-mono font-bold text-center text-white">
+              ${d.callCount || 0} / ${d.maxCalls || 5}
+            </td>
+            <td class="p-4 font-mono font-bold text-center ${totalActions > 0 ? 'text-emerald-400' : 'text-textDim'}">
+              ${totalActions} ${d.businessType === 'restaurant' ? 'Orders' : 'Bookings'}
+            </td>
+            <td class="p-4">${statusBadge}</td>
+            <td class="p-4 text-right">
+              <div class="flex items-center justify-end gap-1.5 font-sans">
+                <a href="/demo/live/${d.token}" target="_blank" class="px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 text-[11px] font-bold transition-all flex items-center gap-1">
+                  <span>View Live</span>
+                  <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                </a>
+                ${!isExpired ? `
+                  <button onclick="extendDemo('${d.token}')" class="px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold transition-all">
+                    +24h
+                  </button>
+                  <button onclick="deactivateDemo('${d.token}')" class="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[11px] font-bold transition-all">
+                    Stop
+                  </button>
+                ` : ''}
+                ${d.phoneNumber ? `
+                  <button onclick="releasePhone('${d.token}')" title="Release phone number back to UNASSIGNED inventory" class="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-bold transition-all flex items-center gap-1">
+                    <i data-lucide="phone-off" class="w-3 h-3"></i>
+                    <span>Release Phone</span>
+                  </button>
+                ` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
     async function extendDemo(token) {
-      if (!confirm('Extend this demo by 24 hours?')) return;
+      const confirmed = await customConfirm({
+        title: 'Extend Demo Session',
+        body: 'Extend this prospect demo session by +24 hours?',
+        confirmText: 'Extend Session (+24h)',
+        variant: 'emerald'
+      });
+      if (!confirmed) return;
+
       const res = await fetch(`/api/superadmin/demos/${token}/extend`, { method: 'POST' });
       const json = await res.json();
       if (json.success) {
-        alert('Demo extended successfully!');
+        showToast('Demo session extended by +24 hours!', 'success');
         loadAdminDemos();
+      } else {
+        showToast(json.message || 'Failed to extend demo', 'error');
       }
     }
 
     async function deactivateDemo(token) {
-      if (!confirm('Deactivate this demo session immediately?')) return;
+      const confirmed = await customConfirm({
+        title: 'Stop Demo Session',
+        body: 'Deactivate this demo session immediately and end prospect access?',
+        confirmText: 'Stop Session',
+        variant: 'rose'
+      });
+      if (!confirmed) return;
+
       const res = await fetch(`/api/superadmin/demos/${token}/deactivate`, { method: 'POST' });
       const json = await res.json();
       if (json.success) {
-        alert('Demo deactivated!');
+        showToast('Demo session deactivated successfully!', 'success');
         loadAdminDemos();
+      } else {
+        showToast(json.message || 'Failed to deactivate demo', 'error');
       }
     }
 
     async function releasePhone(token) {
-      if (!confirm('Release this demo phone number back to UNASSIGNED inventory immediately?')) return;
+      const confirmed = await customConfirm({
+        title: 'Release Phone Number',
+        body: 'Unbind this demo phone number back to UNASSIGNED inventory immediately?',
+        confirmText: 'Release Phone',
+        variant: 'amber'
+      });
+      if (!confirmed) return;
+
       const res = await fetch(`/api/superadmin/demos/${token}/release-phone`, { method: 'POST' });
       const json = await res.json();
       if (json.success) {
-        alert(json.message || 'Phone number released back to UNASSIGNED inventory!');
+        showToast(json.message || 'Phone number released back to UNASSIGNED inventory!', 'success');
         loadAdminDemos();
       } else {
-        alert(json.message || json.error || 'Failed to release phone');
+        showToast(json.message || json.error || 'Failed to release phone', 'error');
       }
     }
 
@@ -328,10 +582,10 @@
 
           const badge = document.getElementById('smtp-status-badge');
           if (d.resendApiKey || (d.smtpHost && d.smtpUser)) {
-            badge.className = 'px-2 py-0.5 text-[9px] rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-sans';
+            badge.className = 'px-2.5 py-0.5 text-[10px] rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-sans font-bold';
             badge.innerText = d.resendApiKey ? 'Resend API Active ✓' : 'SMTP Configured ✓';
           } else {
-            badge.className = 'px-2 py-0.5 text-[9px] rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-sans';
+            badge.className = 'px-2.5 py-0.5 text-[10px] rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 font-sans font-bold';
             badge.innerText = 'Not Configured';
           }
         }
@@ -357,16 +611,16 @@
       });
       const json = await res.json();
       if (json.success) {
-        alert('Email & SMTP Settings Saved Successfully!');
+        showToast('Email & SMTP credentials saved successfully!', 'success');
         loadSmtpSettings();
       } else {
-        alert('Failed saving settings: ' + (json.message || json.error));
+        showToast('Failed saving settings: ' + (json.message || json.error), 'error');
       }
     }
 
     async function sendTestEmail() {
       const toEmail = document.getElementById('testEmailInput').value.trim();
-      if (!toEmail) return alert('Please enter an email address for testing.');
+      if (!toEmail) return showToast('Please enter an email address for testing.', 'warn');
 
       const res = await fetch('/api/superadmin/settings/test-email', {
         method: 'POST',
@@ -375,9 +629,9 @@
       });
       const json = await res.json();
       if (json.success) {
-        alert('🎉 SUCCESS: ' + json.message);
+        showToast('🎉 SUCCESS: ' + json.message, 'success');
       } else {
-        alert('❌ FAILED: ' + (json.error || json.message));
+        showToast('❌ FAILED: ' + (json.error || json.message), 'error');
       }
     }
 
