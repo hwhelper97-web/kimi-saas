@@ -9,7 +9,7 @@ try {
 }
 
 /**
- * Reads SMTP / Email transport config from platform.json and process.env
+ * Reads SMTP / Resend config from platform.json and process.env
  */
 function getEmailConfig() {
   const configPath = path.join(__dirname, "../config/platform.json");
@@ -20,24 +20,27 @@ function getEmailConfig() {
     } catch (e) {}
   }
 
+  const resendApiKey = process.env.RESEND_API_KEY || fileConfig.resendApiKey;
   const host = process.env.SMTP_HOST || process.env.MAIL_HOST || fileConfig.smtpHost;
   const user = process.env.SMTP_USER || process.env.MAIL_USER || fileConfig.smtpUser;
   const pass = process.env.SMTP_PASS || process.env.MAIL_PASS || fileConfig.smtpPass;
   const port = parseInt(process.env.SMTP_PORT || process.env.MAIL_PORT || fileConfig.smtpPort || "587");
   const secure = process.env.SMTP_SECURE === "true" || port === 465 || fileConfig.smtpSecure === true;
-  const from = process.env.SMTP_FROM || process.env.MAIL_FROM || fileConfig.smtpFrom || '"Naxton Live Demo Center" <demo@naxtontechnologies.com>';
+  const from = process.env.SMTP_FROM || process.env.MAIL_FROM || fileConfig.smtpFrom || 'Naxton AI <onboarding@resend.dev>';
 
-  return { host, user, pass, port, secure, from, configured: Boolean(host && user && pass) };
+  const configured = Boolean(resendApiKey || (host && user && pass));
+
+  return { resendApiKey, host, user, pass, port, secure, from, configured };
 }
 
 /**
- * Creates and returns the active Nodemailer transporter instance.
+ * Creates and returns Nodemailer SMTP transporter instance.
  */
 function getTransporter() {
   if (!nodemailer) return null;
   const config = getEmailConfig();
 
-  if (!config.configured) {
+  if (!config.host || !config.user || !config.pass) {
     return null;
   }
 
@@ -53,6 +56,94 @@ function getTransporter() {
       rejectUnauthorized: false
     }
   });
+}
+
+/**
+ * Core email dispatch function:
+ * Priority 1: Resend API (HTTP)
+ * Priority 2: Nodemailer SMTP
+ */
+async function sendEmail({ to, subject, html }) {
+  const config = getEmailConfig();
+
+  // 1. Try Resend API (HTTP)
+  const resendApiKey = config.resendApiKey;
+  if (resendApiKey) {
+    try {
+      let fromAddr = config.from || "Naxton AI <onboarding@resend.dev>";
+      if (!fromAddr.includes("@")) {
+        fromAddr = "Naxton AI <onboarding@resend.dev>";
+      }
+
+      const resendResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${resendApiKey.trim()}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          from: fromAddr,
+          to: Array.isArray(to) ? to : [to],
+          subject: subject,
+          html: html
+        })
+      });
+
+      const resendData = await resendResponse.json();
+
+      if (resendResponse.ok && resendData.id) {
+        console.log(`[EMAIL_SERVICE] 📩 Resend API delivered email to ${to} (ID: ${resendData.id})`);
+        return { success: true, provider: "RESEND_API", messageId: resendData.id };
+      } else {
+        console.warn(`[EMAIL_SERVICE_WARN] Resend API primary sender failed:`, resendData);
+
+        // Fallback to default Resend onboarding domain if custom sender unverified
+        if (fromAddr !== "Naxton AI <onboarding@resend.dev>") {
+          const fallbackRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${resendApiKey.trim()}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              from: "Naxton AI <onboarding@resend.dev>",
+              to: Array.isArray(to) ? to : [to],
+              subject: subject,
+              html: html
+            })
+          });
+          const fallbackData = await fallbackRes.json();
+          if (fallbackRes.ok && fallbackData.id) {
+            console.log(`[EMAIL_SERVICE] 📩 Resend API (Fallback Sender) delivered email to ${to} (ID: ${fallbackData.id})`);
+            return { success: true, provider: "RESEND_API", messageId: fallbackData.id };
+          }
+        }
+      }
+    } catch (resendErr) {
+      console.error(`[EMAIL_SERVICE_ERR] Resend API call failed:`, resendErr.message);
+    }
+  }
+
+  // 2. Try Nodemailer SMTP Transporter
+  const mailer = getTransporter();
+  if (mailer) {
+    try {
+      const info = await mailer.sendMail({
+        from: config.from,
+        to: to,
+        subject: subject,
+        html: html
+      });
+      console.log(`[EMAIL_SERVICE] 📩 Nodemailer SMTP delivered email to ${to} (MessageID: ${info.messageId})`);
+      return { success: true, provider: "SMTP", messageId: info.messageId };
+    } catch (smtpErr) {
+      console.error(`[EMAIL_SERVICE_ERR] Nodemailer SMTP failed:`, smtpErr.message);
+      return { success: false, error: smtpErr.message };
+    }
+  }
+
+  console.warn(`[EMAIL_SERVICE_WARN] No active email provider configured (Resend API or SMTP). Email to ${to} not sent.`);
+  return { success: false, error: "No active email credentials configured (Resend API key or SMTP settings)." };
 }
 
 /**
@@ -135,60 +226,39 @@ async function sendDemoConfirmationEmail(demoData) {
 </html>
   `;
 
-  const config = getEmailConfig();
-
-  try {
-    const mailer = getTransporter();
-    if (mailer) {
-      const info = await mailer.sendMail({
-        from: config.from,
-        to: email,
-        subject,
-        html
-      });
-      console.log(`[EMAIL_SERVICE] 📩 Live Demo confirmation email delivered to ${email} (MessageID: ${info.messageId})`);
-      return { success: true, messageId: info.messageId, dashboardUrl };
-    } else {
-      console.warn(`[EMAIL_SERVICE_WARN] SMTP not configured. Demo confirmation email logged: ${email} | Link: ${dashboardUrl}`);
-      return { success: false, error: "SMTP settings not configured on server. Please configure SMTP in SuperAdmin System Settings.", dashboardUrl };
-    }
-  } catch (err) {
-    console.error("[EMAIL_SERVICE_ERROR] Failed to deliver email:", err.message);
-    return { success: false, error: err.message, dashboardUrl };
-  }
+  const result = await sendEmail({ to: email, subject, html });
+  return { ...result, dashboardUrl };
 }
 
 /**
- * Sends a test email to verify SMTP configuration.
+ * Sends a test email to verify Resend or SMTP configuration.
  */
 async function sendTestEmail(targetEmail) {
   const config = getEmailConfig();
   if (!config.configured) {
-    return { success: false, error: "SMTP settings missing. Please fill in Host, Port, Username and Password." };
+    return { success: false, error: "Email credentials missing. Please set up Resend API key or SMTP settings." };
   }
 
-  try {
-    const mailer = getTransporter();
-    const info = await mailer.sendMail({
-      from: config.from,
-      to: targetEmail,
-      subject: "Naxton Technologies — SMTP Test Connection Successful",
-      html: `
-        <div style="font-family: Arial, sans-serif; background: #0f172a; color: #fff; padding: 30px; border-radius: 12px;">
-          <h2 style="color: #38bdf8;">✅ SMTP Connection Successful!</h2>
-          <p>Your Naxton Technologies email delivery system is fully configured and operational.</p>
-          <p style="font-size: 12px; color: #94a3b8;">Sent via ${config.host}:${config.port} on ${new Date().toLocaleString()}</p>
-        </div>
-      `
-    });
-    return { success: true, messageId: info.messageId, message: `Test email successfully sent to ${targetEmail}!` };
-  } catch (err) {
-    return { success: false, error: err.message };
+  const subject = "Naxton Technologies — Live Email Dispatch Test Successful";
+  const html = `
+    <div style="font-family: Arial, sans-serif; background: #0f172a; color: #fff; padding: 30px; border-radius: 12px; border: 1px solid #334155;">
+      <h2 style="color: #38bdf8; margin-top: 0;">🎉 Resend / SMTP Connection Successful!</h2>
+      <p>Your Naxton Technologies email delivery system is fully configured and operational.</p>
+      <p style="font-size: 12px; color: #94a3b8;">Dispatched via ${config.resendApiKey ? 'Resend API' : config.host} on ${new Date().toLocaleString()}</p>
+    </div>
+  `;
+
+  const result = await sendEmail({ to: targetEmail, subject, html });
+  if (result.success) {
+    return { success: true, message: `Test email successfully sent to ${targetEmail} via ${result.provider}!` };
+  } else {
+    return { success: false, error: result.error || "Failed to dispatch email" };
   }
 }
 
 module.exports = {
   getEmailConfig,
+  sendEmail,
   sendDemoConfirmationEmail,
   sendTestEmail
 };

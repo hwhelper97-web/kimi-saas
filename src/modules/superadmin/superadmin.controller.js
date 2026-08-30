@@ -854,7 +854,7 @@ exports.updateSettings = async (req, res) => {
   try {
     const {
       voice, speed, responseDelay, projectName, twilioSid, twilioToken, openaiKey,
-      smtpHost, smtpPort, smtpUser, smtpPass, smtpFrom, smtpSecure
+      resendApiKey, smtpHost, smtpPort, smtpUser, smtpPass, smtpFrom, smtpSecure
     } = req.body;
     
     const configPath = path.join(__dirname, "../../config/platform.json");
@@ -872,12 +872,14 @@ exports.updateSettings = async (req, res) => {
     if (twilioToken) config.twilioToken = twilioToken;
     if (openaiKey) config.openaiKey = openaiKey;
 
-    // SMTP Configuration
+    // Resend & SMTP Configuration
+    if (resendApiKey !== undefined) config.resendApiKey = resendApiKey;
     if (smtpHost !== undefined) config.smtpHost = smtpHost;
     if (smtpPort !== undefined) config.smtpPort = parseInt(smtpPort);
     if (smtpUser !== undefined) config.smtpUser = smtpUser;
     if (smtpPass !== undefined) config.smtpPass = smtpPass;
     if (smtpFrom !== undefined) config.smtpFrom = smtpFrom;
+    if (smtpSecure !== undefined) config.smtpSecure = Boolean(smtpSecure);
     if (smtpSecure !== undefined) config.smtpSecure = Boolean(smtpSecure);
     
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2));

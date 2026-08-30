@@ -1,4 +1,5 @@
 {
   "projectName": "Naxton Technologies",
-  "logoUrl": "/logo.svg"
+  "logoUrl": "/logo.svg",
+  "smtpFrom": "Naxton AI <onboarding@resend.dev>"
 }
