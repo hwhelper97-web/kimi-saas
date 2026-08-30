@@ -188,6 +188,9 @@
               <button onclick="extendDemo('${d.token}')" class="px-2.5 py-1 rounded-lg bg-slate-700 text-slate-200 hover:bg-slate-600 transition-colors text-[11px] font-bold">
                 +24h
               </button>
+              <button onclick="releasePhone('${d.token}')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500 hover:text-slate-900 transition-colors text-[11px] font-bold" title="Unbind phone number and return to UNASSIGNED inventory">
+                Release Phone
+              </button>
               ${isActive ? `
                 <button onclick="deactivateDemo('${d.token}')" class="px-2.5 py-1 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-colors text-[11px] font-bold">
                   Stop
@@ -233,6 +236,18 @@
       if (json.success) {
         alert('Demo deactivated!');
         loadAdminDemos();
+      }
+    }
+
+    async function releasePhone(token) {
+      if (!confirm('Release this demo phone number back to UNASSIGNED inventory immediately?')) return;
+      const res = await fetch(`/api/superadmin/demos/${token}/release-phone`, { method: 'POST' });
+      const json = await res.json();
+      if (json.success) {
+        alert(json.message || 'Phone number released back to UNASSIGNED inventory!');
+        loadAdminDemos();
+      } else {
+        alert(json.message || json.error || 'Failed to release phone');
       }
     }
 

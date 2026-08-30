@@ -269,4 +269,11 @@ router.post(
   controller.deactivateAdminDemo
 );
 
+router.post(
+  "/demos/:token/release-phone",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.releaseAdminDemoPhone
+);
+
 module.exports = router;

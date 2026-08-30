@@ -1270,3 +1270,29 @@ exports.deactivateAdminDemo = async (req, res) => {
   }
 };
 
+exports.releaseAdminDemoPhone = async (req, res) => {
+  try {
+    const demoService = require("../demo/demo.service");
+    const { token } = req.params;
+    const session = await prisma.demoSession.findUnique({ where: { token } });
+
+    if (!session) return res.status(404).json({ success: false, message: "Demo not found" });
+
+    // Release phone number back to unassigned inventory
+    await demoService.releaseDemoPhoneNumber(session.businessId, session.tenantId);
+
+    // Update demo session status to EXPIRED
+    await prisma.demoSession.update({
+      where: { id: session.id },
+      data: { status: "EXPIRED" }
+    });
+
+    res.json({
+      success: true,
+      message: `Phone number ${session.phoneNumber || ''} released back to UNASSIGNED inventory!`
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

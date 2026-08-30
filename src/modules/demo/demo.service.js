@@ -187,7 +187,7 @@ async function createDemoSession(data) {
 
   const normalizedType = normalizeType(businessType);
   const token = `demo_${crypto.randomBytes(12).toString("hex")}`;
-  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000); // 12 hours
 
   // 1. Create Isolated Demo Tenant
   const tenant = await prisma.tenant.create({
@@ -225,6 +225,15 @@ async function createDemoSession(data) {
 
   // 3. Dynamically Allocate Unassigned Phone Number
   const assignedPhone = await allocateDemoPhoneNumber(tenant.id, business.id);
+
+  // Expire any existing active demo sessions registered under this phone number to avoid collisions
+  await prisma.demoSession.updateMany({
+    where: {
+      phoneNumber: assignedPhone,
+      status: "ACTIVE"
+    },
+    data: { status: "EXPIRED" }
+  });
 
   // Update business phone number
   await prisma.business.update({
@@ -291,7 +300,7 @@ async function createDemoSession(data) {
     }
   }
 
-  // 5. Create DemoSession Record
+  // 5. Create DemoSession Record (12-Hour Expiration)
   const session = await prisma.demoSession.create({
     data: {
       token,
@@ -313,7 +322,19 @@ async function createDemoSession(data) {
     }
   });
 
-  console.log(`[DEMO_CENTER] Created DemoSession ${session.id} for "${businessName}" on Number ${assignedPhone} (Token: ${token})`);
+  // 🚀 Send Professional 12-Hour Confirmation Email with Dashboard Access Link
+  const emailService = require("../../services/email.service");
+  emailService.sendDemoConfirmationEmail({
+    email,
+    contactName: ownerName,
+    businessName,
+    businessType: normalizedType,
+    aiName,
+    phoneNumber: assignedPhone,
+    token
+  }).catch(err => console.error("[DEMO_EMAIL_ERR]", err.message));
+
+  console.log(`[DEMO_CENTER] Created 12-Hour DemoSession ${session.id} for "${businessName}" on Number ${assignedPhone} (Token: ${token})`);
   return { success: true, session, token };
 }
 
