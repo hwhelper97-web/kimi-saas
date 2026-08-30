@@ -29,6 +29,16 @@
       }
     }
   </script>
+  <style>
+    .btn-gradient {
+      background: linear-gradient(135deg, #2563EB 0%, #38BDF8 100%) !important;
+      color: #FFFFFF !important;
+    }
+    .btn-gradient:hover {
+      opacity: 0.95;
+      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+    }
+  </style>
 </head>
 <body class="font-sans text-textMain antialiased h-full flex flex-col bg-[#F8FBFF]">
 
@@ -187,12 +197,13 @@
             <textarea id="form-customGreeting" rows="2" placeholder="Auto-generated greeting will be used if left blank" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-textMain placeholder-slate-400 focus:border-primary focus:outline-none"></textarea>
           </div>
 
-          <div class="flex items-center justify-between pt-4 border-t border-slate-100">
-            <button type="button" onclick="goToStep(1)" class="px-6 py-3 rounded-full text-xs font-bold text-textDim border border-slate-200 hover:bg-slate-50 uppercase">
+          <div class="flex items-center justify-between pt-6 border-t border-slate-100">
+            <button type="button" onclick="goToStep(1)" class="px-6 py-3 rounded-full text-xs font-bold text-textDim border border-slate-200 hover:bg-slate-50 uppercase cursor-pointer">
               Back
             </button>
-            <button type="button" onclick="goToStep(3)" class="px-8 py-3.5 rounded-full text-xs font-black tracking-wider text-white btn-gradient uppercase">
-              Next: Configure Offerings &rarr;
+            <button type="button" onclick="goToStep(3)" class="px-8 py-3.5 rounded-full text-xs font-black tracking-wider text-white bg-gradient-to-r from-primary via-blue-600 to-secondary hover:opacity-95 shadow-lg hover:shadow-xl transition-all uppercase flex items-center gap-2 cursor-pointer">
+              <span>Next: Configure Offerings</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </button>
           </div>
         </form>
