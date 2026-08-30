@@ -247,6 +247,13 @@ router.post(
   controller.provisionPlatformNumber
 );
 
+router.post(
+  "/inventory/phones/sync",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.syncTwilioPhoneNumbers
+);
+
 // --- DEMO CENTER ADMIN ---
 router.get(
   "/demos",

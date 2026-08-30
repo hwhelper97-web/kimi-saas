@@ -157,6 +157,14 @@ server.on("upgrade", (request, socket, head) => {
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 [NAXTON-AI-V2] Realtime Server LIVE on port ${PORT}`);
+  
+  // 🚀 Auto-sync all Twilio Phone Webhooks & Inventory on startup
+  try {
+    const twilioService = require("./services/twilio");
+    twilioService.syncAllTwilioWebhooks().catch(err => {
+      console.warn("[TWILIO_STARTUP_SYNC_WARN]", err.message);
+    });
+  } catch (e) {}
 });
 
 module.exports = app;

@@ -1,82 +1,215 @@
-const twilio = require('twilio');
-const prisma = require('../config/prisma');
+const twilio = require("twilio");
+const prisma = require("../config/prisma");
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = (accountSid && authToken) ? twilio(accountSid, authToken) : null;
+
+let client = null;
+if (accountSid && authToken && accountSid.startsWith("AC")) {
+  try {
+    client = twilio(accountSid, authToken);
+  } catch (err) {
+    console.warn("[TWILIO_INIT_WARN] Failed to initialize Twilio client:", err.message);
+  }
+}
+
+/**
+ * Gets the active system base URL for webhooks.
+ */
+function getSystemBaseUrl() {
+  let url = process.env.APP_URL || process.env.SERVER_URL || process.env.BASE_URL || "https://naxtontechnologies.com";
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    url = `https://${url}`;
+  }
+  return url.replace(/\/$/, "");
+}
 
 /**
  * hangupCall
- * Terminates an active call.
  */
 async function hangupCall(callSid) {
-  if (!client) return;
+  if (!client || !callSid) return;
   try {
-    await client.calls(callSid).update({ status: 'completed' });
-    console.log(`[Twilio] Successfully hung up call: ${callSid}`);
-  } catch (error) {
-    console.error(`[Twilio] Failed to hang up call ${callSid}:`, error.message);
+    await client.calls(callSid).update({ status: "completed" });
+  } catch (err) {
+    console.error(`[Twilio] Failed to hangup call ${callSid}:`, err.message);
   }
 }
 
 /**
  * startRecording
- * Starts recording an active call.
  */
 async function startRecording(callSid) {
-  if (!client) return;
+  if (!client || !callSid) return;
   try {
-    const baseUrl = process.env.BASE_URL || "https://naxton.ai";
-    const recording = await client.calls(callSid).recordings.create({
-      recordingStatusCallback: `${baseUrl}/api/call/recording`
+    await client.calls(callSid).recordings.create({
+      recordingChannels: "dual",
+      recordingStatusCallback: `${getSystemBaseUrl()}/api/call/recording-callback`
     });
-    console.log(`[Twilio] Started recording for call ${callSid}: ${recording.sid}`);
-    return recording;
-  } catch (error) {
-    console.error(`[Twilio] Failed to start recording for ${callSid}:`, error.message);
+  } catch (err) {
+    console.error(`[Twilio] Failed to start recording for call ${callSid}:`, err.message);
   }
 }
 
 /**
  * searchAvailableNumbers
- * Finds numbers for purchase in a specific country/area.
  */
-async function searchAvailableNumbers(areaCode = '212', countryCode = 'US') {
+async function searchAvailableNumbers(areaCode = "212", countryCode = "US") {
   if (!client) throw new Error("Twilio client not initialized");
-  const numbers = await client.availablePhoneNumbers(countryCode).local.list({ areaCode, limit: 10 });
-  return numbers.map(n => ({ phoneNumber: n.phoneNumber, friendlyName: n.friendlyName }));
+  const available = await client.availablePhoneNumbers(countryCode).local.list({
+    areaCode: parseInt(areaCode) || 212,
+    limit: 10
+  });
+  return available.map(n => ({
+    phoneNumber: n.phoneNumber,
+    friendlyName: n.friendlyName,
+    locality: n.locality,
+    region: n.region
+  }));
 }
 
 /**
  * purchaseAndConfigureNumber
- * Buys a number and sets its voice webhook.
+ * Buys a new phone number and configures its Twilio webhooks to point to Naxton AI.
  */
-async function purchaseAndConfigureNumber(phoneNumber, businessId) {
+async function purchaseAndConfigureNumber(phoneNumber, businessId = null) {
   if (!client) throw new Error("Twilio client not initialized");
-  
-  const baseUrl = process.env.BASE_URL || "https://naxton.ai";
-  
-  // 1. Purchase
+
+  const baseUrl = getSystemBaseUrl();
+  const voiceWebhook = `${baseUrl}/api/call/incoming`;
+  const smsWebhook = `${baseUrl}/api/call/incoming`;
+  const statusWebhook = `${baseUrl}/api/call/status`;
+
+  console.log(`[TWILIO] Purchasing number ${phoneNumber} with Webhook: ${voiceWebhook}`);
+
+  // 1. Purchase & Configure Webhooks in Twilio
   const purchased = await client.incomingPhoneNumbers.create({
     phoneNumber,
-    voiceUrl: `${baseUrl}/api/call/incoming`,
+    voiceUrl: voiceWebhook,
     voiceMethod: 'POST',
-    statusCallback: `${baseUrl}/api/call/status`,
+    smsUrl: smsWebhook,
+    smsMethod: 'POST',
+    statusCallback: statusWebhook,
     statusCallbackMethod: 'POST'
   });
 
-  // 2. Assign to Business in DB
-  await prisma.business.update({
-    where: { id: businessId },
-    data: { phoneNumber: purchased.phoneNumber }
+  // 2. Find master tenant or target tenant
+  const masterTenant = await prisma.tenant.findFirst({
+    where: { name: { contains: "Platform Hub" } }
+  });
+  
+  let tenantId = masterTenant ? masterTenant.id : null;
+  if (businessId) {
+    const biz = await prisma.business.findUnique({ where: { id: businessId } });
+    if (biz) tenantId = biz.tenantId;
+  }
+
+  // Fallback to first tenant if still null
+  if (!tenantId) {
+    const firstT = await prisma.tenant.findFirst();
+    tenantId = firstT ? firstT.id : "PLATFORM";
+  }
+
+  // 3. Register or update number in PostgreSQL DB
+  const dbRecord = await prisma.tenantPhoneNumber.upsert({
+    where: { twilioPhoneNumber: purchased.phoneNumber },
+    create: {
+      twilioPhoneNumber: purchased.phoneNumber,
+      twilioSid: purchased.sid,
+      tenantId: tenantId,
+      businessId: businessId || null,
+      status: businessId ? "ACTIVE" : "UNASSIGNED",
+      provider: "TWILIO"
+    },
+    update: {
+      twilioSid: purchased.sid,
+      tenantId: tenantId,
+      businessId: businessId || null,
+      status: businessId ? "ACTIVE" : "UNASSIGNED"
+    }
   });
 
-  return purchased;
+  console.log(`[TWILIO] Purchased & Registered ${purchased.phoneNumber} -> DB ID: ${dbRecord.id}`);
+  return { purchased, dbRecord };
+}
+
+/**
+ * syncAllTwilioWebhooks
+ * Automatically fetches ALL phone numbers in Twilio account, configures their Voice & Messaging Webhooks
+ * to point to naxtontechnologies.com/api/call/incoming, and registers them in DB inventory.
+ */
+async function syncAllTwilioWebhooks() {
+  if (!client) {
+    console.warn("[TWILIO_SYNC] Cannot sync: Twilio client not initialized.");
+    return { count: 0, numbers: [] };
+  }
+
+  const baseUrl = getSystemBaseUrl();
+  const voiceWebhook = `${baseUrl}/api/call/incoming`;
+  const smsWebhook = `${baseUrl}/api/call/incoming`;
+  const statusWebhook = `${baseUrl}/api/call/status`;
+
+  console.log(`[TWILIO_SYNC] Starting Auto-Sync of all Twilio Phone Numbers to: ${voiceWebhook}`);
+
+  // Fetch all phone numbers in Twilio account
+  const twilioNumbers = await client.incomingPhoneNumbers.list({ limit: 100 });
+  const masterTenant = await prisma.tenant.findFirst({
+    where: { name: { contains: "Platform Hub" } }
+  });
+  const fallbackTenantId = masterTenant ? masterTenant.id : (await prisma.tenant.findFirst())?.id;
+
+  const syncedList = [];
+
+  for (const num of twilioNumbers) {
+    try {
+      // 1. Check if webhooks need updating in Twilio
+      if (num.voiceUrl !== voiceWebhook || num.smsUrl !== smsWebhook) {
+        await client.incomingPhoneNumbers(num.sid).update({
+          voiceUrl: voiceWebhook,
+          voiceMethod: 'POST',
+          smsUrl: smsWebhook,
+          smsMethod: 'POST',
+          statusCallback: statusWebhook,
+          statusCallbackMethod: 'POST'
+        });
+        console.log(`[TWILIO_SYNC] Updated Webhook for ${num.phoneNumber} (${num.friendlyName})`);
+      }
+
+      // 2. Ensure record exists in PostgreSQL TenantPhoneNumber inventory
+      const existingInDb = await prisma.tenantPhoneNumber.findFirst({
+        where: { twilioPhoneNumber: num.phoneNumber }
+      });
+
+      if (!existingInDb) {
+        await prisma.tenantPhoneNumber.create({
+          data: {
+            twilioPhoneNumber: num.phoneNumber,
+            twilioSid: num.sid,
+            tenantId: fallbackTenantId,
+            status: "UNASSIGNED",
+            provider: "TWILIO"
+          }
+        });
+        console.log(`[TWILIO_SYNC] Added new number ${num.phoneNumber} to DB inventory as UNASSIGNED.`);
+      }
+
+      syncedList.push({
+        phoneNumber: num.phoneNumber,
+        friendlyName: num.friendlyName,
+        sid: num.sid,
+        status: existingInDb ? existingInDb.status : "UNASSIGNED"
+      });
+    } catch (err) {
+      console.error(`[TWILIO_SYNC_ERR] Failed syncing ${num.phoneNumber}:`, err.message);
+    }
+  }
+
+  console.log(`[TWILIO_SYNC] Auto-Sync complete. Total numbers configured & synced: ${syncedList.length}`);
+  return { count: syncedList.length, numbers: syncedList };
 }
 
 /**
  * transferCall
- * Redirects an active call to a new number.
  */
 async function transferCall(callSid, toPhoneNumber) {
   if (!client) return;
@@ -92,4 +225,13 @@ async function transferCall(callSid, toPhoneNumber) {
   }
 }
 
-module.exports = { client, hangupCall, startRecording, searchAvailableNumbers, purchaseAndConfigureNumber, transferCall };
+module.exports = {
+  client,
+  hangupCall,
+  startRecording,
+  searchAvailableNumbers,
+  purchaseAndConfigureNumber,
+  syncAllTwilioWebhooks,
+  transferCall,
+  getSystemBaseUrl
+};

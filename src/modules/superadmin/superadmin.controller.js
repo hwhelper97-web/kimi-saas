@@ -1123,28 +1123,42 @@ exports.assignPhoneToTenant = async (req, res) => {
 
 exports.provisionPlatformNumber = async (req, res) => {
   try {
-    // This would normally call Twilio API to buy a number
-    // For now, we'll mock it by adding a record to TenantPhoneNumber
-    const { areaCode } = req.body;
-    
-    const mockNumber = `+1${areaCode || '888'}${Math.floor(1000000 + Math.random() * 9000000)}`;
-    
-    // Default to the Platform Hub (Master Tenant) if none provided
-    const masterTenant = await prisma.tenant.findFirst({ where: { name: "Naxton Platform Hub" } });
-    
-    const newPhone = await prisma.tenantPhoneNumber.create({
-      data: {
-        twilioPhoneNumber: mockNumber,
-        twilioSid: "PN" + Math.random().toString(36).substring(7).toUpperCase(),
-        tenantId: masterTenant ? masterTenant.id : "PLATFORM",
-        status: "UNASSIGNED",
-        provider: "TWILIO"
-      }
-    });
+    const { phoneNumber, businessId } = req.body;
+    const twilioService = require("../../services/twilio");
 
-    res.json({ success: true, data: newPhone });
+    if (phoneNumber) {
+      const result = await twilioService.purchaseAndConfigureNumber(phoneNumber, businessId);
+      return res.json({
+        success: true,
+        message: `Successfully purchased and configured ${phoneNumber} with Naxton AI!`,
+        data: result.dbRecord
+      });
+    }
+
+    // Fallback if no specific phone number passed: run auto-sync across Twilio inventory
+    const result = await twilioService.syncAllTwilioWebhooks();
+    res.json({
+      success: true,
+      message: `Synced and configured ${result.count} phone numbers with Naxton AI!`,
+      data: result.numbers
+    });
   } catch (error) {
     console.error("Provision phone error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.syncTwilioPhoneNumbers = async (req, res) => {
+  try {
+    const twilioService = require("../../services/twilio");
+    const result = await twilioService.syncAllTwilioWebhooks();
+    res.json({
+      success: true,
+      message: `Successfully configured and synced ${result.count} Twilio numbers to Naxton AI webhooks!`,
+      data: result.numbers
+    });
+  } catch (error) {
+    console.error("Sync Twilio numbers error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
