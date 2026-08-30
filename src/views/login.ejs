@@ -4,24 +4,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Naxton Technologies | Secure AI Portal</title>
+  <title>Naxton Technologies | Secure AI Access Portal</title>
   <link rel="icon" type="image/png" href="<%= platformLogo || '' %>">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
-      --bg-darkest: #FFFFFF;
-      --bg-gradient-start: #F8FBFF;
-      --bg-gradient-end: #F0F5FF;
-      --accent-teal: #0EA5E9;
+      --bg-dark: #07090E;
+      --bg-card: rgba(15, 23, 42, 0.75);
+      --bg-input: rgba(30, 41, 59, 0.6);
       --accent-cyan: #38BDF8;
-      --glass-bg: rgba(255, 255, 255, 0.85);
-      --glass-border: rgba(15, 23, 42, 0.08);
-      --text-main: #0F172A;
-      --text-dim: #475569;
-      --input-bg: rgba(15, 23, 42, 0.02);
-      --btn-gradient: linear-gradient(to right, #0EA5E9, #2563EB);
+      --accent-blue: #2563EB;
+      --accent-indigo: #6366F1;
+      --accent-emerald: #10B981;
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(56, 189, 248, 0.5);
+      --btn-gradient: linear-gradient(135deg, #38BDF8 0%, #2563EB 100%);
+      --btn-gradient-hover: linear-gradient(135deg, #0EA5E9 0%, #1D4ED8 100%);
     }
 
     * {
@@ -32,245 +35,398 @@
 
     html, body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg-darkest);
-      color: var(--text-main);
-      min-height: 100%;
-      height: 100%;
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      width: 100%;
       overflow-x: hidden;
-      /* Prevent layout shift when form height changes */
-      overflow-y: scroll;
-    }
-    body {
-      display: flex;
     }
 
-    /* 🌌 Background Infrastructure — fixed, will-change prevents repaints */
-    .bg-main {
+    body {
+      display: flex;
+      position: relative;
+    }
+
+    /* 🌌 Interactive Particle Canvas Background */
+    #particle-canvas {
       position: fixed;
       inset: 0;
       z-index: -3;
-      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-      will-change: transform;
-    }
-
-    .bg-grid {
-      position: fixed;
-      inset: 0;
-      z-index: -2;
-      background-image: radial-gradient(circle at 2px 2px, rgba(14, 165, 233, 0.04) 1px, transparent 0);
-      background-size: 40px 40px;
-      opacity: 0.5;
-      will-change: transform;
-    }
-
-    .glow-circle {
-      position: fixed;
-      width: 60vmax;
-      height: 60vmax;
-      max-width: 700px;
-      max-height: 700px;
-      background: radial-gradient(circle, rgba(34, 211, 238, 0.06) 0%, transparent 70%);
-      border-radius: 50%;
-      z-index: -1;
-      filter: blur(80px);
-      /* Promote to GPU layer so it never causes layout reflow */
-      transform: translateZ(0);
-      will-change: transform;
       pointer-events: none;
     }
 
-    .glow-1 { top: -20%; left: -20%; }
-    .glow-2 { bottom: -20%; right: -20%; }
+    /* Ambient Animated Orbs */
+    .orb {
+      position: fixed;
+      width: 50vmax;
+      height: 50vmax;
+      max-width: 600px;
+      max-height: 600px;
+      border-radius: 50%;
+      z-index: -2;
+      filter: blur(100px);
+      pointer-events: none;
+      opacity: 0.25;
+      animation: floatOrb 18s ease-in-out infinite alternate;
+    }
+
+    .orb-1 {
+      top: -15%;
+      left: -10%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.8) 0%, rgba(37, 99, 235, 0.2) 70%, transparent 100%);
+    }
+
+    .orb-2 {
+      bottom: -20%;
+      right: -10%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.8) 0%, rgba(139, 92, 246, 0.2) 70%, transparent 100%);
+      animation-delay: -9s;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(40px, 60px) scale(1.08); }
+      100% { transform: translate(-30px, 30px) scale(0.95); }
+    }
+
+    /* Grid Overlay */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+    }
 
     /* 📐 Layout Split */
     .auth-wrapper {
       display: flex;
       width: 100%;
       min-height: 100vh;
-      min-height: 100dvh; /* dynamic viewport on mobile */
     }
 
     /* 🏢 Left Branding Panel */
     .branding-panel {
-      flex: 1.2;
+      flex: 1.25;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      padding: 5rem;
+      justify-content: space-between;
+      padding: 4rem 5rem;
       position: relative;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.6) 0%, rgba(7, 9, 14, 0.8) 100%);
+      border-right: 1px solid var(--border-color);
+      backdrop-filter: blur(20px);
       overflow: hidden;
-      border-right: 1px solid rgba(15, 23, 42, 0.08);
-      backdrop-filter: blur(10px);
     }
 
     @media (max-width: 1024px) {
       .branding-panel { display: none; }
     }
 
-    /* 🔐 Right Login Panel */
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      z-index: 10;
+    }
 
-    .large-n {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 15rem;
-      font-weight: 900;
-      line-height: 1;
-      background: linear-gradient(to bottom, var(--accent-cyan), transparent);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      opacity: 0.2;
-      margin-left: -2rem;
-      margin-bottom: -4rem;
+    .brand-logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #38BDF8 0%, #2563EB 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(56, 189, 248, 0.3);
+    }
+
+    .brand-logo-icon i {
+      color: #FFFFFF;
+      width: 24px;
+      height: 24px;
+    }
+
+    .brand-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #FFFFFF;
     }
 
     .brand-content {
       position: relative;
       z-index: 10;
+      max-width: 540px;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.1);
     }
 
     .brand-content h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 3.5rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 3.25rem;
       font-weight: 800;
-      letter-spacing: -2px;
-      margin-bottom: 1rem;
-      color: var(--text-main);
+      line-height: 1.15;
+      letter-spacing: -1.5px;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(to right, #FFFFFF 30%, #94A3B8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .brand-content p {
       font-size: 1.1rem;
-      color: var(--text-dim);
-      max-width: 480px;
-      line-height: 1.6;
-      margin-bottom: 3rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 2.5rem;
     }
 
-    .brand-meta {
+    .feature-list {
       display: flex;
-      gap: 3rem;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.75rem;
-      letter-spacing: 2px;
-      color: var(--accent-cyan);
-      opacity: 0.6;
+      flex-direction: column;
+      gap: 1.25rem;
     }
 
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .feature-icon-wrapper {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-cyan);
+    }
+
+    .feature-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .brand-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .brand-meta-tags {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    /* 🔐 Right Login Panel */
     .login-panel {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem;
-      background: linear-gradient(135deg, #F8FBFF 0%, #F0F5FF 100%);
-      /* Ensure the panel itself scrolls on very small screens */
-      overflow-y: auto;
+      padding: 2.5rem;
+      position: relative;
     }
 
     .login-card {
       width: 100%;
-      max-width: 460px;
-      background: var(--glass-bg);
+      max-width: 450px;
+      background: var(--bg-card);
       backdrop-filter: blur(30px);
-      border: 1px solid var(--glass-border);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid var(--border-color);
       border-radius: 24px;
       padding: 3rem 2.5rem;
-      box-shadow: 0 20px 40px rgba(14, 165, 233, 0.06), 0 0 20px rgba(14, 165, 233, 0.02);
-      animation: fadeIn 0.6s ease-out;
-      /* Prevent the card from shifting the background when it changes height */
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(56, 189, 248, 0.05);
       position: relative;
+      overflow: hidden;
+      animation: cardFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-blue), transparent);
+    }
+
+    @keyframes cardFadeIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .card-header {
-      margin-bottom: 2.5rem;
-    }
-
-    .secure-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: rgba(14, 165, 233, 0.03);
-      border: 1px solid rgba(14, 165, 233, 0.15);
-      border-radius: 100px;
-      font-size: 0.7rem;
-      font-weight: 800;
-      color: var(--accent-cyan);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2.25rem;
     }
 
     .card-header h2 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.75rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.85rem;
       font-weight: 700;
-      color: var(--text-main);
+      color: #FFFFFF;
       margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
     }
 
     .card-header p {
-      color: var(--text-dim);
-      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-size: 0.925rem;
+      line-height: 1.5;
     }
 
-    /* 📋 Form UI */
+    /* 📋 Form Elements */
     .form-group {
       margin-bottom: 1.5rem;
     }
 
     .form-group label {
-      display: block;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.6rem;
+    }
+
+    .label-badge {
       font-size: 0.7rem;
-      font-weight: 800;
       color: var(--accent-cyan);
-      margin-bottom: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      opacity: 0.8;
+      font-weight: 600;
     }
 
     .input-box {
       position: relative;
+      display: flex;
+      align-items: center;
     }
 
-    .input-box i {
+    .input-box .input-icon {
       position: absolute;
-      left: 1.25rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-dim);
+      left: 1.1rem;
+      color: var(--text-muted);
       width: 18px;
-      transition: all 0.3s;
+      height: 18px;
+      pointer-events: none;
+      transition: color 0.3s ease;
     }
 
     input {
       width: 100%;
-      background: var(--input-bg);
-      border: 1px solid rgba(15, 23, 42, 0.1);
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 0.95rem 1rem 0.95rem 3rem;
-      color: var(--text-main);
+      padding: 0.9rem 1.1rem 0.9rem 2.9rem;
+      color: #FFFFFF;
       font-family: inherit;
-      font-size: 1rem;
-      transition: all 0.3s;
-      /* iOS prevents zoom on focus if font-size >= 16px */
-      font-size: max(16px, 1rem);
+      font-size: max(16px, 0.95rem);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Make room for password toggle button on password inputs */
+    input[type="password"], input.password-input {
+      padding-right: 3.2rem;
+    }
+
+    input::placeholder {
+      color: var(--text-muted);
     }
 
     input:focus {
       outline: none;
       border-color: var(--accent-cyan);
-      background: rgba(14, 165, 233, 0.03);
-      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.05);
+      background: rgba(30, 41, 59, 0.9);
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
     }
 
-    input:focus + i {
+    input:focus ~ .input-icon {
       color: var(--accent-cyan);
+    }
+
+    /* 👁️ View Password Button */
+    .toggle-password {
+      position: absolute;
+      right: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.4rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      z-index: 5;
+    }
+
+    .toggle-password:hover {
+      color: var(--accent-cyan);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .toggle-password i {
+      width: 18px;
+      height: 18px;
     }
 
     .form-options {
@@ -284,8 +440,17 @@
     .remember-me {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      color: var(--text-dim);
+      gap: 0.6rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .remember-me input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent-cyan);
+      border-radius: 4px;
       cursor: pointer;
     }
 
@@ -293,194 +458,223 @@
       color: var(--accent-cyan);
       text-decoration: none;
       font-weight: 600;
-      opacity: 0.7;
-      transition: opacity 0.3s;
+      transition: all 0.2s ease;
     }
 
-    .forgot-link:hover { opacity: 1; }
+    .forgot-link:hover {
+      color: #60A5FA;
+      text-decoration: underline;
+    }
+
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
 
     .login-btn {
       width: 100%;
-      padding: 1.25rem;
+      padding: 0.95rem 1.5rem;
       border-radius: 12px;
-      border: 1px solid rgba(14, 165, 233, 0.15);
+      border: none;
       background: var(--btn-gradient);
-      color: #ffffff;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.9rem;
+      color: #FFFFFF;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
       font-weight: 700;
-      letter-spacing: 2px;
+      letter-spacing: 0.5px;
       cursor: pointer;
-      transition: all 0.4s;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.75rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      gap: 0.6rem;
+      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+    }
+
+    .login-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        60deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+      );
+      transform: rotate(30deg) translateY(-100%);
+      transition: transform 0.6s ease;
     }
 
     .login-btn:hover {
       transform: translateY(-2px);
-      border-color: var(--accent-cyan);
-      box-shadow: 0 15px 40px rgba(34, 211, 238, 0.15);
-      filter: brightness(1.2);
+      box-shadow: 0 15px 30px -5px rgba(56, 189, 248, 0.5);
     }
 
+    .login-btn:hover::after {
+      transform: rotate(30deg) translateY(100%);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    .secondary-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      box-shadow: none;
+      color: var(--text-secondary);
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFFFFF;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Cards Footer Features */
     .feature-cards {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.75rem;
       margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
     }
 
     .f-card {
-      padding: 0.875rem;
+      padding: 0.75rem 1rem;
       background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--glass-border);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 12px;
-      text-align: center;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
     }
 
     .f-card i {
-      width: 16px;
+      width: 18px;
+      height: 18px;
       color: var(--accent-cyan);
-      margin-bottom: 0.4rem;
-      opacity: 0.6;
     }
 
     .f-card div {
-      font-size: 0.6rem;
-      font-weight: 800;
-      color: var(--text-dim);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-secondary);
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
 
-    /* ─── Mobile Responsive ─────────────────────────────────── */
-    @media (max-width: 480px) {
-      .login-panel {
-        padding: 1rem 0.75rem;
-        align-items: flex-start;
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-      }
-
-      .login-card {
-        padding: 2rem 1.5rem;
-        border-radius: 20px;
-      }
-
-      .card-header h2 {
-        font-size: 1.4rem;
-      }
-
-      .card-header {
-        margin-bottom: 1.75rem;
-      }
-
-      .form-group {
-        margin-bottom: 1.25rem;
-      }
-
-      .login-btn {
-        padding: 1rem;
-        font-size: 0.8rem;
-        letter-spacing: 1.5px;
-      }
-
-      .form-options {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .feature-cards {
-        grid-template-columns: 1fr 1fr;
-        margin-top: 1.5rem;
-        gap: 0.5rem;
-      }
-
-      .f-card {
-        padding: 0.75rem 0.5rem;
-      }
-
-      .brand-meta {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-    }
-
-    @media (max-width: 360px) {
-      .login-card {
-        padding: 1.75rem 1.25rem;
-      }
-      .card-header h2 {
-        font-size: 1.25rem;
-      }
+    /* Alerts */
+    #error-msg, #success-msg {
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      display: none;
+      align-items: center;
+      gap: 0.6rem;
+      line-height: 1.4;
     }
 
     #error-msg {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.2);
-      color: #f87171;
-      padding: 1rem;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      margin-bottom: 1.5rem;
-      display: none;
-      text-align: center;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #FCA5A5;
     }
 
     #success-msg {
-      background: rgba(34, 211, 238, 0.1);
-      border: 1px solid rgba(14, 165, 233, 0.15);
-      color: var(--accent-cyan);
-      padding: 1rem;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      margin-bottom: 1.5rem;
-      display: none;
-      text-align: center;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #6EE7B7;
     }
 
     .spin { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      .login-panel { padding: 1.25rem; }
+      .login-card { padding: 2rem 1.5rem; border-radius: 20px; }
+      .card-header h2 { font-size: 1.5rem; }
+    }
   </style>
 </head>
 
 <body>
-  <div class="bg-main"></div>
-  <div class="bg-grid"></div>
-  <div class="glow-circle glow-1"></div>
-  <div class="glow-circle glow-2"></div>
+  <!-- Animated Background Canvas & Orbs -->
+  <canvas id="particle-canvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="grid-overlay"></div>
 
   <div class="auth-wrapper">
-    <!-- Left: Branding -->
+    <!-- Left: Enterprise Branding -->
     <div class="branding-panel">
-      <div class="large-n">N</div>
+      <div class="brand-header">
+        <div class="brand-logo-icon">
+          <i data-lucide="bot"></i>
+        </div>
+        <div class="brand-name">Naxton Technologies</div>
+      </div>
+
       <div class="brand-content">
-        <h1>Naxton<br>Technologies</h1>
-        <p>Harnessing autonomous neural intelligence to power the next generation of enterprise communication and workflow automation.</p>
-        
-        <div class="brand-meta">
-          <div>ESTD // 2026</div>
-          <div>LOC // CALIFORNIA</div>
-          <div>VER // 4.0.2</div>
+        <div class="badge-pill">
+          <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i>
+          POWERED BY NAXTON AI 4.0
+        </div>
+        <h1>Empowering Next-Gen Autonomous Intelligence</h1>
+        <p>Harness neural voice automation, intelligent customer routing, and multi-tenant orchestration built for enterprise scaling.</p>
+
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <i data-lucide="phone-call" style="width: 18px; height: 18px;"></i>
+            </div>
+            <div class="feature-text">Real-Time Autonomous Voice Receptionist</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <i data-lucide="shield-check" style="width: 18px; height: 18px;"></i>
+            </div>
+            <div class="feature-text">Bank-Grade Encrypted Multi-Tenant Security</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <i data-lucide="zap" style="width: 18px; height: 18px;"></i>
+            </div>
+            <div class="feature-text">Instant Live Analytics & AI Reasoning Logs</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="brand-footer">
+        <div class="status-indicator">
+          <div class="status-dot"></div>
+          <span>System Operational &bull; 99.99% Uptime</span>
+        </div>
+        <div class="brand-meta-tags">
+          <span>EST. 2026</span>
+          <span>CALIFORNIA, US</span>
         </div>
       </div>
     </div>
 
-    <!-- Right: Login Form -->
+    <!-- Right: Login Form Card -->
     <div class="login-panel">
       <div class="login-card">
         <div class="card-header">
-          <div class="secure-badge">
-            <i data-lucide="shield-check" style="width: 14px;"></i>
-            Secure Access Portal
-          </div>
-          <h2>Secure Digital Access</h2>
-          <p>Initialize neural handshake to enter environment.</p>
+          <h2>Welcome Back</h2>
+          <p>Sign in to access your AI Control Center dashboard.</p>
         </div>
 
         <div id="error-msg"></div>
@@ -489,90 +683,117 @@
         <!-- Login Form -->
         <form id="loginForm">
           <div class="form-group">
-            <label>Neural Identity</label>
+            <label for="email">
+              <span>Email Address</span>
+              <span class="label-badge">WORK EMAIL</span>
+            </label>
             <div class="input-box">
-              <i data-lucide="user"></i>
-              <input type="email" id="email" placeholder="admin@naxton.ai" required />
+              <i data-lucide="mail" class="input-icon"></i>
+              <input type="email" id="email" placeholder="name@company.com" required autocomplete="email" />
             </div>
           </div>
 
           <div class="form-group">
-            <label>Security Key</label>
+            <label for="password">
+              <span>Password</span>
+              <span class="label-badge">SECURITY KEY</span>
+            </label>
             <div class="input-box">
-              <i data-lucide="lock"></i>
-              <input type="password" id="password" placeholder="••••••••" required />
+              <i data-lucide="lock" class="input-icon"></i>
+              <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password" />
+              <button type="button" class="toggle-password" onclick="togglePasswordVisibility('password', this)" title="Toggle password visibility">
+                <i data-lucide="eye"></i>
+              </button>
             </div>
           </div>
 
           <div class="form-options">
             <label class="remember-me">
-              <input type="checkbox" style="width: 16px; height: 16px; accent-color: var(--accent-cyan);">
-              Stay Synchronized
+              <input type="checkbox" id="rememberMe">
+              <span>Keep me signed in</span>
             </label>
-            <a href="#" class="forgot-link" id="showForgot">Lost Key?</a>
+            <a href="#" class="forgot-link" id="showForgot">Forgot password?</a>
           </div>
 
-          <button type="submit" class="login-btn" style="margin-bottom: 1rem;">
-            <span>AUTHENTICATE</span>
-            <i data-lucide="zap" style="width: 16px;"></i>
-          </button>
-          <a href="/" class="login-btn" style="text-decoration: none;">
-            <span>BACK TO HOME</span>
-            <i data-lucide="home" style="width: 16px;"></i>
-          </a>
+          <div class="btn-group">
+            <button type="submit" class="login-btn">
+              <span>SIGN IN TO DASHBOARD</span>
+              <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+            </button>
+            <a href="/" class="login-btn secondary-btn">
+              <span>BACK TO HOME</span>
+              <i data-lucide="home" style="width: 18px; height: 18px;"></i>
+            </a>
+          </div>
         </form>
 
         <!-- Forgot Password Form -->
         <form id="forgotForm" style="display: none;">
           <div class="form-group">
-            <label>Recovery Email</label>
+            <label for="forgotEmail">
+              <span>Recovery Email Address</span>
+            </label>
             <div class="input-box">
-              <i data-lucide="mail"></i>
-              <input type="email" id="forgotEmail" placeholder="admin@naxton.ai" required />
+              <i data-lucide="mail" class="input-icon"></i>
+              <input type="email" id="forgotEmail" placeholder="name@company.com" required autocomplete="email" />
             </div>
           </div>
-          <button type="submit" class="login-btn">
-            <span>SEND RESET LINK</span>
-            <i data-lucide="send" style="width: 16px;"></i>
-          </button>
+          <div class="btn-group">
+            <button type="submit" class="login-btn">
+              <span>SEND RECOVERY LINK</span>
+              <i data-lucide="send" style="width: 18px; height: 18px;"></i>
+            </button>
+          </div>
           <div style="margin-top: 1.5rem; text-align: center;">
-            <a href="#" class="back-to-login" style="color: var(--text-dim); font-size: 0.85rem; text-decoration: none;">Back to Login</a>
+            <a href="#" class="back-to-login" style="color: var(--accent-cyan); font-size: 0.875rem; text-decoration: none; font-weight: 600;">&larr; Back to Login</a>
           </div>
         </form>
 
         <!-- Reset Password Form -->
         <form id="resetForm" style="display: none;">
           <div class="form-group">
-            <label>New Security Key</label>
+            <label for="newPassword">
+              <span>New Password</span>
+            </label>
             <div class="input-box">
-              <i data-lucide="lock"></i>
-              <input type="password" id="newPassword" placeholder="••••••••" required />
+              <i data-lucide="lock" class="input-icon"></i>
+              <input type="password" id="newPassword" class="password-input" placeholder="••••••••" required />
+              <button type="button" class="toggle-password" onclick="togglePasswordVisibility('newPassword', this)" title="Toggle password visibility">
+                <i data-lucide="eye"></i>
+              </button>
             </div>
           </div>
           <div class="form-group">
-            <label>Confirm Key</label>
+            <label for="confirmPassword">
+              <span>Confirm New Password</span>
+            </label>
             <div class="input-box">
-              <i data-lucide="lock"></i>
-              <input type="password" id="confirmPassword" placeholder="••••••••" required />
+              <i data-lucide="lock" class="input-icon"></i>
+              <input type="password" id="confirmPassword" class="password-input" placeholder="••••••••" required />
+              <button type="button" class="toggle-password" onclick="togglePasswordVisibility('confirmPassword', this)" title="Toggle password visibility">
+                <i data-lucide="eye"></i>
+              </button>
             </div>
           </div>
-          <button type="submit" class="login-btn">
-            <span>UPDATE KEY</span>
-            <i data-lucide="shield-check" style="width: 16px;"></i>
-          </button>
+          <div class="btn-group">
+            <button type="submit" class="login-btn">
+              <span>UPDATE PASSWORD</span>
+              <i data-lucide="shield-check" style="width: 18px; height: 18px;"></i>
+            </button>
+          </div>
           <div style="margin-top: 1.5rem; text-align: center;">
-            <a href="#" class="back-to-login" style="color: var(--text-dim); font-size: 0.85rem; text-decoration: none;">Cancel</a>
+            <a href="#" class="back-to-login" style="color: var(--accent-cyan); font-size: 0.875rem; text-decoration: none; font-weight: 600;">Cancel</a>
           </div>
         </form>
 
         <div class="feature-cards">
           <div class="f-card">
             <i data-lucide="cpu"></i>
-            <div>AI Optimized</div>
+            <div>AI Neural Core</div>
           </div>
           <div class="f-card">
             <i data-lucide="shield"></i>
-            <div>End-to-End</div>
+            <div>256-Bit Encrypted</div>
           </div>
         </div>
       </div>
@@ -581,6 +802,19 @@
 
   <script>
     lucide.createIcons();
+
+    // 👁️ Password Visibility Toggle Function
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      
+      // Update Lucide Icon
+      btn.innerHTML = isPassword ? '<i data-lucide="eye-off"></i>' : '<i data-lucide="eye"></i>';
+      lucide.createIcons();
+    }
 
     const loginForm = document.getElementById('loginForm');
     const forgotForm = document.getElementById('forgotForm');
@@ -604,7 +838,7 @@
     backLinks.forEach(link => {
       link.onclick = (e) => {
         e.preventDefault();
-        window.history.replaceState({}, document.title, window.location.pathname); // Clear token from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
         loginForm.style.display = 'block';
         forgotForm.style.display = 'none';
         resetForm.style.display = 'none';
@@ -620,8 +854,8 @@
       loginForm.style.display = 'none';
       forgotForm.style.display = 'none';
       resetForm.style.display = 'block';
-      successMsg.textContent = 'Token verified. Please enter your new security key.';
-      successMsg.style.display = 'block';
+      successMsg.textContent = 'Token verified. Please enter your new security password.';
+      successMsg.style.display = 'flex';
     }
 
     async function loadPlatform() {
@@ -630,6 +864,9 @@
         const result = await res.json();
         if (result.success && result.data) {
           const { logoUrl, projectName } = result.data;
+          if (projectName) {
+            document.querySelectorAll('.brand-name').forEach(el => el.textContent = projectName);
+          }
         }
       } catch (err) {
         console.error("Load platform error:", err);
@@ -647,7 +884,7 @@
       const btn = loginForm.querySelector('.login-btn');
       const originalHtml = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i> VERIFYING...';
+      btn.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i> <span>VERIFYING...</span>';
       lucide.createIcons();
 
       errorMsg.style.display = 'none';
@@ -670,15 +907,15 @@
           else if (role === 'PRODUCT') window.location.href = '/product/dashboard';
           else window.location.href = '/admin';
         } else {
-          errorMsg.textContent = data.error || 'Authentication failed';
-          errorMsg.style.display = 'block';
+          errorMsg.innerHTML = `<i data-lucide="alert-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i> <span>${data.error || 'Authentication failed'}</span>`;
+          errorMsg.style.display = 'flex';
           btn.disabled = false;
           btn.innerHTML = originalHtml;
           lucide.createIcons();
         }
       } catch (error) {
-        errorMsg.textContent = 'Server connection failed';
-        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = `<i data-lucide="alert-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i> <span>Server connection failed</span>`;
+        errorMsg.style.display = 'flex';
         btn.disabled = false;
         btn.innerHTML = originalHtml;
         lucide.createIcons();
@@ -692,7 +929,7 @@
       const btn = forgotForm.querySelector('.login-btn');
       const originalHtml = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i> TRANSMITTING...';
+      btn.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i> <span>SENDING...</span>';
       lucide.createIcons();
 
       try {
@@ -703,27 +940,16 @@
         });
         const data = await response.json();
         if (data.success) {
-          successMsg.textContent = data.message;
-          successMsg.style.display = 'block';
+          successMsg.innerHTML = `<i data-lucide="check-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i> <span>${data.message}</span>`;
+          successMsg.style.display = 'flex';
           errorMsg.style.display = 'none';
-          
-          // Debugging info (Remove in production)
-          if (data.debug && data.debug.resetLink) {
-             console.log("DEBUG Reset Link:", data.debug.resetLink);
-             const debugDiv = document.createElement('div');
-             debugDiv.style.marginTop = '1rem';
-             debugDiv.style.fontSize = '0.7rem';
-             debugDiv.style.color = 'var(--text-dim)';
-             debugDiv.innerHTML = `Dev Token: <a href="${data.debug.resetLink}" style="color: var(--accent-cyan)">Click to simulate email link</a>`;
-             successMsg.appendChild(debugDiv);
-          }
         } else {
-          errorMsg.textContent = data.error || 'Request failed';
-          errorMsg.style.display = 'block';
+          errorMsg.innerHTML = `<i data-lucide="alert-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i> <span>${data.error || 'Request failed'}</span>`;
+          errorMsg.style.display = 'flex';
         }
       } catch (err) {
-        errorMsg.textContent = 'Server error';
-        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = `<i data-lucide="alert-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i> <span>Server error</span>`;
+        errorMsg.style.display = 'flex';
       } finally {
         btn.disabled = false;
         btn.innerHTML = originalHtml;
@@ -738,15 +964,15 @@
       const confirmPassword = document.getElementById('confirmPassword').value;
 
       if (newPassword !== confirmPassword) {
-        errorMsg.textContent = 'Passwords do not match';
-        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = `<i data-lucide="alert-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i> <span>Passwords do not match</span>`;
+        errorMsg.style.display = 'flex';
         return;
       }
 
       const btn = resetForm.querySelector('.login-btn');
       const originalHtml = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i> UPDATING...';
+      btn.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i> <span>UPDATING...</span>';
       lucide.createIcons();
 
       try {
@@ -757,26 +983,79 @@
         });
         const data = await response.json();
         if (data.success) {
-          successMsg.textContent = 'Success! Your key has been updated.';
-          successMsg.style.display = 'block';
+          successMsg.innerHTML = `<i data-lucide="check-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i> <span>Success! Your password has been updated.</span>`;
+          successMsg.style.display = 'flex';
           errorMsg.style.display = 'none';
           resetForm.style.display = 'none';
           setTimeout(() => {
             window.location.href = '/login';
-          }, 3000);
+          }, 2500);
         } else {
-          errorMsg.textContent = data.error || 'Update failed';
-          errorMsg.style.display = 'block';
+          errorMsg.innerHTML = `<i data-lucide="alert-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i> <span>${data.error || 'Update failed'}</span>`;
+          errorMsg.style.display = 'flex';
         }
       } catch (err) {
-        errorMsg.textContent = 'Server error';
-        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = `<i data-lucide="alert-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i> <span>Server error</span>`;
+        errorMsg.style.display = 'flex';
       } finally {
         btn.disabled = false;
         btn.innerHTML = originalHtml;
         lucide.createIcons();
       }
     });
+
+    // 🎨 Animated Particle Canvas Effect
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = Math.random() * 0.4 - 0.2;
+        this.speedY = Math.random() * 0.4 - 0.2;
+        this.opacity = Math.random() * 0.5 + 0.1;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+          this.reset();
+        }
+      }
+      draw() {
+        ctx.fillStyle = `rgba(56, 189, 248, ${this.opacity})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 45; i++) {
+      particles.push(new Particle());
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
   </script>
 </body>
 
