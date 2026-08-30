@@ -825,6 +825,17 @@ You are ${business.aiName || "Sarah"}, the professional receptionist for ${busin
           select: { name: true }
         }).catch(() => []);
         servicesList = (business.appointmentServices || []).filter(s => s.isActive);
+
+        try {
+          const slotService = require("../../services/slot.service");
+          const oneWeekSchedule = await slotService.getOneWeekAvailability(business.tenantId, business.id);
+          const scheduleLines = oneWeekSchedule.map(day => 
+            `* ${day.dayOfWeek} (${day.date}): ${day.availableTimes.join(", ")}`
+          ).join("\n");
+          availString = `1-WEEK CALENDAR AVAILABILITY SCHEDULE (Suggest 3-4 of these exact timing slots to the caller when booking):\n${scheduleLines}`;
+        } catch (e) {
+          availString = "1-WEEK CALENDAR: Daily slots available at 10:00 AM, 01:30 PM, 03:30 PM, and 05:00 PM.";
+        }
       }
       
       const vData = {

@@ -60,27 +60,54 @@ class AiToolService {
   }
 
   /**
-   * Get available slots for a specific service and date
+   * Get available slots for a specific service and date, or 1-week calendar
    */
   async getAvailableSlots(businessId, tenantId, serviceId, date) {
     try {
       console.log(`[AiToolService] getAvailableSlots - Biz: ${businessId}, Tenant: ${tenantId}, Service: ${serviceId}, Date: ${date}`);
-      const slots = await slotService.getAvailableSlots(tenantId, businessId, date, serviceId);
+      
+      const oneWeekCalendar = await slotService.getOneWeekAvailability(tenantId, businessId, serviceId);
+
+      if (!date || date.includes("week") || date.includes("schedule")) {
+        return {
+          success: true,
+          message: "1-Week Calendar Availability Schedule",
+          calendar: oneWeekCalendar
+        };
+      }
+
+      // Format date if relative
+      let targetDateStr = date;
+      if (date.toLowerCase().includes("today")) {
+        targetDateStr = format(new Date(), "yyyy-MM-dd");
+      } else if (date.toLowerCase().includes("tomorrow")) {
+        const t = new Date();
+        t.setDate(t.getDate() + 1);
+        targetDateStr = format(t, "yyyy-MM-dd");
+      }
+
+      const slots = await slotService.getAvailableSlots(tenantId, businessId, targetDateStr, serviceId);
       const available = slots.filter(s => s.available);
       
       if (available.length === 0) {
-        return { success: true, message: "No slots available for this date.", slots: [] };
+        return { 
+          success: true, 
+          message: `No slots remaining for ${targetDateStr}. Here is the 1-week calendar schedule:`, 
+          calendar: oneWeekCalendar 
+        };
       }
 
       return {
         success: true,
-        date,
+        date: targetDateStr,
         slots: available.map(s => ({
           time: s.time,
           iso: s.iso
-        }))
+        })),
+        oneWeekCalendar
       };
     } catch (err) {
+      console.error("[AiToolService] getAvailableSlots error:", err.message);
       return { success: false, error: err.message };
     }
   }

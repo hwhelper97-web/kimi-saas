@@ -109,7 +109,7 @@
       <!-- Live Call Status Pill Box (lg:col-span-5) -->
       <div class="lg:col-span-5 bg-[#1E293B] border border-slate-700/80 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center shadow-xl relative overflow-hidden">
         <div id="status-ring" class="w-20 h-20 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mb-4 transition-all duration-500">
-          <i data-lucide="mic" id="status-icon" class="w-8 h-8 text-primary animate-pulse"></i>
+          <i data-lucide="mic" id="status-icon" class="w-8 h-8 text-primary"></i>
         </div>
 
         <h3 id="call-status-heading" class="font-orbitron font-bold text-sm tracking-wider text-slate-200 uppercase mb-1">
@@ -137,7 +137,7 @@
 
         <!-- Transcript Feed -->
         <div id="transcript-feed" class="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin text-xs">
-          <div class="text-center py-16 text-slate-500 font-mono text-[11px]">
+          <div class="text-center py-16 text-slate-500 font-mono text-[11px]" id="empty-transcript-msg">
             <p>[Waiting for call connection...]</p>
             <p class="text-[10px] text-slate-600 mt-1">Transcripts will stream here in real time as you speak.</p>
           </div>
@@ -317,6 +317,7 @@
     const businessType = "<%= session.businessType %>";
     let expiresSeconds = <%= session.remainingSeconds %>;
     let isCallActive = false;
+    let loggedMessages = new Set();
 
     // Countdown Timer
     setInterval(() => {
@@ -344,9 +345,10 @@
 
     // Realtime Transcripts
     function handleTranscript(role, text) {
+      if (!text || !text.trim()) return;
       appendTranscript(role, text);
-      logActivity(`✓ Spoken: "${text.slice(0, 45)}..."`);
-      setCallActiveState(true);
+      const isUser = role === 'user' || role === 'customer';
+      logActivity(isUser ? `🗣️ Prospect Speaking: "${text.slice(0, 40)}..."` : `🤖 AI Speaking: "${text.slice(0, 40)}..."`);
     }
 
     socket.on('call_transcribed', (data) => handleTranscript(data.role, data.text));
@@ -356,32 +358,35 @@
     // Realtime Debug / AI Reasoning Event
     socket.on('call_debug', (data) => {
       if (data && data.message) {
-        logActivity(`✓ AI Reasoning: ${data.message}`);
+        logActivity(`⚙️ AI Engine: ${data.message}`);
       }
     });
 
     // Realtime Call Started
     socket.on('call_started', (data) => {
-      setCallActiveState(true, data.from);
+      setCallActiveState(true, data.from || 'Caller');
+      logActivity(`📞 Call Incoming from ${data.from || 'Prospect Phone'}`);
+      logActivity(`🎙️ Voice Stream Connected to Nexa AI Engine`);
+      logActivity(`🧠 AI Knowledge & 1-Week Calendar Loaded`);
     });
 
     // Realtime Call Ended
     socket.on('call_ended', (data) => {
       setCallActiveState(false);
-      logActivity(`✓ Call completed and saved to history`);
+      logActivity(`🏁 Call Completed & Saved (${data.duration || 0}s)`);
       syncDemoData();
     });
 
     // Realtime New Order
     socket.on('new_order', (order) => {
-      logActivity(`✓ Order created live: #${order.orderNumber || order.id.slice(0, 6)} ($${order.total || 0})`);
+      logActivity(`✅ Order created live: #${order.orderNumber || (order.id ? order.id.slice(0, 6) : '101')} ($${order.total || 0})`);
       renderOrderResult(order);
       syncDemoData();
     });
 
     // Realtime New Appointment
     socket.on('new_appointment', (appt) => {
-      logActivity(`✓ Appointment created live: ${appt.customerName || appt.name}`);
+      logActivity(`✅ Appointment created live: ${appt.customerName || appt.name}`);
       renderAppointmentResult(appt);
       syncDemoData();
     });
@@ -410,11 +415,14 @@
 
     function appendTranscript(role, text) {
       const feed = document.getElementById('transcript-feed');
-      if (feed.innerText.includes('[Waiting for call connection...]')) {
-        feed.innerHTML = '';
-      }
+      const emptyMsg = document.getElementById('empty-transcript-msg');
+      if (emptyMsg) emptyMsg.remove();
 
       const isUser = role === 'user' || role === 'USER' || role === 'customer';
+      const msgKey = `${isUser ? 'user' : 'ai'}:${text.trim()}`;
+      if (loggedMessages.has(msgKey)) return;
+      loggedMessages.add(msgKey);
+
       const div = document.createElement('div');
       div.className = `p-3 rounded-2xl border ${isUser ? 'bg-slate-800/90 border-slate-700 text-slate-200 ml-6' : 'bg-primary/10 border-primary/20 text-primary font-medium mr-6'}`;
       div.innerHTML = `
@@ -425,10 +433,27 @@
       feed.scrollTop = feed.scrollHeight;
     }
 
+    function renderFullTranscript(fullText) {
+      if (!fullText || !fullText.trim()) return;
+      const lines = fullText.split('\n');
+      lines.forEach(line => {
+        if (line.startsWith('USER:')) {
+          appendTranscript('user', line.replace('USER:', '').trim());
+        } else if (line.startsWith('AI:') || line.startsWith('ASSISTANT:')) {
+          appendTranscript('ai', line.replace(/^(AI|ASSISTANT):/, '').trim());
+        }
+      });
+    }
+
     function logActivity(message) {
       const feed = document.getElementById('activity-feed');
+      if (!feed) return;
+      
+      const existing = Array.from(feed.children).map(c => c.innerText);
+      if (existing.includes(message)) return;
+
       const div = document.createElement('div');
-      div.className = 'p-2.5 rounded-xl bg-slate-800/80 border border-emerald-500/30 text-emerald-300 font-mono animate-fade-in';
+      div.className = 'p-2.5 rounded-xl bg-slate-800/80 border border-emerald-500/30 text-emerald-300 font-mono text-[11px] animate-fade-in flex items-center gap-1.5';
       div.innerText = message;
       feed.appendChild(div);
       feed.scrollTop = feed.scrollHeight;
@@ -509,12 +534,23 @@
 
           if (calls.length > 0) {
             const latestCall = calls[0];
-            const callAgeSec = Math.floor((Date.now() - new Date(latestCall.createdAt).getTime()) / 1000);
-            
-            if (latestCall.outcome === 'active' || callAgeSec < 35) {
-              if (!isCallActive) setCallActiveState(true, latestCall.fromNumber);
-            } else if (isCallActive && callAgeSec >= 35) {
-              setCallActiveState(false);
+
+            if (latestCall.outcome === 'active') {
+              if (!isCallActive) {
+                setCallActiveState(true, latestCall.fromNumber || 'Voice Customer');
+                logActivity(`📞 Call Incoming from ${latestCall.fromNumber || 'Voice Customer'}`);
+                logActivity(`🎙️ Voice Stream Connected to Nexa AI Engine`);
+                logActivity(`🧠 AI Knowledge & 1-Week Calendar Loaded`);
+              }
+            } else {
+              if (isCallActive) {
+                setCallActiveState(false);
+                logActivity(`🏁 Call Completed & Saved (${latestCall.duration || 0}s)`);
+              }
+            }
+
+            if (latestCall.transcript) {
+              renderFullTranscript(latestCall.transcript);
             }
 
             renderCallHistoryTable(calls);
