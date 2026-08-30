@@ -76,13 +76,13 @@
     <div class="text-center max-w-2xl mx-auto mb-12">
       <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-black text-emerald-700 uppercase tracking-widest mb-4 shadow-sm">
         <i data-lucide="zap" class="w-4 h-4 text-emerald-600"></i>
-        <span>Instant 24-Hour Trial — Dynamic Phone Allocation</span>
+        <span>Instant 12-Hour Trial — Inventory Phone Allocation</span>
       </div>
       <h1 class="font-orbitron font-black text-3xl sm:text-4xl text-textMain tracking-tight mb-3">
-        Build Your AI Receptionist & <span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Call It Live</span>
+        Build Your AI Receptionist &amp; <span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Call It Live</span>
       </h1>
       <p class="text-sm sm:text-base text-textDim leading-relaxed">
-        Don't just see AI in action. Experience a real phone call with an AI agent tailored to your exact industry in under 2 minutes.
+        Experience a real phone call with an AI receptionist tailored to your exact industry in under 2 minutes.
       </p>
     </div>
 
@@ -227,7 +227,7 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label class="block text-xs font-bold text-textMain uppercase mb-2">Work Email Address *</label>
+              <label class="block text-xs font-bold text-textMain uppercase mb-2">Work Email Address (Compulsory) *</label>
               <input type="email" id="form-email" required placeholder="alex@business.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
             </div>
             <div>
@@ -300,7 +300,7 @@
           <div class="text-xs text-emerald-950 space-y-1">
             <p class="font-bold uppercase tracking-wider">Ready to Test Your AI Receptionist!</p>
             <p class="text-emerald-800">
-              Clicking <strong class="font-black">CREATE MY AI DEMO</strong> will dynamically allocate an unassigned phone number for your demo, configure your AI agent, and launch your live 24-hour demo dashboard.
+              Clicking <strong class="font-black">CREATE MY AI DEMO</strong> will assign an available inventory phone number for your demo, configure your AI agent, and launch your live 12-hour demo dashboard.
             </p>
           </div>
         </div>
@@ -320,9 +320,83 @@
     </div>
   </main>
 
+  <!-- VIP WAITLIST MODAL (When System Numbers Are Busy) -->
+  <div id="waitlist-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
+      <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mb-4">
+        <i data-lucide="phone-off" class="w-6 h-6"></i>
+      </div>
+      
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black uppercase tracking-wider mb-2">
+        <span>⚠️ All System Demo Phone Lines Busy</span>
+      </div>
+
+      <h3 class="font-orbitron font-black text-lg sm:text-xl text-slate-900 mb-2 uppercase">Currently Our System Numbers Are Busy</h3>
+      <p class="text-xs text-slate-600 mb-6 leading-relaxed">
+        All active system phone numbers are currently assigned to live prospect sessions. Kindly leave your details below — our system will reserve your demo spot and automatically deliver your live access credentials and assigned phone number straight to your email as soon as a line frees up!
+      </p>
+
+      <form id="waitlist-form" onsubmit="handleWaitlistSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Work Email Address (Compulsory) *</label>
+          <input type="email" id="wl-email" required placeholder="name@company.com" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-bold focus:border-primary focus:outline-none" />
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Full Name *</label>
+            <input type="text" id="wl-name" required placeholder="Alex Morgan" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-bold focus:border-primary focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Mobile Phone Number *</label>
+            <input type="tel" id="wl-phone" required placeholder="+1 (555) 000-0000" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-bold focus:border-primary focus:outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Demo Category / Industry *</label>
+          <select id="wl-category" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-bold focus:border-primary focus:outline-none">
+            <option value="pizzeria">🍕 Pizzeria &amp; Italian Order AI</option>
+            <option value="cafe">☕ Cafe &amp; Coffee Shop Order AI</option>
+            <option value="burger">🍔 Fast Food &amp; Burger Order AI</option>
+            <option value="sushi">🍣 Sushi &amp; Asian Bistro Order AI</option>
+            <option value="salon">💇 Hair Salon &amp; Barber Appointment AI</option>
+            <option value="spa">💅 Spa &amp; Wellness Appointment AI</option>
+            <option value="clinic">🩺 Medical Clinic &amp; Dental Appointment AI</option>
+            <option value="hotel">🏨 Hotel Concierge Appointment AI</option>
+            <option value="consulting">💼 Professional Consulting Appointment AI</option>
+          </select>
+        </div>
+
+        <div class="pt-2 flex items-center justify-between gap-3">
+          <button type="button" onclick="closeWaitlistModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-500 hover:bg-slate-50">
+            Cancel
+          </button>
+          <button type="submit" id="btn-submit-waitlist" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-white text-xs font-black uppercase shadow-md hover:opacity-95 flex items-center gap-2">
+            <span>Reserve My Demo Spot</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </form>
+
+      <div id="waitlist-success-msg" class="hidden p-6 text-center space-y-3">
+        <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+          <i data-lucide="check-circle" class="w-6 h-6"></i>
+        </div>
+        <h4 class="font-orbitron font-bold text-base text-slate-900 uppercase">Reservation Confirmed!</h4>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Your priority demo reservation is saved. As soon as a demo line frees up within 12 hours, your live access link and phone number will be delivered directly to your email!
+        </p>
+        <button onclick="closeWaitlistModal()" class="px-6 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold uppercase mt-2">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="w-full border-t border-slate-200/80 bg-white py-6 text-center text-xs text-textDim">
-    <p>&copy; <%= new Date().getFullYear() %> <%= projectName %>. All rights reserved. Dynamic Phone Inventory Allocation Enabled.</p>
+    <p>&copy; <%= new Date().getFullYear() %> <%= projectName %>. All rights reserved. Strict Phone Inventory Allocation Policy Enabled.</p>
   </footer>
 
   <script>
@@ -519,10 +593,63 @@
       lucide.createIcons();
     }
 
+    function openWaitlistModal(email, name, phone, category) {
+      document.getElementById('wl-email').value = email || '';
+      document.getElementById('wl-name').value = name || '';
+      document.getElementById('wl-phone').value = phone || '';
+      if (category) document.getElementById('wl-category').value = category;
+      
+      document.getElementById('waitlist-form').classList.remove('hidden');
+      document.getElementById('waitlist-success-msg').classList.add('hidden');
+      document.getElementById('waitlist-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeWaitlistModal() {
+      document.getElementById('waitlist-modal').classList.add('hidden');
+    }
+
+    async function handleWaitlistSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit-waitlist');
+      btn.disabled = true;
+      btn.innerHTML = `<span class="inline-block animate-spin mr-1">⚙️</span> Reserving...`;
+
+      const payload = {
+        email: document.getElementById('wl-email').value.trim(),
+        fullName: document.getElementById('wl-name').value.trim(),
+        mobilePhone: document.getElementById('wl-phone').value.trim(),
+        category: document.getElementById('wl-category').value
+      };
+
+      try {
+        const res = await fetch('/api/demo/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById('waitlist-form').classList.add('hidden');
+          document.getElementById('waitlist-success-msg').classList.remove('hidden');
+          lucide.createIcons();
+        } else {
+          alert(json.error || 'Failed to submit waitlist reservation.');
+        }
+      } catch (err) {
+        alert('Network error. Please try again.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Reserve My Demo Spot</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+        lucide.createIcons();
+      }
+    }
+
     async function submitDemoCreation() {
       const btn = document.getElementById('btn-submit-demo');
       btn.disabled = true;
-      btn.innerHTML = `<span class="inline-block animate-spin mr-2">⚙️</span> Allocating Phone Number &amp; Building AI Agent...`;
+      btn.innerHTML = `<span class="inline-block animate-spin mr-2">⚙️</span> Checking Phone Inventory &amp; Building AI Agent...`;
 
       const businessName = document.getElementById('form-businessName').value || 'Demo Business';
       const ownerName = document.getElementById('form-ownerName').value || 'Demo Customer';
@@ -577,6 +704,11 @@
         const data = await res.json();
         if (data.success && data.redirectUrl) {
           window.location.href = data.redirectUrl;
+        } else if (data.code === 'NUMBERS_BUSY') {
+          btn.disabled = false;
+          btn.innerHTML = `<span>CREATE MY AI DEMO</span><i data-lucide="sparkles" class="w-4 h-4"></i>`;
+          lucide.createIcons();
+          openWaitlistModal(email, ownerName, phone, subType);
         } else {
           alert(data.error || 'Failed to create demo. Please try again.');
           btn.disabled = false;

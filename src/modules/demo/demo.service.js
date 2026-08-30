@@ -79,39 +79,33 @@ const SUBTYPE_PRESETS = {
 };
 
 /**
- * Dynamically allocates an UNASSIGNED phone number for the demo session.
+ * Dynamically allocates an UNASSIGNED phone number for the demo session (STRICT INVENTORY ONLY).
+ * NEVER buys new numbers or creates new numbers automatically.
  */
 async function allocateDemoPhoneNumber(tenantId, businessId) {
   try {
     // 1. Look for explicit UNASSIGNED phone in system inventory
     let phoneRecord = await prisma.tenantPhoneNumber.findFirst({
       where: {
-        OR: [
-          { status: "UNASSIGNED" },
-          { status: "DEMO_AVAILABLE" },
-          { businessId: null }
-        ]
+        status: "UNASSIGNED"
       }
     });
 
-    // 2. If no UNASSIGNED number, check for expired demo numbers and force release
+    // 2. If no UNASSIGNED number, check for expired demo numbers and force release them
     if (!phoneRecord) {
-      const expiredDemoSession = await prisma.demoSession.findFirst({
-        where: { status: "EXPIRED" },
-        orderBy: { updatedAt: "desc" }
+      const expiredDemoSessions = await prisma.demoSession.findMany({
+        where: { status: "EXPIRED" }
       });
 
-      if (expiredDemoSession) {
-        await releaseDemoPhoneNumber(expiredDemoSession.businessId, expiredDemoSession.tenantId);
-        phoneRecord = await prisma.tenantPhoneNumber.findFirst({
-          where: {
-            OR: [
-              { status: "UNASSIGNED" },
-              { businessId: null }
-            ]
-          }
-        });
+      for (const expiredSession of expiredDemoSessions) {
+        await releaseDemoPhoneNumber(expiredSession.businessId, expiredSession.tenantId);
       }
+
+      phoneRecord = await prisma.tenantPhoneNumber.findFirst({
+        where: {
+          status: "UNASSIGNED"
+        }
+      });
     }
 
     if (phoneRecord) {
@@ -123,15 +117,15 @@ async function allocateDemoPhoneNumber(tenantId, businessId) {
           status: "DEMO_ACTIVE"
         }
       });
-      console.log(`[DEMO_CENTER] Assigned Phone ${phoneRecord.twilioPhoneNumber} to Demo Tenant ${tenantId}`);
+      console.log(`[DEMO_CENTER] Assigned Inventory Phone ${phoneRecord.twilioPhoneNumber} to Demo Tenant ${tenantId}`);
       return phoneRecord.twilioPhoneNumber;
     }
   } catch (err) {
     console.error("[DEMO_CENTER] Phone allocation error:", err.message);
   }
 
-  // Fallback if no inventory number present
-  return process.env.TWILIO_PHONE_NUMBER || process.env.TWILIO_DEMO_NUMBER || "+18884918668";
+  // Strictly return null if no UNASSIGNED number is available in inventory
+  return null;
 }
 
 /**
@@ -213,7 +207,7 @@ async function createDemoSession(data) {
       name: businessName,
       type: normalizedType,
       subType: subType,
-      phoneNumber: "+18884918668", // Temporary placeholder before assignment
+      phoneNumber: "UNASSIGNED",
       city: city,
       country: country,
       aiName: aiName,
@@ -223,8 +217,21 @@ async function createDemoSession(data) {
     }
   });
 
-  // 3. Dynamically Allocate Unassigned Phone Number
+  // 3. Dynamically Allocate Unassigned Phone Number (STRICT INVENTORY ONLY)
   const assignedPhone = await allocateDemoPhoneNumber(tenant.id, business.id);
+
+  if (!assignedPhone) {
+    // Purge temporary demo tenant and business to prevent orphan records
+    await prisma.business.deleteMany({ where: { tenantId: tenant.id } });
+    await prisma.tenant.delete({ where: { id: tenant.id } });
+
+    console.warn(`[DEMO_CENTER] All system numbers are busy. No UNASSIGNED inventory phone available for demo creation.`);
+    return {
+      success: false,
+      code: "NUMBERS_BUSY",
+      message: "Currently, all our system demo phone lines are busy with active prospect testing."
+    };
+  }
 
   // Expire any existing active demo sessions registered under this phone number to avoid collisions
   await prisma.demoSession.updateMany({

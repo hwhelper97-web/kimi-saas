@@ -1139,3 +1139,18 @@ model DemoSession {
   @@index([expiresAt])
 }
 
+model DemoWaitlist {
+  id           String   @id @default(uuid())
+  email        String
+  fullName     String
+  mobilePhone  String
+  category     String   @default("general")
+  notes        String?  @db.Text
+  status       String   @default("PENDING") // PENDING, FULFILLED, NOTIFIED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([email])
+  @@index([status])
+}
+
