@@ -1,33 +1,58 @@
-/**
- * Enterprise Email Service for Naxton Technologies.
- * Supports optional nodemailer or HTTP fallback.
- */
+const fs = require("fs");
+const path = require("path");
 let nodemailer = null;
+
 try {
   nodemailer = require("nodemailer");
 } catch (e) {
-  // nodemailer not installed; graceful fallback to HTTP / logger
+  console.warn("[EMAIL_SERVICE_WARN] nodemailer package missing. Run `npm install nodemailer`.");
 }
 
-let transporter = null;
-
-function getTransporter() {
-  if (nodemailer && !transporter) {
-    const host = process.env.SMTP_HOST || process.env.MAIL_HOST;
-    const user = process.env.SMTP_USER || process.env.MAIL_USER;
-    const pass = process.env.SMTP_PASS || process.env.MAIL_PASS;
-    const port = parseInt(process.env.SMTP_PORT || process.env.MAIL_PORT || "587");
-
-    if (host && user && pass) {
-      transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure: port === 465,
-        auth: { user, pass }
-      });
-    }
+/**
+ * Reads SMTP / Email transport config from platform.json and process.env
+ */
+function getEmailConfig() {
+  const configPath = path.join(__dirname, "../config/platform.json");
+  let fileConfig = {};
+  if (fs.existsSync(configPath)) {
+    try {
+      fileConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    } catch (e) {}
   }
-  return transporter;
+
+  const host = process.env.SMTP_HOST || process.env.MAIL_HOST || fileConfig.smtpHost;
+  const user = process.env.SMTP_USER || process.env.MAIL_USER || fileConfig.smtpUser;
+  const pass = process.env.SMTP_PASS || process.env.MAIL_PASS || fileConfig.smtpPass;
+  const port = parseInt(process.env.SMTP_PORT || process.env.MAIL_PORT || fileConfig.smtpPort || "587");
+  const secure = process.env.SMTP_SECURE === "true" || port === 465 || fileConfig.smtpSecure === true;
+  const from = process.env.SMTP_FROM || process.env.MAIL_FROM || fileConfig.smtpFrom || '"Naxton Live Demo Center" <demo@naxtontechnologies.com>';
+
+  return { host, user, pass, port, secure, from, configured: Boolean(host && user && pass) };
+}
+
+/**
+ * Creates and returns the active Nodemailer transporter instance.
+ */
+function getTransporter() {
+  if (!nodemailer) return null;
+  const config = getEmailConfig();
+
+  if (!config.configured) {
+    return null;
+  }
+
+  return nodemailer.createTransport({
+    host: config.host,
+    port: config.port,
+    secure: config.secure,
+    auth: {
+      user: config.user,
+      pass: config.pass
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
 }
 
 /**
@@ -47,7 +72,6 @@ async function sendDemoConfirmationEmail(demoData) {
 
   const protocol = host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
   const dashboardUrl = `${protocol}://${host}/demo/live/${token}`;
-
   const subject = `Your 12-Hour AI Receptionist Demo is Live — Naxton Technologies`;
 
   const html = `
@@ -111,24 +135,60 @@ async function sendDemoConfirmationEmail(demoData) {
 </html>
   `;
 
+  const config = getEmailConfig();
+
   try {
     const mailer = getTransporter();
     if (mailer) {
-      await mailer.sendMail({
-        from: process.env.SMTP_FROM || '"Naxton Live Demo Center" <demo@naxtontechnologies.com>',
+      const info = await mailer.sendMail({
+        from: config.from,
         to: email,
         subject,
         html
       });
-      console.log(`[EMAIL_SERVICE] 📩 Sent 12h demo confirmation email to ${email}`);
+      console.log(`[EMAIL_SERVICE] 📩 Live Demo confirmation email delivered to ${email} (MessageID: ${info.messageId})`);
+      return { success: true, messageId: info.messageId, dashboardUrl };
     } else {
-      console.log(`[EMAIL_SERVICE] ✉️ (DEV DISPATCH) Demo Confirmation Email to ${email} | Access Link: ${dashboardUrl} | Phone: ${phoneNumber}`);
+      console.warn(`[EMAIL_SERVICE_WARN] SMTP not configured. Demo confirmation email logged: ${email} | Link: ${dashboardUrl}`);
+      return { success: false, error: "SMTP settings not configured on server. Please configure SMTP in SuperAdmin System Settings.", dashboardUrl };
     }
-    return { success: true, dashboardUrl };
   } catch (err) {
-    console.error("[EMAIL_SERVICE] Failed to send email:", err.message);
+    console.error("[EMAIL_SERVICE_ERROR] Failed to deliver email:", err.message);
     return { success: false, error: err.message, dashboardUrl };
   }
 }
 
-module.exports = { sendDemoConfirmationEmail };
+/**
+ * Sends a test email to verify SMTP configuration.
+ */
+async function sendTestEmail(targetEmail) {
+  const config = getEmailConfig();
+  if (!config.configured) {
+    return { success: false, error: "SMTP settings missing. Please fill in Host, Port, Username and Password." };
+  }
+
+  try {
+    const mailer = getTransporter();
+    const info = await mailer.sendMail({
+      from: config.from,
+      to: targetEmail,
+      subject: "Naxton Technologies — SMTP Test Connection Successful",
+      html: `
+        <div style="font-family: Arial, sans-serif; background: #0f172a; color: #fff; padding: 30px; border-radius: 12px;">
+          <h2 style="color: #38bdf8;">✅ SMTP Connection Successful!</h2>
+          <p>Your Naxton Technologies email delivery system is fully configured and operational.</p>
+          <p style="font-size: 12px; color: #94a3b8;">Sent via ${config.host}:${config.port} on ${new Date().toLocaleString()}</p>
+        </div>
+      `
+    });
+    return { success: true, messageId: info.messageId, message: `Test email successfully sent to ${targetEmail}!` };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+module.exports = {
+  getEmailConfig,
+  sendDemoConfirmationEmail,
+  sendTestEmail
+};

@@ -89,6 +89,60 @@
       </div>
     </div>
 
+    <!-- SMTP Email Delivery System Panel -->
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 text-left space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-orbitron font-bold text-sm text-white uppercase flex items-center gap-2">
+            <span>📧 SMTP Email Delivery System</span>
+            <span id="smtp-status-badge" class="px-2 py-0.5 text-[9px] rounded-full bg-slate-700 text-slate-300 font-sans">Checking...</span>
+          </h3>
+          <p class="text-xs text-slate-400">Configure SMTP credentials (Gmail, SendGrid, Resend, cPanel) so demo dashboard links deliver directly to customer inbox.</p>
+        </div>
+        <button onclick="toggleSmtpForm()" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-bold text-slate-200 transition-colors">
+          Configure SMTP &rarr;
+        </button>
+      </div>
+
+      <div id="smtp-form-container" class="hidden pt-4 border-t border-slate-700 space-y-4 font-sans text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">SMTP Host (e.g., smtp.gmail.com)</label>
+            <input type="text" id="smtpHost" placeholder="smtp.gmail.com" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-primary focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">SMTP Port (587 or 465)</label>
+            <input type="number" id="smtpPort" placeholder="587" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-primary focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">Sender Email / From Address</label>
+            <input type="text" id="smtpFrom" placeholder='"Naxton AI" <demo@naxtontechnologies.com>' class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-primary focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">SMTP Username / Email</label>
+            <input type="text" id="smtpUser" placeholder="your-email@gmail.com" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-primary focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">SMTP Password / App Password</label>
+            <input type="password" id="smtpPass" placeholder="••••••••••••" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-primary focus:outline-none" />
+          </div>
+          <div class="flex items-end">
+            <button onclick="saveSmtpSettings()" class="w-full py-2 bg-primary hover:bg-primary/90 text-slate-900 font-bold rounded-xl transition-all uppercase text-xs">
+              Save SMTP Settings
+            </button>
+          </div>
+        </div>
+
+        <!-- Test Email Dispatcher -->
+        <div class="pt-3 border-t border-slate-700/60 flex flex-col sm:flex-row items-center gap-3">
+          <input type="email" id="testEmailInput" placeholder="Enter recipient email address to test..." class="w-full sm:w-80 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-primary focus:outline-none" />
+          <button onclick="sendTestEmail()" class="w-full sm:w-auto px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-bold rounded-xl transition-all text-xs uppercase flex items-center justify-center gap-2">
+            <span>🚀 Send Test Email</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Demo List Table -->
     <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
       <div class="overflow-x-auto">
@@ -251,7 +305,82 @@
       }
     }
 
+    function toggleSmtpForm() {
+      const el = document.getElementById('smtp-form-container');
+      el.classList.toggle('hidden');
+      if (!el.classList.contains('hidden')) {
+        loadSmtpSettings();
+      }
+    }
+
+    async function loadSmtpSettings() {
+      try {
+        const res = await fetch('/api/superadmin/settings');
+        const json = await res.json();
+        if (json.success && json.data) {
+          const d = json.data;
+          document.getElementById('smtpHost').value = d.smtpHost || '';
+          document.getElementById('smtpPort').value = d.smtpPort || 587;
+          document.getElementById('smtpFrom').value = d.smtpFrom || '';
+          document.getElementById('smtpUser').value = d.smtpUser || '';
+          document.getElementById('smtpPass').value = d.smtpPass || '';
+
+          const badge = document.getElementById('smtp-status-badge');
+          if (d.smtpHost && d.smtpUser) {
+            badge.className = 'px-2 py-0.5 text-[9px] rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-sans';
+            badge.innerText = 'Configured ✓';
+          } else {
+            badge.className = 'px-2 py-0.5 text-[9px] rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-sans';
+            badge.innerText = 'SMTP Not Configured';
+          }
+        }
+      } catch (e) {
+        console.error('Failed loading SMTP settings:', e);
+      }
+    }
+
+    async function saveSmtpSettings() {
+      const payload = {
+        smtpHost: document.getElementById('smtpHost').value.trim(),
+        smtpPort: parseInt(document.getElementById('smtpPort').value) || 587,
+        smtpFrom: document.getElementById('smtpFrom').value.trim(),
+        smtpUser: document.getElementById('smtpUser').value.trim(),
+        smtpPass: document.getElementById('smtpPass').value.trim()
+      };
+
+      const res = await fetch('/api/superadmin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (json.success) {
+        alert('SMTP Settings Saved Successfully!');
+        loadSmtpSettings();
+      } else {
+        alert('Failed saving settings: ' + (json.message || json.error));
+      }
+    }
+
+    async function sendTestEmail() {
+      const toEmail = document.getElementById('testEmailInput').value.trim();
+      if (!toEmail) return alert('Please enter an email address for testing.');
+
+      const res = await fetch('/api/superadmin/settings/test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ toEmail })
+      });
+      const json = await res.json();
+      if (json.success) {
+        alert('🎉 SUCCESS: ' + json.message);
+      } else {
+        alert('❌ FAILED: ' + (json.error || json.message));
+      }
+    }
+
     loadAdminDemos();
+    loadSmtpSettings();
   </script>
 </body>
 </html>

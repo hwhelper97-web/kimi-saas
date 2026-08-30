@@ -141,6 +141,13 @@ router.post(
   settingsController.updateSettings
 );
 
+router.post(
+  "/settings/test-email",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.sendSuperAdminTestEmail
+);
+
 // Get Mint Requests
 router.get(
   "/mint-requests",

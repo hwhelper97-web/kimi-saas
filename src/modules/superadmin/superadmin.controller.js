@@ -791,7 +791,11 @@ const path = require("path");
 ====================================== */
 exports.updateSettings = async (req, res) => {
   try {
-    const { voice, speed, responseDelay, projectName, twilioSid, twilioToken, openaiKey } = req.body;
+    const {
+      voice, speed, responseDelay, projectName, twilioSid, twilioToken, openaiKey,
+      smtpHost, smtpPort, smtpUser, smtpPass, smtpFrom, smtpSecure
+    } = req.body;
+    
     const configPath = path.join(__dirname, "../../config/platform.json");
     let config = {};
     
@@ -806,6 +810,14 @@ exports.updateSettings = async (req, res) => {
     if (twilioSid) config.twilioSid = twilioSid;
     if (twilioToken) config.twilioToken = twilioToken;
     if (openaiKey) config.openaiKey = openaiKey;
+
+    // SMTP Configuration
+    if (smtpHost !== undefined) config.smtpHost = smtpHost;
+    if (smtpPort !== undefined) config.smtpPort = parseInt(smtpPort);
+    if (smtpUser !== undefined) config.smtpUser = smtpUser;
+    if (smtpPass !== undefined) config.smtpPass = smtpPass;
+    if (smtpFrom !== undefined) config.smtpFrom = smtpFrom;
+    if (smtpSecure !== undefined) config.smtpSecure = Boolean(smtpSecure);
     
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 
@@ -816,6 +828,24 @@ exports.updateSettings = async (req, res) => {
   } catch (error) {
     console.error("Update settings error:", error);
     res.status(500).json({ success: false, message: "Failed to update settings" });
+  }
+};
+
+exports.sendSuperAdminTestEmail = async (req, res) => {
+  try {
+    const { toEmail } = req.body;
+    if (!toEmail) return res.status(400).json({ success: false, message: "Recipient email is required" });
+
+    const emailService = require("../../services/email.service");
+    const result = await emailService.sendTestEmail(toEmail);
+    if (result.success) {
+      return res.json({ success: true, message: result.message });
+    } else {
+      return res.status(400).json({ success: false, error: result.error });
+    }
+  } catch (err) {
+    console.error("Test email error:", err);
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
