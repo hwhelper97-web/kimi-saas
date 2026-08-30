@@ -136,7 +136,7 @@
         </div>
 
         <!-- Transcript Feed -->
-        <div id="transcript-feed" class="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin text-xs">
+        <div id="transcript-feed" class="flex-1 overflow-y-auto space-y-3.5 pr-1 scrollbar-thin text-xs">
           <div class="text-center py-16 text-slate-500 font-mono text-[11px]" id="empty-transcript-msg">
             <p>[Waiting for call connection...]</p>
             <p class="text-[10px] text-slate-600 mt-1">Transcripts will stream here in real time as you speak.</p>
@@ -185,25 +185,25 @@
           <% if (session.businessType === 'restaurant') { %>
             <% if (session.business.orders && session.business.orders.length > 0) { %>
               <% const latest = session.business.orders[0]; %>
-              <div class="p-5 rounded-2xl bg-slate-800/80 border border-emerald-500/30 space-y-4">
+              <div class="p-5 rounded-2xl bg-slate-800/90 border border-emerald-500/40 space-y-4 animate-fade-in shadow-lg">
                 <div class="flex justify-between items-center border-b border-slate-700 pb-3">
                   <div>
-                    <span class="text-[10px] font-mono text-slate-400 uppercase">ORDER ID</span>
-                    <h4 class="font-orbitron font-bold text-sm text-emerald-400">#DEMO-<%= latest.orderNumber || latest.id.slice(0, 6) %></h4>
+                    <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest block mb-0.5">CONFIRMED ORDER</span>
+                    <h4 class="font-orbitron font-bold text-base text-emerald-400">#DEMO-<%= latest.orderNumber || latest.id.slice(0, 6) %></h4>
                   </div>
-                  <span class="px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">CONFIRMED ✓</span>
+                  <span class="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 uppercase">CONFIRMED ✓</span>
                 </div>
-                <div class="space-y-2 text-xs">
+                <div class="space-y-2">
                   <% (latest.items || []).forEach(item => { %>
-                    <div class="flex justify-between text-slate-300">
-                      <span><%= item.quantity %>x <%= item.menuItem ? item.menuItem.name : (item.selectedAddons || 'Item') %></span>
-                      <span class="font-mono font-bold">$<%= ((item.unitPrice || 10) * item.quantity).toFixed(2) %></span>
+                    <div class="flex justify-between items-center text-slate-200 text-xs p-2 rounded-xl bg-slate-900/60 border border-slate-700/50">
+                      <span><strong class="text-emerald-400 font-mono"><%= item.quantity %>x</strong> <%= item.menuItem ? item.menuItem.name : (item.selectedAddons || 'Item') %></span>
+                      <span class="font-mono font-bold text-white">$<%= ((item.unitPrice || 10) * item.quantity).toFixed(2) %></span>
                     </div>
                   <% }) %>
                 </div>
-                <div class="border-t border-slate-700 pt-3 flex justify-between font-bold text-sm text-white">
-                  <span>TOTAL</span>
-                  <span class="font-mono text-emerald-400">$<%= (latest.total || 0).toFixed(2) %></span>
+                <div class="border-t border-slate-700 pt-3 flex justify-between items-center font-bold text-sm text-white">
+                  <span class="uppercase text-xs text-slate-400 font-mono">Total Price</span>
+                  <span class="font-mono text-emerald-400 text-base">$<%= (latest.total || 0).toFixed(2) %></span>
                 </div>
               </div>
             <% } else { %>
@@ -216,18 +216,27 @@
           <% } else { %>
             <% if (session.business.appointments && session.business.appointments.length > 0) { %>
               <% const latestAppt = session.business.appointments[0]; %>
-              <div class="p-5 rounded-2xl bg-slate-800/80 border border-emerald-500/30 space-y-4">
+              <div class="p-5 rounded-2xl bg-slate-800/90 border border-emerald-500/40 space-y-4 animate-fade-in shadow-lg">
                 <div class="flex justify-between items-center border-b border-slate-700 pb-3">
                   <div>
-                    <span class="text-[10px] font-mono text-slate-400 uppercase">APPOINTMENT</span>
-                    <h4 class="font-orbitron font-bold text-sm text-emerald-400"><%= latestAppt.customerName %></h4>
+                    <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest block mb-0.5">BOOKED APPOINTMENT</span>
+                    <h4 class="font-orbitron font-bold text-base text-white"><%= latestAppt.customerName %></h4>
                   </div>
-                  <span class="px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">CONFIRMED ✓</span>
+                  <span class="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 uppercase">CONFIRMED ✓</span>
                 </div>
-                <div class="space-y-2 text-xs text-slate-300">
-                  <div>Service: <strong class="text-white"><%= latestAppt.service ? latestAppt.service.name : (latestAppt.serviceName || 'Appointment Service') %></strong></div>
-                  <div>Time: <strong class="text-primary"><%= new Date(latestAppt.appointmentTime || latestAppt.createdAt).toLocaleString() %></strong></div>
-                  <div>Source: <strong class="text-emerald-400 uppercase">AI Receptionist Live</strong></div>
+                <div class="space-y-2.5 text-xs text-slate-200 font-sans">
+                  <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-700/60">
+                    <span class="text-slate-400 uppercase font-bold text-[10px]">Service</span>
+                    <strong class="text-white font-bold"><%= latestAppt.service ? latestAppt.service.name : (latestAppt.serviceName || 'Appointment Service') %></strong>
+                  </div>
+                  <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-700/60">
+                    <span class="text-slate-400 uppercase font-bold text-[10px]">Scheduled Time</span>
+                    <strong class="text-primary font-bold"><%= new Date(latestAppt.appointmentTime || latestAppt.createdAt).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></strong>
+                  </div>
+                  <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-700/60">
+                    <span class="text-slate-400 uppercase font-bold text-[10px]">Customer Contact</span>
+                    <strong class="text-emerald-400 font-bold"><%= latestAppt.customerPhone || 'Phone Contact' %></strong>
+                  </div>
                 </div>
               </div>
             <% } else { %>
@@ -424,10 +433,15 @@
       loggedMessages.add(msgKey);
 
       const div = document.createElement('div');
-      div.className = `p-3 rounded-2xl border ${isUser ? 'bg-slate-800/90 border-slate-700 text-slate-200 ml-6' : 'bg-primary/10 border-primary/20 text-primary font-medium mr-6'}`;
+      div.className = `p-3.5 rounded-2xl border shadow-sm ${isUser ? 'bg-slate-800/95 border-emerald-500/30 text-white ml-6' : 'bg-sky-950/80 border-sky-500/40 text-slate-100 font-medium mr-6'}`;
       div.innerHTML = `
-        <div class="text-[9px] font-mono opacity-70 mb-1">${isUser ? '👤 CUSTOMER' : '🤖 AI RECEPTIONIST'} &bull; ${new Date().toLocaleTimeString()}</div>
-        <div>${text}</div>
+        <div class="flex items-center justify-between text-[10px] font-bold mb-1.5 pb-1 border-b border-slate-700/50">
+          <span class="flex items-center gap-1 ${isUser ? 'text-emerald-400' : 'text-sky-300'} font-orbitron uppercase">
+            ${isUser ? '👤 CUSTOMER' : '🤖 AI RECEPTIONIST'}
+          </span>
+          <span class="text-slate-400 font-mono text-[9px]">${new Date().toLocaleTimeString()}</span>
+        </div>
+        <div class="text-xs leading-relaxed text-slate-100">${text}</div>
       `;
       feed.appendChild(div);
       feed.scrollTop = feed.scrollHeight;
@@ -461,28 +475,31 @@
 
     function renderOrderResult(order) {
       const container = document.getElementById('action-result-container');
+      if (!order) return;
+
+      const displayId = order.displayId || `#DEMO-${order.orderNumber || (order.id ? order.id.slice(0, 6) : '101')}`;
       const itemsHtml = (order.items || []).map(i => `
-        <div class="flex justify-between text-slate-300">
-          <span>${i.quantity || 1}x ${i.menuItem ? i.menuItem.name : (i.selectedAddons || 'Item')}</span>
-          <span class="font-mono font-bold">$${((i.unitPrice || 10) * (i.quantity || 1)).toFixed(2)}</span>
+        <div class="flex justify-between items-center text-slate-200 text-xs p-2 rounded-xl bg-slate-900/60 border border-slate-700/50">
+          <span><strong class="text-emerald-400 font-mono">${i.quantity || 1}x</strong> ${i.menuItem ? i.menuItem.name : (i.selectedAddons || i.name || 'Item')}</span>
+          <span class="font-mono font-bold text-white">$${((i.unitPrice || i.price || 10) * (i.quantity || 1)).toFixed(2)}</span>
         </div>
       `).join('');
 
       container.innerHTML = `
-        <div class="p-5 rounded-2xl bg-slate-800/80 border border-emerald-500/30 space-y-4 animate-fade-in">
+        <div class="p-5 rounded-2xl bg-slate-800/90 border border-emerald-500/40 space-y-4 animate-fade-in shadow-lg">
           <div class="flex justify-between items-center border-b border-slate-700 pb-3">
             <div>
-              <span class="text-[10px] font-mono text-slate-400 uppercase">ORDER ID</span>
-              <h4 class="font-orbitron font-bold text-sm text-emerald-400">#DEMO-${order.orderNumber || (order.id ? order.id.slice(0, 6) : '101')}</h4>
+              <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest block mb-0.5">CONFIRMED ORDER</span>
+              <h4 class="font-orbitron font-bold text-base text-emerald-400">${displayId}</h4>
             </div>
-            <span class="px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">CONFIRMED ✓</span>
+            <span class="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 uppercase">CONFIRMED ✓</span>
           </div>
-          <div class="space-y-2 text-xs">
-            ${itemsHtml || '<div class="text-slate-300">Voice Order Created</div>'}
+          <div class="space-y-2">
+            ${itemsHtml || `<div class="text-slate-300 text-xs">Order items confirmed</div>`}
           </div>
-          <div class="border-t border-slate-700 pt-3 flex justify-between font-bold text-sm text-white">
-            <span>TOTAL</span>
-            <span class="font-mono text-emerald-400">$${(order.total || 0).toFixed(2)}</span>
+          <div class="border-t border-slate-700 pt-3 flex justify-between items-center font-bold text-sm text-white">
+            <span class="uppercase text-xs text-slate-400 font-mono">Total Price</span>
+            <span class="font-mono text-emerald-400 text-base">$${(order.total || 0).toFixed(2)}</span>
           </div>
         </div>
       `;
@@ -490,21 +507,38 @@
 
     function renderAppointmentResult(appt) {
       const container = document.getElementById('action-result-container');
-      const apptTime = appt.appointmentTime ? new Date(appt.appointmentTime).toLocaleString() : new Date().toLocaleString();
+      if (!appt) return;
+
+      const apptTime = appt.appointmentTime ? new Date(appt.appointmentTime).toLocaleString([], {
+        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      }) : new Date().toLocaleString();
+
+      const serviceTitle = appt.service ? appt.service.name : (appt.serviceName || appt.service || 'Appointment Service');
+      const clientName = appt.customerName || appt.name || 'Voice Customer';
+      const clientPhone = appt.customerPhone || appt.phone || 'Phone Contact';
 
       container.innerHTML = `
-        <div class="p-5 rounded-2xl bg-slate-800/80 border border-emerald-500/30 space-y-4 animate-fade-in">
+        <div class="p-5 rounded-2xl bg-slate-800/90 border border-emerald-500/40 space-y-4 animate-fade-in shadow-lg">
           <div class="flex justify-between items-center border-b border-slate-700 pb-3">
             <div>
-              <span class="text-[10px] font-mono text-slate-400 uppercase">APPOINTMENT</span>
-              <h4 class="font-orbitron font-bold text-sm text-emerald-400">${appt.customerName || appt.name || 'Voice Customer'}</h4>
+              <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest block mb-0.5">BOOKED APPOINTMENT</span>
+              <h4 class="font-orbitron font-bold text-base text-white">${clientName}</h4>
             </div>
-            <span class="px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">CONFIRMED ✓</span>
+            <span class="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 uppercase">CONFIRMED ✓</span>
           </div>
-          <div class="space-y-2 text-xs text-slate-300">
-            <div>Service: <strong class="text-white">${appt.service ? appt.service.name : (appt.serviceName || appt.service || 'General Service')}</strong></div>
-            <div>Time: <strong class="text-primary">${apptTime}</strong></div>
-            <div>Source: <strong class="text-emerald-400 uppercase">AI Receptionist Live</strong></div>
+          <div class="space-y-2.5 text-xs text-slate-200 font-sans">
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-700/60">
+              <span class="text-slate-400 uppercase font-bold text-[10px]">Service</span>
+              <strong class="text-white font-bold">${serviceTitle}</strong>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-700/60">
+              <span class="text-slate-400 uppercase font-bold text-[10px]">Scheduled Time</span>
+              <strong class="text-primary font-bold">${apptTime}</strong>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-700/60">
+              <span class="text-slate-400 uppercase font-bold text-[10px]">Customer Contact</span>
+              <strong class="text-emerald-400 font-bold">${clientPhone}</strong>
+            </div>
           </div>
         </div>
       `;
