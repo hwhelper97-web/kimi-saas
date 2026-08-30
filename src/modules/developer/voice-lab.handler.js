@@ -16,7 +16,7 @@ async function handleVoiceLabSession(socket, io) {
     const globalSettings = await prisma.globalAiSettings.findUnique({ where: { id: "global" } });
 
     // 2. Determine Agent ID from Slot Mapping
-    let baseAgentId = "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g"; // default fallback
+    let baseAgentId = "agent_9401kqqj87jzf9mrmfwsprqh3frh"; // default fallback
     let isAgentId = true;
     let userProvidedId = baseAgentId;
 

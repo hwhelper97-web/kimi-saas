@@ -212,6 +212,7 @@ async function createDemoSession(data) {
       country: country,
       aiName: aiName,
       aiPersonality: "professional_friendly",
+      aiVoiceId: "agent_9401kqqj87jzf9mrmfwsprqh3frh",
       tenantId: tenant.id,
       timings: "Mon-Fri: 9am-6pm, Sat: 10am-4pm, Sun: Closed"
     }

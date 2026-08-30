@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  const appointmentAgent = "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g";
+  const appointmentAgent = "agent_9401kqqj87jzf9mrmfwsprqh3frh";
   const orderAgent = "agent_9401kqqj87jzf9mrmfwsprqh3frh";
 
   console.log("Updating businesses...");

@@ -98,7 +98,7 @@ exports.create = async (req, res) => {
         country: country || "",
         isMainBranch: isMainBranch !== undefined ? isMainBranch : true,
         tenantId: newTenant.id, // Strictly isolated
-        aiVoiceId: businessType === "appointment" ? "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g" : "agent_9401kqqj87jzf9mrmfwsprqh3frh"
+        aiVoiceId: "agent_9401kqqj87jzf9mrmfwsprqh3frh"
       },
     });
 

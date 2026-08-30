@@ -460,7 +460,7 @@ exports.getAiSessionToken = async (req, res) => {
   try {
     const settings = await prisma.globalAiSettings.findUnique({ where: { id: "global" } });
     
-    let agentId = "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g"; // default fallback
+    let agentId = "agent_9401kqqj87jzf9mrmfwsprqh3frh"; // default fallback
     if (settings) {
       const slot = settings.apptAgentSlot; // e.g. 'slot1', 'slot2', 'slot3', 'slot4'
       if (slot && settings[`${slot}Id`]) {

@@ -658,7 +658,7 @@ exports.convToBiz = convToBiz;
 
       const isAppt = normalizeBusinessType(qBiz.type) === "appointment";
       const defaultOrderingAgent = "agent_9401kqqj87jzf9mrmfwsprqh3frh";
-      const defaultAppointmentAgent = "agent_5501kqtn1qjxe5nvyc9x6zyn8w8g";
+      const defaultAppointmentAgent = "agent_9401kqqj87jzf9mrmfwsprqh3frh";
       
       let agentId = isAppt ? defaultAppointmentAgent : defaultOrderingAgent;
       if (settings) {
