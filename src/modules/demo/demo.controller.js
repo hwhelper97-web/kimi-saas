@@ -176,7 +176,12 @@ exports.getDemoOrders = async (req, res) => {
     if (!session) return res.status(404).json({ success: false, error: "Session not found" });
 
     const orders = await prisma.order.findMany({
-      where: { businessId: session.businessId },
+      where: {
+        OR: [
+          { businessId: session.businessId },
+          { tenantId: session.tenantId }
+        ]
+      },
       orderBy: { createdAt: "desc" },
       include: { items: { include: { menuItem: true } } }
     });
@@ -197,8 +202,13 @@ exports.getDemoAppointments = async (req, res) => {
     if (!session) return res.status(404).json({ success: false, error: "Session not found" });
 
     const appointments = await prisma.appointment.findMany({
-      where: { businessId: session.businessId },
-      orderBy: { appointmentTime: "desc" },
+      where: {
+        OR: [
+          { businessId: session.businessId },
+          { tenantId: session.tenantId }
+        ]
+      },
+      orderBy: { createdAt: "desc" },
       include: { service: true }
     });
 

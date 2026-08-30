@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-[#F8FBFF]">
+<html lang="en" class="h-full bg-[#07090E]">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,12 +14,14 @@
       theme: {
         extend: {
           colors: {
-            primary: '#2563EB',
-            secondary: '#38BDF8',
+            primary: '#38BDF8',
+            secondary: '#2563EB',
             accent: '#7DD3FC',
-            textMain: '#0F172A',
-            textDim: '#475569',
-            borderClr: '#E2E8F0'
+            bgDark: '#07090E',
+            cardDark: '#1E293B',
+            textMain: '#F8FAFC',
+            textDim: '#94A3B8',
+            borderClr: '#334155'
           },
           fontFamily: {
             orbitron: ['Orbitron', 'sans-serif'],
@@ -30,28 +32,44 @@
     }
   </script>
   <style>
+    .ambient-orb {
+      position: fixed;
+      border-radius: 9999px;
+      filter: blur(120px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 550px; height: 550px; background: #38BDF8; top: -100px; left: -100px; }
+    .orb-2 { width: 650px; height: 650px; background: #2563EB; bottom: -150px; right: -150px; }
+
     .btn-gradient {
-      background: linear-gradient(135deg, #2563EB 0%, #38BDF8 100%) !important;
-      color: #FFFFFF !important;
+      background: linear-gradient(135deg, #38BDF8 0%, #2563EB 100%) !important;
+      color: #0F172A !important;
+      font-weight: 900 !important;
     }
     .btn-gradient:hover {
       opacity: 0.95;
-      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+      box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.4);
     }
   </style>
 </head>
-<body class="font-sans text-textMain antialiased h-full flex flex-col bg-[#F8FBFF]">
+<body class="font-sans text-textMain antialiased h-full flex flex-col bg-[#07090E] relative overflow-x-hidden">
+
+  <!-- Ambient Glowing Background Orbs -->
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
 
   <!-- Header -->
-  <header class="w-full bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
+  <header class="w-full bg-[#1E293B]/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
       <a href="/" class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-orbitron font-black text-lg shadow-md">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-slate-900 font-orbitron font-black text-lg shadow-md shadow-primary/20">
           N
         </div>
         <div class="flex flex-col">
           <span class="font-orbitron font-black text-sm tracking-[2px] bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"><%= projectName %></span>
-          <span class="text-[9px] font-bold text-emerald-600 tracking-widest uppercase flex items-center gap-1">
+          <span class="text-[9px] font-bold text-emerald-400 tracking-widest uppercase flex items-center gap-1">
             <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span>
             LIVE DEMO CENTER
           </span>
@@ -59,10 +77,10 @@
       </a>
 
       <div class="flex items-center gap-4">
-        <a href="/" class="text-xs font-bold text-textDim hover:text-primary uppercase transition-colors hidden sm:inline-block">
+        <a href="/" class="text-xs font-bold text-slate-400 hover:text-primary uppercase transition-colors hidden sm:inline-block">
           Return to Main Site
         </a>
-        <a href="/login" class="px-5 py-2.5 rounded-full text-xs font-bold tracking-wider text-primary border border-primary/20 hover:bg-primary/5 transition-all uppercase">
+        <a href="/login" class="px-5 py-2.5 rounded-full text-xs font-bold tracking-wider text-slate-900 bg-primary hover:bg-secondary transition-all uppercase shadow-lg shadow-primary/20">
           Access Portal
         </a>
       </div>
@@ -70,86 +88,86 @@
   </header>
 
   <!-- Main Setup Container -->
-  <main class="flex-1 max-w-4xl w-full mx-auto px-6 py-12">
+  <main class="flex-1 max-w-4xl w-full mx-auto px-6 py-12 relative z-10">
     
     <!-- Hero Header -->
     <div class="text-center max-w-2xl mx-auto mb-12">
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-black text-emerald-700 uppercase tracking-widest mb-4 shadow-sm">
-        <i data-lucide="zap" class="w-4 h-4 text-emerald-600"></i>
-        <span>Instant 12-Hour Trial — Inventory Phone Allocation</span>
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-black text-emerald-400 uppercase tracking-widest mb-4 shadow-sm">
+        <i data-lucide="zap" class="w-4 h-4 text-emerald-400"></i>
+        <span>INSTANT 12-HOUR TRIAL — INVENTORY PHONE ALLOCATION</span>
       </div>
-      <h1 class="font-orbitron font-black text-3xl sm:text-4xl text-textMain tracking-tight mb-3">
+      <h1 class="font-orbitron font-black text-3xl sm:text-4xl text-white tracking-tight mb-3">
         Build Your AI Receptionist &amp; <span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Call It Live</span>
       </h1>
-      <p class="text-sm sm:text-base text-textDim leading-relaxed">
+      <p class="text-sm sm:text-base text-slate-400 leading-relaxed">
         Experience a real phone call with an AI receptionist tailored to your exact industry in under 2 minutes.
       </p>
     </div>
 
     <!-- Progress Indicator -->
     <div class="mb-10">
-      <div class="flex items-center justify-between text-xs font-bold text-textDim uppercase tracking-wider mb-3">
+      <div class="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
         <span id="step-indicator-text" class="text-primary font-black">Step 1 of 3 — Select Business Category</span>
-        <span id="step-percentage">33% Completed</span>
+        <span id="step-percentage" class="font-mono text-emerald-400">33% Completed</span>
       </div>
-      <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-        <div id="step-progress-bar" class="bg-gradient-to-r from-primary to-secondary h-2 rounded-full transition-all duration-500 w-1/3"></div>
+      <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700/60">
+        <div id="step-progress-bar" class="bg-gradient-to-r from-primary to-secondary h-2 rounded-full transition-all duration-500 w-1/3 shadow-sm shadow-primary"></div>
       </div>
     </div>
 
     <!-- Multi-Step Form Card -->
-    <div class="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
+    <div class="bg-[#1E293B]/90 backdrop-blur-xl border border-slate-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
 
       <!-- STEP 1: BUSINESS TYPE & SUB-CATEGORY SELECTION -->
       <div id="wizard-step-1" class="space-y-8">
         <div>
-          <h2 class="font-orbitron font-bold text-lg text-textMain uppercase mb-2">Select Your Business Category</h2>
-          <p class="text-xs text-textDim">Choose your operational model and specific industry to pre-load realistic AI conversations and offerings.</p>
+          <h2 class="font-orbitron font-bold text-lg text-white uppercase mb-2">Select Your Business Category</h2>
+          <p class="text-xs text-slate-400">Choose your operational model and specific industry to pre-load realistic AI conversations and offerings.</p>
         </div>
 
         <!-- Primary Model Switch Tabs -->
-        <div class="flex p-1.5 rounded-2xl bg-slate-100 border border-slate-200/80 gap-2 max-w-md mx-auto">
-          <button type="button" onclick="switchPrimaryModel('restaurant')" id="tab-model-restaurant" class="flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all bg-white text-primary shadow-sm">
+        <div class="flex p-1.5 rounded-2xl bg-[#0F172A] border border-slate-700/80 gap-2 max-w-md mx-auto">
+          <button type="button" onclick="switchPrimaryModel('restaurant')" id="tab-model-restaurant" class="flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all bg-primary text-slate-900 shadow-md">
             🍕 Order-Based AI
           </button>
-          <button type="button" onclick="switchPrimaryModel('appointment')" id="tab-model-appointment" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-textDim hover:text-textMain">
+          <button type="button" onclick="switchPrimaryModel('appointment')" id="tab-model-appointment" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">
             📅 Appointment-Based AI
           </button>
         </div>
 
         <!-- ORDER-BASED SUB-CATEGORIES -->
         <div id="subcategories-restaurant" class="space-y-4">
-          <div class="text-xs font-bold text-textDim uppercase tracking-wider">Choose Order Industry Sub-Category:</div>
+          <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Choose Order Industry Sub-Category:</div>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             
-            <div onclick="selectSubCategory('pizzeria', 'restaurant', 'Bella Pizzeria')" id="subcard-pizzeria" class="subcard border-2 border-primary ring-2 ring-primary/20 rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+            <div onclick="selectSubCategory('pizzeria', 'restaurant', 'Bella Pizzeria')" id="subcard-pizzeria" class="subcard border-2 border-primary ring-2 ring-primary/20 rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all bg-[#0F172A] text-white">
               <div class="text-2xl mb-2">🍕</div>
-              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Pizzeria &amp; Italian</h3>
-              <p class="text-[11px] text-textDim">Pizza, garlic bread, calzones, soft drinks.</p>
+              <h3 class="font-orbitron font-bold text-sm text-white uppercase mb-1">Pizzeria &amp; Italian</h3>
+              <p class="text-[11px] text-slate-400">Pizza, garlic bread, calzones, soft drinks.</p>
             </div>
 
-            <div onclick="selectSubCategory('cafe', 'restaurant', 'Roast &amp; Brew Cafe')" id="subcard-cafe" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+            <div onclick="selectSubCategory('cafe', 'restaurant', 'Roast &amp; Brew Cafe')" id="subcard-cafe" class="subcard border-2 border-slate-700/80 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all bg-[#0F172A] text-slate-300">
               <div class="text-2xl mb-2">☕</div>
-              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Cafe &amp; Coffee Shop</h3>
-              <p class="text-[11px] text-textDim">Espresso, macchiatos, croissants, avocado toast.</p>
+              <h3 class="font-orbitron font-bold text-sm text-white uppercase mb-1">Cafe &amp; Coffee Shop</h3>
+              <p class="text-[11px] text-slate-400">Espresso, macchiatos, croissants, avocado toast.</p>
             </div>
 
-            <div onclick="selectSubCategory('burger', 'restaurant', 'Smash Burger Co.')" id="subcard-burger" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+            <div onclick="selectSubCategory('burger', 'restaurant', 'Smash Burger Co.')" id="subcard-burger" class="subcard border-2 border-slate-700/80 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all bg-[#0F172A] text-slate-300">
               <div class="text-2xl mb-2">🍔</div>
-              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Burger &amp; Fast Food</h3>
-              <p class="text-[11px] text-textDim">Cheeseburgers, chicken sandwiches, fries, shakes.</p>
+              <h3 class="font-orbitron font-bold text-sm text-white uppercase mb-1">Burger &amp; Fast Food</h3>
+              <p class="text-[11px] text-slate-400">Cheeseburgers, chicken sandwiches, fries, shakes.</p>
             </div>
 
-            <div onclick="selectSubCategory('sushi', 'restaurant', 'Sakura Sushi Bistro')" id="subcard-sushi" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+            <div onclick="selectSubCategory('sushi', 'restaurant', 'Sakura Sushi Bistro')" id="subcard-sushi" class="subcard border-2 border-slate-700/80 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all bg-[#0F172A] text-slate-300">
               <div class="text-2xl mb-2">🍣</div>
-              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Sushi &amp; Asian Bistro</h3>
-              <p class="text-[11px] text-textDim">Sushi rolls, bento boxes, gyoza, miso soup.</p>
+              <h3 class="font-orbitron font-bold text-sm text-white uppercase mb-1">Sushi &amp; Asian Bistro</h3>
+              <p class="text-[11px] text-slate-400">Sushi rolls, bento boxes, gyoza, miso soup.</p>
             </div>
 
-            <div onclick="selectSubCategory('retail', 'restaurant', 'Urban Apparel Boutique')" id="subcard-retail" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+            <div onclick="selectSubCategory('retail', 'restaurant', 'Urban Apparel Boutique')" id="subcard-retail" class="subcard border-2 border-slate-700/80 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all bg-[#0F172A] text-slate-300">
               <div class="text-2xl mb-2">🛍️</div>
-              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Retail &amp; Boutique</h3>
-              <p class="text-[11px] text-textDim">Streetwear hoodies, organic tees, tote bags, candles.</p>
+              <h3 class="font-orbitron font-bold text-sm text-white uppercase mb-1">Retail &amp; Boutique</h3>
+              <p class="text-[11px] text-slate-400">Streetwear hoodies, organic tees, tote bags, candles.</p>
             </div>
 
           </div>
@@ -157,46 +175,46 @@
 
         <!-- APPOINTMENT-BASED SUB-CATEGORIES -->
         <div id="subcategories-appointment" class="space-y-4 hidden">
-          <div class="text-xs font-bold text-textDim uppercase tracking-wider">Choose Appointment Industry Sub-Category:</div>
+          <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Choose Appointment Industry Sub-Category:</div>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             
-            <div onclick="selectSubCategory('salon', 'appointment', 'Luxe Hair Salon')" id="subcard-salon" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+            <div onclick="selectSubCategory('salon', 'appointment', 'Luxe Hair Salon')" id="subcard-salon" class="subcard border-2 border-slate-700/80 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all bg-[#0F172A] text-slate-300">
               <div class="text-2xl mb-2">💇</div>
-              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Hair Salon &amp; Barber</h3>
-              <p class="text-[11px] text-textDim">Haircuts, beard trims, balayage, styling.</p>
+              <h3 class="font-orbitron font-bold text-sm text-white uppercase mb-1">Hair Salon &amp; Barber</h3>
+              <p class="text-[11px] text-slate-400">Haircuts, beard trims, balayage, styling.</p>
             </div>
 
-            <div onclick="selectSubCategory('spa', 'appointment', 'Tranquility Spa &amp; Wellness')" id="subcard-spa" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+            <div onclick="selectSubCategory('spa', 'appointment', 'Tranquility Spa &amp; Wellness')" id="subcard-spa" class="subcard border-2 border-slate-700/80 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all bg-[#0F172A] text-slate-300">
               <div class="text-2xl mb-2">💅</div>
-              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Spa &amp; Wellness Center</h3>
-              <p class="text-[11px] text-textDim">Deep tissue massage, facials, aromatherapy packages.</p>
+              <h3 class="font-orbitron font-bold text-sm text-white uppercase mb-1">Spa &amp; Wellness Center</h3>
+              <p class="text-[11px] text-slate-400">Deep tissue massage, facials, aromatherapy packages.</p>
             </div>
 
-            <div onclick="selectSubCategory('clinic', 'appointment', 'Apex Medical Clinic')" id="subcard-clinic" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+            <div onclick="selectSubCategory('clinic', 'appointment', 'Apex Medical Clinic')" id="subcard-clinic" class="subcard border-2 border-slate-700/80 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all bg-[#0F172A] text-slate-300">
               <div class="text-2xl mb-2">🩺</div>
-              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Medical Clinic &amp; Dental</h3>
-              <p class="text-[11px] text-textDim">General checkups, dental cleanings, consultations.</p>
+              <h3 class="font-orbitron font-bold text-sm text-white uppercase mb-1">Medical Clinic &amp; Dental</h3>
+              <p class="text-[11px] text-slate-400">General checkups, dental cleanings, consultations.</p>
             </div>
 
-            <div onclick="selectSubCategory('hotel', 'appointment', 'Grand Horizon Hotel')" id="subcard-hotel" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+            <div onclick="selectSubCategory('hotel', 'appointment', 'Grand Horizon Hotel')" id="subcard-hotel" class="subcard border-2 border-slate-700/80 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all bg-[#0F172A] text-slate-300">
               <div class="text-2xl mb-2">🏨</div>
-              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Hotel &amp; Resort Concierge</h3>
-              <p class="text-[11px] text-textDim">Room reservations, airport shuttles, late checkouts.</p>
+              <h3 class="font-orbitron font-bold text-sm text-white uppercase mb-1">Hotel &amp; Resort Concierge</h3>
+              <p class="text-[11px] text-slate-400">Room reservations, airport shuttles, late checkouts.</p>
             </div>
 
-            <div onclick="selectSubCategory('consulting', 'appointment', 'Vanguard Consulting')" id="subcard-consulting" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+            <div onclick="selectSubCategory('consulting', 'appointment', 'Vanguard Consulting')" id="subcard-consulting" class="subcard border-2 border-slate-700/80 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all bg-[#0F172A] text-slate-300">
               <div class="text-2xl mb-2">💼</div>
-              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Consulting &amp; Professional</h3>
-              <p class="text-[11px] text-textDim">Strategy calls, technical audits, legal consultations.</p>
+              <h3 class="font-orbitron font-bold text-sm text-white uppercase mb-1">Consulting &amp; Professional</h3>
+              <p class="text-[11px] text-slate-400">Strategy calls, technical audits, legal consultations.</p>
             </div>
 
           </div>
         </div>
 
-        <div class="flex justify-end pt-4 border-t border-slate-100">
-          <button type="button" onclick="goToStep(2)" class="px-8 py-3.5 rounded-full text-xs font-black tracking-wider text-white bg-gradient-to-r from-primary via-blue-600 to-secondary hover:opacity-95 shadow-lg transition-all uppercase flex items-center gap-2 cursor-pointer">
+        <div class="flex justify-end pt-4 border-t border-slate-700/80">
+          <button type="button" onclick="goToStep(2)" class="px-8 py-3.5 rounded-full text-xs font-black tracking-wider text-slate-900 bg-gradient-to-r from-primary via-secondary to-primary hover:opacity-95 shadow-lg shadow-primary/20 transition-all uppercase flex items-center gap-2 cursor-pointer">
             <span>Continue to Business Details</span>
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
           </button>
         </div>
 
@@ -205,8 +223,8 @@
       <!-- STEP 2: BUSINESS & AI CONFIGURATION -->
       <div id="wizard-step-2" class="space-y-8 hidden">
         <div>
-          <h2 class="font-orbitron font-bold text-lg text-textMain uppercase mb-2">Configure Business &amp; AI Details</h2>
-          <p class="text-xs text-textDim">Provide basic information so your AI agent knows who it is representing.</p>
+          <h2 class="font-orbitron font-bold text-lg text-white uppercase mb-2">Configure Business &amp; AI Details</h2>
+          <p class="text-xs text-slate-400">Provide basic information so your AI agent knows who it is representing.</p>
         </div>
 
         <form id="demo-config-form" class="space-y-6">
@@ -216,253 +234,201 @@
           <!-- Business Info Grid -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label class="block text-xs font-bold text-textMain uppercase mb-2">Business Name *</label>
-              <input type="text" id="form-businessName" required value="Bella Pizzeria" placeholder="e.g. Bella Pizzeria or Luxe Salon" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain font-bold placeholder-slate-400 focus:border-primary focus:outline-none" />
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Business Name *</label>
+              <input type="text" id="form-businessName" required value="Bella Pizzeria" placeholder="e.g. Bella Pizzeria or Luxe Salon" class="w-full px-4 py-3 bg-[#0F172A] border border-slate-700 rounded-xl text-sm text-white font-bold placeholder-slate-500 focus:border-primary focus:outline-none" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-textMain uppercase mb-2">Your Name (Contact) *</label>
-              <input type="text" id="form-ownerName" required placeholder="e.g. Alex Morgan" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-xs font-bold text-textMain uppercase mb-2">Work Email Address (Compulsory) *</label>
-              <input type="email" id="form-email" required placeholder="alex@business.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-textMain uppercase mb-2">Your Phone Number (Optional)</label>
-              <input type="tel" id="form-phone" placeholder="+1 (555) 000-0000" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Your Name (Contact) *</label>
+              <input type="text" id="form-ownerName" required placeholder="e.g. Alex Morgan" class="w-full px-4 py-3 bg-[#0F172A] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:border-primary focus:outline-none" />
             </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label class="block text-xs font-bold text-textMain uppercase mb-2">City</label>
-              <input type="text" id="form-city" value="San Francisco" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Work Email Address (Compulsory) *</label>
+              <input type="email" id="form-email" required placeholder="alex@business.com" class="w-full px-4 py-3 bg-[#0F172A] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:border-primary focus:outline-none" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-textMain uppercase mb-2">AI Assistant Name</label>
-              <input type="text" id="form-aiName" value="Sarah" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Your Phone Number (Optional)</label>
+              <input type="tel" id="form-phone" placeholder="+1 (555) 000-0000" class="w-full px-4 py-3 bg-[#0F172A] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:border-primary focus:outline-none" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">City</label>
+              <input type="text" id="form-city" value="San Francisco" class="w-full px-4 py-3 bg-[#0F172A] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:border-primary focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-300 uppercase mb-2">AI Assistant Name</label>
+              <input type="text" id="form-aiName" value="Sarah" class="w-full px-4 py-3 bg-[#0F172A] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:border-primary focus:outline-none" />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-textMain uppercase mb-2">Custom AI Phone Greeting</label>
-            <textarea id="form-customGreeting" rows="2" placeholder="Auto-generated greeting will be used if left blank" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-textMain placeholder-slate-400 focus:border-primary focus:outline-none"></textarea>
+            <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Custom Voice Greeting (Optional)</label>
+            <textarea id="form-customGreeting" rows="2" placeholder="e.g. Thanks for calling Bella Pizzeria! How can I help you order today?" class="w-full px-4 py-3 bg-[#0F172A] border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:border-primary focus:outline-none"></textarea>
           </div>
 
-          <div class="flex items-center justify-between pt-6 border-t border-slate-100">
-            <button type="button" onclick="goToStep(1)" class="px-6 py-3 rounded-full text-xs font-bold text-textDim border border-slate-200 hover:bg-slate-50 uppercase cursor-pointer">
-              Back
+          <div class="flex items-center justify-between pt-4 border-t border-slate-700/80">
+            <button type="button" onclick="goToStep(1)" class="px-6 py-3 rounded-full text-xs font-bold text-slate-400 hover:text-white uppercase transition-colors">
+              &larr; Back
             </button>
-            <button type="button" onclick="goToStep(3)" class="px-8 py-3.5 rounded-full text-xs font-black tracking-wider text-white bg-gradient-to-r from-primary via-blue-600 to-secondary hover:opacity-95 shadow-lg hover:shadow-xl transition-all uppercase flex items-center gap-2 cursor-pointer">
-              <span>Next: Configure Offerings</span>
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <button type="button" onclick="goToStep(3)" class="px-8 py-3.5 rounded-full text-xs font-black tracking-wider text-slate-900 bg-gradient-to-r from-primary via-secondary to-primary hover:opacity-95 shadow-lg shadow-primary/20 transition-all uppercase flex items-center gap-2 cursor-pointer">
+              <span>Review Menu &amp; Offerings</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
             </button>
           </div>
         </form>
       </div>
 
-      <!-- STEP 3: ITEMS / SERVICES PRE-LOADER & FINAL LAUNCH -->
+      <!-- STEP 3: PRE-LOADED OFFERINGS REVIEW & LAUNCH -->
       <div id="wizard-step-3" class="space-y-8 hidden">
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="font-orbitron font-bold text-lg text-textMain uppercase mb-1" id="step-3-title">Customize Demo Offerings</h2>
-            <p class="text-xs text-textDim" id="step-3-subtitle">Pre-loaded sample items your AI will offer during phone calls.</p>
+        <div>
+          <h2 class="font-orbitron font-bold text-lg text-white uppercase mb-2">Review Industry Offerings &amp; Launch</h2>
+          <p class="text-xs text-slate-400">These items or services have been pre-loaded into your AI knowledge base. When you call, ask about these items directly!</p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 id="offerings-title" class="font-orbitron font-bold text-xs uppercase tracking-wider text-primary">Pre-Loaded Menu Items</h3>
+            <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">AI READY</span>
           </div>
-          <button onclick="addCustomRow()" class="px-4 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer">
-            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-            <span>Add Item</span>
-          </button>
-        </div>
 
-        <!-- Dynamic Items Table -->
-        <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-100 border-b border-slate-200 font-orbitron text-[10px] text-textDim uppercase tracking-wider">
-              <tr>
-                <th class="py-3 px-4">Name</th>
-                <th class="py-3 px-4 w-28">Price ($)</th>
-                <th class="py-3 px-4 w-32 hidden sm:table-cell" id="col-extra-header">Duration (min)</th>
-                <th class="py-3 px-4 w-12 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody id="items-table-body" class="divide-y divide-slate-200">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Launch Callout -->
-        <div class="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
-          <i data-lucide="phone-call" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
-          <div class="text-xs text-emerald-950 space-y-1">
-            <p class="font-bold uppercase tracking-wider">Ready to Test Your AI Receptionist!</p>
-            <p class="text-emerald-800">
-              Clicking <strong class="font-black">CREATE MY AI DEMO</strong> will assign an available inventory phone number for your demo, configure your AI agent, and launch your live 12-hour demo dashboard.
-            </p>
+          <div id="items-preview-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Dynamically Rendered -->
           </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex items-center justify-between pt-4 border-t border-slate-100">
-          <button type="button" onclick="goToStep(2)" class="px-6 py-3 rounded-full text-xs font-bold text-textDim border border-slate-200 hover:bg-slate-50 uppercase cursor-pointer">
-            Back
+        <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-3">
+          <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5"></i>
+          <p class="text-xs text-emerald-300 leading-relaxed">
+            Your 12-hour demo session will allocate a dedicated inventory phone number. You can call immediately from your phone and see real-time transcripts and order/appointment results updated on screen!
+          </p>
+        </div>
+
+        <div class="flex items-center justify-between pt-4 border-t border-slate-700/80">
+          <button type="button" onclick="goToStep(2)" class="px-6 py-3 rounded-full text-xs font-bold text-slate-400 hover:text-white uppercase transition-colors">
+            &larr; Back
           </button>
-          <button type="button" onclick="submitDemoCreation()" id="btn-submit-demo" class="px-10 py-4 rounded-full text-xs font-black tracking-wider text-white bg-gradient-to-r from-emerald-500 via-teal-600 to-primary shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all uppercase flex items-center gap-2 cursor-pointer">
-            <span>CREATE MY AI DEMO</span>
-            <i data-lucide="sparkles" class="w-4 h-4"></i>
+
+          <button type="button" id="launch-demo-btn" onclick="submitDemoSetup()" class="px-10 py-4 rounded-full text-xs font-black tracking-wider text-slate-900 bg-gradient-to-r from-emerald-400 via-primary to-emerald-400 hover:opacity-95 shadow-xl shadow-emerald-500/20 transition-all uppercase flex items-center gap-2 cursor-pointer">
+            <i data-lucide="phone-call" class="w-4 h-4 text-slate-900"></i>
+            <span>LAUNCH DEMO SESSION &amp; GET NUMBER &rarr;</span>
           </button>
         </div>
       </div>
 
     </div>
+
   </main>
 
-  <!-- VIP WAITLIST MODAL (When System Numbers Are Busy) -->
-  <div id="waitlist-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
-      <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mb-4">
-        <i data-lucide="phone-off" class="w-6 h-6"></i>
-      </div>
-      
-      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black uppercase tracking-wider mb-2">
-        <span>⚠️ All System Demo Phone Lines Busy</span>
+  <!-- VIP DEMO QUEUE WAITLIST MODAL -->
+  <div id="waitlist-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-6 hidden animate-fade-in">
+    <div class="bg-[#0F172A] border border-emerald-500/40 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 relative overflow-hidden">
+      <div class="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
+        <i data-lucide="clock" class="w-32 h-32 text-emerald-400"></i>
       </div>
 
-      <h3 class="font-orbitron font-black text-lg sm:text-xl text-slate-900 mb-2 uppercase">Currently Our System Numbers Are Busy</h3>
-      <p class="text-xs text-slate-600 mb-6 leading-relaxed">
-        All active system phone numbers are currently assigned to live prospect sessions. Kindly leave your details below — our system will reserve your demo spot and automatically deliver your live access credentials and assigned phone number straight to your email as soon as a line frees up!
-      </p>
+      <div class="space-y-2 relative z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-black text-emerald-400 uppercase tracking-widest">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+          <span>SYSTEM DEMO NUMBERS CURRENTLY BUSY</span>
+        </div>
+        <h3 class="font-orbitron font-black text-xl text-white">Reserve Priority Demo Line</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          All our active system demo phone lines are currently handling live prospect test calls. Leave your details below to reserve the next available phone line. We will email your direct credentials as soon as a line frees up!
+        </p>
+      </div>
 
-      <form id="waitlist-form" onsubmit="handleWaitlistSubmit(event)" class="space-y-4">
+      <form id="waitlist-form" onsubmit="submitWaitlistReservation(event)" class="space-y-4 relative z-10">
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Work Email Address (Compulsory) *</label>
-          <input type="email" id="wl-email" required placeholder="name@company.com" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-bold focus:border-primary focus:outline-none" />
+          <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Work Email Address (Compulsory) *</label>
+          <input type="email" id="waitlist-email" required placeholder="you@company.com" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" />
         </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Full Name *</label>
-            <input type="text" id="wl-name" required placeholder="Alex Morgan" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-bold focus:border-primary focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Mobile Phone Number *</label>
-            <input type="tel" id="wl-phone" required placeholder="+1 (555) 000-0000" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-bold focus:border-primary focus:outline-none" />
-          </div>
-        </div>
-
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Demo Category / Industry *</label>
-          <select id="wl-category" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-bold focus:border-primary focus:outline-none">
-            <option value="pizzeria">🍕 Pizzeria &amp; Italian Order AI</option>
-            <option value="cafe">☕ Cafe &amp; Coffee Shop Order AI</option>
-            <option value="burger">🍔 Fast Food &amp; Burger Order AI</option>
-            <option value="sushi">🍣 Sushi &amp; Asian Bistro Order AI</option>
-            <option value="salon">💇 Hair Salon &amp; Barber Appointment AI</option>
-            <option value="spa">💅 Spa &amp; Wellness Appointment AI</option>
-            <option value="clinic">🩺 Medical Clinic &amp; Dental Appointment AI</option>
-            <option value="hotel">🏨 Hotel Concierge Appointment AI</option>
-            <option value="consulting">💼 Professional Consulting Appointment AI</option>
-          </select>
+          <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Full Name *</label>
+          <input type="text" id="waitlist-fullName" required placeholder="John Doe" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Mobile Phone Number *</label>
+          <input type="tel" id="waitlist-phone" required placeholder="+1 (555) 000-0000" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none" />
         </div>
 
-        <div class="pt-2 flex items-center justify-between gap-3">
-          <button type="button" onclick="closeWaitlistModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-500 hover:bg-slate-50">
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" onclick="closeWaitlistModal()" class="px-5 py-2.5 rounded-full text-xs font-bold text-slate-400 hover:text-white uppercase">
             Cancel
           </button>
-          <button type="submit" id="btn-submit-waitlist" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-white text-xs font-black uppercase shadow-md hover:opacity-95 flex items-center gap-2">
-            <span>Reserve My Demo Spot</span>
-            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          <button type="submit" id="waitlist-submit-btn" class="px-6 py-3 rounded-full text-xs font-black tracking-wider text-slate-900 bg-emerald-400 hover:bg-emerald-300 shadow-lg shadow-emerald-500/20 uppercase">
+            Reserve Priority Line &rarr;
           </button>
         </div>
       </form>
-
-      <div id="waitlist-success-msg" class="hidden p-6 text-center space-y-3">
-        <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-          <i data-lucide="check-circle" class="w-6 h-6"></i>
-        </div>
-        <h4 class="font-orbitron font-bold text-base text-slate-900 uppercase">Reservation Confirmed!</h4>
-        <p class="text-xs text-slate-600 leading-relaxed">
-          Your priority demo reservation is saved. As soon as a demo line frees up within 12 hours, your live access link and phone number will be delivered directly to your email!
-        </p>
-        <button onclick="closeWaitlistModal()" class="px-6 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold uppercase mt-2">
-          Done
-        </button>
-      </div>
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="w-full border-t border-slate-200/80 bg-white py-6 text-center text-xs text-textDim">
-    <p>&copy; <%= new Date().getFullYear() %> <%= projectName %>. All rights reserved. Strict Phone Inventory Allocation Policy Enabled.</p>
+  <footer class="w-full border-t border-slate-800 py-6 mt-12 bg-[#07090E] relative z-10">
+    <div class="max-w-7xl mx-auto px-6 text-center text-[11px] text-slate-500 font-mono">
+      &copy; 2026 <%= projectName %>. All rights reserved. Strict Phone Inventory Allocation Policy Enabled.
+    </div>
   </footer>
 
   <script>
     lucide.createIcons();
 
-    let selectedType = 'restaurant';
-    let selectedSubType = 'pizzeria';
     let currentStep = 1;
+    let selectedType = "restaurant";
+    let selectedSub = "pizzeria";
 
     const PRESETS = {
       pizzeria: [
-        { name: "Pizza Margherita", price: 12.0, duration: 15 },
-        { name: "Chicken Fajita Pizza", price: 15.0, duration: 20 },
-        { name: "Pepperoni Supreme Pizza", price: 16.5, duration: 18 },
-        { name: "Garlic Bread", price: 5.0, duration: 10 },
-        { name: "Soft Drink", price: 2.5, duration: 2 }
+        { name: "Pizza Margherita", price: "$12.00" },
+        { name: "Chicken Fajita Pizza", price: "$15.00" },
+        { name: "Pepperoni Supreme Pizza", price: "$16.50" },
+        { name: "Garlic Bread", price: "$5.00" },
+        { name: "Soft Drink", price: "$2.50" }
       ],
       cafe: [
-        { name: "Iced Caramel Macchiato", price: 5.5, duration: 5 },
-        { name: "Double Shot Espresso", price: 3.5, duration: 3 },
-        { name: "Butter Croissant", price: 4.0, duration: 2 },
-        { name: "Avocado Sourdough Toast", price: 9.5, duration: 10 },
-        { name: "Iced Matcha Latte", price: 6.0, duration: 5 }
+        { name: "Iced Caramel Macchiato", price: "$5.50" },
+        { name: "Double Shot Espresso", price: "$3.50" },
+        { name: "Butter Croissant", price: "$4.00" },
+        { name: "Avocado Sourdough Toast", price: "$9.50" }
       ],
       burger: [
-        { name: "Double Smash Cheeseburger", price: 11.5, duration: 12 },
-        { name: "Crispy Spicy Chicken Sandwich", price: 10.5, duration: 12 },
-        { name: "Loaded Seasoned Fries", price: 4.5, duration: 8 },
-        { name: "Vanilla Milkshake", price: 4.5, duration: 5 }
+        { name: "Double Smash Cheeseburger", price: "$11.50" },
+        { name: "Crispy Spicy Chicken Sandwich", price: "$10.50" },
+        { name: "Loaded Seasoned Fries", price: "$4.50" }
       ],
       sushi: [
-        { name: "Salmon Lover Roll (8pcs)", price: 14.5, duration: 15 },
-        { name: "Chicken Teriyaki Bento Box", price: 16.5, duration: 20 },
-        { name: "Steamed Pork Gyoza (6pcs)", price: 7.5, duration: 10 },
-        { name: "Traditional Miso Soup", price: 3.5, duration: 5 }
+        { name: "Salmon Lover Roll (8pcs)", price: "$14.50" },
+        { name: "Chicken Teriyaki Bento Box", price: "$16.50" },
+        { name: "Steamed Pork Gyoza (6pcs)", price: "$7.50" }
       ],
       retail: [
-        { name: "Heavyweight Graphic Hoodie", price: 55.0, duration: 5 },
-        { name: "Organic Cotton Logo Tee", price: 28.0, duration: 5 },
-        { name: "Canvas Everyday Tote Bag", price: 18.0, duration: 5 },
-        { name: "Scented Soy Wax Candle", price: 22.0, duration: 5 }
+        { name: "Heavyweight Graphic Hoodie", price: "$55.00" },
+        { name: "Organic Cotton Logo Tee", price: "$28.00" },
+        { name: "Scented Soy Wax Candle", price: "$22.00" }
       ],
       salon: [
-        { name: "Signature Haircut & Styling", price: 35.0, duration: 30 },
-        { name: "Beard Trim & Hot Towel Shave", price: 20.0, duration: 20 },
-        { name: "Full Balayage & Color Gloss", price: 95.0, duration: 90 }
+        { name: "Signature Haircut & Styling", price: "$35.00 (30 mins)" },
+        { name: "Beard Trim & Hot Towel Shave", price: "$20.00 (20 mins)" },
+        { name: "Full Balayage & Color Gloss", price: "$95.00 (90 mins)" }
       ],
       spa: [
-        { name: "60-Min Deep Tissue Massage", price: 85.0, duration: 60 },
-        { name: "Hydrating Facial Treatment", price: 65.0, duration: 45 },
-        { name: "Aromatherapy Wellness Package", price: 120.0, duration: 90 }
+        { name: "60-Min Deep Tissue Massage", price: "$85.00 (60 mins)" },
+        { name: "Hydrating Facial & Skin Treatment", price: "$65.00 (45 mins)" }
       ],
       clinic: [
-        { name: "General Medical Checkup", price: 75.0, duration: 30 },
-        { name: "Dental Cleaning & Polishing", price: 90.0, duration: 45 },
-        { name: "Specialist Consultation", price: 120.0, duration: 30 }
+        { name: "General Medical Checkup", price: "$75.00 (30 mins)" },
+        { name: "Dental Cleaning & Polishing", price: "$90.00 (45 mins)" }
       ],
       hotel: [
-        { name: "Deluxe Ocean View Room Reservation", price: 180.0, duration: 30 },
-        { name: "Private Airport Transfer Shuttle", price: 45.0, duration: 30 },
-        { name: "VIP Late Checkout Pass (2 PM)", price: 35.0, duration: 15 }
+        { name: "Deluxe Ocean View Room Reservation", price: "$180.00/night" },
+        { name: "Private Airport Transfer Shuttle", price: "$45.00" }
       ],
       consulting: [
-        { name: "30-Min Growth Strategy Call", price: 75.0, duration: 30 },
-        { name: "Full Technical Architecture Audit", price: 300.0, duration: 60 },
-        { name: "Legal Consultation Session", price: 150.0, duration: 45 }
+        { name: "30-Min Growth Strategy Call", price: "$75.00 (30 mins)" },
+        { name: "Technical Infrastructure Audit", price: "$150.00 (60 mins)" }
       ]
     };
 
@@ -472,43 +438,56 @@
 
       const tabRest = document.getElementById('tab-model-restaurant');
       const tabAppt = document.getElementById('tab-model-appointment');
-      const subRest = document.getElementById('subcategories-restaurant');
-      const subAppt = document.getElementById('subcategories-appointment');
 
       if (type === 'restaurant') {
-        tabRest.className = 'flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all bg-white text-primary shadow-sm';
-        tabAppt.className = 'flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-textDim hover:text-textMain';
-        subRest.classList.remove('hidden');
-        subAppt.classList.add('hidden');
+        tabRest.className = "flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all bg-primary text-slate-900 shadow-md";
+        tabAppt.className = "flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
+        document.getElementById('subcategories-restaurant').classList.remove('hidden');
+        document.getElementById('subcategories-appointment').classList.add('hidden');
         selectSubCategory('pizzeria', 'restaurant', 'Bella Pizzeria');
       } else {
-        tabAppt.className = 'flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all bg-white text-primary shadow-sm';
-        tabRest.className = 'flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-textDim hover:text-textMain';
-        subAppt.classList.remove('hidden');
-        subRest.classList.add('hidden');
+        tabAppt.className = "flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all bg-primary text-slate-900 shadow-md";
+        tabRest.className = "flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
+        document.getElementById('subcategories-appointment').classList.remove('hidden');
+        document.getElementById('subcategories-restaurant').classList.add('hidden');
         selectSubCategory('salon', 'appointment', 'Luxe Hair Salon');
       }
     }
 
-    function selectSubCategory(subType, mainType, defaultName) {
-      selectedSubType = subType;
-      selectedType = mainType;
+    function selectSubCategory(sub, type, defaultName) {
+      selectedSub = sub;
+      selectedType = type;
 
-      document.getElementById('form-subType').value = subType;
-      document.getElementById('form-businessType').value = mainType;
+      document.getElementById('form-subType').value = sub;
+      document.getElementById('form-businessType').value = type;
+      document.getElementById('form-businessName').value = defaultName;
 
-      document.querySelectorAll('.subcard').forEach(c => {
-        c.className = 'subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white';
+      // Update UI cards
+      document.querySelectorAll('.subcard').forEach(card => {
+        card.className = "subcard border-2 border-slate-700/80 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all bg-[#0F172A] text-slate-300";
       });
 
-      const activeCard = document.getElementById(`subcard-${subType}`);
+      const activeCard = document.getElementById(`subcard-${sub}`);
       if (activeCard) {
-        activeCard.className = 'subcard border-2 border-primary ring-2 ring-primary/20 rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white';
+        activeCard.className = "subcard border-2 border-primary ring-2 ring-primary/20 rounded-2xl p-4 cursor-pointer hover:shadow-lg transition-all bg-[#1E293B] text-white shadow-primary/10";
       }
 
-      if (defaultName) {
-        document.getElementById('form-businessName').value = defaultName;
-      }
+      renderItemsPreview();
+    }
+
+    function renderItemsPreview() {
+      const grid = document.getElementById('items-preview-grid');
+      const title = document.getElementById('offerings-title');
+      const items = PRESETS[selectedSub] || [];
+
+      title.innerText = selectedType === 'restaurant' ? 'Pre-Loaded Menu Items' : 'Pre-Loaded Service Catalog';
+
+      grid.innerHTML = items.map(item => `
+        <div class="p-3.5 rounded-xl bg-[#0F172A] border border-slate-700/80 flex items-center justify-between text-xs">
+          <span class="font-bold text-white">${item.name}</span>
+          <span class="font-mono text-primary font-bold">${item.price}</span>
+        </div>
+      `).join('');
     }
 
     function goToStep(step) {
@@ -519,208 +498,126 @@
 
       document.getElementById(`wizard-step-${step}`).classList.remove('hidden');
 
-      const progress = document.getElementById('step-progress-bar');
-      const text = document.getElementById('step-indicator-text');
-      const pct = document.getElementById('step-percentage');
+      const indicator = document.getElementById('step-indicator-text');
+      const percentage = document.getElementById('step-percentage');
+      const bar = document.getElementById('step-progress-bar');
 
       if (step === 1) {
-        progress.style.width = '33%';
-        text.innerText = 'Step 1 of 3 — Select Business Category';
-        pct.innerText = '33% Completed';
+        indicator.innerText = "Step 1 of 3 — Select Business Category";
+        percentage.innerText = "33% Completed";
+        bar.className = "bg-gradient-to-r from-primary to-secondary h-2 rounded-full transition-all duration-500 w-1/3";
       } else if (step === 2) {
-        progress.style.width = '66%';
-        text.innerText = 'Step 2 of 3 — Business & AI Info';
-        pct.innerText = '66% Completed';
+        indicator.innerText = "Step 2 of 3 — Configure Business & AI";
+        percentage.innerText = "66% Completed";
+        bar.className = "bg-gradient-to-r from-primary to-secondary h-2 rounded-full transition-all duration-500 w-2/3";
       } else if (step === 3) {
-        progress.style.width = '100%';
-        text.innerText = 'Step 3 of 3 — Review Offerings & Launch';
-        pct.innerText = '100% Ready';
-        populateItemsTable();
+        indicator.innerText = "Step 3 of 3 — Launch Interactive Call";
+        percentage.innerText = "100% Completed";
+        bar.className = "bg-gradient-to-r from-primary to-emerald-400 h-2 rounded-full transition-all duration-500 w-full";
+        renderItemsPreview();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function submitDemoSetup() {
+      const email = document.getElementById('form-email').value.trim();
+      const ownerName = document.getElementById('form-ownerName').value.trim();
+      const businessName = document.getElementById('form-businessName').value.trim();
+      const phone = document.getElementById('form-phone').value.trim();
+
+      if (!email || !ownerName || !businessName) {
+        alert("Please complete all required fields (Work Email, Name, and Business Name).");
+        goToStep(2);
+        return;
+      }
+
+      const launchBtn = document.getElementById('launch-demo-btn');
+      launchBtn.disabled = true;
+      launchBtn.innerHTML = `
+        <span class="inline-block animate-spin font-bold">⌛</span>
+        <span>ALLOCATING INVENTORY NUMBER...</span>
+      `;
+
+      try {
+        const response = await fetch('/api/demo/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            businessName,
+            businessType: selectedType,
+            subType: selectedSub,
+            ownerName,
+            email,
+            phone,
+            city: document.getElementById('form-city').value || 'San Francisco',
+            aiName: document.getElementById('form-aiName').value || 'Sarah',
+            customGreeting: document.getElementById('form-customGreeting').value || ''
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.redirectUrl) {
+          window.location.href = data.redirectUrl;
+        } else if (data.code === 'NUMBERS_BUSY') {
+          launchBtn.disabled = false;
+          launchBtn.innerHTML = `
+            <i data-lucide="phone-call" class="w-4 h-4 text-slate-900"></i>
+            <span>LAUNCH DEMO SESSION &amp; GET NUMBER &rarr;</span>
+          `;
+          document.getElementById('waitlist-email').value = email;
+          document.getElementById('waitlist-fullName').value = ownerName;
+          document.getElementById('waitlist-phone').value = phone;
+          document.getElementById('waitlist-modal').classList.remove('hidden');
+        } else {
+          alert(data.error || 'Failed to create demo session.');
+          launchBtn.disabled = false;
+          launchBtn.innerHTML = `
+            <i data-lucide="phone-call" class="w-4 h-4 text-slate-900"></i>
+            <span>LAUNCH DEMO SESSION &amp; GET NUMBER &rarr;</span>
+          `;
+        }
+      } catch (err) {
+        console.error('[DEMO_SETUP_ERR]', err);
+        alert('Network error while allocating demo number. Please try again.');
+        launchBtn.disabled = false;
+        launchBtn.innerHTML = `
+          <i data-lucide="phone-call" class="w-4 h-4 text-slate-900"></i>
+          <span>LAUNCH DEMO SESSION &amp; GET NUMBER &rarr;</span>
+        `;
       }
     }
 
-    function populateItemsTable() {
-      const tbody = document.getElementById('items-table-body');
-      const colExtraHeader = document.getElementById('col-extra-header');
-      tbody.innerHTML = '';
+    async function submitWaitlistReservation(e) {
+      e.preventDefault();
+      const email = document.getElementById('waitlist-email').value.trim();
+      const fullName = document.getElementById('waitlist-fullName').value.trim();
+      const mobilePhone = document.getElementById('waitlist-phone').value.trim();
 
-      const items = PRESETS[selectedSubType] || PRESETS.pizzeria;
-      colExtraHeader.innerText = selectedType === 'restaurant' ? 'Prep Time (m)' : 'Duration (m)';
+      const btn = document.getElementById('waitlist-submit-btn');
+      btn.disabled = true;
+      btn.innerText = 'RESERVING...';
 
-      items.forEach((item) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="py-2.5 px-4">
-            <input type="text" value="${item.name}" class="item-name-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
-          </td>
-          <td class="py-2.5 px-4">
-            <input type="number" step="0.5" value="${item.price}" class="item-price-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
-          </td>
-          <td class="py-2.5 px-4 hidden sm:table-cell">
-            <input type="number" value="${item.duration}" class="item-duration-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
-          </td>
-          <td class="py-2.5 px-4 text-center">
-            <button onclick="this.closest('tr').remove()" class="text-slate-400 hover:text-red-500 p-1 cursor-pointer">
-              <i data-lucide="trash-2" class="w-4 h-4"></i>
-            </button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-      lucide.createIcons();
-    }
-
-    function addCustomRow() {
-      const tbody = document.getElementById('items-table-body');
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td class="py-2.5 px-4">
-          <input type="text" placeholder="New Item Name" class="item-name-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
-        </td>
-        <td class="py-2.5 px-4">
-          <input type="number" step="0.5" value="15.00" class="item-price-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
-        </td>
-        <td class="py-2.5 px-4 hidden sm:table-cell">
-          <input type="number" value="30" class="item-duration-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
-        </td>
-        <td class="py-2.5 px-4 text-center">
-          <button onclick="this.closest('tr').remove()" class="text-slate-400 hover:text-red-500 p-1 cursor-pointer">
-            <i data-lucide="trash-2" class="w-4 h-4"></i>
-          </button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-      lucide.createIcons();
-    }
-
-    function openWaitlistModal(email, name, phone, category) {
-      document.getElementById('wl-email').value = email || '';
-      document.getElementById('wl-name').value = name || '';
-      document.getElementById('wl-phone').value = phone || '';
-      if (category) document.getElementById('wl-category').value = category;
-      
-      document.getElementById('waitlist-form').classList.remove('hidden');
-      document.getElementById('waitlist-success-msg').classList.add('hidden');
-      document.getElementById('waitlist-modal').classList.remove('hidden');
-      lucide.createIcons();
+      try {
+        const response = await fetch('/api/demo/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, fullName, mobilePhone, category: selectedSub })
+        });
+        const data = await response.json();
+        alert(data.message || 'Priority reservation confirmed!');
+        closeWaitlistModal();
+      } catch (err) {
+        alert('Failed to submit waitlist reservation.');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Reserve Priority Line →';
+      }
     }
 
     function closeWaitlistModal() {
       document.getElementById('waitlist-modal').classList.add('hidden');
-    }
-
-    async function handleWaitlistSubmit(e) {
-      e.preventDefault();
-      const btn = document.getElementById('btn-submit-waitlist');
-      btn.disabled = true;
-      btn.innerHTML = `<span class="inline-block animate-spin mr-1">⚙️</span> Reserving...`;
-
-      const payload = {
-        email: document.getElementById('wl-email').value.trim(),
-        fullName: document.getElementById('wl-name').value.trim(),
-        mobilePhone: document.getElementById('wl-phone').value.trim(),
-        category: document.getElementById('wl-category').value
-      };
-
-      try {
-        const res = await fetch('/api/demo/waitlist', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const json = await res.json();
-        if (json.success) {
-          document.getElementById('waitlist-form').classList.add('hidden');
-          document.getElementById('waitlist-success-msg').classList.remove('hidden');
-          lucide.createIcons();
-        } else {
-          alert(json.error || 'Failed to submit waitlist reservation.');
-        }
-      } catch (err) {
-        alert('Network error. Please try again.');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = `<span>Reserve My Demo Spot</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
-        lucide.createIcons();
-      }
-    }
-
-    async function submitDemoCreation() {
-      const btn = document.getElementById('btn-submit-demo');
-      btn.disabled = true;
-      btn.innerHTML = `<span class="inline-block animate-spin mr-2">⚙️</span> Checking Phone Inventory &amp; Building AI Agent...`;
-
-      const businessName = document.getElementById('form-businessName').value || 'Demo Business';
-      const ownerName = document.getElementById('form-ownerName').value || 'Demo Customer';
-      const email = document.getElementById('form-email').value || 'demo@naxton.ai';
-      const phone = document.getElementById('form-phone').value;
-      const city = document.getElementById('form-city').value;
-      const aiName = document.getElementById('form-aiName').value;
-      const customGreeting = document.getElementById('form-customGreeting').value;
-      const businessType = document.getElementById('form-businessType').value;
-      const subType = document.getElementById('form-subType').value;
-
-      // Extract custom items/services
-      const rows = document.querySelectorAll('#items-table-body tr');
-      const items = [];
-      const services = [];
-
-      rows.forEach(r => {
-        const name = r.querySelector('.item-name-input')?.value;
-        const price = parseFloat(r.querySelector('.item-price-input')?.value) || 10;
-        const durationMinutes = parseInt(r.querySelector('.item-duration-input')?.value) || 30;
-
-        if (name && name.trim()) {
-          if (businessType === 'restaurant') {
-            items.push({ name, price, prepTime: durationMinutes });
-          } else {
-            services.push({ name, price, durationMinutes });
-          }
-        }
-      });
-
-      const payload = {
-        businessName,
-        ownerName,
-        email,
-        phone,
-        city,
-        aiName,
-        customGreeting,
-        businessType,
-        subType,
-        menuItems: items,
-        services
-      };
-
-      try {
-        const res = await fetch('/api/demo/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-        if (data.success && data.redirectUrl) {
-          window.location.href = data.redirectUrl;
-        } else if (data.code === 'NUMBERS_BUSY') {
-          btn.disabled = false;
-          btn.innerHTML = `<span>CREATE MY AI DEMO</span><i data-lucide="sparkles" class="w-4 h-4"></i>`;
-          lucide.createIcons();
-          openWaitlistModal(email, ownerName, phone, subType);
-        } else {
-          alert(data.error || 'Failed to create demo. Please try again.');
-          btn.disabled = false;
-          btn.innerHTML = `<span>CREATE MY AI DEMO</span><i data-lucide="sparkles" class="w-4 h-4"></i>`;
-          lucide.createIcons();
-        }
-      } catch (err) {
-        alert('Network error. Please try again.');
-        btn.disabled = false;
-        btn.innerHTML = `<span>CREATE MY AI DEMO</span><i data-lucide="sparkles" class="w-4 h-4"></i>`;
-        lucide.createIcons();
-      }
     }
   </script>
 </body>
