@@ -1095,6 +1095,10 @@
         </a>
 
         <p class="nav-group-label">System Control</p>
+        <a class="apex-nav-item" href="/superadmin/demos" style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(37, 99, 235, 0.15)); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; font-weight: 800; margin-bottom: 0.35rem;">
+          <i data-lucide="sparkles" style="color: #38bdf8;"></i>
+          <span>🔥 Live Demo Center</span>
+        </a>
         <a class="apex-nav-item" id="nav-provisioning" onclick="showSection('provisioning')">
           <i data-lucide="plus-circle"></i>
           <span>Provisioning</span>
@@ -1113,7 +1117,7 @@
         </a>
         <a class="apex-nav-item" id="nav-demo" onclick="showSection('demo')">
           <i data-lucide="play-circle"></i>
-          <span>Demo Lab</span>
+          <span>Virtual Demo Lab</span>
         </a>
 
         <p class="nav-group-label">Platform Ops</p>
@@ -2023,8 +2027,22 @@
         <!-- DEMO LAB SECTION -->
         <div id="demoSection" class="section-container" style="display: none;">
           <div class="page-header">
-            <h1>Naxton Demo Lab</h1>
+            <h1>Naxton Virtual Demo Lab</h1>
             <p>Simulate voice interactions and test AI processing without burning production credits.</p>
+          </div>
+
+          <!-- PROSPECT LIVE DEMO BANNER -->
+          <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(37, 99, 235, 0.12)); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div>
+              <h3 style="margin: 0 0 0.25rem 0; font-size: 1rem; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="sparkles" style="width: 18px; color: #38bdf8;"></i>
+                <span>🔥 Prospect Live Phone Demo Management</span>
+              </h3>
+              <p style="margin: 0; font-size: 0.8rem; color: #94a3b8;">Monitor customer 12-hour live phone demos, release assigned phone numbers, and test SMTP email delivery.</p>
+            </div>
+            <a href="/superadmin/demos" style="padding: 0.65rem 1.25rem; background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%); color: white; border-radius: 10px; font-weight: 800; font-size: 0.75rem; text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 0.5rem; white-space: nowrap; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);">
+              <span>Open Live Demo Center &rarr;</span>
+            </a>
           </div>
 
           <div class="dashboard-main-grid">
@@ -3793,6 +3811,7 @@
         if (r.success) { 
           allTenants = r.data; 
           renderTenantTable(allTenants); 
+          loadDemoTenants();
         } else {
           showError(r.message || "Failed to load tenants");
           document.getElementById("tenantList").innerHTML = `<tr><td colspan="5" style="text-align:center; padding:5rem; color:var(--danger);">Error: ${r.message || "Failed to load"}</td></tr>`;
@@ -4682,7 +4701,12 @@
 
     async function loadDemoTenants() {
       const select = document.getElementById("demoTenantSelect");
-      select.innerHTML = `<option value="">Choose a business...</option>` + allTenants.filter(t => t.isDemoAccount).map(t => `<option value="${t.id}">${t.name}</option>`).join("");
+      if (!select) return;
+      if (!allTenants || allTenants.length === 0) {
+        select.innerHTML = `<option value="">Choose a business...</option>`;
+        return;
+      }
+      select.innerHTML = `<option value="">Choose a business...</option>` + allTenants.map(t => `<option value="${t.id}">${t.name}${t.isDemoAccount ? ' (Demo)' : ''}</option>`).join("");
     }
 
     async function runDemo(type) {
