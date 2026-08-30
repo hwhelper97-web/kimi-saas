@@ -298,6 +298,19 @@ exports.incoming = async (req, res) => {
     const streamUrl = `${protocol}://${host}/v2/stream/${business.id}?caller=${encodeURIComponent(callerPhone)}`;
     
     console.log(`[CALL_INCOMING] business: ${business.name}, stream: ${streamUrl}`);
+
+    // 🚀 Notify Live Demo Dashboard immediately via Socket.io
+    const io = req.app.get("io");
+    if (io && business.id) {
+      const startData = {
+        from: callerPhone,
+        businessId: business.id,
+        businessName: business.name,
+        timestamp: new Date().toISOString()
+      };
+      io.to(business.id).emit("call_started", startData);
+      io.to("superadmin").emit("call_started", startData);
+    }
     
     res.send(`
 <Response>

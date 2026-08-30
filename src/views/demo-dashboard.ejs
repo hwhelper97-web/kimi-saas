@@ -37,93 +37,95 @@
   <!-- Top Banner Header -->
   <header class="w-full bg-[#1E293B]/90 backdrop-blur-md border-b border-slate-700/80 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-      
-      <!-- Brand & Business Info -->
-      <div class="flex items-center gap-4">
-        <a href="/" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-orbitron font-black text-lg shadow-lg">
+      <div class="flex items-center gap-3">
+        <a href="/" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-orbitron font-black text-lg shadow-md">
           N
         </a>
-        <div class="flex flex-col text-left">
+        <div>
           <div class="flex items-center gap-2">
-            <span class="font-orbitron font-black text-sm tracking-[2px] text-white"><%= session.businessName %></span>
-            <span id="badge-status" class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider <%= session.isExpired ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' %>">
-              <%= session.isExpired ? '🔴 EXPIRED' : '🟢 LIVE DEMO ACTIVE' %>
+            <h1 class="font-orbitron font-bold text-sm text-white tracking-wider"><%= session.businessName %></h1>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" id="badge-status">
+              <%= session.status === 'ACTIVE' ? '🟢 LIVE DEMO ACTIVE' : '🔴 EXPIRED' %>
             </span>
           </div>
-          <span class="text-[10px] text-textDim flex items-center gap-2">
-            <span>AI Receptionist: <strong class="text-primary font-bold"><%= session.aiName %></strong></span>
-            <span>&bull;</span>
-            <span>Type: <strong class="text-slate-300 font-bold uppercase"><%= session.businessType %></strong></span>
-          </span>
+          <p class="text-[10px] text-slate-400 font-mono">
+            AI Receptionist: <strong class="text-primary"><%= session.aiName %></strong> &bull; Type: <span class="uppercase text-slate-300 font-bold"><%= session.businessType %></span>
+          </p>
         </div>
       </div>
 
-      <!-- Expiration Timer & CTA -->
       <div class="flex items-center gap-6">
-        <div class="hidden md:flex flex-col items-end">
-          <span class="text-[9px] font-mono text-slate-400 uppercase tracking-widest">Demo Expiration</span>
-          <span id="countdown-timer" class="font-mono text-base font-bold text-emerald-400">23:59:59</span>
+        <div class="hidden sm:flex flex-col items-end">
+          <span class="text-[9px] font-mono text-slate-400 uppercase tracking-widest">DEMO EXPIRATION</span>
+          <span class="font-orbitron font-black text-sm text-emerald-400" id="countdown-timer">--:--:--</span>
         </div>
-        <a href="#convert-card" class="px-5 py-2.5 rounded-full text-xs font-black tracking-wider text-white bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all uppercase shadow-md">
+        <a href="/login" class="px-5 py-2.5 rounded-full text-xs font-bold tracking-wider text-slate-900 bg-primary hover:bg-secondary transition-all uppercase shadow-lg shadow-primary/20">
           Become a Customer
         </a>
       </div>
-
     </div>
   </header>
 
-  <!-- Dashboard Main Grid -->
+  <!-- Main Container -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-8 space-y-8">
+    
+    <!-- TOP ROW: CALL INSTRUCTION & LIVE STATUS CARDS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Call Instruction Box (lg:col-span-7) -->
+      <div class="lg:col-span-7 bg-[#1E293B] border border-slate-700/80 rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-xl">
+        <div class="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
+          <i data-lucide="phone-call" class="w-32 h-32 text-primary"></i>
+        </div>
 
-    <!-- CALL INSTRUCTIONS & PHONE HERO -->
-    <div class="bg-gradient-to-r from-[#1E293B] via-[#0F172A] to-[#1E293B] border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-        
-        <!-- Left: Phone number & Action -->
-        <div class="lg:col-span-7 space-y-4 text-left">
+        <div class="space-y-4 relative z-10">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary uppercase tracking-widest">
-            <i data-lucide="phone-call" class="w-3.5 h-3.5 animate-pulse"></i>
+            <i data-lucide="phone-outgoing" class="w-3.5 h-3.5"></i>
             <span>STEP 1: CALL YOUR AI RECEPTIONIST</span>
           </div>
-          
-          <h2 class="font-orbitron font-black text-2xl sm:text-3xl text-white tracking-tight">
-            Dial <span class="text-primary font-mono select-all" id="demo-phone-display"><%= session.phoneNumber || "+1 (800) 555-0199" %></span>
-          </h2>
-          
-          <p class="text-xs sm:text-sm text-textDim leading-relaxed max-w-xl">
-            Call this number directly from your cell phone. Speak naturally to <strong class="text-white font-bold"><%= session.aiName %></strong>. <%= session.businessType === 'restaurant' ? 'Order items from your menu, ask for totals, and confirm your order.' : 'Ask for service availability, pick a time, and confirm your booking.' %>
-          </p>
 
-          <div class="flex items-center gap-4 text-xs text-slate-400 font-mono">
-            <span>CALLS REMAINING: <strong class="text-emerald-400 font-bold" id="calls-remaining"><%= session.maxCalls - session.callCount %> / <%= session.maxCalls %></strong></span>
-            <span>&bull;</span>
-            <span>MAX DURATION: <strong class="text-slate-200"><%= session.maxCallDuration %> mins</strong></span>
-          </div>
-        </div>
-
-        <!-- Right: Live Call Status Indicator Card -->
-        <div class="lg:col-span-5 bg-[#0F172A]/80 border border-slate-700 rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-3 shadow-inner">
-          <div class="relative">
-            <div id="status-pulse-ring" class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center animate-pulse">
-              <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-slate-900 font-bold shadow-lg" id="status-icon">
-                <i data-lucide="phone" class="w-5 h-5"></i>
-              </div>
+          <div>
+            <span class="text-xs text-slate-400 uppercase tracking-wider block mb-1">Dial Demo Phone Number</span>
+            <div class="font-orbitron font-black text-3xl sm:text-4xl text-white tracking-wider flex items-center gap-3">
+              <span id="display-phone-number"><%= session.phoneNumber || "+18884918668" %></span>
+              <button onclick="navigator.clipboard.writeText('<%= session.phoneNumber %>'); alert('Phone number copied!');" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors" title="Copy Number">
+                <i data-lucide="copy" class="w-4 h-4"></i>
+              </button>
             </div>
           </div>
-          
-          <div>
-            <div class="font-orbitron font-bold text-sm tracking-wider text-white uppercase" id="call-status-heading">● WAITING FOR CALL</div>
-            <p class="text-[11px] text-textDim mt-1" id="call-status-subtext">Dial the number above to launch live interaction.</p>
+
+          <p class="text-xs text-slate-300 leading-relaxed max-w-xl">
+            Call this number directly from your cell phone. Speak naturally to <strong class="text-primary"><%= session.aiName %></strong>.
+            <%= session.businessType === 'restaurant' ? 'Ask for menu recommendations, place an order, and hear live price calculation.' : 'Ask for service availability, pick a time, and confirm your booking.' %>
+          </p>
+
+          <div class="pt-2 flex items-center gap-6 text-[11px] font-mono text-slate-400 border-t border-slate-700/60">
+            <div>CALLS REMAINING: <strong class="text-white" id="calls-remaining"><%= session.maxCalls - session.callCount %> / <%= session.maxCalls %></strong></div>
+            <div>MAX DURATION: <strong class="text-white"><%= session.maxCallDuration %> mins</strong></div>
           </div>
         </div>
-
       </div>
+
+      <!-- Live Call Status Pill Box (lg:col-span-5) -->
+      <div class="lg:col-span-5 bg-[#1E293B] border border-slate-700/80 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center shadow-xl relative overflow-hidden">
+        <div id="status-ring" class="w-20 h-20 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mb-4 transition-all duration-500">
+          <i data-lucide="mic" id="status-icon" class="w-8 h-8 text-primary animate-pulse"></i>
+        </div>
+
+        <h3 id="call-status-heading" class="font-orbitron font-bold text-sm tracking-wider text-slate-200 uppercase mb-1">
+          &bull; WAITING FOR CALL
+        </h3>
+        <p id="call-status-subtext" class="text-xs text-slate-400 max-w-xs">
+          Dial the number above from your phone to launch live interaction.
+        </p>
+      </div>
+
     </div>
 
-    <!-- 3-COLUMN REAL-TIME EVENT GRID -->
+    <!-- MIDDLE ROW: 3 REALTIME PANELS -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-      <!-- PANEL 1: LIVE TRANSCRIPT (lg:col-span-5) -->
+      
+      <!-- PANEL 1: LIVE CONVERSATION TRANSCRIPT (lg:col-span-5) -->
       <div class="lg:col-span-5 bg-[#1E293B] border border-slate-700/80 rounded-3xl p-6 flex flex-col h-[520px] shadow-xl">
         <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
           <div class="flex items-center gap-2">
@@ -133,16 +135,16 @@
           <span class="text-[9px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">REALTIME WS</span>
         </div>
 
-        <!-- Transcript Feed Scroll -->
-        <div id="transcript-feed" class="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin text-xs">
-          <div class="text-center py-12 text-slate-500 font-mono text-[11px]">
-            [Waiting for call connection...] <br/>
-            Transcripts will stream here in real time as you speak.
+        <!-- Transcript Feed -->
+        <div id="transcript-feed" class="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin text-xs">
+          <div class="text-center py-16 text-slate-500 font-mono text-[11px]">
+            <p>[Waiting for call connection...]</p>
+            <p class="text-[10px] text-slate-600 mt-1">Transcripts will stream here in real time as you speak.</p>
           </div>
         </div>
       </div>
 
-      <!-- PANEL 2: AI THINKING & ACTIVITY LOGS (lg:col-span-3) -->
+      <!-- PANEL 2: AI REASONING LOG (lg:col-span-3) -->
       <div class="lg:col-span-3 bg-[#1E293B] border border-slate-700/80 rounded-3xl p-6 flex flex-col h-[520px] shadow-xl">
         <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
           <div class="flex items-center gap-2">
@@ -187,21 +189,21 @@
                 <div class="flex justify-between items-center border-b border-slate-700 pb-3">
                   <div>
                     <span class="text-[10px] font-mono text-slate-400 uppercase">ORDER ID</span>
-                    <h4 class="font-orbitron font-bold text-sm text-emerald-400">#DEMO-<%= latest.orderNumber %></h4>
+                    <h4 class="font-orbitron font-bold text-sm text-emerald-400">#DEMO-<%= latest.orderNumber || latest.id.slice(0, 6) %></h4>
                   </div>
                   <span class="px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">CONFIRMED ✓</span>
                 </div>
                 <div class="space-y-2 text-xs">
                   <% (latest.items || []).forEach(item => { %>
                     <div class="flex justify-between text-slate-300">
-                      <span><%= item.quantity %>x <%= item.menuItem ? item.menuItem.name : 'Item' %></span>
-                      <span class="font-mono font-bold">$<%= (item.unitPrice * item.quantity).toFixed(2) %></span>
+                      <span><%= item.quantity %>x <%= item.menuItem ? item.menuItem.name : (item.selectedAddons || 'Item') %></span>
+                      <span class="font-mono font-bold">$<%= ((item.unitPrice || 10) * item.quantity).toFixed(2) %></span>
                     </div>
                   <% }) %>
                 </div>
                 <div class="border-t border-slate-700 pt-3 flex justify-between font-bold text-sm text-white">
                   <span>TOTAL</span>
-                  <span class="font-mono text-emerald-400">$<%= latest.total.toFixed(2) %></span>
+                  <span class="font-mono text-emerald-400">$<%= (latest.total || 0).toFixed(2) %></span>
                 </div>
               </div>
             <% } else { %>
@@ -223,9 +225,9 @@
                   <span class="px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">CONFIRMED ✓</span>
                 </div>
                 <div class="space-y-2 text-xs text-slate-300">
-                  <div>Service: <strong class="text-white"><%= latestAppt.service ? latestAppt.service.name : 'Appointment' %></strong></div>
-                  <div>Time: <strong class="text-primary"><%= new Date(latestAppt.appointmentTime).toLocaleString() %></strong></div>
-                  <div>Source: <strong class="text-emerald-400 uppercase">AI Receptionist</strong></div>
+                  <div>Service: <strong class="text-white"><%= latestAppt.service ? latestAppt.service.name : (latestAppt.serviceName || 'Appointment Service') %></strong></div>
+                  <div>Time: <strong class="text-primary"><%= new Date(latestAppt.appointmentTime || latestAppt.createdAt).toLocaleString() %></strong></div>
+                  <div>Source: <strong class="text-emerald-400 uppercase">AI Receptionist Live</strong></div>
                 </div>
               </div>
             <% } else { %>
@@ -265,13 +267,13 @@
                 <tr>
                   <td class="py-3 px-4"><%= new Date(c.createdAt).toLocaleTimeString() %></td>
                   <td class="py-3 px-4"><%= c.fromNumber %></td>
-                  <td class="py-3 px-4"><%= c.duration %>s</td>
+                  <td class="py-3 px-4"><%= c.duration || 0 %>s</td>
                   <td class="py-3 px-4">
-                    <span class="px-2 py-0.5 rounded text-[9px] font-bold <%= c.outcome === 'success' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-300' %> uppercase">
+                    <span class="px-2 py-0.5 rounded text-[9px] font-bold <%= c.outcome === 'success' || c.outcome === 'active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-300' %> uppercase">
                       <%= c.outcome || 'Completed' %>
                     </span>
                   </td>
-                  <td class="py-3 px-4 text-slate-200"><%= c.actionTaken || 'AI Handled' %></td>
+                  <td class="py-3 px-4 text-slate-200"><%= c.summary || c.actionTaken || 'AI Handled' %></td>
                 </tr>
               <% }) %>
             <% } else { %>
@@ -312,7 +314,9 @@
 
     const businessId = "<%= session.businessId %>";
     const sessionToken = "<%= session.token %>";
+    const businessType = "<%= session.businessType %>";
     let expiresSeconds = <%= session.remainingSeconds %>;
+    let isCallActive = false;
 
     // Countdown Timer
     setInterval(() => {
@@ -333,36 +337,76 @@
     const socket = io();
 
     socket.on('connect', () => {
-      console.log('[Socket] Connected to Live Demo Gateway');
+      console.log('[Socket] Connected to Live Demo Gateway for Business:', businessId);
       socket.emit('join_business', businessId);
+      socket.emit('join_superadmin');
     });
 
-    // Realtime Transcript
-    socket.on('call_transcribed', (data) => {
-      appendTranscript(data.role, data.text);
-      logActivity(`✓ Spoken: "${data.text.slice(0, 40)}..."`);
+    // Realtime Transcripts
+    function handleTranscript(role, text) {
+      appendTranscript(role, text);
+      logActivity(`✓ Spoken: "${text.slice(0, 45)}..."`);
+      setCallActiveState(true);
+    }
+
+    socket.on('call_transcribed', (data) => handleTranscript(data.role, data.text));
+    socket.on('live-transcript', (data) => handleTranscript(data.role || 'ai', data.text));
+    socket.on('speech_processed', (data) => handleTranscript('user', data.text));
+
+    // Realtime Debug / AI Reasoning Event
+    socket.on('call_debug', (data) => {
+      if (data && data.message) {
+        logActivity(`✓ AI Reasoning: ${data.message}`);
+      }
     });
 
     // Realtime Call Started
     socket.on('call_started', (data) => {
-      document.getElementById('call-status-heading').innerText = '● AI CONNECTED / LIVE';
-      document.getElementById('call-status-heading').className = 'font-orbitron font-bold text-sm tracking-wider text-emerald-400 uppercase';
-      document.getElementById('call-status-subtext').innerText = 'Call connected. AI Receptionist active.';
-      document.getElementById('status-ring')?.classList.add('bg-emerald-500/30');
-      logActivity(`✓ Incoming call connected from ${data.from || 'Caller'}`);
+      setCallActiveState(true, data.from);
+    });
+
+    // Realtime Call Ended
+    socket.on('call_ended', (data) => {
+      setCallActiveState(false);
+      logActivity(`✓ Call completed and saved to history`);
+      syncDemoData();
     });
 
     // Realtime New Order
     socket.on('new_order', (order) => {
-      logActivity(`✓ Order created live: #${order.orderNumber || order.id} ($${order.total})`);
+      logActivity(`✓ Order created live: #${order.orderNumber || order.id.slice(0, 6)} ($${order.total || 0})`);
       renderOrderResult(order);
+      syncDemoData();
     });
 
     // Realtime New Appointment
     socket.on('new_appointment', (appt) => {
-      logActivity(`✓ Appointment created live: ${appt.customerName}`);
+      logActivity(`✓ Appointment created live: ${appt.customerName || appt.name}`);
       renderAppointmentResult(appt);
+      syncDemoData();
     });
+
+    function setCallActiveState(active, caller = 'Caller') {
+      isCallActive = active;
+      const heading = document.getElementById('call-status-heading');
+      const subtext = document.getElementById('call-status-subtext');
+      const ring = document.getElementById('status-ring');
+      const icon = document.getElementById('status-icon');
+
+      if (active) {
+        heading.innerText = '🟢 LIVE CALL IN PROGRESS';
+        heading.className = 'font-orbitron font-bold text-sm tracking-wider text-emerald-400 uppercase animate-pulse';
+        subtext.innerText = `Call connected from ${caller}. AI Receptionist speaking...`;
+        ring.className = 'w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mb-4';
+        icon.className = 'w-8 h-8 text-emerald-400 animate-bounce';
+      } else {
+        heading.innerText = '✓ CALL COMPLETED & SAVED';
+        heading.className = 'font-orbitron font-bold text-sm tracking-wider text-primary uppercase';
+        subtext.innerText = 'Call finished. AI results updated live below.';
+        ring.className = 'w-20 h-20 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mb-4';
+        icon.className = 'w-8 h-8 text-primary';
+      }
+    }
 
     function appendTranscript(role, text) {
       const feed = document.getElementById('transcript-feed');
@@ -370,7 +414,7 @@
         feed.innerHTML = '';
       }
 
-      const isUser = role === 'user' || role === 'USER';
+      const isUser = role === 'user' || role === 'USER' || role === 'customer';
       const div = document.createElement('div');
       div.className = `p-3 rounded-2xl border ${isUser ? 'bg-slate-800/90 border-slate-700 text-slate-200 ml-6' : 'bg-primary/10 border-primary/20 text-primary font-medium mr-6'}`;
       div.innerHTML = `
@@ -394,8 +438,8 @@
       const container = document.getElementById('action-result-container');
       const itemsHtml = (order.items || []).map(i => `
         <div class="flex justify-between text-slate-300">
-          <span>${i.quantity}x ${i.menuItem ? i.menuItem.name : 'Item'}</span>
-          <span class="font-mono font-bold">$${((i.unitPrice || 10) * i.quantity).toFixed(2)}</span>
+          <span>${i.quantity || 1}x ${i.menuItem ? i.menuItem.name : (i.selectedAddons || 'Item')}</span>
+          <span class="font-mono font-bold">$${((i.unitPrice || 10) * (i.quantity || 1)).toFixed(2)}</span>
         </div>
       `).join('');
 
@@ -403,13 +447,13 @@
         <div class="p-5 rounded-2xl bg-slate-800/80 border border-emerald-500/30 space-y-4 animate-fade-in">
           <div class="flex justify-between items-center border-b border-slate-700 pb-3">
             <div>
-              <span class="text-[10px] font-mono text-slate-400 uppercase">ORDER CONFIRMED</span>
-              <h4 class="font-orbitron font-bold text-sm text-emerald-400">#DEMO-${order.orderNumber || '101'}</h4>
+              <span class="text-[10px] font-mono text-slate-400 uppercase">ORDER ID</span>
+              <h4 class="font-orbitron font-bold text-sm text-emerald-400">#DEMO-${order.orderNumber || (order.id ? order.id.slice(0, 6) : '101')}</h4>
             </div>
             <span class="px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">CONFIRMED ✓</span>
           </div>
           <div class="space-y-2 text-xs">
-            ${itemsHtml}
+            ${itemsHtml || '<div class="text-slate-300">Voice Order Created</div>'}
           </div>
           <div class="border-t border-slate-700 pt-3 flex justify-between font-bold text-sm text-white">
             <span>TOTAL</span>
@@ -421,39 +465,104 @@
 
     function renderAppointmentResult(appt) {
       const container = document.getElementById('action-result-container');
+      const apptTime = appt.appointmentTime ? new Date(appt.appointmentTime).toLocaleString() : new Date().toLocaleString();
+
       container.innerHTML = `
         <div class="p-5 rounded-2xl bg-slate-800/80 border border-emerald-500/30 space-y-4 animate-fade-in">
           <div class="flex justify-between items-center border-b border-slate-700 pb-3">
             <div>
-              <span class="text-[10px] font-mono text-slate-400 uppercase">APPOINTMENT CONFIRMED</span>
-              <h4 class="font-orbitron font-bold text-sm text-emerald-400">${appt.customerName}</h4>
+              <span class="text-[10px] font-mono text-slate-400 uppercase">APPOINTMENT</span>
+              <h4 class="font-orbitron font-bold text-sm text-emerald-400">${appt.customerName || appt.name || 'Voice Customer'}</h4>
             </div>
             <span class="px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase">CONFIRMED ✓</span>
           </div>
           <div class="space-y-2 text-xs text-slate-300">
-            <div>Service: <strong class="text-white">${appt.service ? appt.service.name : 'Appointment'}</strong></div>
-            <div>Time: <strong class="text-primary">${new Date(appt.appointmentTime).toLocaleString()}</strong></div>
-            <div>Source: <strong class="text-emerald-400 uppercase">AI Receptionist</strong></div>
+            <div>Service: <strong class="text-white">${appt.service ? appt.service.name : (appt.serviceName || appt.service || 'General Service')}</strong></div>
+            <div>Time: <strong class="text-primary">${apptTime}</strong></div>
+            <div>Source: <strong class="text-emerald-400 uppercase">AI Receptionist Live</strong></div>
           </div>
         </div>
       `;
     }
 
-    // Periodic poll to stay in sync
-    setInterval(async () => {
+    // High-Frequency Live Data Sync (1.5-second polling backup)
+    async function syncDemoData() {
       try {
-        const res = await fetch(`/api/demo/session/${sessionToken}`);
-        const data = await res.json();
-        if (data.success && data.session) {
-          const s = data.session;
+        // 1. Sync Session State & Calls Remaining
+        const sRes = await fetch(`/api/demo/session/${sessionToken}`);
+        const sData = await sRes.json();
+        if (sData.success && sData.session) {
+          const s = sData.session;
           document.getElementById('calls-remaining').innerText = `${s.maxCalls - s.callCount} / ${s.maxCalls}`;
           if (s.isExpired) {
             document.getElementById('badge-status').innerText = '🔴 EXPIRED';
             document.getElementById('badge-status').className = 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30';
           }
         }
-      } catch (e) {}
-    }, 10000);
+
+        // 2. Sync Call Logs & Active Call State
+        const cRes = await fetch(`/api/demo/session/${sessionToken}/calls`);
+        const cData = await cRes.json();
+        if (cData.success && cData.calls) {
+          const calls = cData.calls;
+          document.getElementById('call-count-label').innerText = `Total Calls: ${calls.length}`;
+
+          if (calls.length > 0) {
+            const latestCall = calls[0];
+            const callAgeSec = Math.floor((Date.now() - new Date(latestCall.createdAt).getTime()) / 1000);
+            
+            if (latestCall.outcome === 'active' || callAgeSec < 35) {
+              if (!isCallActive) setCallActiveState(true, latestCall.fromNumber);
+            } else if (isCallActive && callAgeSec >= 35) {
+              setCallActiveState(false);
+            }
+
+            renderCallHistoryTable(calls);
+          }
+        }
+
+        // 3. Sync Action Result (Orders or Appointments)
+        if (businessType === 'restaurant') {
+          const oRes = await fetch(`/api/demo/session/${sessionToken}/orders`);
+          const oData = await oRes.json();
+          if (oData.success && oData.orders && oData.orders.length > 0) {
+            renderOrderResult(oData.orders[0]);
+          }
+        } else {
+          const aRes = await fetch(`/api/demo/session/${sessionToken}/appointments`);
+          const aData = await aRes.json();
+          if (aData.success && aData.appointments && aData.appointments.length > 0) {
+            renderAppointmentResult(aData.appointments[0]);
+          }
+        }
+
+      } catch (e) {
+        console.error('[SYNC_ERROR]', e.message);
+      }
+    }
+
+    function renderCallHistoryTable(calls) {
+      const tbody = document.getElementById('call-history-body');
+      if (!tbody || calls.length === 0) return;
+
+      tbody.innerHTML = calls.map(c => `
+        <tr>
+          <td class="py-3 px-4">${new Date(c.createdAt).toLocaleTimeString()}</td>
+          <td class="py-3 px-4">${c.fromNumber || 'Voice Customer'}</td>
+          <td class="py-3 px-4">${c.duration || 0}s</td>
+          <td class="py-3 px-4">
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold ${c.outcome === 'success' || c.outcome === 'active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-300'} uppercase">
+              ${c.outcome || 'Completed'}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-slate-200">${c.summary || c.actionTaken || 'AI Handled'}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Run sync immediately on page load, then poll every 1.5 seconds
+    syncDemoData();
+    setInterval(syncDemoData, 1500);
   </script>
 </body>
 </html>
