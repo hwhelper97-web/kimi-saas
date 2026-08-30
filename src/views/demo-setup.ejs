@@ -76,20 +76,20 @@
     <div class="text-center max-w-2xl mx-auto mb-12">
       <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-black text-emerald-700 uppercase tracking-widest mb-4 shadow-sm">
         <i data-lucide="zap" class="w-4 h-4 text-emerald-600"></i>
-        <span>Instant 24-Hour Trial — No Credit Card Required</span>
+        <span>Instant 24-Hour Trial — Dynamic Phone Allocation</span>
       </div>
       <h1 class="font-orbitron font-black text-3xl sm:text-4xl text-textMain tracking-tight mb-3">
         Build Your AI Receptionist & <span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Call It Live</span>
       </h1>
       <p class="text-sm sm:text-base text-textDim leading-relaxed">
-        Don't just see AI in action. Experience a real phone call with an AI agent tailored to your business in under 2 minutes.
+        Don't just see AI in action. Experience a real phone call with an AI agent tailored to your exact industry in under 2 minutes.
       </p>
     </div>
 
     <!-- Progress Indicator -->
     <div class="mb-10">
       <div class="flex items-center justify-between text-xs font-bold text-textDim uppercase tracking-wider mb-3">
-        <span id="step-indicator-text" class="text-primary font-black">Step 1 of 3 — Select Business Model</span>
+        <span id="step-indicator-text" class="text-primary font-black">Step 1 of 3 — Select Business Category</span>
         <span id="step-percentage">33% Completed</span>
       </div>
       <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
@@ -100,52 +100,106 @@
     <!-- Multi-Step Form Card -->
     <div class="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
 
-      <!-- STEP 1: BUSINESS TYPE SELECTION -->
+      <!-- STEP 1: BUSINESS TYPE & SUB-CATEGORY SELECTION -->
       <div id="wizard-step-1" class="space-y-8">
         <div>
-          <h2 class="font-orbitron font-bold text-lg text-textMain uppercase mb-2">What type of business are you demonstrating?</h2>
-          <p class="text-xs text-textDim">Select your operational model to configure the appropriate AI function calling capabilities.</p>
+          <h2 class="font-orbitron font-bold text-lg text-textMain uppercase mb-2">Select Your Business Category</h2>
+          <p class="text-xs text-textDim">Choose your operational model and specific industry to pre-load realistic AI conversations and offerings.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          <!-- Option A: Order Based -->
-          <div onclick="selectBusinessType('restaurant')" id="card-type-restaurant" class="group border-2 border-slate-200 hover:border-primary rounded-3xl p-6 cursor-pointer transition-all duration-300 bg-white hover:shadow-lg relative overflow-hidden">
-            <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-colors">
-              <i data-lucide="utensils" class="w-6 h-6"></i>
-            </div>
-            <div class="inline-block px-3 py-1 rounded-full bg-slate-100 text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-3">
-              Restaurants &amp; Order Businesses
-            </div>
-            <h3 class="font-orbitron font-black text-base text-textMain uppercase mb-2">🍕 Order-Based AI</h3>
-            <p class="text-xs text-textDim leading-relaxed mb-4">
-              AI answers calls, presents your menu, takes custom orders, calculates subtotals &amp; tax, and confirms orders live in database.
-            </p>
-            <div class="text-xs font-black text-primary uppercase tracking-wider flex items-center gap-1">
-              <span>Select Order Demo</span>
-              <i data-lucide="arrow-right" class="w-4 h-4"></i>
-            </div>
-          </div>
-
-          <!-- Option B: Appointment Based -->
-          <div onclick="selectBusinessType('appointment')" id="card-type-appointment" class="group border-2 border-slate-200 hover:border-primary rounded-3xl p-6 cursor-pointer transition-all duration-300 bg-white hover:shadow-lg relative overflow-hidden">
-            <div class="w-12 h-12 rounded-2xl bg-secondary/10 text-primary flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-colors">
-              <i data-lucide="calendar" class="w-6 h-6"></i>
-            </div>
-            <div class="inline-block px-3 py-1 rounded-full bg-slate-100 text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-3">
-              Salons, Clinics &amp; Services
-            </div>
-            <h3 class="font-orbitron font-black text-base text-textMain uppercase mb-2">📅 Appointment-Based AI</h3>
-            <p class="text-xs text-textDim leading-relaxed mb-4">
-              AI answers calls, presents service menus, checks live calendar availability, schedules appointments, and confirms bookings.
-            </p>
-            <div class="text-xs font-black text-primary uppercase tracking-wider flex items-center gap-1">
-              <span>Select Appointment Demo</span>
-              <i data-lucide="arrow-right" class="w-4 h-4"></i>
-            </div>
-          </div>
-
+        <!-- Primary Model Switch Tabs -->
+        <div class="flex p-1.5 rounded-2xl bg-slate-100 border border-slate-200/80 gap-2 max-w-md mx-auto">
+          <button type="button" onclick="switchPrimaryModel('restaurant')" id="tab-model-restaurant" class="flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all bg-white text-primary shadow-sm">
+            🍕 Order-Based AI
+          </button>
+          <button type="button" onclick="switchPrimaryModel('appointment')" id="tab-model-appointment" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-textDim hover:text-textMain">
+            📅 Appointment-Based AI
+          </button>
         </div>
+
+        <!-- ORDER-BASED SUB-CATEGORIES -->
+        <div id="subcategories-restaurant" class="space-y-4">
+          <div class="text-xs font-bold text-textDim uppercase tracking-wider">Choose Order Industry Sub-Category:</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            
+            <div onclick="selectSubCategory('pizzeria', 'restaurant', 'Bella Pizzeria')" id="subcard-pizzeria" class="subcard border-2 border-primary ring-2 ring-primary/20 rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+              <div class="text-2xl mb-2">🍕</div>
+              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Pizzeria &amp; Italian</h3>
+              <p class="text-[11px] text-textDim">Pizza, garlic bread, calzones, soft drinks.</p>
+            </div>
+
+            <div onclick="selectSubCategory('cafe', 'restaurant', 'Roast &amp; Brew Cafe')" id="subcard-cafe" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+              <div class="text-2xl mb-2">☕</div>
+              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Cafe &amp; Coffee Shop</h3>
+              <p class="text-[11px] text-textDim">Espresso, macchiatos, croissants, avocado toast.</p>
+            </div>
+
+            <div onclick="selectSubCategory('burger', 'restaurant', 'Smash Burger Co.')" id="subcard-burger" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+              <div class="text-2xl mb-2">🍔</div>
+              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Burger &amp; Fast Food</h3>
+              <p class="text-[11px] text-textDim">Cheeseburgers, chicken sandwiches, fries, shakes.</p>
+            </div>
+
+            <div onclick="selectSubCategory('sushi', 'restaurant', 'Sakura Sushi Bistro')" id="subcard-sushi" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+              <div class="text-2xl mb-2">🍣</div>
+              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Sushi &amp; Asian Bistro</h3>
+              <p class="text-[11px] text-textDim">Sushi rolls, bento boxes, gyoza, miso soup.</p>
+            </div>
+
+            <div onclick="selectSubCategory('retail', 'restaurant', 'Urban Apparel Boutique')" id="subcard-retail" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+              <div class="text-2xl mb-2">🛍️</div>
+              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Retail &amp; Boutique</h3>
+              <p class="text-[11px] text-textDim">Streetwear hoodies, organic tees, tote bags, candles.</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- APPOINTMENT-BASED SUB-CATEGORIES -->
+        <div id="subcategories-appointment" class="space-y-4 hidden">
+          <div class="text-xs font-bold text-textDim uppercase tracking-wider">Choose Appointment Industry Sub-Category:</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            
+            <div onclick="selectSubCategory('salon', 'appointment', 'Luxe Hair Salon')" id="subcard-salon" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+              <div class="text-2xl mb-2">💇</div>
+              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Hair Salon &amp; Barber</h3>
+              <p class="text-[11px] text-textDim">Haircuts, beard trims, balayage, styling.</p>
+            </div>
+
+            <div onclick="selectSubCategory('spa', 'appointment', 'Tranquility Spa &amp; Wellness')" id="subcard-spa" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+              <div class="text-2xl mb-2">💅</div>
+              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Spa &amp; Wellness Center</h3>
+              <p class="text-[11px] text-textDim">Deep tissue massage, facials, aromatherapy packages.</p>
+            </div>
+
+            <div onclick="selectSubCategory('clinic', 'appointment', 'Apex Medical Clinic')" id="subcard-clinic" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+              <div class="text-2xl mb-2">🩺</div>
+              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Medical Clinic &amp; Dental</h3>
+              <p class="text-[11px] text-textDim">General checkups, dental cleanings, consultations.</p>
+            </div>
+
+            <div onclick="selectSubCategory('hotel', 'appointment', 'Grand Horizon Hotel')" id="subcard-hotel" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+              <div class="text-2xl mb-2">🏨</div>
+              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Hotel &amp; Resort Concierge</h3>
+              <p class="text-[11px] text-textDim">Room reservations, airport shuttles, late checkouts.</p>
+            </div>
+
+            <div onclick="selectSubCategory('consulting', 'appointment', 'Vanguard Consulting')" id="subcard-consulting" class="subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white">
+              <div class="text-2xl mb-2">💼</div>
+              <h3 class="font-orbitron font-bold text-sm text-textMain uppercase mb-1">Consulting &amp; Professional</h3>
+              <p class="text-[11px] text-textDim">Strategy calls, technical audits, legal consultations.</p>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-4 border-t border-slate-100">
+          <button type="button" onclick="goToStep(2)" class="px-8 py-3.5 rounded-full text-xs font-black tracking-wider text-white bg-gradient-to-r from-primary via-blue-600 to-secondary hover:opacity-95 shadow-lg transition-all uppercase flex items-center gap-2 cursor-pointer">
+            <span>Continue to Business Details</span>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+
       </div>
 
       <!-- STEP 2: BUSINESS & AI CONFIGURATION -->
@@ -157,12 +211,13 @@
 
         <form id="demo-config-form" class="space-y-6">
           <input type="hidden" id="form-businessType" value="restaurant" />
+          <input type="hidden" id="form-subType" value="pizzeria" />
 
           <!-- Business Info Grid -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label class="block text-xs font-bold text-textMain uppercase mb-2">Business Name *</label>
-              <input type="text" id="form-businessName" required placeholder="e.g. Bella Pizza or Luxe Salon" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain placeholder-slate-400 focus:border-primary focus:outline-none" />
+              <input type="text" id="form-businessName" required value="Bella Pizzeria" placeholder="e.g. Bella Pizzeria or Luxe Salon" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-textMain font-bold placeholder-slate-400 focus:border-primary focus:outline-none" />
             </div>
             <div>
               <label class="block text-xs font-bold text-textMain uppercase mb-2">Your Name (Contact) *</label>
@@ -216,7 +271,7 @@
             <h2 class="font-orbitron font-bold text-lg text-textMain uppercase mb-1" id="step-3-title">Customize Demo Offerings</h2>
             <p class="text-xs text-textDim" id="step-3-subtitle">Pre-loaded sample items your AI will offer during phone calls.</p>
           </div>
-          <button onclick="addCustomRow()" class="px-4 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5">
+          <button onclick="addCustomRow()" class="px-4 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
             <span>Add Item</span>
           </button>
@@ -245,17 +300,17 @@
           <div class="text-xs text-emerald-950 space-y-1">
             <p class="font-bold uppercase tracking-wider">Ready to Test Your AI Receptionist!</p>
             <p class="text-emerald-800">
-              Clicking <strong class="font-black">CREATE MY AI DEMO</strong> will provision a temporary 24-hour demo environment, configure your AI agent, and assign a live phone number for you to call.
+              Clicking <strong class="font-black">CREATE MY AI DEMO</strong> will dynamically allocate an unassigned phone number for your demo, configure your AI agent, and launch your live 24-hour demo dashboard.
             </p>
           </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="flex items-center justify-between pt-4 border-t border-slate-100">
-          <button type="button" onclick="goToStep(2)" class="px-6 py-3 rounded-full text-xs font-bold text-textDim border border-slate-200 hover:bg-slate-50 uppercase">
+          <button type="button" onclick="goToStep(2)" class="px-6 py-3 rounded-full text-xs font-bold text-textDim border border-slate-200 hover:bg-slate-50 uppercase cursor-pointer">
             Back
           </button>
-          <button type="button" onclick="submitDemoCreation()" id="btn-submit-demo" class="px-10 py-4 rounded-full text-xs font-black tracking-wider text-white bg-gradient-to-r from-emerald-500 via-teal-600 to-primary shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all uppercase flex items-center gap-2">
+          <button type="button" onclick="submitDemoCreation()" id="btn-submit-demo" class="px-10 py-4 rounded-full text-xs font-black tracking-wider text-white bg-gradient-to-r from-emerald-500 via-teal-600 to-primary shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all uppercase flex items-center gap-2 cursor-pointer">
             <span>CREATE MY AI DEMO</span>
             <i data-lucide="sparkles" class="w-4 h-4"></i>
           </button>
@@ -267,49 +322,119 @@
 
   <!-- Footer -->
   <footer class="w-full border-t border-slate-200/80 bg-white py-6 text-center text-xs text-textDim">
-    <p>&copy; <%= new Date().getFullYear() %> <%= projectName %>. All rights reserved. Live Demo Center Isolation Protocol Enabled.</p>
+    <p>&copy; <%= new Date().getFullYear() %> <%= projectName %>. All rights reserved. Dynamic Phone Inventory Allocation Enabled.</p>
   </footer>
 
   <script>
     lucide.createIcons();
 
     let selectedType = 'restaurant';
+    let selectedSubType = 'pizzeria';
     let currentStep = 1;
 
-    const sampleRestaurants = [
-      { name: "Pizza Margherita", price: 12.0, duration: 15 },
-      { name: "Chicken Fajita Pizza", price: 15.0, duration: 20 },
-      { name: "Pepperoni Pizza", price: 16.0, duration: 18 },
-      { name: "Garlic Bread", price: 5.0, duration: 10 },
-      { name: "Soft Drink", price: 2.5, duration: 2 }
-    ];
+    const PRESETS = {
+      pizzeria: [
+        { name: "Pizza Margherita", price: 12.0, duration: 15 },
+        { name: "Chicken Fajita Pizza", price: 15.0, duration: 20 },
+        { name: "Pepperoni Supreme Pizza", price: 16.5, duration: 18 },
+        { name: "Garlic Bread", price: 5.0, duration: 10 },
+        { name: "Soft Drink", price: 2.5, duration: 2 }
+      ],
+      cafe: [
+        { name: "Iced Caramel Macchiato", price: 5.5, duration: 5 },
+        { name: "Double Shot Espresso", price: 3.5, duration: 3 },
+        { name: "Butter Croissant", price: 4.0, duration: 2 },
+        { name: "Avocado Sourdough Toast", price: 9.5, duration: 10 },
+        { name: "Iced Matcha Latte", price: 6.0, duration: 5 }
+      ],
+      burger: [
+        { name: "Double Smash Cheeseburger", price: 11.5, duration: 12 },
+        { name: "Crispy Spicy Chicken Sandwich", price: 10.5, duration: 12 },
+        { name: "Loaded Seasoned Fries", price: 4.5, duration: 8 },
+        { name: "Vanilla Milkshake", price: 4.5, duration: 5 }
+      ],
+      sushi: [
+        { name: "Salmon Lover Roll (8pcs)", price: 14.5, duration: 15 },
+        { name: "Chicken Teriyaki Bento Box", price: 16.5, duration: 20 },
+        { name: "Steamed Pork Gyoza (6pcs)", price: 7.5, duration: 10 },
+        { name: "Traditional Miso Soup", price: 3.5, duration: 5 }
+      ],
+      retail: [
+        { name: "Heavyweight Graphic Hoodie", price: 55.0, duration: 5 },
+        { name: "Organic Cotton Logo Tee", price: 28.0, duration: 5 },
+        { name: "Canvas Everyday Tote Bag", price: 18.0, duration: 5 },
+        { name: "Scented Soy Wax Candle", price: 22.0, duration: 5 }
+      ],
+      salon: [
+        { name: "Signature Haircut & Styling", price: 35.0, duration: 30 },
+        { name: "Beard Trim & Hot Towel Shave", price: 20.0, duration: 20 },
+        { name: "Full Balayage & Color Gloss", price: 95.0, duration: 90 }
+      ],
+      spa: [
+        { name: "60-Min Deep Tissue Massage", price: 85.0, duration: 60 },
+        { name: "Hydrating Facial Treatment", price: 65.0, duration: 45 },
+        { name: "Aromatherapy Wellness Package", price: 120.0, duration: 90 }
+      ],
+      clinic: [
+        { name: "General Medical Checkup", price: 75.0, duration: 30 },
+        { name: "Dental Cleaning & Polishing", price: 90.0, duration: 45 },
+        { name: "Specialist Consultation", price: 120.0, duration: 30 }
+      ],
+      hotel: [
+        { name: "Deluxe Ocean View Room Reservation", price: 180.0, duration: 30 },
+        { name: "Private Airport Transfer Shuttle", price: 45.0, duration: 30 },
+        { name: "VIP Late Checkout Pass (2 PM)", price: 35.0, duration: 15 }
+      ],
+      consulting: [
+        { name: "30-Min Growth Strategy Call", price: 75.0, duration: 30 },
+        { name: "Full Technical Architecture Audit", price: 300.0, duration: 60 },
+        { name: "Legal Consultation Session", price: 150.0, duration: 45 }
+      ]
+    };
 
-    const sampleAppointments = [
-      { name: "Haircut & Styling", price: 25.0, duration: 30 },
-      { name: "Beard Trim & Grooming", price: 15.0, duration: 20 },
-      { name: "Full Color & Highlight", price: 65.0, duration: 60 }
-    ];
-
-    function selectBusinessType(type) {
+    function switchPrimaryModel(type) {
       selectedType = type;
       document.getElementById('form-businessType').value = type;
-      
-      document.getElementById('card-type-restaurant').classList.remove('border-primary', 'ring-2', 'ring-primary/20');
-      document.getElementById('card-type-appointment').classList.remove('border-primary', 'ring-2', 'ring-primary/20');
-      
+
+      const tabRest = document.getElementById('tab-model-restaurant');
+      const tabAppt = document.getElementById('tab-model-appointment');
+      const subRest = document.getElementById('subcategories-restaurant');
+      const subAppt = document.getElementById('subcategories-appointment');
+
       if (type === 'restaurant') {
-        document.getElementById('card-type-restaurant').classList.add('border-primary', 'ring-2', 'ring-primary/20');
-        if (!document.getElementById('form-businessName').value) {
-          document.getElementById('form-businessName').value = 'Bella Pizza';
-        }
+        tabRest.className = 'flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all bg-white text-primary shadow-sm';
+        tabAppt.className = 'flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-textDim hover:text-textMain';
+        subRest.classList.remove('hidden');
+        subAppt.classList.add('hidden');
+        selectSubCategory('pizzeria', 'restaurant', 'Bella Pizzeria');
       } else {
-        document.getElementById('card-type-appointment').classList.add('border-primary', 'ring-2', 'ring-primary/20');
-        if (!document.getElementById('form-businessName').value) {
-          document.getElementById('form-businessName').value = 'Luxe Salon & Spa';
-        }
+        tabAppt.className = 'flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all bg-white text-primary shadow-sm';
+        tabRest.className = 'flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-textDim hover:text-textMain';
+        subAppt.classList.remove('hidden');
+        subRest.classList.add('hidden');
+        selectSubCategory('salon', 'appointment', 'Luxe Hair Salon');
+      }
+    }
+
+    function selectSubCategory(subType, mainType, defaultName) {
+      selectedSubType = subType;
+      selectedType = mainType;
+
+      document.getElementById('form-subType').value = subType;
+      document.getElementById('form-businessType').value = mainType;
+
+      document.querySelectorAll('.subcard').forEach(c => {
+        c.className = 'subcard border-2 border-slate-200 hover:border-primary rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white';
+      });
+
+      const activeCard = document.getElementById(`subcard-${subType}`);
+      if (activeCard) {
+        activeCard.className = 'subcard border-2 border-primary ring-2 ring-primary/20 rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all bg-white';
       }
 
-      goToStep(2);
+      if (defaultName) {
+        document.getElementById('form-businessName').value = defaultName;
+      }
     }
 
     function goToStep(step) {
@@ -326,7 +451,7 @@
 
       if (step === 1) {
         progress.style.width = '33%';
-        text.innerText = 'Step 1 of 3 — Select Business Model';
+        text.innerText = 'Step 1 of 3 — Select Business Category';
         pct.innerText = '33% Completed';
       } else if (step === 2) {
         progress.style.width = '66%';
@@ -345,10 +470,10 @@
       const colExtraHeader = document.getElementById('col-extra-header');
       tbody.innerHTML = '';
 
-      const items = selectedType === 'restaurant' ? sampleRestaurants : sampleAppointments;
+      const items = PRESETS[selectedSubType] || PRESETS.pizzeria;
       colExtraHeader.innerText = selectedType === 'restaurant' ? 'Prep Time (m)' : 'Duration (m)';
 
-      items.forEach((item, idx) => {
+      items.forEach((item) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="py-2.5 px-4">
@@ -361,7 +486,7 @@
             <input type="number" value="${item.duration}" class="item-duration-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
           </td>
           <td class="py-2.5 px-4 text-center">
-            <button onclick="this.closest('tr').remove()" class="text-slate-400 hover:text-red-500 p-1">
+            <button onclick="this.closest('tr').remove()" class="text-slate-400 hover:text-red-500 p-1 cursor-pointer">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </td>
@@ -385,7 +510,7 @@
           <input type="number" value="30" class="item-duration-input w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-textMain font-bold focus:border-primary focus:outline-none" />
         </td>
         <td class="py-2.5 px-4 text-center">
-          <button onclick="this.closest('tr').remove()" class="text-slate-400 hover:text-red-500 p-1">
+          <button onclick="this.closest('tr').remove()" class="text-slate-400 hover:text-red-500 p-1 cursor-pointer">
             <i data-lucide="trash-2" class="w-4 h-4"></i>
           </button>
         </td>
@@ -397,7 +522,7 @@
     async function submitDemoCreation() {
       const btn = document.getElementById('btn-submit-demo');
       btn.disabled = true;
-      btn.innerHTML = `<span class="inline-block animate-spin mr-2">⚙️</span> Building Your AI Agent...`;
+      btn.innerHTML = `<span class="inline-block animate-spin mr-2">⚙️</span> Allocating Phone Number &amp; Building AI Agent...`;
 
       const businessName = document.getElementById('form-businessName').value || 'Demo Business';
       const ownerName = document.getElementById('form-ownerName').value || 'Demo Customer';
@@ -407,6 +532,7 @@
       const aiName = document.getElementById('form-aiName').value;
       const customGreeting = document.getElementById('form-customGreeting').value;
       const businessType = document.getElementById('form-businessType').value;
+      const subType = document.getElementById('form-subType').value;
 
       // Extract custom items/services
       const rows = document.querySelectorAll('#items-table-body tr');
@@ -436,6 +562,7 @@
         aiName,
         customGreeting,
         businessType,
+        subType,
         menuItems: items,
         services
       };

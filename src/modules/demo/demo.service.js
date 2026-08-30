@@ -6,10 +6,164 @@ const crypto = require("crypto");
  */
 function normalizeType(type = "") {
   const lower = (type || "").toLowerCase();
-  if (["restaurant", "bakery", "cafe", "pizzeria", "food", "shop", "store", "order", "dish", "burger", "pizza", "sushi"].some(k => lower.includes(k))) {
+  if (["restaurant", "bakery", "cafe", "pizzeria", "food", "shop", "store", "order", "dish", "burger", "pizza", "sushi", "retail"].some(k => lower.includes(k))) {
     return "restaurant";
   }
   return "appointment";
+}
+
+/**
+ * Expanded Sub-Type Presets for Order and Appointment Businesses.
+ */
+const SUBTYPE_PRESETS = {
+  // --- ORDER BASED PRESETS ---
+  pizzeria: [
+    { name: "Pizza Margherita", price: 12.0, description: "Classic tomato sauce, fresh mozzarella, and basil" },
+    { name: "Chicken Fajita Pizza", price: 15.0, description: "Grilled chicken, bell peppers, onions, and melted cheese" },
+    { name: "Pepperoni Supreme Pizza", price: 16.5, description: "Loaded with crispy pepperoni and mozzarella" },
+    { name: "Garlic Bread", price: 5.0, description: "Warm oven-baked garlic bread with herb butter" },
+    { name: "Soft Drink", price: 2.5, description: "Ice-cold refreshing beverage" }
+  ],
+  cafe: [
+    { name: "Iced Caramel Macchiato", price: 5.50, description: "Rich espresso with caramel drizzle and chilled milk" },
+    { name: "Double Shot Espresso", price: 3.50, description: "Bold dark roast espresso shot" },
+    { name: "Butter Croissant", price: 4.00, description: "Freshly baked flaky French butter croissant" },
+    { name: "Avocado Sourdough Toast", price: 9.50, description: "Smashed avocado on toasted sourdough with chili flakes" },
+    { name: "Iced Matcha Latte", price: 6.00, description: "Premium Japanese matcha green tea with oat milk" }
+  ],
+  burger: [
+    { name: "Double Smash Cheeseburger", price: 11.50, description: "Two smash patties with American cheese, pickles, and secret sauce" },
+    { name: "Crispy Spicy Chicken Sandwich", price: 10.50, description: "Fried chicken breast with spicy mayo and coleslaw" },
+    { name: "Loaded Seasoned Fries", price: 4.50, description: "Golden crispy fries with house seasoning" },
+    { name: "Classic Vanilla Milkshake", price: 4.50, description: "Hand-spun thick vanilla ice cream shake" }
+  ],
+  sushi: [
+    { name: "Salmon Lover Roll (8pcs)", price: 14.50, description: "Fresh salmon, avocado, cucumber, topped with seared salmon" },
+    { name: "Chicken Teriyaki Bento Box", price: 16.50, description: "Grilled chicken teriyaki with rice, salad, and tempura" },
+    { name: "Steamed Pork Gyoza (6pcs)", price: 7.50, description: "Pan-fried Japanese pork dumplings" },
+    { name: "Traditional Miso Soup", price: 3.50, description: "Warm soybean paste soup with tofu and seaweed" }
+  ],
+  retail: [
+    { name: "Heavyweight Graphic Hoodie", price: 55.00, description: "100% cotton premium streetwear hoodie" },
+    { name: "Organic Cotton Logo Tee", price: 28.00, description: "Breathable everyday graphic t-shirt" },
+    { name: "Canvas Everyday Tote Bag", price: 18.00, description: "Durable canvas shoulder tote" },
+    { name: "Scented Soy Wax Candle", price: 22.00, description: "Hand-poured lavender & vanilla soy candle" }
+  ],
+
+  // --- APPOINTMENT BASED PRESETS ---
+  salon: [
+    { name: "Signature Haircut & Styling", price: 35.0, durationMinutes: 30, description: "Wash, haircut, blow-dry, and professional styling" },
+    { name: "Beard Trim & Hot Towel Shave", price: 20.0, durationMinutes: 20, description: "Precision beard shaping and warm towel finish" },
+    { name: "Full Balayage & Color Gloss", price: 95.0, durationMinutes: 90, description: "Custom hand-painted highlights and gloss treatment" }
+  ],
+  spa: [
+    { name: "60-Min Deep Tissue Massage", price: 85.0, durationMinutes: 60, description: "Therapeutic deep pressure full-body muscle relief" },
+    { name: "Hydrating Facial & Skin Treatment", price: 65.0, durationMinutes: 45, description: "Deep cleansing, exfoliation, and serum hydration" },
+    { name: "Aromatherapy Wellness Package", price: 120.0, durationMinutes: 90, description: "Full massage, essential oils, and scalp relaxation" }
+  ],
+  clinic: [
+    { name: "General Medical Checkup", price: 75.0, durationMinutes: 30, description: "Comprehensive health review and vital signs check" },
+    { name: "Dental Cleaning & Polishing", price: 90.0, durationMinutes: 45, description: "Professional dental hygiene and fluoride treatment" },
+    { name: "Specialist Consultation", price: 120.0, durationMinutes: 30, description: "One-on-one medical specialist consultation" }
+  ],
+  hotel: [
+    { name: "Deluxe Ocean View Room Reservation", price: 180.0, durationMinutes: 30, description: "King bed deluxe room with panoramic balcony view" },
+    { name: "Private Airport Transfer Shuttle", price: 45.0, durationMinutes: 30, description: "Chauffeur pick-up from airport to hotel" },
+    { name: "VIP Late Checkout Pass (2 PM)", price: 35.0, durationMinutes: 15, description: "Extended checkout privilege" }
+  ],
+  consulting: [
+    { name: "30-Min Growth Strategy Call", price: 75.0, durationMinutes: 30, description: "Initial business strategy & marketing roadmap session" },
+    { name: "Full Technical Architecture Audit", price: 300.0, durationMinutes: 60, description: "In-depth codebase, infrastructure, and AI audit" },
+    { name: "Legal & Regulatory Consultation", price: 150.0, durationMinutes: 45, description: "Legal review and compliance guidance session" }
+  ]
+};
+
+/**
+ * Dynamically allocates an UNASSIGNED phone number for the demo session.
+ */
+async function allocateDemoPhoneNumber(tenantId, businessId) {
+  try {
+    // 1. Look for explicit UNASSIGNED phone in system inventory
+    let phoneRecord = await prisma.tenantPhoneNumber.findFirst({
+      where: {
+        OR: [
+          { status: "UNASSIGNED" },
+          { status: "DEMO_AVAILABLE" },
+          { businessId: null }
+        ]
+      }
+    });
+
+    // 2. If no UNASSIGNED number, check for expired demo numbers and force release
+    if (!phoneRecord) {
+      const expiredDemoSession = await prisma.demoSession.findFirst({
+        where: { status: "EXPIRED" },
+        orderBy: { updatedAt: "desc" }
+      });
+
+      if (expiredDemoSession) {
+        await releaseDemoPhoneNumber(expiredDemoSession.businessId, expiredDemoSession.tenantId);
+        phoneRecord = await prisma.tenantPhoneNumber.findFirst({
+          where: {
+            OR: [
+              { status: "UNASSIGNED" },
+              { businessId: null }
+            ]
+          }
+        });
+      }
+    }
+
+    if (phoneRecord) {
+      await prisma.tenantPhoneNumber.update({
+        where: { id: phoneRecord.id },
+        data: {
+          tenantId: tenantId,
+          businessId: businessId,
+          status: "DEMO_ACTIVE"
+        }
+      });
+      console.log(`[DEMO_CENTER] Assigned Phone ${phoneRecord.twilioPhoneNumber} to Demo Tenant ${tenantId}`);
+      return phoneRecord.twilioPhoneNumber;
+    }
+  } catch (err) {
+    console.error("[DEMO_CENTER] Phone allocation error:", err.message);
+  }
+
+  // Fallback if no inventory number present
+  return process.env.TWILIO_PHONE_NUMBER || process.env.TWILIO_DEMO_NUMBER || "+18884918668";
+}
+
+/**
+ * Releases a demo phone number back to the UNASSIGNED inventory pool.
+ */
+async function releaseDemoPhoneNumber(businessId, tenantId) {
+  try {
+    const masterTenant = await prisma.tenant.findFirst({
+      where: { name: { contains: "Platform Hub" } }
+    });
+    const fallbackTenantId = masterTenant ? masterTenant.id : tenantId;
+
+    const released = await prisma.tenantPhoneNumber.updateMany({
+      where: {
+        OR: [
+          { businessId: businessId },
+          { tenantId: tenantId, status: "DEMO_ACTIVE" }
+        ]
+      },
+      data: {
+        tenantId: fallbackTenantId,
+        businessId: null,
+        status: "UNASSIGNED"
+      }
+    });
+
+    if (released.count > 0) {
+      console.log(`[DEMO_CENTER] Released ${released.count} demo phone number(s) back to UNASSIGNED inventory.`);
+    }
+  } catch (err) {
+    console.error("[DEMO_CENTER] Release phone error:", err.message);
+  }
 }
 
 /**
@@ -19,6 +173,7 @@ async function createDemoSession(data) {
   const {
     businessName,
     businessType = "restaurant",
+    subType = "pizzeria",
     city = "San Francisco",
     country = "USA",
     ownerName = "Demo User",
@@ -46,16 +201,7 @@ async function createDemoSession(data) {
     }
   });
 
-  // 2. Determine assigned phone number from Twilio inventory or fallback
-  let assignedPhone = process.env.TWILIO_PHONE_NUMBER || process.env.TWILIO_DEMO_NUMBER || "+18005550199";
-  const availableProxy = await prisma.tenantPhoneNumber.findFirst({
-    where: { status: "ACTIVE" }
-  });
-  if (availableProxy) {
-    assignedPhone = availableProxy.twilioPhoneNumber || availableProxy.businessPhoneNumber || assignedPhone;
-  }
-
-  // 3. Create Demo Business
+  // 2. Create Demo Business
   const greeting = customGreeting || (
     normalizedType === "restaurant"
       ? `Thank you for calling ${businessName}! My name is ${aiName}. How can I assist you with your order today?`
@@ -66,7 +212,8 @@ async function createDemoSession(data) {
     data: {
       name: businessName,
       type: normalizedType,
-      phoneNumber: assignedPhone,
+      subType: subType,
+      phoneNumber: "+18884918668", // Temporary placeholder before assignment
       city: city,
       country: country,
       aiName: aiName,
@@ -76,7 +223,16 @@ async function createDemoSession(data) {
     }
   });
 
-  // 4. Seed Business Items (Menu or Services)
+  // 3. Dynamically Allocate Unassigned Phone Number
+  const assignedPhone = await allocateDemoPhoneNumber(tenant.id, business.id);
+
+  // Update business phone number
+  await prisma.business.update({
+    where: { id: business.id },
+    data: { phoneNumber: assignedPhone }
+  });
+
+  // 4. Seed Business Items (Menu or Services) using subType presets
   if (normalizedType === "restaurant") {
     const category = await prisma.menuCategory.create({
       data: {
@@ -86,13 +242,8 @@ async function createDemoSession(data) {
       }
     });
 
-    const defaultItems = menuItems.length > 0 ? menuItems : [
-      { name: "Pizza Margherita", price: 12.0, description: "Classic tomato sauce, fresh mozzarella, and basil" },
-      { name: "Chicken Fajita Pizza", price: 15.0, description: "Grilled chicken, bell peppers, onions, and melted cheese" },
-      { name: "Pepperoni Pizza", price: 16.0, description: "Loaded with crispy pepperoni and mozzarella" },
-      { name: "Garlic Bread", price: 5.0, description: "Warm oven-baked garlic bread with herb butter" },
-      { name: "Soft Drink", price: 2.5, description: "Ice-cold refreshing beverage" }
-    ];
+    const presetItems = SUBTYPE_PRESETS[subType] || SUBTYPE_PRESETS.pizzeria;
+    const defaultItems = menuItems.length > 0 ? menuItems : presetItems;
 
     for (let i = 0; i < defaultItems.length; i++) {
       const item = defaultItems[i];
@@ -118,11 +269,8 @@ async function createDemoSession(data) {
       }
     });
 
-    const defaultServices = services.length > 0 ? services : [
-      { name: "Haircut & Styling", price: 25.0, durationMinutes: 30, description: "Professional haircut and hair styling session" },
-      { name: "Beard Trim & Grooming", price: 15.0, durationMinutes: 20, description: "Precision beard shaping and facial hair grooming" },
-      { name: "Full Color & Highlight", price: 65.0, durationMinutes: 60, description: "Complete hair coloring and highlight treatment" }
-    ];
+    const presetServices = SUBTYPE_PRESETS[subType] || SUBTYPE_PRESETS.salon;
+    const defaultServices = services.length > 0 ? services : presetServices;
 
     for (let i = 0; i < defaultServices.length; i++) {
       const s = defaultServices[i];
@@ -165,12 +313,12 @@ async function createDemoSession(data) {
     }
   });
 
-  console.log(`[DEMO_CENTER] Created DemoSession ${session.id} for "${businessName}" (Token: ${token})`);
+  console.log(`[DEMO_CENTER] Created DemoSession ${session.id} for "${businessName}" on Number ${assignedPhone} (Token: ${token})`);
   return { success: true, session, token };
 }
 
 /**
- * Fetches demo session by token with server-side expiration checks.
+ * Fetches demo session by token with server-side expiration checks and phone release.
  */
 async function getSessionByToken(token) {
   if (!token) return null;
@@ -211,6 +359,9 @@ async function getSessionByToken(token) {
       data: { status: "EXPIRED" }
     });
     session.status = "EXPIRED";
+
+    // 🚀 Release Phone Number back to unassigned inventory!
+    await releaseDemoPhoneNumber(session.businessId, session.tenantId);
   }
 
   return {
@@ -242,22 +393,30 @@ async function recordDemoCall(businessId) {
       where: { id: session.id },
       data: { status: "EXPIRED" }
     });
+
+    // 🚀 Release Phone Number back to unassigned inventory!
+    await releaseDemoPhoneNumber(session.businessId, session.tenantId);
   }
 
   return updated;
 }
 
 /**
- * Manually deactivates demo session.
+ * Manually deactivates demo session and releases phone number.
  */
 async function deactivateSession(token) {
   const session = await prisma.demoSession.findUnique({ where: { token } });
   if (!session) return null;
 
-  return await prisma.demoSession.update({
+  const updated = await prisma.demoSession.update({
     where: { id: session.id },
     data: { status: "EXPIRED" }
   });
+
+  // 🚀 Release Phone Number back to unassigned inventory!
+  await releaseDemoPhoneNumber(session.businessId, session.tenantId);
+
+  return updated;
 }
 
 /**
@@ -268,10 +427,15 @@ async function extendSession(token) {
   if (!session) return null;
 
   const newExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-  return await prisma.demoSession.update({
+  const updated = await prisma.demoSession.update({
     where: { id: session.id },
     data: { status: "ACTIVE", expiresAt: newExpires }
   });
+
+  // Re-allocate phone if it was unassigned
+  await allocateDemoPhoneNumber(session.tenantId, session.businessId);
+
+  return updated;
 }
 
 /**
@@ -318,5 +482,8 @@ module.exports = {
   recordDemoCall,
   deactivateSession,
   extendSession,
-  listAllDemoSessions
+  listAllDemoSessions,
+  allocateDemoPhoneNumber,
+  releaseDemoPhoneNumber,
+  SUBTYPE_PRESETS
 };
