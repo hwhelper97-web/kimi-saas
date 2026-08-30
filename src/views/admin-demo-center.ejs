@@ -319,6 +319,7 @@
         const json = await res.json();
         if (json.success && json.data) {
           const d = json.data;
+          if (document.getElementById('resendApiKey')) document.getElementById('resendApiKey').value = d.resendApiKey || '';
           document.getElementById('smtpHost').value = d.smtpHost || '';
           document.getElementById('smtpPort').value = d.smtpPort || 587;
           document.getElementById('smtpFrom').value = d.smtpFrom || '';
@@ -326,12 +327,12 @@
           document.getElementById('smtpPass').value = d.smtpPass || '';
 
           const badge = document.getElementById('smtp-status-badge');
-          if (d.smtpHost && d.smtpUser) {
+          if (d.resendApiKey || (d.smtpHost && d.smtpUser)) {
             badge.className = 'px-2 py-0.5 text-[9px] rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-sans';
-            badge.innerText = 'Configured ✓';
+            badge.innerText = d.resendApiKey ? 'Resend API Active ✓' : 'SMTP Configured ✓';
           } else {
             badge.className = 'px-2 py-0.5 text-[9px] rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-sans';
-            badge.innerText = 'SMTP Not Configured';
+            badge.innerText = 'Not Configured';
           }
         }
       } catch (e) {
@@ -341,6 +342,7 @@
 
     async function saveSmtpSettings() {
       const payload = {
+        resendApiKey: document.getElementById('resendApiKey') ? document.getElementById('resendApiKey').value.trim() : undefined,
         smtpHost: document.getElementById('smtpHost').value.trim(),
         smtpPort: parseInt(document.getElementById('smtpPort').value) || 587,
         smtpFrom: document.getElementById('smtpFrom').value.trim(),
@@ -355,7 +357,7 @@
       });
       const json = await res.json();
       if (json.success) {
-        alert('SMTP Settings Saved Successfully!');
+        alert('Email & SMTP Settings Saved Successfully!');
         loadSmtpSettings();
       } else {
         alert('Failed saving settings: ' + (json.message || json.error));
