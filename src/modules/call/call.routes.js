@@ -8,7 +8,9 @@ const { allowRoles } = require("../../middleware/role.middleware");
 const { ROLES } = require("../../constants/roles");
 const { tenantMiddleware } = require("../../middleware/tenant.middleware");
 
-// ─── PUBLIC (Twilio webhooks — no auth) ──────────────────────────────────────
+const { validateTwilioSignature } = require("../../middleware/twilio-webhook.middleware");
+
+// ─── PUBLIC (Twilio webhooks — signature verified) ─────────────────────────
 router.use((req, res, next) => {
   console.log(`[CALL_WEBHOOK] ${req.method} ${req.originalUrl}`);
   if (req.body && Object.keys(req.body).length > 0) {
@@ -17,10 +19,10 @@ router.use((req, res, next) => {
   next();
 });
 
-router.all("/incoming", controller.incoming);
-router.post("/process", controller.process);
-router.post("/status", controller.status);
-router.post("/recording", controller.recordingCallback);
+router.all("/incoming", validateTwilioSignature, controller.incoming);
+router.post("/process", validateTwilioSignature, controller.process);
+router.post("/status", validateTwilioSignature, controller.status);
+router.post("/recording", validateTwilioSignature, controller.recordingCallback);
 router.get("/proxy-recording/:id", controller.proxyRecording);
 router.get("/voice", controller.streamVoice);
 

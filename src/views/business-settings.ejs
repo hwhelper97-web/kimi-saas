@@ -195,6 +195,130 @@
         <input type="number" id="appointmentDuration" class="form-control-premium" value="<%= business.appointmentDuration || 30 %>" />
       </div>
       <% } %>
+  <!-- 📞 Phone Routing & Human Call Transfer -->
+  <div class="glass-card mb-4" style="border-top: 2px solid rgba(0, 242, 255, 0.4);">
+    <div class="card-header-premium">
+      <div class="header-icon-box" style="background: rgba(0, 242, 255, 0.1); color: #00f2ff;">
+        <i data-lucide="phone-call"></i>
+      </div>
+      <div>
+        <h3 class="card-title-premium">Phone Routing & Human Call Transfer</h3>
+        <p class="card-subtitle-premium">Keep your existing business number. Forward calls to Naxton AI and escalate to a human manager 24/7.</p>
+      </div>
+      <span class="badge badge-premium" style="border-color: rgba(0,242,255,0.3); color:#00f2ff; background: rgba(0,242,255,0.05);">US Telephony</span>
+    </div>
+
+    <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; padding: 2rem;">
+      
+      <!-- 1. Existing Customer-Facing Business Number -->
+      <div class="form-group-premium">
+        <label><i data-lucide="building"></i> Existing Business Number (Customer-Facing)</label>
+        <input type="text" id="existingBizPhone" class="form-control-premium" value="<%= business.phoneNumber || '' %>" placeholder="+1 (305) 555-1000" />
+        <p class="input-hint">The public number your customers already call. Forward this number to your Naxton AI line.</p>
+      </div>
+
+      <!-- 2. Naxton / Twilio AI Proxy Number -->
+      <div class="form-group-premium">
+        <label><i data-lucide="cpu"></i> Naxton AI Dedicated Number</label>
+        <div style="display:flex; gap:0.5rem;">
+          <input type="text" id="naxtonAiPhone" class="form-control-premium" readonly value="Loading..." placeholder="No Twilio AI Line" style="background:rgba(0,0,0,0.3);" />
+          <button type="button" class="action-btn-premium" onclick="document.getElementById('provisionBox').style.display = document.getElementById('provisionBox').style.display === 'none' ? 'block' : 'none';" style="white-space:nowrap;">
+            <i data-lucide="plus-circle"></i> Provision Line
+          </button>
+        </div>
+        <p class="input-hint">Receives forwarded calls from your business phone provider.</p>
+      </div>
+
+      <!-- Inline Provision Box -->
+      <div id="provisionBox" style="grid-column: 1 / -1; display:none; background:rgba(0,0,0,0.4); border:1px solid var(--glass-border); border-radius:1rem; padding:1.5rem;">
+        <h4 style="color:white; font-size:0.9rem; margin-bottom:1rem;"><i data-lucide="search"></i> Provision US Twilio AI Number</h4>
+        <div style="display:flex; gap:1rem; align-items:center;">
+          <input type="text" id="areaCodeSearch" class="form-control-premium" placeholder="3-digit Area Code (e.g. 305)" style="max-width:200px;" />
+          <button type="button" class="action-btn-premium" onclick="searchNumbers()"><i data-lucide="search"></i> Search Numbers</button>
+        </div>
+        <div id="numberList" style="margin-top:1rem; display:none;"></div>
+      </div>
+
+      <!-- 3. Owner / Manager Transfer Number (Verified Destination) -->
+      <div class="form-group-premium" style="grid-column: 1 / -1;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+          <label style="margin-bottom:0;"><i data-lucide="user-check"></i> Owner / Manager Transfer Number (Human Escalation)</label>
+          <span id="transferVerifyBadge" class="badge" style="font-size:0.65rem; padding:0.3rem 0.6rem; border-radius:1rem; background:rgba(255,170,0,0.1); color:#ffaa00; border:1px solid rgba(255,170,0,0.3);">
+            ⚠️ Verification Pending
+          </span>
+        </div>
+        <div style="display:flex; gap:0.75rem;">
+          <input type="text" id="humanTransferNumber" class="form-control-premium" placeholder="+1 (305) 555-3000" />
+          <button type="button" id="sendOtpBtn" class="action-btn-premium" onclick="requestOtpVerification()" style="white-space:nowrap; background:rgba(0,242,255,0.1); border-color:rgba(0,242,255,0.3); color:#00f2ff;">
+            <i data-lucide="shield-check"></i> Verify Number
+          </button>
+        </div>
+        <p class="input-hint">When callers request to speak with the manager or owner, Naxton bridges live calls to this verified US number.</p>
+      </div>
+
+      <!-- OTP Verification Box -->
+      <div id="otpVerifyBox" style="grid-column: 1 / -1; display:none; background:linear-gradient(135deg, rgba(0,242,255,0.08) 0%, rgba(0,0,0,0.4) 100%); border:1px solid rgba(0,242,255,0.3); border-radius:1rem; padding:1.5rem;">
+        <h4 style="color:white; font-size:0.95rem; margin-bottom:0.5rem;"><i data-lucide="key-round"></i> Enter 6-Digit SMS Verification Code</h4>
+        <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:1rem;">We sent a 6-digit verification code via SMS to your manager transfer number. Code expires in 10 minutes.</p>
+        <div style="display:flex; gap:1rem; max-width:400px;">
+          <input type="text" id="otpCodeInput" class="form-control-premium" placeholder="123456" maxlength="6" style="text-align:center; font-family:'JetBrains Mono'; font-size:1.2rem; letter-spacing:0.3em;" />
+          <button type="button" class="action-btn-premium" onclick="submitOtpCode()" style="background:#00f2ff; color:#000; font-weight:800;">
+            Confirm Verification
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. Controls: AI Answering, Human Transfer Toggle, Timeout -->
+      <div class="form-group-premium">
+        <label><i data-lucide="bot"></i> 24/7 AI Receptionist Answering</label>
+        <select id="aiEnabledToggle" class="form-control-premium">
+          <option value="true">ENABLED — AI answers calls automatically</option>
+          <option value="false">DISABLED — Direct call forwarding to manager</option>
+        </select>
+      </div>
+
+      <div class="form-group-premium">
+        <label><i data-lucide="phone-forwarded"></i> Human Call Transfer Escalation</label>
+        <select id="humanTransferEnabledToggle" class="form-control-premium">
+          <option value="true">ENABLED — AI can transfer live calls to manager</option>
+          <option value="false">DISABLED — AI handles calls without transferring</option>
+        </select>
+      </div>
+
+      <div class="form-group-premium">
+        <label><i data-lucide="timer"></i> Transfer Ring Timeout (Seconds)</label>
+        <input type="number" id="transferTimeoutSec" class="form-control-premium" value="30" min="10" max="60" />
+      </div>
+
+      <div class="form-group-premium">
+        <label><i data-lucide="shield-alert"></i> Fallback Destination Number</label>
+        <input type="text" id="fallbackNumberInput" class="form-control-premium" placeholder="+1 (305) 555-4000" />
+      </div>
+
+      <!-- 5. Carrier Call Forwarding Guide -->
+      <div style="grid-column: 1 / -1; background:rgba(255,255,255,0.02); border:1px solid var(--glass-border); border-radius:1rem; padding:1.5rem;">
+        <h4 style="color:white; font-size:0.9rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
+          <i data-lucide="arrow-right-left" style="color:var(--primary);"></i> How to Forward Your Business Phone Number
+        </h4>
+        <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:1rem;">
+          Your customers keep calling your existing business number. Set up call forwarding with your phone provider to route incoming calls to your Naxton AI number.
+        </p>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; font-size:0.8rem;">
+          <div style="background:rgba(0,0,0,0.3); padding:0.8rem; border-radius:0.5rem; border:1px solid rgba(255,255,255,0.05);">
+            <strong style="color:#fff;">AT&T / Verizon:</strong><br>
+            Dial <code style="color:#00f2ff;">*72</code> + <span class="naxtonAiPhoneDisplay" style="color:#fff;">Naxton AI Number</span>
+          </div>
+          <div style="background:rgba(0,0,0,0.3); padding:0.8rem; border-radius:0.5rem; border:1px solid rgba(255,255,255,0.05);">
+            <strong style="color:#fff;">T-Mobile:</strong><br>
+            Dial <code style="color:#00f2ff;">**21*</code> + <span class="naxtonAiPhoneDisplay" style="color:#fff;">Naxton AI Number</span> + <code style="color:#00f2ff;">#</code>
+          </div>
+          <div style="background:rgba(0,0,0,0.3); padding:0.8rem; border-radius:0.5rem; border:1px solid rgba(255,255,255,0.05);">
+            <strong style="color:#fff;">Google Voice / RingCentral:</strong><br>
+            Go to Settings ➜ Call Forwarding ➜ Add Naxton AI Number
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -699,6 +823,29 @@
       } else {
         notify(result.error || "Update failed", "Error");
       }
+
+      // 📞 Also save phone routing configuration
+      const phonePayload = {
+        businessId: bId,
+        businessPhoneNumber: document.getElementById('existingBizPhone')?.value,
+        transferNumber: document.getElementById('humanTransferNumber')?.value,
+        fallbackNumber: document.getElementById('fallbackNumberInput')?.value,
+        aiEnabled: document.getElementById('aiEnabledToggle')?.value === 'true',
+        humanTransferEnabled: document.getElementById('humanTransferEnabledToggle')?.value === 'true',
+        transferTimeout: parseInt(document.getElementById('transferTimeoutSec')?.value) || 30
+      };
+
+      const phoneUrl = currentPhoneConfigId ? `/api/phone/config/${currentPhoneConfigId}` : '/api/phone/config';
+      const phoneMethod = currentPhoneConfigId ? 'PUT' : 'POST';
+      await fetch(phoneUrl, {
+        method: phoneMethod,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token)
+        },
+        body: JSON.stringify(phonePayload)
+      });
+
     } catch (err) {
       console.error(err);
       notify("Platform connection error", "Error");
@@ -706,6 +853,128 @@
       btn.disabled = false;
       btn.innerHTML = originalHtml;
       if (window.lucide) lucide.createIcons();
+    }
+  }
+
+  // --- Phone Routing & OTP Verification Handlers ---
+  let currentPhoneConfigId = null;
+
+  async function loadPhoneConfig() {
+    try {
+      const bId = getBusinessId();
+      const res = await fetch(`/api/phone/config?businessId=${bId}`, {
+        headers: { 'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token) }
+      });
+      const result = await res.json();
+      if (result.success && result.data && result.data.length > 0) {
+        const cfg = result.data[0];
+        currentPhoneConfigId = cfg.id;
+        
+        if (cfg.twilioPhoneNumber && cfg.twilioPhoneNumber !== 'PENDING') {
+          if (document.getElementById('naxtonAiPhone')) document.getElementById('naxtonAiPhone').value = cfg.twilioPhoneNumber;
+          document.querySelectorAll('.naxtonAiPhoneDisplay').forEach(el => el.textContent = cfg.twilioPhoneNumber);
+        }
+        if (cfg.businessPhoneNumber && document.getElementById('existingBizPhone')) {
+          document.getElementById('existingBizPhone').value = cfg.businessPhoneNumber;
+        }
+        if (cfg.transferNumber && document.getElementById('humanTransferNumber')) {
+          document.getElementById('humanTransferNumber').value = cfg.transferNumber;
+        }
+        if (cfg.fallbackNumber && document.getElementById('fallbackNumberInput')) {
+          document.getElementById('fallbackNumberInput').value = cfg.fallbackNumber;
+        }
+        if (cfg.transferTimeout && document.getElementById('transferTimeoutSec')) {
+          document.getElementById('transferTimeoutSec').value = cfg.transferTimeout;
+        }
+        if (document.getElementById('aiEnabledToggle')) {
+          document.getElementById('aiEnabledToggle').value = cfg.aiEnabled ? 'true' : 'false';
+        }
+        if (document.getElementById('humanTransferEnabledToggle')) {
+          document.getElementById('humanTransferEnabledToggle').value = cfg.humanTransferEnabled ? 'true' : 'false';
+        }
+
+        const badge = document.getElementById('transferVerifyBadge');
+        if (badge) {
+          if (cfg.transferVerificationStatus === 'VERIFIED') {
+            badge.style.background = 'rgba(0, 255, 136, 0.1)';
+            badge.style.color = '#00ff88';
+            badge.style.borderColor = 'rgba(0, 255, 136, 0.3)';
+            badge.innerHTML = '✓ Verified Destination';
+          } else {
+            badge.style.background = 'rgba(255, 170, 0, 0.1)';
+            badge.style.color = '#ffaa00';
+            badge.style.borderColor = 'rgba(255, 170, 0, 0.3)';
+            badge.innerHTML = '⚠️ Verification Pending';
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Failed loading phone config:", e);
+    }
+  }
+
+  async function requestOtpVerification() {
+    const num = document.getElementById('humanTransferNumber')?.value;
+    if (!num) return notify("Please enter a transfer phone number first", "Warning");
+
+    const btn = document.getElementById('sendOtpBtn');
+    if (btn) { btn.disabled = true; btn.innerHTML = 'Sending Code...'; }
+
+    try {
+      const res = await fetch('/api/phone/request-transfer-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token)
+        },
+        body: JSON.stringify({
+          id: currentPhoneConfigId,
+          businessId: getBusinessId(),
+          transferNumber: num
+        })
+      });
+      const result = await res.json();
+      if (result.success) {
+        notify("Verification code sent via SMS to " + num, "Success");
+        document.getElementById('otpVerifyBox').style.display = 'block';
+      } else {
+        notify(result.error || "Failed to send verification code", "Error");
+      }
+    } catch (err) {
+      notify("Network error requesting verification code", "Error");
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="shield-check"></i> Verify Number'; }
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+
+  async function submitOtpCode() {
+    const otp = document.getElementById('otpCodeInput')?.value;
+    if (!otp || otp.length < 6) return notify("Please enter the 6-digit SMS code", "Warning");
+
+    try {
+      const res = await fetch('/api/phone/verify-transfer-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token)
+        },
+        body: JSON.stringify({
+          id: currentPhoneConfigId,
+          businessId: getBusinessId(),
+          otp: otp.trim()
+        })
+      });
+      const result = await res.json();
+      if (result.success) {
+        notify("Transfer number verified successfully!", "Success");
+        document.getElementById('otpVerifyBox').style.display = 'none';
+        loadPhoneConfig();
+      } else {
+        notify(result.error || "Verification failed", "Error");
+      }
+    } catch (err) {
+      notify("Verification request failed", "Error");
     }
   }
 
@@ -721,7 +990,7 @@
     list.style.display = 'block';
 
     try {
-      const res = await fetch(`/api/phone/search?areaCode=${areaCode}`, {
+      const res = await fetch(`/api/call/provision/search?areaCode=${areaCode}`, {
         headers: { 'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token) }
       });
       const result = await res.json();
@@ -748,7 +1017,7 @@
     if (!confirm(`Are you sure you want to purchase ${phoneNumber}? This will establish a secure AI bridge for your business.`)) return;
 
     try {
-      const res = await fetch('/api/phone/purchase', {
+      const res = await fetch('/api/call/provision/purchase', {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -760,8 +1029,11 @@
       
       if (result.success) {
         notify("Secure line successfully provisioned!", "Success");
-        if (document.getElementById('bizPhone')) document.getElementById('bizPhone').value = phoneNumber;
+        if (document.getElementById('naxtonAiPhone')) document.getElementById('naxtonAiPhone').value = phoneNumber;
+        document.querySelectorAll('.naxtonAiPhoneDisplay').forEach(el => el.textContent = phoneNumber);
         document.getElementById('numberList').style.display = 'none';
+        document.getElementById('provisionBox').style.display = 'none';
+        loadPhoneConfig();
       } else {
         notify(result.error || "Provisioning failed", "Error");
       }
@@ -802,6 +1074,7 @@
   // Init
   if (window.lucide) lucide.createIcons();
   filterVoices(); // Run initial filter
+  loadPhoneConfig(); // Load active phone routing & transfer status
 
   document.getElementById('aiVoiceId')?.addEventListener('change', function() {
     const customInput = document.getElementById('customAgentInput');

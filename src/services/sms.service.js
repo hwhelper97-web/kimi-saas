@@ -87,3 +87,23 @@ exports.sendCancellationSms = async (to, businessName, service, time) => {
     console.log(`[SMS Service] Sent cancellation to ${to}`);
   } catch (err) { console.error("[SMS Service] Error:", err); }
 };
+
+/**
+ * sendOtpSms
+ * Sends 6-digit OTP verification code for human transfer number verification.
+ */
+exports.sendOtpSms = async (to, otpCode, businessName = "Naxton AI Voice") => {
+  if (!client) {
+    console.warn(`[SMS Service] Twilio not configured. Simulated OTP for ${to}: ${otpCode}`);
+    return { sid: "SIMULATED_OTP_" + Date.now(), simulated: true };
+  }
+  try {
+    const body = `🔐 ${businessName} Verification Code\n\nYour verification code for human call transfers is: ${otpCode}\n\nThis code expires in 10 minutes. Do not share this code with anyone.`;
+    const message = await client.messages.create({ body, from: fromNumber, to });
+    console.log(`[SMS Service] Sent OTP SMS to ${to}: ${message.sid}`);
+    return message;
+  } catch (err) {
+    console.error("[SMS Service] Error sending OTP SMS:", err);
+    throw err;
+  }
+};

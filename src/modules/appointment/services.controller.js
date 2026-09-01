@@ -324,8 +324,20 @@ exports.deleteStaff = async (req, res) => {
 exports.assignStaffToService = async (req, res) => {
   try {
     const { staffId, serviceId } = req.body;
+    if (!staffId || !serviceId) return res.status(400).json({ error: "staffId and serviceId required" });
+
+    const isSuperAdmin = req.user && req.user.role === "SUPERADMIN";
+    const tenantFilter = isSuperAdmin ? {} : { tenantId: req.tenantId };
+
+    // 🛡️ Verify both staff and service belong to tenant
+    const staff = await prisma.staff.findFirst({ where: { id: staffId, ...tenantFilter } });
+    if (!staff) return res.status(404).json({ error: "Staff member not found or access denied" });
+
+    const service = await prisma.appointmentService.findFirst({ where: { id: serviceId, ...tenantFilter } });
+    if (!service) return res.status(404).json({ error: "Service not found or access denied" });
+
     const assignment = await prisma.staffService.create({
-      data: { staffId, serviceId }
+      data: { staffId: staff.id, serviceId: service.id }
     });
     res.json({ success: true, data: assignment });
   } catch (err) {

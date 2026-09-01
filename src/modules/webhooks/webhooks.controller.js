@@ -217,7 +217,6 @@ exports.createOrder = async (req, res) => {
             menuItemId: menuItem.id,
             quantity: qty,
             unitPrice: menuItem.price,
-            totalPrice: price,
             tenantId: business.tenantId
           });
         }

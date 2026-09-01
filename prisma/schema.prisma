@@ -891,26 +891,33 @@ model SystemSetting {
 }
 
 model TenantPhoneNumber {
-  id                   String              @id @default(uuid())
-  tenantId             String
-  businessId           String?             @unique
-  businessPhoneNumber  String?             // The BYON number (existing)
-  twilioPhoneNumber    String              @unique // The Twilio proxy number
-  twilioSid            String?
-  provider             String              @default("TWILIO")
-  forwardingEnabled    Boolean             @default(true)
-  aiEnabled            Boolean             @default(true)
-  recordingEnabled     Boolean             @default(true)
-  businessHours        Json?               // Store structured hours
-  transferNumber       String?             // Human transfer dest
-  fallbackNumber       String?             // Fallback if AI fails
-  departmentRouting    Json?               // Store dept mappings
-  status               String              @default("ACTIVE")
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
+  id                         String              @id @default(uuid())
+  tenantId                   String
+  businessId                 String?             @unique
+  businessPhoneNumber        String?             // The BYON number (existing)
+  twilioPhoneNumber          String              @unique // The Twilio proxy number
+  twilioSid                  String?
+  provider                   String              @default("TWILIO")
+  forwardingEnabled          Boolean             @default(true)
+  aiEnabled                  Boolean             @default(true)
+  humanTransferEnabled       Boolean             @default(true)
+  recordingEnabled           Boolean             @default(true)
+  businessHours              Json?               // Store structured hours
+  transferNumber             String?             // Human transfer dest
+  transferVerificationStatus String              @default("VERIFIED") // UNVERIFIED, PENDING, VERIFIED
+  transferVerifiedAt         DateTime?
+  transferOtp                String?
+  transferOtpExpiresAt       DateTime?
+  transferOtpAttempts        Int                 @default(0)
+  transferTimeout            Int                 @default(30)
+  fallbackNumber             String?             // Fallback if AI fails
+  departmentRouting          Json?               // Store dept mappings
+  status                     String              @default("ACTIVE")
+  createdAt                  DateTime            @default(now())
+  updatedAt                  DateTime            @updatedAt
   
-  tenant               Tenant              @relation(fields: [tenantId], references: [id])
-  business             Business?           @relation(fields: [businessId], references: [id])
+  tenant                     Tenant              @relation(fields: [tenantId], references: [id])
+  business                   Business?           @relation(fields: [businessId], references: [id])
 }
 
 model CallRoutingRule {

@@ -809,8 +809,19 @@ exports.purchaseNumber = async (req, res) => {
       return res.status(400).json({ success: false, error: "Phone number and Business ID are required" });
     }
 
+    const isSuperAdmin = req.user && req.user.role === "SUPERADMIN";
+
+    // 🛡️ Verify business belongs to requester's tenant before executing purchase
+    const business = await prisma.business.findFirst({
+      where: { id: businessId, ...(isSuperAdmin ? {} : { tenantId: req.tenantId }) }
+    });
+
+    if (!business) {
+      return res.status(404).json({ success: false, error: "Business not found or access denied" });
+    }
+
     const twilioService = require("../../services/twilio");
-    const result = await twilioService.purchaseAndConfigureNumber(phoneNumber, businessId);
+    const result = await twilioService.purchaseAndConfigureNumber(phoneNumber, business.id);
     
     return res.json({ success: true, data: result, message: "Number successfully provisioned and linked to business." });
   } catch (error) {

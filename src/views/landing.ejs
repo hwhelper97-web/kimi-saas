@@ -774,48 +774,6 @@
           </div>
         </div>
 
-        <!-- Product 4: TravelHub OS -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center lg:flex-row-reverse">
-          <div class="lg:col-span-5 flex flex-col items-start text-left lg:order-2">
-            <span class="text-[10px] font-bold font-orbitron tracking-[3px] text-primary uppercase mb-2">INDUSTRY ARCHITECTURES</span>
-            <h3 class="font-orbitron font-black text-2xl text-textMain mb-4">TRAVELHUB OS</h3>
-            <p class="text-xs text-textDim leading-relaxed mb-6">
-              Our flagship multi-tenant travel planning and client scheduling panel. Connects global airline logistics feeds, handles hotel bookings, and syncs travel agents metrics dynamically.
-            </p>
-            <button onclick="openProductPreview('enterprise')" class="px-6 py-2.5 rounded-full text-xs font-bold tracking-wider text-primary border border-primary/20 hover:bg-primary/5 transition-all uppercase">
-              PREVIEW SYSTEM
-            </button>
-          </div>
-          <div class="lg:col-span-7 lg:order-1">
-            <!-- Browser Mockup -->
-            <div class="w-full glass-card rounded-2xl border border-slate-200 shadow-xl overflow-hidden bg-white">
-              <div class="bg-slate-50 border-b border-slate-100 px-4 py-2.5 flex items-center justify-between">
-                <div class="flex items-center gap-1.5">
-                  <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
-                  <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
-                  <span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>
-                </div>
-                <div class="text-[9px] font-mono text-textDim">https://app.travelhubos.com</div>
-                <div class="w-10"></div>
-              </div>
-              <div class="p-6 text-left space-y-4">
-                <div class="grid grid-cols-3 gap-3">
-                  <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl text-center">
-                    <span class="text-[8px] font-bold tracking-widest text-textDim uppercase block">Active Routes</span>
-                    <span class="text-sm font-bold text-textMain mt-1 block">1,824 / OK</span>
-                  </div>
-                  <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl text-center">
-                    <span class="text-[8px] font-bold tracking-widest text-textDim uppercase block">Booked Seats</span>
-                    <span class="text-sm font-bold text-textMain mt-1 block">42,910</span>
-                  </div>
-                  <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl text-center">
-                    <span class="text-[8px] font-bold tracking-widest text-textDim uppercase block">API Status</span>
-                    <span class="text-xs font-bold text-success mt-1 block">CONNECTED</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
       </div>
@@ -1343,22 +1301,6 @@
         </div>
       </div>
 
-      <!-- TravelHub OS View -->
-      <div id="preview-enterprise" class="hidden space-y-4 text-left">
-        <h3 class="font-orbitron font-black text-lg text-textMain uppercase">TravelHub OS Mockup</h3>
-        <p class="text-xs text-textDim">Review flight scheduling feeds and agency seats metrics.</p>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
-            <span class="text-[9px] font-bold text-textDim tracking-widest uppercase">Flights Rescheduled</span>
-            <span class="text-lg font-bold text-textMain block mt-1">142</span>
-          </div>
-          <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
-            <span class="text-[9px] font-bold text-textDim tracking-widest uppercase">API Sync Status</span>
-            <span class="text-xs font-bold text-success block mt-1">99.9% SECURE</span>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 
@@ -1436,7 +1378,6 @@
             <li><a href="#products" class="hover:text-white transition-colors">Nexa Core</a></li>
             <li><a href="#products" class="hover:text-white transition-colors">Nexa Flow</a></li>
             <li><a href="#products" class="hover:text-white transition-colors">Nexa Voice</a></li>
-            <li><a href="#products" class="hover:text-white transition-colors">TravelHub OS</a></li>
           </ul>
         </div>
       </div>
@@ -1664,7 +1605,7 @@
         { m: '[WEBHOOK] Incoming POST payload on /api/v1/stripe-checkout', d: 100 },
         { m: '[AUTH] Validating signature hashes... OK', d: 600 },
         { m: '[LEDGER] Adding order log to Postgres table... OK', d: 1100 },
-        { m: '[NOTIFICATION] Rescheduling travel route in TravelHub OS...', d: 1600 },
+        { m: '[NOTIFICATION] Dispatching real-time AI Voice Telemetry...', d: 1600 },
         { m: '[SUCCESS] Flow execution finished successfully.', d: 2200 }
       ];
 

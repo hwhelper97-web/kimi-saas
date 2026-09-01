@@ -371,12 +371,14 @@ exports.remove = async (req, res) => {
 exports.renderTerminal = async (req, res) => {
   try {
     const { id } = req.params;
-    const business = await prisma.business.findUnique({
-      where: { id },
+    const isSuperAdmin = req.user && req.user.role === "SUPERADMIN";
+
+    const business = await prisma.business.findFirst({
+      where: { id, ...(isSuperAdmin ? {} : { tenantId: req.tenantId }) },
       select: { id: true, name: true }
     });
 
-    if (!business) return res.status(404).send("Business not found");
+    if (!business) return res.status(404).send("Business not found or access denied");
 
     return res.render("live-terminal", { business });
   } catch (error) {

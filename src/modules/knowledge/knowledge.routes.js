@@ -1,6 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const knowledgeController = require("./knowledge.controller");
+const authMiddleware = require("../../middleware/auth.middleware");
+const { tenantMiddleware } = require("../../middleware/tenant.middleware");
+
+// Administrative & search operations require authentication and tenant context
+router.use(authMiddleware);
+router.use(tenantMiddleware);
 
 router.post("/articles", knowledgeController.upsertArticle);
 router.get("/articles/search", knowledgeController.searchArticles);

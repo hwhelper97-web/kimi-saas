@@ -37,18 +37,6 @@ const SUBTYPE_PRESETS = {
     { name: "Loaded Seasoned Fries", price: 4.50, description: "Golden crispy fries with house seasoning" },
     { name: "Classic Vanilla Milkshake", price: 4.50, description: "Hand-spun thick vanilla ice cream shake" }
   ],
-  sushi: [
-    { name: "Salmon Lover Roll (8pcs)", price: 14.50, description: "Fresh salmon, avocado, cucumber, topped with seared salmon" },
-    { name: "Chicken Teriyaki Bento Box", price: 16.50, description: "Grilled chicken teriyaki with rice, salad, and tempura" },
-    { name: "Steamed Pork Gyoza (6pcs)", price: 7.50, description: "Pan-fried Japanese pork dumplings" },
-    { name: "Traditional Miso Soup", price: 3.50, description: "Warm soybean paste soup with tofu and seaweed" }
-  ],
-  retail: [
-    { name: "Heavyweight Graphic Hoodie", price: 55.00, description: "100% cotton premium streetwear hoodie" },
-    { name: "Organic Cotton Logo Tee", price: 28.00, description: "Breathable everyday graphic t-shirt" },
-    { name: "Canvas Everyday Tote Bag", price: 18.00, description: "Durable canvas shoulder tote" },
-    { name: "Scented Soy Wax Candle", price: 22.00, description: "Hand-poured lavender & vanilla soy candle" }
-  ],
 
   // --- APPOINTMENT BASED PRESETS ---
   salon: [
@@ -391,6 +379,21 @@ async function getSessionByToken(token) {
 
     // 🚀 Release Phone Number back to unassigned inventory!
     await releaseDemoPhoneNumber(session.businessId, session.tenantId);
+
+    // 📩 Send Expiration Email to Demo Owner
+    if (session.email) {
+      const emailService = require("../../services/email.service");
+      let reason = "12_HOURS_EXPIRED";
+      if (session.callCount >= session.maxCalls) reason = "5_CALLS_REACHED";
+      
+      await emailService.sendDemoExpirationEmail({
+        email: session.email,
+        contactName: session.contactName,
+        businessName: session.businessName,
+        phoneNumber: session.phoneNumber || "+18884918668",
+        reason
+      }).catch(err => console.error("[DEMO_EMAIL_EXPIRE_ERR]", err.message));
+    }
   }
 
   return {
@@ -401,33 +404,115 @@ async function getSessionByToken(token) {
 }
 
 /**
- * Increments call count for demo session.
+ * Increments call count and cumulative call duration for a demo session.
+ * Enforces all 3 termination rules:
+ * 1. 5 Calls Completed
+ * 2. 10 Minutes Total Call Duration Completed (600 seconds)
+ * 3. 12-Hour Expiration Window Completed
  */
-async function recordDemoCall(businessId) {
+async function recordDemoCall(businessId, callDurationSeconds = 0) {
+  const emailService = require("../../services/email.service");
+
   const session = await prisma.demoSession.findFirst({
     where: { businessId, status: "ACTIVE" }
   });
 
   if (!session) return null;
 
+  // Calculate cumulative duration across calls for this demo business
+  const aggregate = await prisma.call.aggregate({
+    where: { businessId },
+    _sum: { duration: true }
+  });
+  const totalCallSeconds = (aggregate._sum.duration || 0) + (parseInt(callDurationSeconds) || 0);
+  const updatedCallCount = session.callCount + 1;
+
+  const now = new Date();
+  const maxDurationSeconds = (session.maxCallDuration || 10) * 60; // 10 minutes = 600s
+
+  let shouldExpire = false;
+  let expireReason = "12_HOURS_EXPIRED";
+
+  if (updatedCallCount >= session.maxCalls) {
+    shouldExpire = true;
+    expireReason = "5_CALLS_REACHED";
+  } else if (totalCallSeconds >= maxDurationSeconds) {
+    shouldExpire = true;
+    expireReason = "10_MINS_REACHED";
+  } else if (session.expiresAt <= now) {
+    shouldExpire = true;
+    expireReason = "12_HOURS_EXPIRED";
+  }
+
   const updated = await prisma.demoSession.update({
     where: { id: session.id },
     data: {
-      callCount: { increment: 1 }
+      callCount: updatedCallCount,
+      status: shouldExpire ? "EXPIRED" : "ACTIVE"
     }
   });
 
-  if (updated.callCount >= updated.maxCalls) {
-    await prisma.demoSession.update({
-      where: { id: session.id },
-      data: { status: "EXPIRED" }
-    });
-
-    // 🚀 Release Phone Number back to unassigned inventory!
+  if (shouldExpire) {
+    console.log(`[DEMO_CENTER] Expiring DemoSession ${session.id} (${session.businessName}). Reason: ${expireReason}`);
+    
+    // 🚀 Release Phone Number back to unassigned inventory pool!
     await releaseDemoPhoneNumber(session.businessId, session.tenantId);
+
+    // 📩 Send Expiration Email to Demo Owner
+    if (session.email) {
+      await emailService.sendDemoExpirationEmail({
+        email: session.email,
+        contactName: session.contactName,
+        businessName: session.businessName,
+        phoneNumber: session.phoneNumber || "+18884918668",
+        reason: expireReason
+      }).catch(err => console.error("[DEMO_EMAIL_EXPIRE_ERR]", err.message));
+    }
   }
 
   return updated;
+}
+
+/**
+ * Background sweeper: Checks for expired demo sessions, releases phone numbers, and sends emails.
+ */
+async function checkAndCleanupExpiredDemos() {
+  const emailService = require("../../services/email.service");
+  const now = new Date();
+
+  try {
+    const expiredSessions = await prisma.demoSession.findMany({
+      where: {
+        status: "ACTIVE",
+        expiresAt: { lte: now }
+      }
+    });
+
+    for (const session of expiredSessions) {
+      await prisma.demoSession.update({
+        where: { id: session.id },
+        data: { status: "EXPIRED" }
+      });
+
+      console.log(`[DEMO_CENTER] Background Sweeper expired DemoSession ${session.id} (${session.businessName})`);
+
+      // 🚀 Release Phone Number back to unassigned inventory pool!
+      await releaseDemoPhoneNumber(session.businessId, session.tenantId);
+
+      // 📩 Send Expiration Email to Demo Owner
+      if (session.email) {
+        await emailService.sendDemoExpirationEmail({
+          email: session.email,
+          contactName: session.contactName,
+          businessName: session.businessName,
+          phoneNumber: session.phoneNumber || "+18884918668",
+          reason: "12_HOURS_EXPIRED"
+        }).catch(err => console.error("[DEMO_SWEEPER_EMAIL_ERR]", err.message));
+      }
+    }
+  } catch (err) {
+    console.error("[DEMO_SWEEPER_ERR]", err.message);
+  }
 }
 
 /**
@@ -444,6 +529,17 @@ async function deactivateSession(token) {
 
   // 🚀 Release Phone Number back to unassigned inventory!
   await releaseDemoPhoneNumber(session.businessId, session.tenantId);
+
+  if (session.email) {
+    const emailService = require("../../services/email.service");
+    await emailService.sendDemoExpirationEmail({
+      email: session.email,
+      contactName: session.contactName,
+      businessName: session.businessName,
+      phoneNumber: session.phoneNumber || "+18884918668",
+      reason: "MANUALLY_RELEASED"
+    }).catch(err => console.error("[DEMO_EMAIL_EXPIRE_ERR]", err.message));
+  }
 
   return updated;
 }
@@ -509,6 +605,7 @@ module.exports = {
   createDemoSession,
   getSessionByToken,
   recordDemoCall,
+  checkAndCleanupExpiredDemos,
   deactivateSession,
   extendSession,
   listAllDemoSessions,

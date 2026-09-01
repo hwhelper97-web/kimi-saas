@@ -22,6 +22,8 @@ const servicesRoutes = require("./modules/appointment/services.routes");
 const demoRoutes = require("./modules/demo/demo.routes");
 
 const authMiddleware = require("./middleware/auth.middleware");
+const { allowRoles } = require("./middleware/role.middleware");
+const { ROLES } = require("./constants/roles");
 
 const app = express();
 
@@ -58,19 +60,19 @@ app.get("/", (req, res) => {
 });
 
 // Admin dashboard – render the full UI (admin-dashboard-apex)
-app.get("/admin", authMiddleware, (req, res) => {
+app.get("/admin", authMiddleware, allowRoles(ROLES.OWNER, ROLES.STAFF, ROLES.SUPERADMIN, ROLES.DEVELOPER, ROLES.AGENT, ROLES.MANAGER, ROLES.PRODUCT), (req, res) => {
   return res.render("admin-dashboard-apex");
 });
 
-app.get("/superadmin", (req, res) => {
+app.get("/superadmin", authMiddleware, allowRoles(ROLES.SUPERADMIN), (req, res) => {
   res.render("superadmin-dashboard");
 });
 
-app.get("/superadmin/terminal", (req, res) => {
+app.get("/superadmin/terminal", authMiddleware, allowRoles(ROLES.SUPERADMIN), (req, res) => {
   res.render("superadmin-terminal");
 });
 
-app.get("/superadmin/demos", (req, res) => {
+app.get("/superadmin/demos", authMiddleware, allowRoles(ROLES.SUPERADMIN), (req, res) => {
   res.render("admin-demo-center");
 });
 

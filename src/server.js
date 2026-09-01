@@ -50,11 +50,29 @@ io.on("connection", (socket) => {
 
   chatHandler(io, socket, onlineUsers);
 
-  // Business-specific room joining
-  socket.on("join_business", (businessId) => {
-    if (businessId) {
+  // Business-specific room joining (Tenant isolated)
+  socket.on("join_business", async (businessId) => {
+    if (!businessId) return;
+
+    const isSuperAdmin = role && role.toString().toUpperCase() === "SUPERADMIN";
+    if (isSuperAdmin) {
       socket.join(businessId);
-      console.log(`[Socket] User ${userId} joined business room: ${businessId}`);
+      console.log(`[Socket] SuperAdmin ${userId} joined business room: ${businessId}`);
+      return;
+    }
+
+    try {
+      const business = await prisma.business.findFirst({
+        where: { id: businessId, tenantId }
+      });
+      if (business) {
+        socket.join(businessId);
+        console.log(`[Socket] User ${userId} joined business room: ${businessId}`);
+      } else {
+        console.warn(`[Socket_WARN] User ${userId} unauthorized attempt to join business room ${businessId}`);
+      }
+    } catch (e) {
+      console.error("[Socket_ERR] Failed to verify business room join:", e.message);
     }
   });
 
@@ -126,6 +144,11 @@ setInterval(async () => {
       const metrics = await AnalyticsService.getMetrics(tenant.id, 30);
       io.to(`tenant_${tenant.id}`).emit("metrics-pulse", metrics);
     }
+
+    // 🚀 3. Demo Session Auto-Expiration Sweeper (12h / 5 Calls / 10 Mins)
+    const demoService = require("./modules/demo/demo.service");
+    await demoService.checkAndCleanupExpiredDemos().catch(e => console.error("[DEMO_SWEEPER_ERR]", e.message));
+
   } catch (error) {
     console.error("[Background Monitor] Error:", error);
   }
@@ -158,13 +181,15 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 [NAXTON-AI-V2] Realtime Server LIVE on port ${PORT}`);
   
-  // 🚀 Auto-sync all Twilio Phone Webhooks & Inventory on startup
-  try {
-    const twilioService = require("./services/twilio");
-    twilioService.syncAllTwilioWebhooks().catch(err => {
-      console.warn("[TWILIO_STARTUP_SYNC_WARN]", err.message);
-    });
-  } catch (e) {}
+  // 🚀 Auto-sync all Twilio Phone Webhooks & Inventory asynchronously after startup
+  setTimeout(() => {
+    try {
+      const twilioService = require("./services/twilio");
+      twilioService.syncAllTwilioWebhooks().catch(err => {
+        console.warn("[TWILIO_STARTUP_SYNC_WARN]", err.message);
+      });
+    } catch (e) {}
+  }, 3000);
 });
 
 module.exports = app;

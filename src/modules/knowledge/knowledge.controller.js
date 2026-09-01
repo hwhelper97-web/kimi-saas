@@ -2,11 +2,28 @@ const prisma = require("../../config/prisma");
 
 // Create or Update Article
 exports.upsertArticle = async (req, res) => {
-  const { id, title, content, categoryId, businessId, tenantId } = req.body;
+  const { id, title, content, categoryId, businessId } = req.body;
+  const isSuperAdmin = req.user.role === "SUPERADMIN";
+  const tenantId = isSuperAdmin && req.body.tenantId ? req.body.tenantId : req.tenantId;
+
   try {
-    const article = id 
-      ? await prisma.knowledgeArticle.update({ where: { id }, data: { title, content, categoryId } })
-      : await prisma.knowledgeArticle.create({ data: { title, content, categoryId, businessId, tenantId } });
+    let article;
+    if (id) {
+      const existing = await prisma.knowledgeArticle.findFirst({
+        where: { id, ...(isSuperAdmin ? {} : { tenantId }) }
+      });
+      if (!existing) {
+        return res.status(404).json({ success: false, message: "Article not found or access denied" });
+      }
+      article = await prisma.knowledgeArticle.update({
+        where: { id: existing.id },
+        data: { title, content, categoryId }
+      });
+    } else {
+      article = await prisma.knowledgeArticle.create({
+        data: { title, content, categoryId, businessId, tenantId }
+      });
+    }
     
     res.json({ success: true, data: article });
   } catch (error) {
@@ -14,20 +31,29 @@ exports.upsertArticle = async (req, res) => {
   }
 };
 
-// Search articles (Simple RAG simulation)
+// Search articles
 exports.searchArticles = async (req, res) => {
-  const { query, businessId, tenantId } = req.query;
+  const { query, businessId } = req.query;
+  const isSuperAdmin = req.user && req.user.role === "SUPERADMIN";
+  const tenantId = isSuperAdmin ? req.query.tenantId : req.tenantId;
+
+  if (!isSuperAdmin && !tenantId) {
+    return res.status(403).json({ success: false, message: "Tenant context required" });
+  }
+
   try {
     const articles = await prisma.knowledgeArticle.findMany({
       where: {
-        tenantId,
-        businessId,
-        OR: [
-          { title: { contains: query } },
-          { content: { contains: query } }
-        ]
+        ...(tenantId ? { tenantId } : {}),
+        ...(businessId ? { businessId } : {}),
+        ...(query ? {
+          OR: [
+            { title: { contains: query } },
+            { content: { contains: query } }
+          ]
+        } : {})
       },
-      take: 5
+      take: 20
     });
     res.json({ success: true, data: articles });
   } catch (error) {
@@ -37,10 +63,20 @@ exports.searchArticles = async (req, res) => {
 
 // List Categories
 exports.getCategories = async (req, res) => {
-  const { businessId, tenantId } = req.query;
+  const { businessId } = req.query;
+  const isSuperAdmin = req.user && req.user.role === "SUPERADMIN";
+  const tenantId = isSuperAdmin ? req.query.tenantId : req.tenantId;
+
+  if (!isSuperAdmin && !tenantId) {
+    return res.status(403).json({ success: false, message: "Tenant context required" });
+  }
+
   try {
     const categories = await prisma.knowledgeCategory.findMany({
-      where: { tenantId, businessId },
+      where: {
+        ...(tenantId ? { tenantId } : {}),
+        ...(businessId ? { businessId } : {})
+      },
       include: { articles: true }
     });
     res.json({ success: true, data: categories });

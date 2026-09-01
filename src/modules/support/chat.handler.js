@@ -4,15 +4,28 @@ module.exports = (io, socket, onlineUsers) => {
   const { id: userId, tenantId, role } = socket.user;
 
   /**
-   * Join Conversation Room
+   * Join Conversation Room (Tenant Isolated)
    */
   socket.on("join-conversation", async ({ conversationId }) => {
-    socket.join(`convo_${conversationId}`);
-    
-    // Notify room that user is viewing
-    socket.to(`convo_${conversationId}`).emit("user-viewing", { userId, isViewing: true });
-    
-    console.log(`[Chat] User ${userId} joined convo ${conversationId}`);
+    if (!conversationId) return;
+    const isSuperAdmin = role && role.toString().toUpperCase() === "SUPERADMIN";
+
+    try {
+      const convo = await prisma.conversation.findFirst({
+        where: { id: conversationId, ...(isSuperAdmin ? {} : { tenantId }) }
+      });
+
+      if (!convo) {
+        console.warn(`[Chat_WARN] User ${userId} unauthorized attempt to join conversation ${conversationId}`);
+        return;
+      }
+
+      socket.join(`convo_${conversationId}`);
+      socket.to(`convo_${conversationId}`).emit("user-viewing", { userId, isViewing: true });
+      console.log(`[Chat] User ${userId} joined convo ${conversationId}`);
+    } catch (e) {
+      console.error("[Chat_ERR] Failed to verify conversation join:", e.message);
+    }
   });
 
   /**

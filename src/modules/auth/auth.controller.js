@@ -201,16 +201,30 @@ exports.forgotPassword = async (req, res) => {
       }
     });
 
-    // ⚠️ PRODUCTION: Send email here
-    console.log(`[AUTH] Password reset token for ${email}: ${token}`);
-    
-    // For development/demo, we'll return the token in the response so the user can actually use it
     const resetLink = `${req.protocol}://${req.get('host')}/auth/reset-password?token=${token}`;
+
+    try {
+      const emailService = require("../../services/email.service");
+      await emailService.sendEmail({
+        to: email,
+        subject: "Naxton Technologies — Password Reset Request",
+        html: `<div style="font-family: Arial, sans-serif; background: #0f172a; color: #fff; padding: 30px; border-radius: 12px; border: 1px solid #334155;">
+          <h2 style="color: #38bdf8; margin-top: 0;">Password Reset Request</h2>
+          <p>You requested a password reset for your Naxton Technologies account.</p>
+          <p>Click the button below to reset your password. This link will expire in 1 hour:</p>
+          <div style="text-align: center; margin: 25px 0;">
+            <a href="${resetLink}" style="background: #0284c7; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">RESET PASSWORD &rarr;</a>
+          </div>
+          <p style="font-size: 12px; color: #94a3b8;">If you did not request this, you can safely ignore this email.</p>
+        </div>`
+      });
+    } catch (emailErr) {
+      console.warn("[AUTH_EMAIL_WARN] Password reset email dispatch failed:", emailErr.message);
+    }
 
     return res.json({ 
       success: true, 
-      message: "Reset token generated successfully.",
-      debug: { resetLink } // ⚠️ Remove in production
+      message: "If an account exists with that email, a reset link has been sent."
     });
   } catch (err) {
     console.error("FORGOT PW ERROR:", err);
@@ -285,7 +299,16 @@ exports.createStaff = async (req, res) => {
       return res.status(400).json({ error: "Email and password required" });
     }
 
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const assignedRole = role || "STAFF";
+
+    // 🛡️ Guard: Only SUPERADMIN can assign global privileged roles (SUPERADMIN, DEVELOPER, PRODUCT)
+    const { ROLES } = require("../../constants/roles");
+    const restrictedGlobalRoles = [ROLES.SUPERADMIN, ROLES.DEVELOPER, ROLES.PRODUCT];
+    if (req.user.role !== ROLES.SUPERADMIN && restrictedGlobalRoles.includes(assignedRole.toUpperCase())) {
+      return res.status(403).json({ error: "Permission denied: Cannot assign privileged role" });
+    }
+
+    const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
 
     if (existing) {
       return res.status(409).json({ error: "User already exists" });
@@ -295,9 +318,9 @@ exports.createStaff = async (req, res) => {
 
     const newUser = await prisma.user.create({
       data: {
-        email,
+        email: email.toLowerCase().trim(),
         password: hashed,
-        role: role || "STAFF",
+        role: assignedRole.toUpperCase(),
         tenantId: req.user.tenantId,
       },
     });
@@ -310,8 +333,8 @@ exports.createStaff = async (req, res) => {
       message: "Staff created successfully",
       user: safeUser,
       access: {
-        email: email,
-        password: password // Returning original password for access details
+        email: safeUser.email,
+        role: safeUser.role
       }
     });
   } catch (err) {
@@ -348,6 +371,17 @@ exports.updateStaff = async (req, res) => {
     const { id } = req.params;
     const { role } = req.body;
 
+    if (!role) {
+      return res.status(400).json({ error: "Role is required" });
+    }
+
+    // 🛡️ Guard: Only SUPERADMIN can assign global privileged roles
+    const { ROLES } = require("../../constants/roles");
+    const restrictedGlobalRoles = [ROLES.SUPERADMIN, ROLES.DEVELOPER, ROLES.PRODUCT];
+    if (req.user.role !== ROLES.SUPERADMIN && restrictedGlobalRoles.includes(role.toUpperCase())) {
+      return res.status(403).json({ error: "Permission denied: Cannot assign privileged role" });
+    }
+
     const user = await prisma.user.findFirst({
       where: { id, tenantId: req.user.tenantId }
     });
@@ -356,10 +390,11 @@ exports.updateStaff = async (req, res) => {
 
     const updated = await prisma.user.update({
       where: { id },
-      data: { role }
+      data: { role: role.toUpperCase() }
     });
 
-    return res.json({ success: true, user: updated });
+    const { password: _pw, ...safeUpdated } = updated;
+    return res.json({ success: true, user: safeUpdated });
   } catch (err) {
     console.error("UPDATE STAFF ERROR:", err);
     return res.status(500).json({ error: "Failed to update staff" });

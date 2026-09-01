@@ -3,14 +3,16 @@ const prisma = require("../../config/prisma");
 exports.getDashboard = async (req, res) => {
   try {
     const agentId = req.user.id;
+    const isSuperAdmin = req.user.role === "SUPERADMIN";
+    const tenantFilter = isSuperAdmin ? {} : { tenantId: req.user.tenantId };
 
     // Stats for the agent
     const assignedTicketsCount = await prisma.ticket.count({
-      where: { assignedToId: agentId, status: { not: "resolved" } }
+      where: { assignedToId: agentId, status: { not: "resolved" }, ...tenantFilter }
     });
 
     const openConversationsCount = await prisma.conversation.count({
-      where: { assignedToId: agentId, status: "open" }
+      where: { assignedToId: agentId, status: "open", ...tenantFilter }
     });
 
     // Real stats
@@ -18,17 +20,16 @@ exports.getDashboard = async (req, res) => {
       where: { 
         assignedToId: agentId, 
         status: "open",
-        messages: { some: { senderType: "CUSTOMER" } } // Simplification
+        ...tenantFilter,
+        messages: { some: { senderType: "CUSTOMER" } }
       }
     });
 
-    // Avg response time (mocked for now but with a real-ish query structure)
-    // In a real system, you'd calculate the diff between customer message and agent response.
     const avgResponseTime = "8m"; 
 
     // CSAT based on call sentiments
     const calls = await prisma.call.findMany({
-      where: { tenantId: req.user.tenantId },
+      where: { ...(isSuperAdmin ? {} : { tenantId: req.user.tenantId }) },
       select: { sentimentScore: true },
       take: 100
     });
@@ -36,7 +37,7 @@ exports.getDashboard = async (req, res) => {
     const csat = (avgScore * 5).toFixed(1) + "/5";
 
     const unresolvedTickets = await prisma.ticket.findMany({
-      where: { assignedToId: agentId, status: { not: "resolved" } },
+      where: { assignedToId: agentId, status: { not: "resolved" }, ...tenantFilter },
       include: { tenant: true },
       take: 5,
       orderBy: { updatedAt: "desc" }
@@ -61,9 +62,13 @@ exports.getDashboard = async (req, res) => {
 
 exports.getTickets = async (req, res) => {
   try {
+    const isSuperAdmin = req.user.role === "SUPERADMIN";
+    const tenantFilter = isSuperAdmin ? {} : { tenantId: req.user.tenantId };
+
     const tickets = await prisma.ticket.findMany({
       where: {
-        assignedToId: req.user.id
+        assignedToId: req.user.id,
+        ...tenantFilter
       },
       include: {
         tenant: true,
@@ -83,11 +88,15 @@ exports.getTickets = async (req, res) => {
 
 exports.getConversations = async (req, res) => {
   try {
+    const isSuperAdmin = req.user.role === "SUPERADMIN";
+    const tenantFilter = isSuperAdmin ? {} : { tenantId: req.user.tenantId };
+
     const convos = await prisma.conversation.findMany({
       where: {
+        ...tenantFilter,
         OR: [
           { assignedToId: req.user.id },
-          { assignedToId: null, status: "open" } // Unassigned queue
+          { assignedToId: null, status: "open" }
         ]
       },
       include: {
@@ -109,10 +118,20 @@ exports.getConversations = async (req, res) => {
 exports.escalateTicket = async (req, res) => {
   try {
     const { id } = req.params;
-    const { type, note } = req.body; // type: 'TECHNICAL' (to DEV), 'BILLING' (to MANAGER)
+    const { type, note } = req.body;
+    const isSuperAdmin = req.user.role === "SUPERADMIN";
+    const tenantFilter = isSuperAdmin ? {} : { tenantId: req.user.tenantId };
+
+    const existing = await prisma.ticket.findFirst({
+      where: { id, ...tenantFilter }
+    });
+
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Ticket not found or access denied" });
+    }
 
     const ticket = await prisma.ticket.update({
-      where: { id },
+      where: { id: existing.id },
       data: {
         status: "escalated",
         activities: {
@@ -126,10 +145,9 @@ exports.escalateTicket = async (req, res) => {
       }
     });
 
-    // Add internal note
     await prisma.ticketMessage.create({
       data: {
-        ticketId: id,
+        ticketId: existing.id,
         senderId: req.user.id,
         senderType: "AGENT",
         body: `[ESCALATION to ${type}] ${note}`,
@@ -145,7 +163,11 @@ exports.escalateTicket = async (req, res) => {
 
 exports.getKnowledgeBase = async (req, res) => {
   try {
+    const isSuperAdmin = req.user.role === "SUPERADMIN";
+    const tenantFilter = isSuperAdmin ? {} : { tenantId: req.user.tenantId };
+
     const articles = await prisma.knowledgeArticle.findMany({
+      where: tenantFilter,
       include: { category: true },
       take: 50
     });
@@ -157,7 +179,11 @@ exports.getKnowledgeBase = async (req, res) => {
 
 exports.getCustomers = async (req, res) => {
   try {
+    const isSuperAdmin = req.user.role === "SUPERADMIN";
+    const tenantFilter = isSuperAdmin ? {} : { tenantId: req.user.tenantId };
+
     const customers = await prisma.customer.findMany({
+      where: tenantFilter,
       include: {
         tenant: true,
         _count: {
@@ -176,7 +202,18 @@ exports.getCustomers = async (req, res) => {
 exports.deleteArticle = async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.knowledgeArticle.delete({ where: { id } });
+    const isSuperAdmin = req.user.role === "SUPERADMIN";
+    const tenantFilter = isSuperAdmin ? {} : { tenantId: req.user.tenantId };
+
+    const existing = await prisma.knowledgeArticle.findFirst({
+      where: { id, ...tenantFilter }
+    });
+
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Article not found or access denied" });
+    }
+
+    await prisma.knowledgeArticle.delete({ where: { id: existing.id } });
     res.json({ success: true, message: "Article deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

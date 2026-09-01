@@ -231,6 +231,98 @@ async function sendDemoConfirmationEmail(demoData) {
 }
 
 /**
+ * Sends a professional Demo Expiration Email to the prospect when time, calls, or duration expires.
+ */
+async function sendDemoExpirationEmail(demoData) {
+  const {
+    email,
+    contactName = "Valued Customer",
+    businessName = "Your Business",
+    phoneNumber = "+18884918668",
+    reason = "12_HOURS_EXPIRED", // 12_HOURS_EXPIRED, 5_CALLS_REACHED, 10_MINS_REACHED
+    host = "naxtontechnologies.com"
+  } = demoData;
+
+  const protocol = host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
+  const newDemoUrl = `${protocol}://${host}/demo/new`;
+
+  let reasonTitle = "12-Hour Expiration Time Completed";
+  let reasonDescription = "Your 12-hour demo access window has naturally expired.";
+
+  if (reason === "5_CALLS_REACHED" || reason.includes("CALLS")) {
+    reasonTitle = "5 Demo Calls Completed";
+    reasonDescription = "You have completed the maximum limit of 5 demo calls for this session.";
+  } else if (reason === "10_MINS_REACHED" || reason.includes("DURATION") || reason.includes("MINUTES")) {
+    reasonTitle = "10 Minutes Total Call Duration Completed";
+    reasonDescription = "You have completed the maximum total call duration limit of 10 minutes for this session.";
+  }
+
+  const subject = `Demo Expired: ${reasonTitle} — Naxton Technologies`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Your Demo Session Has Expired</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 30px auto; background-color: #1e293b; border-radius: 16px; overflow: hidden; border: 1px solid #334155; }
+    .header { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); padding: 30px; text-align: center; }
+    .header h1 { margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 2px; color: #ffffff; }
+    .content { padding: 30px; line-height: 1.6; }
+    .badge { display: inline-block; background-color: rgba(244, 63, 94, 0.2); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; }
+    .box { background-color: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin: 20px 0; }
+    .reason { font-size: 18px; font-weight: 800; color: #fb7185; margin: 5px 0; }
+    .btn { display: inline-block; background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 30px; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-top: 15px; }
+    .footer { text-align: center; padding: 20px; font-size: 11px; color: #64748b; border-top: 1px solid #334155; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>NAXTON TECHNOLOGIES</h1>
+      <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.9;">Engineering Intelligent Software for Modern Businesses</p>
+    </div>
+    <div class="content">
+      <div class="badge">🔴 DEMO SESSION EXPIRED</div>
+      <h2 style="margin-top: 0; color: #ffffff;">Hello ${contactName},</h2>
+      <p>Your AI receptionist demo session for <strong>${businessName}</strong> has ended, and your demo phone line (<strong>${phoneNumber}</strong>) has been automatically released back to our inventory pool.</p>
+
+      <div class="box">
+        <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8;">EXPIRATION REASON</div>
+        <div class="reason">${reasonTitle}</div>
+        <p style="margin: 5px 0 0 0; font-size: 12px; color: #cbd5e1;">
+          ${reasonDescription}
+        </p>
+      </div>
+
+      <div class="box" style="text-align: center;">
+        <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; margin-bottom: 10px;">NEED MORE TESTING?</div>
+        <p style="font-size: 13px; color: #cbd5e1;">
+          If you need additional testing time or would like to launch another live demo, click below to create a fresh demo session.
+        </p>
+        <a href="${newDemoUrl}" class="btn">BOOK ANOTHER DEMO &rarr;</a>
+      </div>
+
+      <p style="font-size: 12px; color: #94a3b8;">
+        Ready to deploy a 24/7 permanent AI receptionist for your business? Contact our team at <a href="mailto:support@naxtontechnologies.com" style="color: #38bdf8;">support@naxtontechnologies.com</a>.
+      </p>
+    </div>
+    <div class="footer">
+      &copy; ${new Date().getFullYear()} Naxton Technologies. All rights reserved.<br>
+      Automated Inventory Release Protocol Enabled
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  const result = await sendEmail({ to: email, subject, html });
+  return result;
+}
+
+/**
  * Sends a test email to verify Resend or SMTP configuration.
  */
 async function sendTestEmail(targetEmail) {
@@ -260,5 +352,6 @@ module.exports = {
   getEmailConfig,
   sendEmail,
   sendDemoConfirmationEmail,
+  sendDemoExpirationEmail,
   sendTestEmail
 };

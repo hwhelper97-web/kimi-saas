@@ -5,6 +5,7 @@ const { createDeepgram } = require("../../services/deepgram");
 const { getAIResponse } = require("../../services/openai");
 const { getElevenLabsAudio } = require("../../services/elevenlabs");
 const IntegrationManager = require("../integrations/core/IntegrationManager");
+const appointmentService = require("../../services/appointment.service");
 
 const normalizeBusinessType = (businessType = "") => {
   const type = (businessType || "").toLowerCase();
@@ -1006,6 +1007,17 @@ ${menuDetailsLines.join("\n")}`;
                   },
                   required: ["businessId", "serviceId", "customerName", "customerPhone", "date", "time"]
                 }
+              },
+              {
+                type: "client",
+                name: "transfer_to_human",
+                description: "Transfer the live call to the owner, manager, or a human representative when requested by the customer.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    reason: { type: "string", description: "Reason why the caller requested a human transfer or manager." }
+                  }
+                }
               }
             ] : [
               {
@@ -1043,6 +1055,17 @@ ${menuDetailsLines.join("\n")}`;
                     notes: { type: "string", description: "Special instructions or notes for the order." }
                   },
                   required: ["items"]
+                }
+              },
+              {
+                type: "client",
+                name: "transfer_to_human",
+                description: "Transfer the live call to the owner, manager, or a human representative when requested by the customer.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    reason: { type: "string", description: "Reason why the caller requested a human transfer or manager." }
+                  }
                 }
               }
             ]
@@ -1308,7 +1331,6 @@ ${menuDetailsLines.join("\n")}`;
                      menuItemId: menuItem.id,
                      quantity: qty,
                      unitPrice: price,
-                     totalPrice: itemTotal,
                      tenantId: business.tenantId
                    });
                  }
@@ -1322,7 +1344,6 @@ ${menuDetailsLines.join("\n")}`;
                  menuItemId: fallback.id,
                  quantity: 1,
                  unitPrice: fallback.price,
-                 totalPrice: fallback.price,
                  tenantId: business.tenantId
                });
              }
@@ -1360,6 +1381,48 @@ ${menuDetailsLines.join("\n")}`;
              io.to(businessId).emit("new_order", finalOrder);
              io.to(`tenant_${business.tenantId}`).emit("new_order", finalOrder);
              io.to("superadmin").emit("new_order", finalOrder);
+          }
+          else if (tool_name === "transfer_to_human" || tool_name === "transfer_call" || tool_name === "human_transfer") {
+            const reason = parameters?.reason || "Customer requested manager";
+            console.log(`[V2_TOOL_TRANSFER] Requested human transfer for business ${businessId}. Reason: ${reason}`);
+
+            const phoneConfig = await prisma.tenantPhoneNumber.findFirst({
+              where: { businessId, tenantId: business.tenantId }
+            });
+
+            if (!phoneConfig || !phoneConfig.humanTransferEnabled) {
+              result = { success: false, error: "Human transfers are currently disabled for this business." };
+            } else if (!phoneConfig.transferNumber) {
+              result = { success: false, error: "No human transfer phone number is configured." };
+            } else if (phoneConfig.transferVerificationStatus !== "VERIFIED") {
+              result = { success: false, error: "The human transfer destination number has not been verified." };
+            } else if (!callSid) {
+              result = { success: false, error: "Active call SID not found for transfer." };
+            } else {
+              const verifiedTransferNumber = phoneConfig.transferNumber;
+              console.log(`[V2_TOOL_TRANSFER] Initiating Twilio transfer for CallSid: ${callSid} to ${verifiedTransferNumber}`);
+              
+              const twilioService = require("../../services/twilio");
+              await twilioService.transferCall(callSid, verifiedTransferNumber);
+
+              await prisma.call.updateMany({
+                where: { businessId, outcome: "active" },
+                data: { outcome: "transferred", actionTaken: `Transferred call to manager (${verifiedTransferNumber})` }
+              });
+
+              const today = new Date();
+              today.setHours(0,0,0,0);
+              prisma.callAnalytics.upsert({
+                where: { tenantId_date: { tenantId: business.tenantId, date: today } },
+                create: { tenantId: business.tenantId, transferredCalls: 1 },
+                update: { transferredCalls: { increment: 1 } }
+              }).catch(() => {});
+
+              io.to(businessId).emit("call_transferred", { callSid, to: verifiedTransferNumber, reason });
+              io.to("superadmin").emit("call_transferred", { callSid, to: verifiedTransferNumber, reason });
+
+              result = { success: true, message: "Human call transfer initiated. Connecting caller to manager." };
+            }
           }
 
           // Send response back to ElevenLabs
@@ -1407,6 +1470,10 @@ ${menuDetailsLines.join("\n")}`;
         // 🛡️ RECORD USAGE
         const billingService = require("../../services/billing.service");
         await billingService.recordCallUsage(callRecord.tenantId, duration).catch(() => null);
+
+        // 🚀 DEMO SESSION AUDIT & EXPIRATION CHECK (12h / 5 Calls / 10 Mins)
+        const demoService = require("../demo/demo.service");
+        await demoService.recordDemoCall(businessId, duration).catch(e => console.error("[DEMO_RECORD_ERR]", e.message));
 
         await prisma.call.update({
           where: { id: callRecord.id },
