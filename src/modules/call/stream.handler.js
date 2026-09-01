@@ -1452,7 +1452,7 @@ ${menuDetailsLines.join("\n")}`;
                   tenantId: business.tenantId,
                   unitPrice: match.price
                 });
-              if (!match && business.menuItems && business.menuItems.length > 0) {
+              } else if (business.menuItems && business.menuItems.length > 0) {
                 match = business.menuItems[0];
                 total += (match.price * (item.quantity || 1));
                 itemsToCreate.push({
