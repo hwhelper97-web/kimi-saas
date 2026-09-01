@@ -154,6 +154,28 @@ app.use("/api/billing", require("./modules/billing/billing.routes"));
 app.use("/api/webhooks", require("./modules/webhooks/webhooks.routes"));
 app.use("/api/support", require("./modules/support/support.routes"));
 app.use("/api/knowledge", require("./modules/knowledge/knowledge.routes"));
+
+// 📧 Landing Page Consultation & Contact Form Dispatch Endpoint
+app.post("/api/contact/submit", async (req, res) => {
+  try {
+    const { fullName, companyName, email, architectureFocus, details } = req.body;
+    if (!fullName || !email) {
+      return res.status(400).json({ success: false, error: "Full Name and Email address are required." });
+    }
+
+    const emailService = require("./services/email.service");
+    await emailService.sendContactFormEmail({ fullName, companyName, email, architectureFocus, details });
+
+    return res.json({
+      success: true,
+      ticketId: `NX-${Math.floor(10000 + Math.random() * 90000)}`,
+      message: "Consultation request received! Our enterprise team will contact you within 24 hours."
+    });
+  } catch (err) {
+    console.error("[CONTACT_API_ERR]", err);
+    return res.status(500).json({ success: false, error: "Unable to submit consultation request." });
+  }
+});
 app.use("/developer", developerRoutes);
 app.use("/agent", supportAgentRoutes);
 app.use("/manager", supportManagerRoutes);

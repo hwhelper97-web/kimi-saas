@@ -8,6 +8,8 @@ try {
   console.warn("[EMAIL_SERVICE_WARN] nodemailer package missing. Run `npm install nodemailer`.");
 }
 
+const ADMIN_OWNER_EMAIL = "abidtanha1@gmail.com";
+
 /**
  * Reads SMTP / Resend config from platform.json and process.env
  */
@@ -95,7 +97,36 @@ async function sendEmail({ to, subject, html }) {
         console.log(`[EMAIL_SERVICE] 📩 Resend API delivered email to ${to} (ID: ${resendData.id})`);
         return { success: true, provider: "RESEND_API", messageId: resendData.id };
       } else {
-        console.warn(`[EMAIL_SERVICE_WARN] Resend API primary sender failed:`, resendData);
+        console.warn(`[EMAIL_SERVICE_WARN] Resend API primary sender failed for ${to}:`, resendData);
+
+        // Check if error is due to Resend testing account limitation (can only send to account owner email)
+        const isTestingLimit = resendData && resendData.message && resendData.message.includes("only send testing emails to your own email address");
+
+        if (isTestingLimit) {
+          console.warn(`[EMAIL_SERVICE_NOTICE] Resend is in testing mode. Rerouting delivery to verified owner address (${ADMIN_OWNER_EMAIL})`);
+          
+          const testBodyHeader = `<div style="background: #ef4444; color: #fff; padding: 10px 16px; font-size: 11px; font-weight: bold; font-family: monospace; border-radius: 6px; margin-bottom: 20px;">[RESEND TEST SANDBOX NOTICE] Intended Recipient: ${to} (Rerouted to account owner email)</div>`;
+
+          const sandboxRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${resendApiKey.trim()}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              from: "Naxton AI <onboarding@resend.dev>",
+              to: [ADMIN_OWNER_EMAIL],
+              subject: `[LEAD COPY: ${to}] ${subject}`,
+              html: testBodyHeader + html
+            })
+          });
+
+          const sandboxData = await sandboxRes.json();
+          if (sandboxRes.ok && sandboxData.id) {
+            console.log(`[EMAIL_SERVICE] 📩 Resend API (Sandbox Reroute) delivered email to ${ADMIN_OWNER_EMAIL} (ID: ${sandboxData.id})`);
+            return { success: true, provider: "RESEND_API_SANDBOX", messageId: sandboxData.id };
+          }
+        }
 
         // Fallback to default Resend onboarding domain if custom sender unverified
         if (fromAddr !== "Naxton AI <onboarding@resend.dev>") {
@@ -148,6 +179,7 @@ async function sendEmail({ to, subject, html }) {
 
 /**
  * Sends a professional 12-Hour Live Demo confirmation email to the prospect.
+ * ALSO dispatches a high-priority alert email to the platform owner.
  */
 async function sendDemoConfirmationEmail(demoData) {
   const {
@@ -226,7 +258,28 @@ async function sendDemoConfirmationEmail(demoData) {
 </html>
   `;
 
+  // Prospect email
   const result = await sendEmail({ to: email, subject, html });
+
+  // Admin Notification Email
+  if (email !== ADMIN_OWNER_EMAIL) {
+    const adminHtml = `
+      <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #38bdf8;">
+        <h2 style="color: #38bdf8; margin-top: 0;">🚀 NEW DEMO BOOKING CREATED</h2>
+        <p>A prospect has created a 12-hour live demo receptionist session on Naxton Technologies platform.</p>
+        <div style="background-color: #1e293b; padding: 15px; border-radius: 8px; font-size: 13px; line-height: 1.8;">
+          <div><strong>Business Name:</strong> ${businessName}</div>
+          <div><strong>Contact Name:</strong> ${contactName}</div>
+          <div><strong>Email:</strong> ${email}</div>
+          <div><strong>Category:</strong> ${businessType}</div>
+          <div><strong>Allocated Phone:</strong> ${phoneNumber}</div>
+          <div><strong>Dashboard Link:</strong> <a href="${dashboardUrl}" style="color: #38bdf8;">${dashboardUrl}</a></div>
+        </div>
+      </div>
+    `;
+    sendEmail({ to: ADMIN_OWNER_EMAIL, subject: `[DEMO ALERT] New Demo Session Created for ${businessName}`, html: adminHtml }).catch(e => {});
+  }
+
   return { ...result, dashboardUrl };
 }
 
@@ -239,7 +292,7 @@ async function sendDemoExpirationEmail(demoData) {
     contactName = "Valued Customer",
     businessName = "Your Business",
     phoneNumber = "+18884918668",
-    reason = "12_HOURS_EXPIRED", // 12_HOURS_EXPIRED, 5_CALLS_REACHED, 10_MINS_REACHED
+    reason = "12_HOURS_EXPIRED",
     host = "naxtontechnologies.com"
   } = demoData;
 
@@ -323,6 +376,144 @@ async function sendDemoExpirationEmail(demoData) {
 }
 
 /**
+ * Sends Customer Deal Inquiry Email (from "Become a Customer" Modal).
+ * Dispatches confirmation to prospect AND high-priority lead alert to platform owner.
+ */
+async function sendCustomerDealInquiryEmail(dealData) {
+  const {
+    contactName = "Prospect",
+    businessName = "Business",
+    email,
+    phone = "",
+    planInterest = "Nexa Prime (24/7 AI Receptionist)",
+    notes = ""
+  } = dealData;
+
+  const subject = `Enterprise Deal Request Received: ${businessName} — Naxton Technologies`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #ffffff; padding: 30px; border-radius: 16px; border: 1px solid #38bdf8; max-width: 600px; margin: 0 auto;">
+      <div style="text-align: center; border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 20px;">
+        <h1 style="color: #38bdf8; font-size: 20px; letter-spacing: 2px; margin: 0;">NAXTON TECHNOLOGIES</h1>
+        <p style="color: #94a3b8; font-size: 11px; margin-top: 5px; text-transform: uppercase;">Customer Deal Inquiry Confirmation</p>
+      </div>
+
+      <h2 style="color: #ffffff; font-size: 16px;">Hello ${contactName},</h2>
+      <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+        Thank you for submitting your custom deal inquiry for <strong>${businessName}</strong>. Our enterprise team has received your request and will contact you directly within 2 business hours to finalize your permanent AI receptionist deployment and custom pricing.
+      </p>
+
+      <div style="background-color: #1e293b; padding: 18px; border-radius: 12px; border: 1px solid #334155; margin: 20px 0; font-size: 12px;">
+        <div style="color: #38bdf8; font-weight: bold; text-transform: uppercase; margin-bottom: 10px;">INQUIRY DETAILS</div>
+        <div style="margin-bottom: 6px;"><strong>Business:</strong> ${businessName}</div>
+        <div style="margin-bottom: 6px;"><strong>Contact Person:</strong> ${contactName}</div>
+        <div style="margin-bottom: 6px;"><strong>Email:</strong> ${email}</div>
+        <div style="margin-bottom: 6px;"><strong>Phone:</strong> ${phone || "Not provided"}</div>
+        <div style="margin-bottom: 6px;"><strong>Package Interest:</strong> ${planInterest}</div>
+        ${notes ? `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #334155;"><strong>Special Requirements:</strong> ${notes}</div>` : ""}
+      </div>
+
+      <p style="font-size: 12px; color: #94a3b8;">
+        If you have immediate questions, reply directly to this email or reach us at <a href="mailto:support@naxtontechnologies.com" style="color: #38bdf8;">support@naxtontechnologies.com</a>.
+      </p>
+    </div>
+  `;
+
+  // 1. Prospect Confirmation
+  const result = await sendEmail({ to: email, subject, html });
+
+  // 2. High-Priority Admin Alert
+  const adminSubject = `🔥 NEW CUSTOMER DEAL LEAD: ${businessName} (${contactName})`;
+  const adminHtml = `
+    <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #ffffff; padding: 25px; border-radius: 14px; border: 2px solid #10b981;">
+      <h2 style="color: #10b981; margin-top: 0;">🔥 HOT ENTERPRISE DEAL LEAD</h2>
+      <p style="font-size: 14px;">A prospect clicked <strong>BECOME A CUSTOMER</strong> on the live demo dashboard and submitted a deal request!</p>
+      
+      <div style="background-color: #1e293b; padding: 20px; border-radius: 10px; font-size: 13px; line-height: 1.8;">
+        <div><strong>Business Name:</strong> ${businessName}</div>
+        <div><strong>Contact Name:</strong> ${contactName}</div>
+        <div><strong>Email Address:</strong> <a href="mailto:${email}" style="color: #38bdf8;">${email}</a></div>
+        <div><strong>Phone Number:</strong> <a href="tel:${phone}" style="color: #38bdf8;">${phone || "N/A"}</a></div>
+        <div><strong>Package Interest:</strong> ${planInterest}</div>
+        <div><strong>Notes:</strong> ${notes || "None"}</div>
+      </div>
+    </div>
+  `;
+  sendEmail({ to: ADMIN_OWNER_EMAIL, subject: adminSubject, html: adminHtml }).catch(e => {});
+
+  return result;
+}
+
+/**
+ * Sends Landing Page / Consultation Contact Form Email.
+ */
+async function sendContactFormEmail(contactData) {
+  const {
+    fullName = "Client",
+    companyName = "Company",
+    email,
+    architectureFocus = "Nexa Voice AI Synthetics",
+    details = ""
+  } = contactData;
+
+  const subject = `Consultation Request Received — Naxton Technologies`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #ffffff; padding: 30px; border-radius: 16px; border: 1px solid #38bdf8; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #38bdf8; margin-top: 0;">Hello ${fullName},</h2>
+      <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+        We have received your consultation dispatch request for <strong>${companyName}</strong>. Our enterprise solution architects will review your architecture focus (<strong>${architectureFocus}</strong>) and contact you within 24 hours.
+      </p>
+      <div style="background-color: #1e293b; padding: 15px; border-radius: 10px; margin: 20px 0; font-size: 12px; color: #cbd5e1;">
+        <div><strong>Ticket Reference:</strong> NX-${Math.floor(10000 + Math.random() * 90000)}</div>
+        <div><strong>Focus Area:</strong> ${architectureFocus}</div>
+        ${details ? `<div><strong>Details:</strong> ${details}</div>` : ""}
+      </div>
+    </div>
+  `;
+
+  // Prospect email
+  const result = await sendEmail({ to: email, subject, html });
+
+  // Admin Alert
+  const adminHtml = `
+    <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #38bdf8;">
+      <h3 style="color: #38bdf8; margin-top: 0;">📥 NEW LANDING PAGE CONSULTATION LEAD</h3>
+      <p style="font-size: 13px;">A client submitted the Book Consultation form on the main website.</p>
+      <div style="background-color: #1e293b; padding: 15px; border-radius: 8px; font-size: 13px; line-height: 1.8;">
+        <div><strong>Name:</strong> ${fullName}</div>
+        <div><strong>Company:</strong> ${companyName}</div>
+        <div><strong>Email:</strong> ${email}</div>
+        <div><strong>Focus:</strong> ${architectureFocus}</div>
+        <div><strong>Details:</strong> ${details || "None"}</div>
+      </div>
+    </div>
+  `;
+  sendEmail({ to: ADMIN_OWNER_EMAIL, subject: `[CONSULTATION LEAD] ${companyName} (${fullName})`, html: adminHtml }).catch(e => {});
+
+  return result;
+}
+
+/**
+ * Sends Welcome Email to new Tenant signups.
+ */
+async function sendTenantWelcomeEmail(tenantData) {
+  const { name, email, plan = "nexa-prime" } = tenantData;
+  const subject = `Welcome to Naxton Technologies — Your AI Suite is Ready`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #ffffff; padding: 30px; border-radius: 16px; border: 1px solid #38bdf8; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #38bdf8; margin-top: 0;">Welcome to Naxton AI, ${name}!</h2>
+      <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+        Your tenant workspace has been provisioned under the <strong>${plan.toUpperCase()}</strong> plan. You can now configure phone lines, AI receptionist personalities, and automated workflows.
+      </p>
+    </div>
+  `;
+
+  return sendEmail({ to: email, subject, html });
+}
+
+/**
  * Sends a test email to verify Resend or SMTP configuration.
  */
 async function sendTestEmail(targetEmail) {
@@ -353,5 +544,9 @@ module.exports = {
   sendEmail,
   sendDemoConfirmationEmail,
   sendDemoExpirationEmail,
-  sendTestEmail
+  sendCustomerDealInquiryEmail,
+  sendContactFormEmail,
+  sendTenantWelcomeEmail,
+  sendTestEmail,
+  ADMIN_OWNER_EMAIL
 };

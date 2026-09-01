@@ -1546,7 +1546,7 @@
     function closeConsultationModal() {
       document.getElementById('consultation-modal').classList.remove('modal-active');
     }
-    function handleConsultationSubmit(e) {
+    async function handleConsultationSubmit(e) {
       e.preventDefault();
       document.getElementById('submit-btn-spinner').classList.remove('hidden');
       document.getElementById('submit-btn-text').textContent = 'SUBMITTING...';
@@ -1557,12 +1557,18 @@
       const tier = document.getElementById('consult-tier').value;
       const details = document.getElementById('consult-details').value;
 
-      setTimeout(() => {
+      try {
+        const response = await fetch('/api/contact/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fullName: name, companyName: company, email, architectureFocus: tier, details })
+        });
+        const data = await response.json();
+
         document.getElementById('submit-btn-spinner').classList.add('hidden');
         document.getElementById('submit-btn-text').textContent = 'SUBMIT REQUEST';
         
-        const ticketNum = 'NX-' + Math.floor(10000 + Math.random() * 90000);
-        document.getElementById('success-ticket-id').textContent = ticketNum;
+        document.getElementById('success-ticket-id').textContent = data.ticketId || ('NX-' + Math.floor(10000 + Math.random() * 90000));
         document.getElementById('success-name').textContent = name;
         
         const focusNames = {
@@ -1576,7 +1582,11 @@
         document.getElementById('consultation-form-view').classList.add('hidden');
         document.getElementById('consultation-success-view').classList.remove('hidden');
         document.getElementById('consultation-form').reset();
-      }, 1500);
+      } catch (err) {
+        alert('Network error submitting request. Please try again.');
+        document.getElementById('submit-btn-spinner').classList.add('hidden');
+        document.getElementById('submit-btn-text').textContent = 'SUBMIT REQUEST';
+      }
     }
 
     // Product Preview Modals

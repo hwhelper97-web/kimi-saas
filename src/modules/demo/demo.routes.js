@@ -16,6 +16,7 @@ router.get("/demo/live/:token", controller.renderLiveDashboard);
 // API Endpoints
 router.post("/api/demo/create", demoCreateLimiter, controller.createDemo);
 router.post("/api/demo/waitlist", controller.joinWaitlist);
+router.post("/api/demo/become-customer", controller.submitBecomeCustomer);
 router.get("/api/demo/session/:token", controller.getSessionState);
 router.get("/api/demo/session/:token/calls", controller.getDemoCalls);
 router.get("/api/demo/session/:token/orders", controller.getDemoOrders);

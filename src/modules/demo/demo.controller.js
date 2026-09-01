@@ -46,7 +46,12 @@ exports.createDemo = async (req, res) => {
       });
     }
 
-    const result = await demoService.createDemoSession(req.body);
+    const payload = {
+      ...req.body,
+      host: req.headers.host || "naxtontechnologies.com"
+    };
+
+    const result = await demoService.createDemoSession(payload);
 
     if (!result.success) {
       return res.status(409).json({
@@ -85,7 +90,7 @@ exports.joinWaitlist = async (req, res) => {
       });
     }
 
-    const waitlist = await prisma.demoWaitlist.create({
+    await prisma.demoWaitlist.create({
       data: {
         email,
         fullName,
@@ -120,6 +125,56 @@ exports.joinWaitlist = async (req, res) => {
   } catch (err) {
     console.error("[WAITLIST_ERR]", err);
     return res.status(500).json({ success: false, error: "Unable to submit waitlist reservation." });
+  }
+};
+
+/**
+ * Handles "Become a Customer" Enterprise Deal Inquiry from Demo Dashboard.
+ */
+exports.submitBecomeCustomer = async (req, res) => {
+  try {
+    const { contactName, businessName, email, phone, planInterest, notes } = req.body;
+
+    if (!contactName || !businessName || !email) {
+      return res.status(400).json({
+        success: false,
+        error: "Contact Name, Business Name, and Email address are required."
+      });
+    }
+
+    // Save to DB Waitlist / Lead Table
+    await prisma.demoWaitlist.create({
+      data: {
+        email,
+        fullName: contactName,
+        mobilePhone: phone || "",
+        category: "DEAL_INQUIRY",
+        notes: `Business: ${businessName} | Plan: ${planInterest || 'Nexa Prime'} | Notes: ${notes || 'None'}`,
+        status: "DEAL_INQUIRY"
+      }
+    });
+
+    // Dispatch Email to prospect + Admin Alert
+    const emailService = require("../../services/email.service");
+    await emailService.sendCustomerDealInquiryEmail({
+      contactName,
+      businessName,
+      email,
+      phone,
+      planInterest,
+      notes
+    });
+
+    return res.json({
+      success: true,
+      message: "Your enterprise deal inquiry has been submitted successfully! Our team will contact you within 2 business hours."
+    });
+  } catch (err) {
+    console.error("[BECOME_CUSTOMER_ERR]", err);
+    return res.status(500).json({
+      success: false,
+      error: "Unable to process deal inquiry right now. Please try again."
+    });
   }
 };
 
