@@ -229,7 +229,7 @@
       </nav>
 
       <!-- CTA Button & Mobile Toggle -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2.5">
         <a href="/demo" class="hidden sm:inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-black tracking-wider text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-md transition-all uppercase">
           <span>TRY AI LIVE</span>
           <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
@@ -240,8 +240,22 @@
         <a href="/login" class="hidden sm:inline-block px-5 py-2.5 rounded-full text-xs font-bold tracking-wider text-primary border border-primary/20 hover:bg-primary/5 transition-all uppercase">
           Access Portal
         </a>
-        <button id="mobile-menu-btn" class="lg:hidden w-9 h-9 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-textMain hover:bg-slate-100 transition-colors" aria-label="Toggle Navigation Menu">
-          <i data-lucide="menu" class="w-4 h-4"></i>
+
+        <!-- 📱 MOBILE HOME ICON BUTTON (High-Visibility Crisp SVG) -->
+        <a href="/" title="Back to Home" class="flex lg:hidden items-center justify-center w-10 h-10 rounded-full bg-slate-900 text-white shadow-md hover:bg-primary transition-all border border-slate-700 active:scale-95">
+          <svg class="w-4 h-4 text-white fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </a>
+
+        <!-- 📱 MOBILE MENU TOGGLE BUTTON (High-Visibility Vibrant SVG) -->
+        <button id="mobile-menu-btn" class="lg:hidden w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95" aria-label="Toggle Navigation Menu">
+          <svg class="w-4.5 h-4.5 stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" x2="20" y1="12" y2="12"></line>
+            <line x1="4" x2="20" y1="6" y2="6"></line>
+            <line x1="4" x2="20" y1="18" y2="18"></line>
+          </svg>
         </button>
       </div>
 
@@ -1166,10 +1180,17 @@
   <div id="consultation-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 items-center justify-center p-4 hidden">
     <div class="w-full max-w-lg bg-white border border-slate-200 shadow-2xl rounded-3xl p-6 sm:p-8 relative">
       
-      <!-- Close Button -->
-      <button onclick="closeConsultationModal()" class="absolute top-4 right-4 text-textDim hover:text-textMain transition-colors cursor-pointer" aria-label="Close Modal">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
+      <!-- Top Modal Navigation: Back Home Button & Close -->
+      <div class="flex items-center justify-between mb-4">
+        <button type="button" onclick="closeConsultationModal(); window.scrollTo({top: 0, behavior: 'smooth'});" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-bold font-orbitron tracking-wider text-slate-700 hover:text-primary bg-slate-100 hover:bg-slate-200/80 border border-slate-200/80 transition-all uppercase cursor-pointer shadow-sm active:scale-95">
+          <svg class="w-3.5 h-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>← BACK HOME</span>
+        </button>
+
+        <button onclick="closeConsultationModal()" class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-colors flex items-center justify-center cursor-pointer" aria-label="Close Modal">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
 
       <!-- Form View -->
       <div id="consultation-form-view">
@@ -1210,15 +1231,23 @@
             <textarea id="consult-details" rows="3" placeholder="Outline integration details or call volume requirements..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-textMain placeholder-slate-400 focus:border-primary/50 focus:outline-none resize-none"></textarea>
           </div>
 
-          <button type="submit" class="w-full py-4 rounded-xl text-xs font-bold font-orbitron tracking-widest text-white btn-gradient flex items-center justify-center gap-2">
-            <span id="submit-btn-text">SUBMIT REQUEST</span>
-            <div id="submit-btn-spinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          </button>
+          <!-- Bottom Action Buttons: Submit + Back to Home -->
+          <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
+            <button type="submit" class="w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold font-orbitron tracking-widest text-white btn-gradient flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all uppercase cursor-pointer">
+              <span id="submit-btn-text">SUBMIT REQUEST</span>
+              <div id="submit-btn-spinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            </button>
+            
+            <button type="button" onclick="closeConsultationModal(); window.scrollTo({top: 0, behavior: 'smooth'});" class="w-full sm:w-auto px-5 py-3.5 rounded-xl text-xs font-bold font-orbitron tracking-wider text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all uppercase flex items-center justify-center gap-1.5 cursor-pointer active:scale-95">
+              <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+              <span>HOME</span>
+            </button>
+          </div>
         </form>
       </div>
 
       <!-- Success View -->
-      <div id="consultation-success-view" class="hidden text-center py-10 space-y-6">
+      <div id="consultation-success-view" class="hidden text-center py-8 space-y-6">
         <div class="w-16 h-16 bg-success/15 border border-success/30 rounded-full flex items-center justify-center mx-auto text-success">
           <i data-lucide="check" class="w-8 h-8"></i>
         </div>
@@ -1232,9 +1261,16 @@
           <div>FOCUS: <span id="success-tier" class="text-textMain font-bold">Nexa Voice AI</span></div>
           <div class="text-[10px] text-textDim/50 border-t border-slate-200/50 pt-1.5 mt-1.5">Our team will reach out within 24 hours.</div>
         </div>
-        <button onclick="closeConsultationModal()" class="px-6 py-2.5 rounded-full text-xs font-bold tracking-wider text-textMain border border-slate-200 hover:bg-slate-50 transition-all uppercase">
-          Dismiss Panel
-        </button>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <button onclick="closeConsultationModal(); window.scrollTo({top: 0, behavior: 'smooth'});" class="w-full sm:w-auto px-7 py-3 rounded-full text-xs font-black font-orbitron tracking-wider text-white btn-gradient uppercase shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:scale-105">
+            <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span>RETURN TO HOME</span>
+          </button>
+          <button onclick="closeConsultationModal()" class="w-full sm:w-auto px-5 py-3 rounded-full text-xs font-bold tracking-wider text-slate-700 border border-slate-200 hover:bg-slate-50 transition-all uppercase">
+            Dismiss Panel
+          </button>
+        </div>
       </div>
 
     </div>
