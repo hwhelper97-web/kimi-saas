@@ -291,11 +291,18 @@ exports.incoming = async (req, res) => {
     session.transferNumber = config?.transferNumber;
 
     // 🚀 START REALTIME STREAM
-    const host = req.headers.host || "";
-    const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
-    const protocol = (isLocal && !host.includes("ngrok")) ? "ws" : "wss";
+    let streamHost = req.headers['x-forwarded-host'] || req.headers.host || "";
+    if (process.env.BASE_URL && (streamHost.includes("localhost") || streamHost.includes("127.0.0.1"))) {
+      try {
+        const parsedBase = new URL(process.env.BASE_URL);
+        streamHost = parsedBase.host;
+      } catch (e) {}
+    }
+
+    const isLocal = streamHost.includes("localhost") || streamHost.includes("127.0.0.1");
+    const protocol = isLocal ? "ws" : "wss";
     const callerPhone = req.body.From || "Unknown";
-    const streamUrl = `${protocol}://${host}/v2/stream/${business.id}?caller=${encodeURIComponent(callerPhone)}`;
+    const streamUrl = `${protocol}://${streamHost}/v2/stream/${business.id}?caller=${encodeURIComponent(callerPhone)}`;
     
     console.log(`[CALL_INCOMING] business: ${business.name}, stream: ${streamUrl}`);
 
