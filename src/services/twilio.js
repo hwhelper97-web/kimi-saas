@@ -62,17 +62,31 @@ async function searchAvailableNumbers(areaCode = "", countryCode = "US") {
   let list = [];
   try {
     const options = { limit: 10 };
-    if (areaCode && cCode === "US") {
-      options.areaCode = parseInt(areaCode) || undefined;
+    if (areaCode && areaCode.trim() !== "") {
+      const cleanCode = areaCode.trim();
+      const parsedArea = parseInt(cleanCode);
+      if (!isNaN(parsedArea) && cleanCode.length <= 4) {
+        options.areaCode = parsedArea;
+      } else {
+        options.contains = cleanCode;
+      }
     }
     
     // 1. Try local numbers for specified country
-    const localNumbers = await client.availablePhoneNumbers(cCode).local.list(options).catch(() => []);
+    const localNumbers = await client.availablePhoneNumbers(cCode).local.list(options).catch((err) => {
+      console.warn(`[TWILIO] Local numbers search error for country ${cCode}:`, err.message);
+      return [];
+    });
     list = localNumbers;
     
     // 2. Fallback to toll-free numbers for country if local is empty
     if (!list || list.length === 0) {
-      const tollFree = await client.availablePhoneNumbers(cCode).tollFree.list({ limit: 10 }).catch(() => []);
+      const tollFreeOptions = { limit: 10 };
+      if (areaCode && (cCode === "US" || cCode === "CA")) {
+        const parsedArea = parseInt(areaCode.trim());
+        if (!isNaN(parsedArea)) tollFreeOptions.areaCode = parsedArea;
+      }
+      const tollFree = await client.availablePhoneNumbers(cCode).tollFree.list(tollFreeOptions).catch(() => []);
       list = tollFree;
     }
   } catch (err) {

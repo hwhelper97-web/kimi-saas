@@ -58,7 +58,7 @@
 
       <div class="form-group-premium">
         <label><i data-lucide="globe"></i> Operating Country</label>
-        <select id="bizCountry" class="form-control-premium">
+        <select id="bizCountry" class="form-control-premium" onchange="if (document.getElementById('provisionCountry')) { document.getElementById('provisionCountry').value = this.value; } updateProvisionCountryUI(this.value);">
           <option value="US" <%= (business.country === 'US' || !business.country) ? 'selected' : '' %>>🇺🇸 United States (+1)</option>
           <option value="PK" <%= business.country === 'PK' ? 'selected' : '' %>>🇵🇰 Pakistan (+92)</option>
           <option value="GB" <%= business.country === 'GB' ? 'selected' : '' %>>🇬🇧 United Kingdom (+44)</option>
@@ -401,7 +401,7 @@
         <h3 class="card-title-premium">Phone Routing & Human Call Transfer</h3>
         <p class="card-subtitle-premium">Keep your existing business number. Forward calls to Naxton AI and escalate to a human manager 24/7.</p>
       </div>
-      <span class="badge badge-premium" style="border-color: rgba(0,242,255,0.3); color:#00f2ff; background: rgba(0,242,255,0.05);">US Telephony</span>
+      <span id="telephonyBadge" class="badge badge-premium" style="border-color: rgba(0,242,255,0.3); color:#00f2ff; background: rgba(0,242,255,0.05);"><%= (business.country || 'US').toUpperCase() %> Telephony</span>
     </div>
 
     <div class="card-body-grid">
@@ -426,11 +426,48 @@
 
       <!-- Inline Provision Box -->
       <div id="provisionBox" class="col-span-2" style="display:none; background:rgba(0,0,0,0.4); border:1px solid var(--glass-border); border-radius:1rem; padding:1.5rem;">
-        <h4 style="color:white; font-size:0.9rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;"><i data-lucide="search" style="width:16px; height:16px; color:#00f2ff;"></i> Provision US Twilio AI Number</h4>
-        <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
-          <input type="text" id="areaCodeSearch" class="form-control-premium" placeholder="3-digit Area Code (e.g. 305)" style="max-width:220px;" />
-          <button type="button" class="action-btn-premium" onclick="searchNumbers()"><i data-lucide="search"></i> Search Numbers</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+          <h4 id="provisionTitle" style="color:white; font-size:0.9rem; margin:0; display:flex; align-items:center; gap:0.5rem;">
+            <i data-lucide="search" style="width:16px; height:16px; color:#00f2ff;"></i> Provision <%= (business.country || 'US').toUpperCase() %> Twilio AI Number
+          </h4>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Select target country to search available numbers</span>
         </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; align-items:end; margin-bottom:1rem;">
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.35rem; display:flex; align-items:center; gap:0.35rem;">
+              <i data-lucide="globe" style="width:14px; height:14px; color:#00f2ff;"></i> Target Country
+            </label>
+            <select id="provisionCountry" class="form-control-premium" onchange="onProvisionCountryChange()">
+              <option value="US" <%= (business.country === 'US' || !business.country) ? 'selected' : '' %>>🇺🇸 United States (+1)</option>
+              <option value="PK" <%= business.country === 'PK' ? 'selected' : '' %>>🇵🇰 Pakistan (+92)</option>
+              <option value="GB" <%= business.country === 'GB' ? 'selected' : '' %>>🇬🇧 United Kingdom (+44)</option>
+              <option value="AE" <%= business.country === 'AE' ? 'selected' : '' %>>🇦🇪 United Arab Emirates (+971)</option>
+              <option value="SA" <%= business.country === 'SA' ? 'selected' : '' %>>🇸🇦 Saudi Arabia (+966)</option>
+              <option value="CA" <%= business.country === 'CA' ? 'selected' : '' %>>🇨🇦 Canada (+1)</option>
+              <option value="AU" <%= business.country === 'AU' ? 'selected' : '' %>>🇦🇺 Australia (+61)</option>
+              <option value="IN" <%= business.country === 'IN' ? 'selected' : '' %>>🇮🇳 India (+91)</option>
+              <option value="DE" <%= business.country === 'DE' ? 'selected' : '' %>>🇩🇪 Germany (+49)</option>
+              <option value="FR" <%= business.country === 'FR' ? 'selected' : '' %>>🇫🇷 France (+33)</option>
+              <option value="MX" <%= business.country === 'MX' ? 'selected' : '' %>>🇲🇽 Mexico (+52)</option>
+              <option value="BR" <%= business.country === 'BR' ? 'selected' : '' %>>🇧🇷 Brazil (+55)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.35rem; display:flex; align-items:center; gap:0.35rem;">
+              <i data-lucide="hash" style="width:14px; height:14px; color:#00f2ff;"></i> Area Code / Prefix (Optional)
+            </label>
+            <input type="text" id="areaCodeSearch" class="form-control-premium" placeholder="<%= (business.country === 'PK') ? 'Prefix (e.g. 51, 42, 21)' : '3-digit Area Code (e.g. 305)' %>" />
+          </div>
+
+          <div>
+            <button type="button" class="action-btn-premium" style="width:100%; justify-content:center;" onclick="searchNumbers()">
+              <i data-lucide="search"></i> Search Numbers
+            </button>
+          </div>
+        </div>
+
         <div id="numberList" style="margin-top:1rem; display:none;"></div>
       </div>
 
@@ -1291,17 +1328,53 @@
     }
   }
 
-  // --- Phone Number Provisioning ---
+  // --- Phone Number Provisioning UI & Handlers ---
+  function updateProvisionCountryUI(country) {
+    const selectedCountry = country || document.getElementById('provisionCountry')?.value || document.getElementById('bizCountry')?.value || 'US';
+    const countryUpper = selectedCountry.toUpperCase();
+
+    // 1. Update Telephony Badge
+    const badge = document.getElementById('telephonyBadge');
+    if (badge) badge.textContent = `${countryUpper} Telephony`;
+
+    // 2. Update Provision Title
+    const title = document.getElementById('provisionTitle');
+    if (title) {
+      title.innerHTML = `<i data-lucide="search" style="width:16px; height:16px; color:#00f2ff;"></i> Provision ${countryUpper} Twilio AI Number`;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // 3. Update Area Code Placeholder
+    const areaInput = document.getElementById('areaCodeSearch');
+    if (areaInput) {
+      if (countryUpper === 'PK') {
+        areaInput.placeholder = 'Prefix (e.g. 51, 42, 21)';
+      } else if (countryUpper === 'GB') {
+        areaInput.placeholder = 'Area Code (e.g. 20, 161)';
+      } else if (countryUpper === 'US' || countryUpper === 'CA') {
+        areaInput.placeholder = '3-digit Area Code (e.g. 305)';
+      } else {
+        areaInput.placeholder = 'City / Area Code';
+      }
+    }
+  }
+
+  function onProvisionCountryChange() {
+    const selectedCountry = document.getElementById('provisionCountry')?.value || 'US';
+    updateProvisionCountryUI(selectedCountry);
+  }
+
   async function searchNumbers() {
     const areaCode = document.getElementById('areaCodeSearch')?.value;
+    const countryCode = document.getElementById('provisionCountry')?.value || document.getElementById('bizCountry')?.value || 'US';
     const list = document.getElementById('numberList');
     if (!list) return;
 
-    list.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);"><div class="spin" style="margin:0 auto 1rem;"></div>Searching numbers...</div>';
+    list.innerHTML = `<div style="padding:2rem; text-align:center; color:var(--text-muted);"><div class="spin" style="margin:0 auto 1rem;"></div>Searching ${countryCode.toUpperCase()} phone numbers...</div>`;
     list.style.display = 'block';
 
     try {
-      const res = await fetch(`/api/call/provision/search?areaCode=${areaCode || ''}&businessId=${getBusinessId()}`, {
+      const res = await fetch(`/api/call/provision/search?countryCode=${encodeURIComponent(countryCode)}&areaCode=${encodeURIComponent(areaCode || '')}&businessId=${getBusinessId()}`, {
         headers: { 'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token) }
       });
       const result = await res.json();
@@ -1327,10 +1400,11 @@
 
       // 2. Show new search results
       if (result.success && result.data && result.data.length > 0) {
-        html += '<div><h5 style="color:#fff; font-size:0.8rem; text-transform:uppercase; font-weight:700; margin-bottom:0.75rem;">🌐 Buy New US Twilio Number</h5>';
+        html += `<div><h5 style="color:#fff; font-size:0.8rem; text-transform:uppercase; font-weight:700; margin-bottom:0.75rem;">🌐 Buy New ${countryCode.toUpperCase()} Twilio Number</h5>`;
         html += result.data.map(n => 
           '<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; border-bottom:1px solid var(--glass-border);">' +
-            '<span style="font-weight:600; font-family:\'JetBrains Mono\', monospace; color:white;">' + n.friendlyName + '</span>' +
+            '<div><span style="font-weight:600; font-family:\'JetBrains Mono\', monospace; color:white;">' + n.friendlyName + '</span>' +
+            (n.locality ? ' <span style="font-size:0.7rem; color:var(--text-muted);">(' + n.locality + ')</span>' : '') + '</div>' +
             '<button class="action-btn-premium" style="padding:0.35rem 0.75rem; font-size:0.75rem;" onclick="purchaseNumber(\'' + n.phoneNumber + '\')">' +
               'Secure & Buy' +
             '</button>' +
@@ -1338,7 +1412,7 @@
         ).join('');
         html += '</div>';
       } else if (!result.inventory || result.inventory.length === 0) {
-        html = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">No matching phone numbers found. Try another area code.</div>';
+        html = `<div style="padding:2rem; text-align:center; color:var(--text-muted);">No matching ${countryCode.toUpperCase()} phone numbers found. Try another prefix or clear area code filter.</div>`;
       }
 
       list.innerHTML = html;
