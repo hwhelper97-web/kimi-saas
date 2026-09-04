@@ -35,72 +35,30 @@ function isWithinBusinessHours(hours, timezone = 'UTC') {
 async function getCallRoute(toNumber) {
   const normalizedTo = (toNumber || "").replace(/[^0-9]/g, "").slice(-10);
   
-  // 1. FIRST: Check if this phone number belongs to an active DemoSession!
-  const activeDemo = await prisma.demoSession.findFirst({
-    where: {
-      phoneNumber: { contains: normalizedTo },
-      status: "ACTIVE"
-    },
-    orderBy: { createdAt: "desc" },
-    include: { business: true }
-  });
-
-  // 2. SECOND: Look up Phone Number Config in inventory
+  // 1. FIRST PRIORITY: Active Tenant Provisioned Phone Line in Inventory
   const phoneConfig = await prisma.tenantPhoneNumber.findFirst({
-    where: { twilioPhoneNumber: { contains: normalizedTo } },
+    where: { 
+      twilioPhoneNumber: { contains: normalizedTo },
+      status: "ACTIVE",
+      businessId: { not: null }
+    },
     include: { business: true }
   });
 
-  let targetBusiness = activeDemo ? activeDemo.business : (phoneConfig ? phoneConfig.business : await prisma.business.findFirst({
-    where: { phoneNumber: { contains: normalizedTo } }
-  }));
+  if (phoneConfig && phoneConfig.business) {
+    console.log(`[ROUTING] Matched active tenant phone line for business: ${phoneConfig.business.name}`);
 
-  // Handle Demo Session Logic
-  if (activeDemo || targetBusiness) {
-    const demo = activeDemo || await prisma.demoSession.findFirst({
-      where: { businessId: targetBusiness?.id },
-      orderBy: { createdAt: "desc" }
-    });
-
-    if (demo) {
-      const now = new Date();
-      const isExpired = demo.expiresAt < now || demo.callCount >= demo.maxCalls || demo.status === "EXPIRED";
-
-      if (isExpired) {
-        if (demo.status !== "EXPIRED") {
-          await prisma.demoSession.update({ where: { id: demo.id }, data: { status: "EXPIRED" } });
-        }
-        return { action: 'EXPIRED_DEMO', business: targetBusiness, config: phoneConfig };
-      }
-
-      // Record call start for active demo session
-      await prisma.demoSession.update({
-        where: { id: demo.id },
-        data: { callCount: { increment: 1 } }
-      });
-
-      console.log(`[ROUTING] Active Demo Matched: ${demo.businessName} (Session: ${demo.token})`);
-      return { action: 'AI', business: targetBusiness, config: phoneConfig, demo };
+    // Check AI Answering Toggle
+    if (!phoneConfig.aiEnabled) {
+      return { 
+        action: 'FORWARD', 
+        destination: phoneConfig.transferNumber || phoneConfig.businessPhoneNumber, 
+        business: phoneConfig.business,
+        config: phoneConfig 
+      };
     }
-  }
 
-  if (!phoneConfig && !targetBusiness) {
-    console.warn(`[ROUTING] Unregistered number called: ${toNumber}. Falling back to default AI handler.`);
-    return { action: 'AI', business: null, config: null };
-  }
-
-  // Check AI Answering Toggle
-  if (phoneConfig && !phoneConfig.aiEnabled) {
-    return { 
-      action: 'FORWARD', 
-      destination: phoneConfig.transferNumber || phoneConfig.businessPhoneNumber, 
-      business: phoneConfig.business,
-      config: phoneConfig 
-    };
-  }
-
-  // Check Business Hours
-  if (phoneConfig) {
+    // Check Business Hours
     const isOpen = isWithinBusinessHours(phoneConfig.businessHours, phoneConfig.business?.timezone || 'UTC');
     if (!isOpen && phoneConfig.forwardingEnabled) {
       return { 
@@ -110,9 +68,53 @@ async function getCallRoute(toNumber) {
         config: phoneConfig 
       };
     }
+
+    return { action: 'AI', business: phoneConfig.business, config: phoneConfig };
   }
 
-  return { action: 'AI', business: targetBusiness, config: phoneConfig };
+  // 2. SECOND PRIORITY: Check for Virtual Demo Lab Sessions (Sandbox Demos)
+  const activeDemo = await prisma.demoSession.findFirst({
+    where: {
+      phoneNumber: { contains: normalizedTo },
+      status: "ACTIVE"
+    },
+    orderBy: { createdAt: "desc" },
+    include: { business: true }
+  });
+
+  if (activeDemo) {
+    const now = new Date();
+    const isExpired = activeDemo.expiresAt < now || activeDemo.callCount >= activeDemo.maxCalls || activeDemo.status === "EXPIRED";
+
+    if (isExpired) {
+      if (activeDemo.status !== "EXPIRED") {
+        await prisma.demoSession.update({ where: { id: activeDemo.id }, data: { status: "EXPIRED" } });
+      }
+      return { action: 'EXPIRED_DEMO', business: activeDemo.business, config: null };
+    }
+
+    // Record call start for active demo session
+    await prisma.demoSession.update({
+      where: { id: activeDemo.id },
+      data: { callCount: { increment: 1 } }
+    });
+
+    console.log(`[ROUTING] Active Demo Matched: ${activeDemo.businessName} (Session: ${activeDemo.token})`);
+    return { action: 'AI', business: activeDemo.business, config: null, demo: activeDemo };
+  }
+
+  // 3. THIRD PRIORITY: Match by Business Phone Number directly
+  const targetBusiness = await prisma.business.findFirst({
+    where: { phoneNumber: { contains: normalizedTo } }
+  });
+
+  if (targetBusiness) {
+    return { action: 'AI', business: targetBusiness, config: null };
+  }
+
+  // 4. FALLBACK: Unregistered Sandbox Call -> Route to Default AI Receptionist
+  console.warn(`[ROUTING] Unregistered number called: ${toNumber}. Routing to default AI receptionist.`);
+  return { action: 'AI', business: null, config: null };
 }
 
 module.exports = { isWithinBusinessHours, getCallRoute };
