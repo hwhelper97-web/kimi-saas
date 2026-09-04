@@ -55,7 +55,7 @@ exports.getAllBusinesses = async (req, res) => {
 ====================================== */
 exports.createTenant = async (req, res) => {
   try {
-    const { name, ownerEmail, ownerPassword, type, subType, currency, importUrl, isDemo, initialTokens } = req.body;
+    const { name, ownerEmail, ownerPassword, type, subType, country, currency, importUrl, isDemo, initialTokens } = req.body;
     const scraperService = require("../../services/scraper.service");
 
     if (!ownerPassword) {
@@ -112,6 +112,7 @@ exports.createTenant = async (req, res) => {
         name: name,
         type: type || "restaurant",
         subType: subType || null,
+        country: country || "US",
         currency: currency || "USD",
         phoneNumber: "Pending",
         tenantId: tenant.id

@@ -999,6 +999,7 @@ async function saveBusiness() {
     name: document.getElementById("bizName").value,
     phoneNumber: document.getElementById("bizPhone").value,
     address: document.getElementById("bizAddress").value,
+    country: document.getElementById("bizCountry") ? document.getElementById("bizCountry").value : "US",
     timings: document.getElementById("bizTimings").value,
     currency: document.getElementById("bizCurrency").value,
     taxRate: parseFloat(document.getElementById("bizTaxRate").value) || 0,

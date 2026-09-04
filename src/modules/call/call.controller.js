@@ -801,8 +801,15 @@ exports.searchNumbers = async (req, res) => {
     const { areaCode, countryCode, businessId } = req.query;
     const twilioService = require("../../services/twilio");
     
-    // 1. Get available numbers to buy from Twilio API
-    const newNumbers = await twilioService.searchAvailableNumbers(areaCode || "212", countryCode || "US");
+    let targetCountry = countryCode;
+    if (!targetCountry && businessId) {
+      const biz = await prisma.business.findUnique({ where: { id: businessId }, select: { country: true } });
+      if (biz && biz.country) targetCountry = biz.country;
+    }
+    targetCountry = (targetCountry || "US").toUpperCase();
+
+    // 1. Get available numbers to buy from Twilio API for target country
+    const newNumbers = await twilioService.searchAvailableNumbers(areaCode || "", targetCountry);
 
     // 2. Also fetch existing active numbers in DB inventory that are available or assigned to master/tenant
     const existingNumbers = await prisma.tenantPhoneNumber.findMany({

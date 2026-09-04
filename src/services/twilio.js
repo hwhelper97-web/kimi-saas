@@ -53,18 +53,38 @@ async function startRecording(callSid) {
 
 /**
  * searchAvailableNumbers
+ * Queries Twilio API for available numbers matching countryCode and optional areaCode.
  */
-async function searchAvailableNumbers(areaCode = "212", countryCode = "US") {
+async function searchAvailableNumbers(areaCode = "", countryCode = "US") {
   if (!client) throw new Error("Twilio client not initialized");
-  const available = await client.availablePhoneNumbers(countryCode).local.list({
-    areaCode: parseInt(areaCode) || 212,
-    limit: 10
-  });
-  return available.map(n => ({
+  const cCode = (countryCode || "US").toUpperCase();
+  
+  let list = [];
+  try {
+    const options = { limit: 10 };
+    if (areaCode && cCode === "US") {
+      options.areaCode = parseInt(areaCode) || undefined;
+    }
+    
+    // 1. Try local numbers for specified country
+    const localNumbers = await client.availablePhoneNumbers(cCode).local.list(options).catch(() => []);
+    list = localNumbers;
+    
+    // 2. Fallback to toll-free numbers for country if local is empty
+    if (!list || list.length === 0) {
+      const tollFree = await client.availablePhoneNumbers(cCode).tollFree.list({ limit: 10 }).catch(() => []);
+      list = tollFree;
+    }
+  } catch (err) {
+    console.warn(`[TWILIO] Search error for country ${cCode}:`, err.message);
+  }
+
+  return list.map(n => ({
     phoneNumber: n.phoneNumber,
     friendlyName: n.friendlyName,
-    locality: n.locality,
-    region: n.region
+    locality: n.locality || cCode,
+    region: n.region || cCode,
+    countryCode: cCode
   }));
 }
 
