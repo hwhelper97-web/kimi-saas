@@ -32,13 +32,20 @@ function isWithinBusinessHours(hours, timezone = 'UTC') {
  * @param {String} toNumber - The number being called
  * @returns {Object} { action: 'AI' | 'FORWARD' | 'EXPIRED_DEMO', destination: String, business: Object }
  */
-async function getCallRoute(toNumber) {
+async function getCallRoute(toNumber, forwardedFrom = "") {
   const normalizedTo = (toNumber || "").replace(/[^0-9]/g, "").slice(-10);
+  const normalizedForwarded = (forwardedFrom || "").replace(/[^0-9]/g, "").slice(-10);
   
-  // 1. FIRST PRIORITY: Active Tenant Provisioned Phone Line in Inventory
-  const phoneConfig = await prisma.tenantPhoneNumber.findFirst({
+  // 1. FIRST PRIORITY: Active Tenant Provisioned Phone Line in Inventory (by Twilio number or Business number)
+  let phoneConfig = await prisma.tenantPhoneNumber.findFirst({
     where: { 
-      twilioPhoneNumber: { contains: normalizedTo },
+      OR: [
+        { twilioPhoneNumber: { contains: normalizedTo } },
+        ...(normalizedForwarded ? [
+          { businessPhoneNumber: { contains: normalizedForwarded } },
+          { twilioPhoneNumber: { contains: normalizedForwarded } }
+        ] : [])
+      ],
       status: "ACTIVE",
       businessId: { not: null }
     },
@@ -75,7 +82,10 @@ async function getCallRoute(toNumber) {
   // 2. SECOND PRIORITY: Check for Virtual Demo Lab Sessions (Sandbox Demos)
   const activeDemo = await prisma.demoSession.findFirst({
     where: {
-      phoneNumber: { contains: normalizedTo },
+      OR: [
+        { phoneNumber: { contains: normalizedTo } },
+        ...(normalizedForwarded ? [{ phoneNumber: { contains: normalizedForwarded } }] : [])
+      ],
       status: "ACTIVE"
     },
     orderBy: { createdAt: "desc" },
@@ -105,7 +115,12 @@ async function getCallRoute(toNumber) {
 
   // 3. THIRD PRIORITY: Match by Business Phone Number directly
   const targetBusiness = await prisma.business.findFirst({
-    where: { phoneNumber: { contains: normalizedTo } }
+    where: {
+      OR: [
+        { phoneNumber: { contains: normalizedTo } },
+        ...(normalizedForwarded ? [{ phoneNumber: { contains: normalizedForwarded } }] : [])
+      ]
+    }
   });
 
   if (targetBusiness) {
@@ -113,7 +128,7 @@ async function getCallRoute(toNumber) {
   }
 
   // 4. FALLBACK: Unregistered Sandbox Call -> Route to Default AI Receptionist
-  console.warn(`[ROUTING] Unregistered number called: ${toNumber}. Routing to default AI receptionist.`);
+  console.warn(`[ROUTING] Unregistered number called: ${toNumber} (ForwardedFrom: ${forwardedFrom}). Routing to default AI receptionist.`);
   return { action: 'AI', business: null, config: null };
 }
 

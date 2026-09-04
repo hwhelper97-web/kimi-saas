@@ -202,8 +202,10 @@ exports.incoming = async (req, res) => {
     const toNumber = body.To || "";
     const fromNumber = (body.From || "").replace(/[^0-9]/g, "").slice(-10);
 
+    const forwardedFrom = body.ForwardedFrom || body.CalledVia || "";
+
     // 🚀 1. ROUTING ENGINE: Check if call should go to AI or be Forwarded
-    const route = await routingService.getCallRoute(toNumber);
+    const route = await routingService.getCallRoute(toNumber, forwardedFrom);
     const business = route.business;
     const config = route.config;
 
