@@ -1412,7 +1412,17 @@
         ).join('');
         html += '</div>';
       } else if (!result.inventory || result.inventory.length === 0) {
-        html = `<div style="padding:2rem; text-align:center; color:var(--text-muted);">No matching ${countryCode.toUpperCase()} phone numbers found. Try another prefix or clear area code filter.</div>`;
+        if (countryCode.toUpperCase() === 'PK') {
+          html = `<div style="padding:1.5rem; text-align:center; background:rgba(0,242,255,0.05); border:1px solid rgba(0,242,255,0.2); border-radius:0.75rem;">
+            <div style="font-weight:700; color:#00f2ff; margin-bottom:0.5rem; font-size:0.9rem;">🇵🇰 Notice for Pakistan Telephony</div>
+            <p style="font-size:0.825rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Twilio does not offer instant self-serve local phone numbers in Pakistan. You can provision a <strong>US / International AI Line</strong> and set up call forwarding (<code>*21*...#</code>) on your Pakistani business phone to route calls directly to Naxton AI 24/7.</p>
+            <button type="button" class="action-btn-premium" onclick="document.getElementById('provisionCountry').value='US'; onProvisionCountryChange(); searchNumbers();">
+              <i data-lucide="globe"></i> Search US / Toll-Free AI Lines
+            </button>
+          </div>`;
+        } else {
+          html = `<div style="padding:2rem; text-align:center; color:var(--text-muted);">No matching ${countryCode.toUpperCase()} phone numbers found. Try another prefix or clear area code filter.</div>`;
+        }
       }
 
       list.innerHTML = html;
