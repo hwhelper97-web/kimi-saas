@@ -63,6 +63,38 @@ const SUBTYPE_PRESETS = {
     { name: "30-Min Growth Strategy Call", price: 75.0, durationMinutes: 30, description: "Initial business strategy & marketing roadmap session" },
     { name: "Full Technical Architecture Audit", price: 300.0, durationMinutes: 60, description: "In-depth codebase, infrastructure, and AI audit" },
     { name: "Legal & Regulatory Consultation", price: 150.0, durationMinutes: 45, description: "Legal review and compliance guidance session" }
+  ],
+  immigration: [
+    { name: "Initial Visa Consultation", price: 100.0, durationMinutes: 45, description: "Comprehensive eligibility evaluation and application roadmap" },
+    { name: "PR Document Review Session", price: 150.0, durationMinutes: 60, description: "Detailed document inspection for permanent residency" }
+  ],
+  tax: [
+    { name: "Personal Tax Return Consultation", price: 90.0, durationMinutes: 45, description: "Individual tax deduction and return review" },
+    { name: "Corporate Tax Strategy Session", price: 200.0, durationMinutes: 60, description: "Corporate tax optimization and planning" }
+  ],
+  legal: [
+    { name: "Initial Legal Consultation", price: 150.0, durationMinutes: 45, description: "Legal evaluation of rights, claims, or incorporation" },
+    { name: "Contract Review Session", price: 200.0, durationMinutes: 60, description: "In-depth agreement and contract review" }
+  ],
+  realestate: [
+    { name: "Property Buying Advisory", price: 100.0, durationMinutes: 45, description: "Market analysis and property acquisition strategy" },
+    { name: "Commercial Leasing Consultation", price: 150.0, durationMinutes: 60, description: "Commercial space selection and lease review" }
+  ],
+  dentist: [
+    { name: "Dental Checkup & Cleaning", price: 60.0, durationMinutes: 30, description: "Routine examination and professional oral hygiene" },
+    { name: "Teeth Whitening Session", price: 200.0, durationMinutes: 60, description: "Professional laser whitening treatment" }
+  ],
+  dermatology: [
+    { name: "Acne & Skin Consultation", price: 80.0, durationMinutes: 30, description: "Dermatological assessment and personalized prescription" },
+    { name: "Chemical Peel Treatment", price: 120.0, durationMinutes: 45, description: "Exfoliating skin rejuvenation peel" }
+  ],
+  photography: [
+    { name: "Studio Portrait Session", price: 150.0, durationMinutes: 60, description: "Professional lighting, background, and digital retouched photos" },
+    { name: "Corporate Headshots", price: 120.0, durationMinutes: 45, description: "High-resolution executive headshots" }
+  ],
+  cardetail: [
+    { name: "Full Interior Deep Clean", price: 120.0, durationMinutes: 90, description: "Steam cleaning, leather conditioning, and stain removal" },
+    { name: "Exterior Polish & Hand Wash", price: 80.0, durationMinutes: 60, description: "Clay bar treatment, hand wash, and wax polish" }
   ]
 };
 

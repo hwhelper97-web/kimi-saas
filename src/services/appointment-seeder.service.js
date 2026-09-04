@@ -75,14 +75,6 @@ const DEFAULT_STRUCTURES = {
         { name: "Jacuzzi Session", duration: 45, price: 50 },
         { name: "Sauna Therapy", duration: 30, price: 35 }
       ]
-    },
-    {
-      name: "Skin Therapy",
-      services: [
-        { name: "Body Scrub", duration: 45, price: 60 },
-        { name: "Skin Detox", duration: 60, price: 85 },
-        { name: "Body Polish", duration: 60, price: 95 }
-      ]
     }
   ],
   "Nail Studio": [
@@ -94,13 +86,115 @@ const DEFAULT_STRUCTURES = {
         { name: "Gel Nails", duration: 60, price: 50 },
         { name: "Acrylic Nails", duration: 90, price: 70 }
       ]
-    },
+    }
+  ],
+
+  // 🏢 PROFESSIONAL SERVICES
+  "Visa & Immigration Consultant": [
     {
-      name: "Nail Art",
+      name: "Immigration Advisory",
       services: [
-        { name: "Custom Nail Art", duration: 30, price: 20 },
-        { name: "French Tips", duration: 20, price: 15 },
-        { name: "Glitter Nails", duration: 15, price: 10 }
+        { name: "Initial Visa Consultation", duration: 45, price: 100 },
+        { name: "Document Review Session", duration: 60, price: 150 },
+        { name: "PR Eligibility Assessment", duration: 60, price: 120 },
+        { name: "Student Visa Guidance", duration: 45, price: 80 }
+      ]
+    }
+  ],
+  "Tax Consultant": [
+    {
+      name: "Tax Advisory",
+      services: [
+        { name: "Personal Tax Return Consultation", duration: 45, price: 90 },
+        { name: "Corporate Tax Planning", duration: 60, price: 200 },
+        { name: "Audit Defense Review", duration: 60, price: 250 },
+        { name: "Sales Tax Compliance Audit", duration: 45, price: 150 }
+      ]
+    }
+  ],
+  "Financial Advisor": [
+    {
+      name: "Wealth Planning",
+      services: [
+        { name: "Wealth Management Consultation", duration: 60, price: 150 },
+        { name: "Retirement Planning Session", duration: 60, price: 180 },
+        { name: "Investment Portfolio Audit", duration: 45, price: 120 }
+      ]
+    }
+  ],
+  "Lawyer / Legal Consultant": [
+    {
+      name: "Legal Advisory",
+      services: [
+        { name: "Initial Legal Consultation", duration: 45, price: 150 },
+        { name: "Contract Review Session", duration: 60, price: 200 },
+        { name: "Business Incorporation Advice", duration: 60, price: 250 },
+        { name: "Property Legal Opinion", duration: 45, price: 180 }
+      ]
+    }
+  ],
+  "Real Estate Consultant": [
+    {
+      name: "Real Estate Advisory",
+      services: [
+        { name: "Property Buying Advisory", duration: 45, price: 100 },
+        { name: "Commercial Leasing Consultation", duration: 60, price: 150 },
+        { name: "Property Valuation Assessment", duration: 45, price: 120 }
+      ]
+    }
+  ],
+
+  // 🩺 HEALTHCARE
+  "Doctor's Clinic": [
+    {
+      name: "Medical Consultation",
+      services: [
+        { name: "General Medical Consultation", duration: 20, price: 50 },
+        { name: "Follow-up Consultation", duration: 15, price: 30 },
+        { name: "Full Health Screening", duration: 45, price: 100 }
+      ]
+    }
+  ],
+  "Dentist": [
+    {
+      name: "Dental Care",
+      services: [
+        { name: "Dental Checkup & Cleaning", duration: 30, price: 60 },
+        { name: "Teeth Whitening Session", duration: 60, price: 200 },
+        { name: "Tooth Filling Session", duration: 45, price: 90 },
+        { name: "Extraction Consultation", duration: 30, price: 80 }
+      ]
+    }
+  ],
+  "Dermatologist": [
+    {
+      name: "Skin Care Therapy",
+      services: [
+        { name: "Acne & Skin Consultation", duration: 30, price: 80 },
+        { name: "Chemical Peel Treatment", duration: 45, price: 120 },
+        { name: "Laser Hair Removal Session", duration: 45, price: 150 }
+      ]
+    }
+  ],
+
+  // 📸 CREATIVE & SPECIALIZED
+  "Photography Studio": [
+    {
+      name: "Photography Sessions",
+      services: [
+        { name: "Portrait Session", duration: 60, price: 150 },
+        { name: "Corporate Headshots", duration: 45, price: 120 },
+        { name: "Commercial Product Shoot", duration: 120, price: 350 }
+      ]
+    }
+  ],
+  "Car Detailing": [
+    {
+      name: "Auto Care",
+      services: [
+        { name: "Full Interior Deep Clean", duration: 90, price: 120 },
+        { name: "Exterior Polish & Hand Wash", duration: 60, price: 80 },
+        { name: "Ceramic Coating Application", duration: 180, price: 450 }
       ]
     }
   ]
@@ -108,10 +202,31 @@ const DEFAULT_STRUCTURES = {
 
 // Map similar business types to existing structures
 const TYPE_MAPPING = {
-  "Hair Studio": "Salon",
-  "Beauty Clinic": "Salon",
-  "Massage Center": "Spa",
-  "Wellness Center": "Spa"
+  "hair salon / barber": "Barber Shop",
+  "beauty salon": "Salon",
+  "makeup artist": "Salon",
+  "nail technician": "Nail Studio",
+  "tattoo artist": "Salon",
+  "massage therapist": "Spa",
+  "personal trainer": "Spa",
+  "photographer": "Photography Studio",
+  "personal stylist": "Salon",
+  "physiotherapist": "Doctor's Clinic",
+  "psychologist": "Doctor's Clinic",
+  "nutritionist": "Doctor's Clinic",
+  "eye specialist": "Doctor's Clinic",
+  "chiropractor": "Doctor's Clinic",
+  "accountant": "Tax Consultant",
+  "business consultant": "Visa & Immigration Consultant",
+  "insurance agent": "Financial Advisor",
+  "travel consultant": "Visa & Immigration Consultant",
+  "career counselor": "Visa & Immigration Consultant",
+  "video production studio": "Photography Studio",
+  "wedding planner": "Photography Studio",
+  "interior designer": "Real Estate Consultant",
+  "graphic designer": "Photography Studio",
+  "tailor / bespoke clothing": "Salon",
+  "home inspection": "Real Estate Consultant"
 };
 
 /**
@@ -119,14 +234,11 @@ const TYPE_MAPPING = {
  */
 async function seedDefaultServices(businessId, tenantId, businessType) {
   try {
-    // 1. Check if business already has services
     const existingCount = await prisma.appointmentService.count({ where: { businessId } });
     if (existingCount > 0) return { success: true, message: "Services already exist" };
 
-    // 2. Resolve structure (Case-insensitive)
-    const normalizedType = businessType.toLowerCase();
+    const normalizedType = (businessType || "").toLowerCase();
     
-    // Check mapping first
     let lookupType = businessType;
     for (const [key, val] of Object.entries(TYPE_MAPPING)) {
       if (key.toLowerCase() === normalizedType) {
@@ -135,24 +247,16 @@ async function seedDefaultServices(businessId, tenantId, businessType) {
       }
     }
     
-    // Find in structures
     let structureKey = Object.keys(DEFAULT_STRUCTURES).find(k => k.toLowerCase() === lookupType.toLowerCase());
     
-    // Fallback for generic 'appointment' type
-    if (!structureKey && normalizedType === "appointment") {
-      structureKey = "Salon";
+    if (!structureKey) {
+      structureKey = "Visa & Immigration Consultant"; // Generic professional service fallback
     }
 
-    const structure = structureKey ? DEFAULT_STRUCTURES[structureKey] : null;
+    const structure = DEFAULT_STRUCTURES[structureKey] || DEFAULT_STRUCTURES["Salon"];
 
-    if (!structure) {
-      console.warn(`[Seeder] No default structure for business type: ${businessType}`);
-      return { success: false, message: "No structure found" };
-    }
+    console.log(`[Seeder] Seeding defaults for ${businessType} using template ${structureKey} (${businessId})...`);
 
-    console.log(`[Seeder] Seeding defaults for ${businessType} (${businessId})...`);
-
-    // 3. Create categories and services
     for (const catData of structure) {
       const category = await prisma.serviceCategory.create({
         data: {

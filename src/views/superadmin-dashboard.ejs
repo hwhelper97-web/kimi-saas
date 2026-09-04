@@ -1685,16 +1685,56 @@
                   <div class="form-group">
                     <label>Deployment Category</label>
                     <select id="businessType" class="form-control" onchange="updateSubCategoriesSA()">
+                      <option value="appointment" selected>Service / Appointments</option>
                       <option value="restaurant">Restaurant / Food Ordering</option>
-                      <option value="appointment">Service / Appointments</option>
                     </select>
                   </div>
                   <div class="form-group">
                     <label>Vertical Niche</label>
                     <select id="businessSubType" class="form-control">
-                      <option value="Restaurants">Standard Dining</option>
-                      <option value="Cafes">Cafes & Bakeries</option>
-                      <option value="Fast food">Quick Service</option>
+                      <optgroup label="🏢 Professional Services">
+                        <option value="Visa & Immigration Consultant">Visa & Immigration Consultant</option>
+                        <option value="Tax Consultant">Tax Consultant</option>
+                        <option value="Financial Advisor">Financial Advisor</option>
+                        <option value="Accountant">Accountant</option>
+                        <option value="Lawyer / Legal Consultant">Lawyer / Legal Consultant</option>
+                        <option value="Business Consultant">Business Consultant</option>
+                        <option value="Real Estate Consultant">Real Estate Consultant</option>
+                        <option value="Insurance Agent">Insurance Agent</option>
+                        <option value="Travel Consultant">Travel Consultant</option>
+                        <option value="Career Counselor">Career Counselor</option>
+                      </optgroup>
+                      <optgroup label="💇 Personal Services">
+                        <option value="Hair Salon / Barber">Hair Salon / Barber</option>
+                        <option value="Makeup Artist">Makeup Artist</option>
+                        <option value="Beauty Salon">Beauty Salon</option>
+                        <option value="Nail Technician">Nail Technician</option>
+                        <option value="Tattoo Artist">Tattoo Artist</option>
+                        <option value="Massage Therapist">Massage Therapist</option>
+                        <option value="Personal Trainer">Personal Trainer</option>
+                        <option value="Photographer">Photographer</option>
+                        <option value="Personal Stylist">Personal Stylist</option>
+                      </optgroup>
+                      <optgroup label="🩺 Healthcare">
+                        <option value="Doctor's Clinic">Doctor's Clinic</option>
+                        <option value="Dentist">Dentist</option>
+                        <option value="Physiotherapist">Physiotherapist</option>
+                        <option value="Psychologist">Psychologist</option>
+                        <option value="Nutritionist">Nutritionist</option>
+                        <option value="Eye Specialist">Eye Specialist</option>
+                        <option value="Dermatologist">Dermatologist</option>
+                        <option value="Chiropractor">Chiropractor</option>
+                      </optgroup>
+                      <optgroup label="📸 Creative & Specialized">
+                        <option value="Photography Studio">Photography Studio</option>
+                        <option value="Video Production Studio">Video Production Studio</option>
+                        <option value="Wedding Planner">Wedding Planner</option>
+                        <option value="Interior Designer">Interior Designer</option>
+                        <option value="Graphic Designer">Graphic Designer</option>
+                        <option value="Tailor / Bespoke Clothing">Tailor / Bespoke Clothing</option>
+                        <option value="Car Detailing">Car Detailing</option>
+                        <option value="Home Inspection">Home Inspection</option>
+                      </optgroup>
                     </select>
                   </div>
                 </div>
@@ -4521,11 +4561,62 @@
         const type = document.getElementById("businessType").value;
         const subSelect = document.getElementById("businessSubType");
         
-        const options = type === "restaurant" 
-          ? ["Restaurants", "Cafes", "Fast food"]
-          : ["Barber Shop", "Beauty Salon", "Spa Center", "Dental Clinic", "Medical Clinic"];
-          
-        subSelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join("");
+        if (type === "restaurant") {
+          subSelect.innerHTML = `
+            <option value="Standard Dining">Standard Dining / Restaurant</option>
+            <option value="Cafe & Bakery">Cafe & Bakery</option>
+            <option value="Pizzeria & Italian">Pizzeria & Italian</option>
+            <option value="Asian & Bistro">Asian & Bistro</option>
+            <option value="Quick Service">Quick Service / Fast Food</option>
+          `;
+          return;
+        }
+        
+        subSelect.innerHTML = `
+          <optgroup label="🏢 Professional Services">
+            <option value="Visa & Immigration Consultant">Visa & Immigration Consultant</option>
+            <option value="Tax Consultant">Tax Consultant</option>
+            <option value="Financial Advisor">Financial Advisor</option>
+            <option value="Accountant">Accountant</option>
+            <option value="Lawyer / Legal Consultant">Lawyer / Legal Consultant</option>
+            <option value="Business Consultant">Business Consultant</option>
+            <option value="Real Estate Consultant">Real Estate Consultant</option>
+            <option value="Insurance Agent">Insurance Agent</option>
+            <option value="Travel Consultant">Travel Consultant</option>
+            <option value="Career Counselor">Career Counselor</option>
+          </optgroup>
+          <optgroup label="💇 Personal Services">
+            <option value="Hair Salon / Barber">Hair Salon / Barber</option>
+            <option value="Makeup Artist">Makeup Artist</option>
+            <option value="Beauty Salon">Beauty Salon</option>
+            <option value="Nail Technician">Nail Technician</option>
+            <option value="Tattoo Artist">Tattoo Artist</option>
+            <option value="Massage Therapist">Massage Therapist</option>
+            <option value="Personal Trainer">Personal Trainer</option>
+            <option value="Photographer">Photographer</option>
+            <option value="Personal Stylist">Personal Stylist</option>
+          </optgroup>
+          <optgroup label="🩺 Healthcare">
+            <option value="Doctor's Clinic">Doctor's Clinic</option>
+            <option value="Dentist">Dentist</option>
+            <option value="Physiotherapist">Physiotherapist</option>
+            <option value="Psychologist">Psychologist</option>
+            <option value="Nutritionist">Nutritionist</option>
+            <option value="Eye Specialist">Eye Specialist</option>
+            <option value="Dermatologist">Dermatologist</option>
+            <option value="Chiropractor">Chiropractor</option>
+          </optgroup>
+          <optgroup label="📸 Creative & Specialized">
+            <option value="Photography Studio">Photography Studio</option>
+            <option value="Video Production Studio">Video Production Studio</option>
+            <option value="Wedding Planner">Wedding Planner</option>
+            <option value="Interior Designer">Interior Designer</option>
+            <option value="Graphic Designer">Graphic Designer</option>
+            <option value="Tailor / Bespoke Clothing">Tailor / Bespoke Clothing</option>
+            <option value="Car Detailing">Car Detailing</option>
+            <option value="Home Inspection">Home Inspection</option>
+          </optgroup>
+        `;
       }
 
     // Initialize Theme
