@@ -1,35 +1,35 @@
 <% if (!business) { %>
-  <div class="glass-card entrance-fade-up" style="text-align:center; padding:5rem; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border-radius: 2rem; border: 1px solid rgba(255,255,255,0.1);">
+  <div class="glass-card entrance-fade-up" style="text-align:center; padding:5rem 2rem; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border-radius: 2rem; border: 1px solid rgba(255,255,255,0.1); max-width: 600px; margin: 4rem auto;">
     <div class="icon-pulse" style="margin-bottom: 2rem;">
       <i data-lucide="alert-circle" style="width:64px; height:64px; color:var(--warning); opacity: 0.8;"></i>
     </div>
     <h2 style="font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, #aaa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">No Business Found</h2>
-    <p style="color:var(--text-muted); font-size: 1.1rem; max-width: 400px; margin: 1rem auto;">It looks like you haven't set up a business yet. Let's create your first workspace to begin.</p>
-    <button class="apex-btn" onclick="loadSection('business-new')" style="margin-top: 2rem;">Create My Business</button>
+    <p style="color:var(--text-muted); font-size: 1.1rem; max-width: 400px; margin: 1rem auto 2rem auto;">It looks like you haven't set up a business yet. Let's create your first workspace to begin.</p>
+    <button class="apex-btn" onclick="loadSection('business-new')">Create My Business</button>
   </div>
 <% } else { %>
 
-<div class="settings-container entrance-fade-up" style="max-width: 900px; margin: 0 auto; padding-bottom: 5rem;">
+<div class="settings-container entrance-fade-up">
   
   <!-- ✨ Profile Completion Header -->
-  <div class="glass-card mb-4" style="padding: 1.5rem 2rem; display: flex; align-items: center; gap: 2rem; border-radius: 1.5rem; background: linear-gradient(90deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(255,255,255,0.02) 100%);">
+  <div class="glass-card profile-header-card">
     <div style="flex: 1;">
-      <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
         <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary);">Profile Strength</span>
-        <span style="font-size: 0.8rem; font-weight: 700; color: white;">85% Complete</span>
+        <span style="font-size: 0.85rem; font-weight: 700; color: white;">85% Complete</span>
       </div>
-      <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+      <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
         <div style="width: 85%; height: 100%; background: linear-gradient(90deg, var(--primary) 0%, #00f2ff 100%); box-shadow: 0 0 15px var(--primary);"></div>
       </div>
     </div>
-    <div style="text-align: right; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 2rem;">
-      <p style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800; margin-bottom: 0.25rem;">Business ID</p>
-      <p style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: white; opacity: 0.8;"><%= business.id.substring(0, 8) %>...</p>
+    <div class="header-biz-id">
+      <p style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800; margin-bottom: 0.25rem; letter-spacing: 0.05em;">Business ID</p>
+      <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: white; opacity: 0.9; margin: 0;"><%= business.id.substring(0, 8) %>...</p>
     </div>
   </div>
 
-  <!-- 🏛️ General Information -->
-  <div class="glass-card mb-4">
+  <!-- 🏛️ Core Business Profile -->
+  <div class="glass-card">
     <div class="card-header-premium">
       <div class="header-icon-box">
         <i data-lucide="building-2"></i>
@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; padding: 2rem;">
+    <div class="card-body-grid">
       <div class="form-group-premium">
         <label><i data-lucide="tag"></i> Business Name</label>
         <input type="text" id="bizName" class="form-control-premium" value="<%= business.name %>" placeholder="e.g. Celestial Dental Hub" />
@@ -51,7 +51,7 @@
         <input type="text" id="bizPhone" class="form-control-premium" value="<%= business.phoneNumber %>" placeholder="+1234567890" />
       </div>
 
-      <div class="form-group-premium" style="grid-column: 1 / -1;">
+      <div class="form-group-premium col-span-2">
         <label><i data-lucide="map-pin"></i> Global Headquarters / Address</label>
         <input type="text" id="bizAddress" class="form-control-premium" value="<%= business.address || '' %>" placeholder="e.g. 1 Infinite Loop, Cupertino, CA" />
       </div>
@@ -66,9 +66,9 @@
         <input type="time" id="bizCloseTime" class="form-control-premium" value="<%= business.closeTime || '18:00' %>" />
       </div>
 
-      <div class="form-group-premium" style="grid-column: 1 / -1;">
-        <label style="margin-bottom: 1.25rem;"><i data-lucide="calendar-range"></i> Operational Cycle</label>
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <div class="form-group-premium col-span-2">
+        <label style="margin-bottom: 0.75rem;"><i data-lucide="calendar-range"></i> Operational Cycle</label>
+        <div class="days-container">
           <% const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; 
              const activeDays = (business.timings || '').split(',');
           %>
@@ -96,7 +96,7 @@
         <input type="number" step="0.1" id="bizTaxRate" class="form-control-premium" value="<%= business.taxRate || 0 %>" />
       </div>
 
-      <div class="form-group-premium">
+      <div class="form-group-premium col-span-2">
         <label><i data-lucide="globe"></i> Timezone</label>
         <select id="bizTimezone" class="form-control-premium">
           <option value="UTC" <%= (business.timezone === 'UTC' || !business.timezone) ? 'selected' : '' %>>UTC (Standard)</option>
@@ -108,18 +108,18 @@
         </select>
       </div>
 
-      <div class="form-group-premium" style="grid-column: 1 / -1;">
+      <div class="form-group-premium col-span-2">
         <label><i data-lucide="image"></i> Brand Identity (Logo)</label>
-        <div style="display:flex; gap:1.25rem; align-items:center;">
+        <div style="display:flex; gap:1.25rem; align-items:center; flex-wrap:wrap;">
           <div id="logoPreview" class="logo-preview-box">
             <% if (business.logoUrl) { %>
-              <img src="<%= business.logoUrl %>" />
+              <img src="<%= business.logoUrl %>" alt="Business Logo" />
             <% } else { %>
-              <i data-lucide="image" style="width: 24px; opacity: 0.3;"></i>
+              <i data-lucide="image" style="width: 24px; height: 24px; opacity: 0.3;"></i>
             <% } %>
           </div>
-          <div style="flex:1;">
-            <input type="text" id="bizLogo" class="form-control-premium" value="<%= business.logoUrl || '' %>" placeholder="External URL" style="margin-bottom: 0.75rem;" />
+          <div style="flex:1; min-width: 260px;">
+            <input type="text" id="bizLogo" class="form-control-premium" value="<%= business.logoUrl || '' %>" placeholder="External Image URL" style="margin-bottom: 0.75rem;" />
             <div style="display: flex; gap: 0.75rem;">
               <input type="file" id="bizLogoFile" style="display:none;" accept="image/*" onchange="handleLogoUpload(this)" />
               <button type="button" class="action-btn-premium" onclick="document.getElementById('bizLogoFile').click()">
@@ -133,9 +133,9 @@
   </div>
 
   <!-- 🤖 AI Agent Configuration -->
-  <div class="glass-card mb-4" style="border-top: 2px solid rgba(var(--primary-rgb), 0.3);">
+  <div class="glass-card" style="border-top: 2px solid rgba(var(--primary-rgb), 0.4);">
     <div class="card-header-premium">
-      <div class="header-icon-box" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary);">
+      <div class="header-icon-box" style="background: rgba(var(--primary-rgb), 0.12); color: var(--primary);">
         <i data-lucide="sparkles"></i>
       </div>
       <div>
@@ -147,14 +147,14 @@
 
     <% const isAppointment = ['appointment', 'salon', 'clinic', 'spa', 'barber'].some(t => (business.type || '').includes(t)); %>
 
-    <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; padding: 2rem;">
-      <div class="form-group-premium" style="grid-column: 1 / -1;">
+    <div class="card-body-grid">
+      <div class="form-group-premium col-span-2">
         <label><i data-lucide="user"></i> AI Entity Name</label>
         <input type="text" id="aiName" class="form-control-premium" value="<%= business.aiName || 'Sarah' %>" placeholder="e.g. Sarah" />
         <p class="input-hint">The cognitive identity your AI will use when engaging with clients.</p>
       </div>
 
-      <div class="form-group-premium" style="grid-column: 1 / -1;">
+      <div class="form-group-premium col-span-2">
         <label><i data-lucide="users"></i> AI Gender Identity</label>
         <div style="display: flex; gap: 1rem;">
           <label class="gender-btn <%= (business.aiGender === 'female' || !business.aiGender) ? 'active' : '' %>" onclick="setGender('female')">
@@ -184,19 +184,22 @@
         </select>
       </div>
 
-      <div id="customAgentInput" style="grid-column: 1 / -1; display: none;">
-        <label>Custom ElevenLabs Agent ID</label>
+      <div id="customAgentInput" class="form-group-premium col-span-2" style="display: none;">
+        <label><i data-lucide="key"></i> Custom ElevenLabs Agent ID</label>
         <input type="text" id="customAiVoiceId" class="form-control-premium" value="<%= business.aiVoiceId %>" placeholder="agent_..." />
       </div>
 
       <% if (isAppointment) { %>
-      <div class="form-group-premium">
+      <div class="form-group-premium col-span-2">
         <label><i data-lucide="hourglass"></i> Session Cycle (Minutes)</label>
         <input type="number" id="appointmentDuration" class="form-control-premium" value="<%= business.appointmentDuration || 30 %>" />
       </div>
       <% } %>
+    </div>
+  </div>
+
   <!-- 📞 Phone Routing & Human Call Transfer -->
-  <div class="glass-card mb-4" style="border-top: 2px solid rgba(0, 242, 255, 0.4);">
+  <div class="glass-card" style="border-top: 2px solid rgba(0, 242, 255, 0.4);">
     <div class="card-header-premium">
       <div class="header-icon-box" style="background: rgba(0, 242, 255, 0.1); color: #00f2ff;">
         <i data-lucide="phone-call"></i>
@@ -208,8 +211,7 @@
       <span class="badge badge-premium" style="border-color: rgba(0,242,255,0.3); color:#00f2ff; background: rgba(0,242,255,0.05);">US Telephony</span>
     </div>
 
-    <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; padding: 2rem;">
-      
+    <div class="card-body-grid">
       <!-- 1. Existing Customer-Facing Business Number -->
       <div class="form-group-premium">
         <label><i data-lucide="building"></i> Existing Business Number (Customer-Facing)</label>
@@ -230,25 +232,25 @@
       </div>
 
       <!-- Inline Provision Box -->
-      <div id="provisionBox" style="grid-column: 1 / -1; display:none; background:rgba(0,0,0,0.4); border:1px solid var(--glass-border); border-radius:1rem; padding:1.5rem;">
-        <h4 style="color:white; font-size:0.9rem; margin-bottom:1rem;"><i data-lucide="search"></i> Provision US Twilio AI Number</h4>
-        <div style="display:flex; gap:1rem; align-items:center;">
-          <input type="text" id="areaCodeSearch" class="form-control-premium" placeholder="3-digit Area Code (e.g. 305)" style="max-width:200px;" />
+      <div id="provisionBox" class="col-span-2" style="display:none; background:rgba(0,0,0,0.4); border:1px solid var(--glass-border); border-radius:1rem; padding:1.5rem;">
+        <h4 style="color:white; font-size:0.9rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;"><i data-lucide="search" style="width:16px; height:16px; color:#00f2ff;"></i> Provision US Twilio AI Number</h4>
+        <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+          <input type="text" id="areaCodeSearch" class="form-control-premium" placeholder="3-digit Area Code (e.g. 305)" style="max-width:220px;" />
           <button type="button" class="action-btn-premium" onclick="searchNumbers()"><i data-lucide="search"></i> Search Numbers</button>
         </div>
         <div id="numberList" style="margin-top:1rem; display:none;"></div>
       </div>
 
       <!-- 3. Owner / Manager Transfer Number (Verified Destination) -->
-      <div class="form-group-premium" style="grid-column: 1 / -1;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+      <div class="form-group-premium col-span-2">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap; gap:0.5rem;">
           <label style="margin-bottom:0;"><i data-lucide="user-check"></i> Owner / Manager Transfer Number (Human Escalation)</label>
           <span id="transferVerifyBadge" class="badge" style="font-size:0.65rem; padding:0.3rem 0.6rem; border-radius:1rem; background:rgba(255,170,0,0.1); color:#ffaa00; border:1px solid rgba(255,170,0,0.3);">
             ⚠️ Verification Pending
           </span>
         </div>
-        <div style="display:flex; gap:0.75rem;">
-          <input type="text" id="humanTransferNumber" class="form-control-premium" placeholder="+1 (305) 555-3000" />
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+          <input type="text" id="humanTransferNumber" class="form-control-premium" style="flex:1; min-width:220px;" placeholder="+1 (305) 555-3000" />
           <button type="button" id="sendOtpBtn" class="action-btn-premium" onclick="requestOtpVerification()" style="white-space:nowrap; background:rgba(0,242,255,0.1); border-color:rgba(0,242,255,0.3); color:#00f2ff;">
             <i data-lucide="shield-check"></i> Verify Number
           </button>
@@ -257,11 +259,11 @@
       </div>
 
       <!-- OTP Verification Box -->
-      <div id="otpVerifyBox" style="grid-column: 1 / -1; display:none; background:linear-gradient(135deg, rgba(0,242,255,0.08) 0%, rgba(0,0,0,0.4) 100%); border:1px solid rgba(0,242,255,0.3); border-radius:1rem; padding:1.5rem;">
-        <h4 style="color:white; font-size:0.95rem; margin-bottom:0.5rem;"><i data-lucide="key-round"></i> Enter 6-Digit SMS Verification Code</h4>
+      <div id="otpVerifyBox" class="col-span-2" style="display:none; background:linear-gradient(135deg, rgba(0,242,255,0.08) 0%, rgba(0,0,0,0.4) 100%); border:1px solid rgba(0,242,255,0.3); border-radius:1rem; padding:1.5rem;">
+        <h4 style="color:white; font-size:0.95rem; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;"><i data-lucide="key-round" style="width:18px; height:18px; color:#00f2ff;"></i> Enter 6-Digit SMS Verification Code</h4>
         <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:1rem;">We sent a 6-digit verification code via SMS to your manager transfer number. Code expires in 10 minutes.</p>
-        <div style="display:flex; gap:1rem; max-width:400px;">
-          <input type="text" id="otpCodeInput" class="form-control-premium" placeholder="123456" maxlength="6" style="text-align:center; font-family:'JetBrains Mono'; font-size:1.2rem; letter-spacing:0.3em;" />
+        <div style="display:flex; gap:1rem; max-width:400px; flex-wrap:wrap;">
+          <input type="text" id="otpCodeInput" class="form-control-premium" placeholder="123456" maxlength="6" style="text-align:center; font-family:'JetBrains Mono', monospace; font-size:1.2rem; letter-spacing:0.3em; flex:1; min-width:140px;" />
           <button type="button" class="action-btn-premium" onclick="submitOtpCode()" style="background:#00f2ff; color:#000; font-weight:800;">
             Confirm Verification
           </button>
@@ -296,23 +298,23 @@
       </div>
 
       <!-- 5. Carrier Call Forwarding Guide -->
-      <div style="grid-column: 1 / -1; background:rgba(255,255,255,0.02); border:1px solid var(--glass-border); border-radius:1rem; padding:1.5rem;">
+      <div class="col-span-2" style="background:rgba(255,255,255,0.02); border:1px solid var(--glass-border); border-radius:1rem; padding:1.5rem;">
         <h4 style="color:white; font-size:0.9rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
           <i data-lucide="arrow-right-left" style="color:var(--primary);"></i> How to Forward Your Business Phone Number
         </h4>
         <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:1rem;">
           Your customers keep calling your existing business number. Set up call forwarding with your phone provider to route incoming calls to your Naxton AI number.
         </p>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; font-size:0.8rem;">
-          <div style="background:rgba(0,0,0,0.3); padding:0.8rem; border-radius:0.5rem; border:1px solid rgba(255,255,255,0.05);">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; font-size:0.8rem;">
+          <div style="background:rgba(0,0,0,0.3); padding:0.9rem; border-radius:0.75rem; border:1px solid rgba(255,255,255,0.05);">
             <strong style="color:#fff;">AT&T / Verizon:</strong><br>
-            Dial <code style="color:#00f2ff;">*72</code> + <span class="naxtonAiPhoneDisplay" style="color:#fff;">Naxton AI Number</span>
+            Dial <code style="color:#00f2ff; background:rgba(0,242,255,0.1); padding:0.1rem 0.4rem; border-radius:0.25rem;">*72</code> + <span class="naxtonAiPhoneDisplay" style="color:#fff;">Naxton AI Number</span>
           </div>
-          <div style="background:rgba(0,0,0,0.3); padding:0.8rem; border-radius:0.5rem; border:1px solid rgba(255,255,255,0.05);">
+          <div style="background:rgba(0,0,0,0.3); padding:0.9rem; border-radius:0.75rem; border:1px solid rgba(255,255,255,0.05);">
             <strong style="color:#fff;">T-Mobile:</strong><br>
-            Dial <code style="color:#00f2ff;">**21*</code> + <span class="naxtonAiPhoneDisplay" style="color:#fff;">Naxton AI Number</span> + <code style="color:#00f2ff;">#</code>
+            Dial <code style="color:#00f2ff; background:rgba(0,242,255,0.1); padding:0.1rem 0.4rem; border-radius:0.25rem;">**21*</code> + <span class="naxtonAiPhoneDisplay" style="color:#fff;">Naxton AI Number</span> + <code style="color:#00f2ff; background:rgba(0,242,255,0.1); padding:0.1rem 0.4rem; border-radius:0.25rem;">#</code>
           </div>
-          <div style="background:rgba(0,0,0,0.3); padding:0.8rem; border-radius:0.5rem; border:1px solid rgba(255,255,255,0.05);">
+          <div style="background:rgba(0,0,0,0.3); padding:0.9rem; border-radius:0.75rem; border:1px solid rgba(255,255,255,0.05);">
             <strong style="color:#fff;">Google Voice / RingCentral:</strong><br>
             Go to Settings ➜ Call Forwarding ➜ Add Naxton AI Number
           </div>
@@ -322,11 +324,11 @@
     </div>
   </div>
 
-  <!-- 🚀 Operational Constraints -->
+  <!-- 🚀 Operational Constraints & Fulfillment -->
   <% if (!isAppointment) { %>
-  <div class="glass-card mb-4">
+  <div class="glass-card">
     <div class="card-header-premium">
-      <div class="header-icon-box" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+      <div class="header-icon-box" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;">
         <i data-lucide="truck"></i>
       </div>
       <div>
@@ -335,7 +337,7 @@
       </div>
     </div>
 
-    <div class="apex-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; padding: 2rem;">
+    <div class="card-body-grid">
       <label class="toggle-card <%= business.dineInAvailable ? 'active' : '' %>" onclick="toggleCardActive(this)">
         <div class="toggle-content">
           <i data-lucide="utensils"></i>
@@ -361,17 +363,17 @@
       </label>
 
       <div class="form-group-premium" id="radiusGroup" style="transition: all 0.4s; opacity: <%= business.deliveryAvailable ? 1 : 0.4 %>; pointer-events: <%= business.deliveryAvailable ? 'auto' : 'none' %>;">
-        <label>Operational Radius (KM)</label>
+        <label><i data-lucide="ruler"></i> Operational Radius (KM)</label>
         <input type="number" step="0.5" id="deliveryRadius" class="form-control-premium" value="<%= business.deliveryRadius || 5.0 %>" />
       </div>
 
-      <div class="form-group-premium" style="grid-column: 1 / -1;">
-        <label class="toggle-card highlight-card <%= business.reservationsEnabled ? 'active' : '' %>" onclick="toggleCardActive(this)" style="flex-direction: row; justify-content: space-between; padding: 1.5rem;">
+      <div class="form-group-premium col-span-2">
+        <label class="toggle-card highlight-card <%= business.reservationsEnabled ? 'active' : '' %>" onclick="toggleCardActive(this)" style="flex-direction: row; justify-content: space-between; padding: 1.5rem; text-align: left;">
           <div style="display: flex; gap: 1rem; align-items: center;">
-            <i data-lucide="calendar-check" style="width: 24px;"></i>
-            <div style="text-align: left;">
-              <span style="display: block; font-weight: 700;">Mandatory Reservations</span>
-              <span style="font-size: 0.7rem; opacity: 0.7;">Require clients to secure time slots via AI.</span>
+            <i data-lucide="calendar-check" style="width: 24px; height: 24px;"></i>
+            <div>
+              <span style="display: block; font-weight: 700; color: white;">Mandatory Reservations</span>
+              <span style="font-size: 0.75rem; opacity: 0.7;">Require clients to secure time slots via AI.</span>
             </div>
           </div>
           <input type="checkbox" id="reservationsEnabled" <%= business.reservationsEnabled ? 'checked' : '' %> class="hidden-check" />
@@ -381,10 +383,10 @@
   </div>
   <% } %>
 
-  <!-- 🔒 Security & Management -->
-  <div class="glass-card mb-5">
+  <!-- 🔒 Access Control & Governance -->
+  <div class="glass-card">
     <div class="card-header-premium">
-      <div class="header-icon-box" style="background: rgba(255,255,255,0.05);">
+      <div class="header-icon-box" style="background: rgba(255,255,255,0.06);">
         <i data-lucide="shield-check"></i>
       </div>
       <div>
@@ -392,8 +394,8 @@
         <p class="card-subtitle-premium">Manage team permissions and workspace security.</p>
       </div>
     </div>
-    <div style="padding: 2rem; display: flex; justify-content: space-between; align-items: center;">
-      <p style="color:var(--text-muted); font-size:0.875rem; max-width: 400px;">Configure granular role-based access controls for your staff members and executive team.</p>
+    <div style="padding: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+      <p style="color:var(--text-muted); font-size:0.875rem; max-width: 450px; margin: 0;">Configure granular role-based access controls for your staff members and executive team.</p>
       <button class="action-btn-premium" onclick="loadSection('staff')">
         <i data-lucide="users"></i> Manage Personnel
       </button>
@@ -402,14 +404,14 @@
 
   <!-- 💾 Global Footer Actions -->
   <div class="footer-actions-glass">
-    <div style="display: flex; align-items: center; gap: 1rem; color: var(--text-muted); font-size: 0.8rem;">
-      <i data-lucide="info" style="width: 14px;"></i>
+    <div style="display: flex; align-items: center; gap: 0.75rem; color: var(--text-muted); font-size: 0.8rem;">
+      <i data-lucide="info" style="width: 16px; height: 16px; color: var(--primary);"></i>
       <span>Last synced: <%= new Date().toLocaleTimeString() %></span>
     </div>
     <div style="display: flex; gap: 1rem;">
       <button class="apex-btn-outline" onclick="loadSection('dashboard')">Cancel</button>
       <button class="apex-btn" onclick="saveBusiness()" id="saveProfileBtn">
-        <i data-lucide="save"></i> Propagate Profile Changes
+        <i data-lucide="save"></i> Save Settings
       </button>
     </div>
   </div>
@@ -418,23 +420,66 @@
 
 <style>
   :root {
-    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-bg: rgba(18, 24, 38, 0.65);
     --glass-border: rgba(255, 255, 255, 0.08);
-    --primary-glow: rgba(var(--primary-rgb), 0.15);
+    --primary-glow: rgba(var(--primary-rgb), 0.25);
+  }
+
+  .settings-container {
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding-bottom: 6rem;
   }
 
   .glass-card {
     background: var(--glass-bg);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
     border-radius: 1.25rem;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   }
 
   .glass-card:hover {
-    border-color: rgba(255,255,255,0.15);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  .profile-header-card {
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    border-radius: 1.25rem;
+    background: linear-gradient(90deg, rgba(var(--primary-rgb), 0.12) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(var(--primary-rgb), 0.25);
+  }
+
+  .header-biz-id {
+    text-align: right;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 2rem;
+  }
+
+  @media (max-width: 640px) {
+    .profile-header-card {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+    }
+    .header-biz-id {
+      text-align: left;
+      border-left: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-left: 0;
+      padding-top: 0.75rem;
+    }
   }
 
   .card-header-premium {
@@ -444,42 +489,69 @@
     align-items: center;
     gap: 1.25rem;
     position: relative;
+    background: rgba(255, 255, 255, 0.015);
   }
 
   .header-icon-box {
     width: 48px;
     height: 48px;
-    border-radius: 0.8rem;
-    background: rgba(255,255,255,0.05);
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.05);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
+    flex-shrink: 0;
   }
 
   .header-icon-box i { width: 22px; height: 22px; }
 
   .card-title-premium {
-    font-size: 1.125rem;
+    font-size: 1.15rem;
     font-weight: 800;
     margin: 0;
-    background: linear-gradient(90deg, #fff 0%, #aaa 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #ffffff;
+    letter-spacing: -0.01em;
   }
 
   .card-subtitle-premium {
-    font-size: 0.8rem;
+    font-size: 0.825rem;
     color: var(--text-muted);
-    margin-top: 0.25rem;
+    margin-top: 0.2rem;
   }
 
-  .form-group-premium { display: flex; flex-direction: column; gap: 0.75rem; }
+  .card-body-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem;
+    padding: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .card-body-grid {
+      grid-template-columns: 1fr;
+      padding: 1.25rem;
+      gap: 1.25rem;
+    }
+    .col-span-2 {
+      grid-column: span 1 !important;
+    }
+  }
+
+  .col-span-2 {
+    grid-column: 1 / -1;
+  }
+
+  .form-group-premium {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
 
   .form-group-premium label {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.8);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     display: flex;
@@ -487,111 +559,128 @@
     gap: 0.5rem;
   }
 
-  .form-group-premium label i { width: 14px; height: 14px; opacity: 0.7; }
+  .form-group-premium label i { width: 15px; height: 15px; color: var(--primary); opacity: 0.9; }
 
   .form-control-premium {
-    background: rgba(0,0,0,0.2) !important;
+    background: rgba(0, 0, 0, 0.35) !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 0.75rem !important;
-    padding: 0.875rem 1rem !important;
-    color: white !important;
-    font-size: 0.95rem !important;
-    transition: all 0.3s ease !important;
+    padding: 0.85rem 1.1rem !important;
+    color: #ffffff !important;
+    font-size: 0.925rem !important;
+    transition: all 0.25s ease !important;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .form-control-premium:focus {
     border-color: var(--primary) !important;
-    box-shadow: 0 0 0 4px var(--primary-glow) !important;
-    background: rgba(0,0,0,0.3) !important;
+    box-shadow: 0 0 0 3px var(--primary-glow) !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    outline: none !important;
   }
 
   .highlight-select {
-    background: linear-gradient(90deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(0,0,0,0.2) 100%) !important;
-    border-color: rgba(var(--primary-rgb), 0.3) !important;
+    background: linear-gradient(90deg, rgba(var(--primary-rgb), 0.12) 0%, rgba(0,0,0,0.35) 100%) !important;
+    border-color: rgba(var(--primary-rgb), 0.4) !important;
     font-weight: 700 !important;
     color: var(--primary) !important;
   }
 
+  .days-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.6rem;
+    width: 100%;
+  }
+
+  @media (max-width: 640px) {
+    .days-container {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
   .day-check-premium {
-    flex: 1;
-    min-width: 70px;
-    height: 42px;
-    background: rgba(255,255,255,0.02);
+    height: 44px;
+    background: rgba(255, 255, 255, 0.025);
     border: 1px solid var(--glass-border);
     border-radius: 0.75rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.825rem;
     font-weight: 700;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--text-muted);
+    user-select: none;
   }
 
   .day-check-premium.active {
     background: var(--primary);
     border-color: var(--primary);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--primary-glow);
+    color: #000000;
+    font-weight: 800;
+    box-shadow: 0 4px 14px var(--primary-glow);
   }
 
   .logo-preview-box {
-    width: 64px;
-    height: 64px;
+    width: 68px;
+    height: 68px;
     border-radius: 1rem;
-    background: rgba(0,0,0,0.3);
+    background: rgba(0, 0, 0, 0.4);
     border: 1px dashed var(--glass-border);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     transition: all 0.3s ease;
+    flex-shrink: 0;
   }
 
   .logo-preview-box img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
 
   .action-btn-premium {
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     color: white;
-    padding: 0.6rem 1.25rem;
+    padding: 0.65rem 1.25rem;
     border-radius: 0.75rem;
     font-size: 0.85rem;
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
     cursor: pointer;
   }
 
   .action-btn-premium:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
     transform: translateY(-1px);
   }
 
   .toggle-card {
-    background: rgba(255,255,255,0.02);
+    background: rgba(255, 255, 255, 0.025);
     border: 1px solid var(--glass-border);
     border-radius: 1rem;
     padding: 1.25rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
     position: relative;
+    user-select: none;
   }
 
-  .toggle-card i { width: 24px; height: 24px; opacity: 0.5; transition: all 0.3s; }
-  .toggle-card span { font-size: 0.875rem; font-weight: 600; color: var(--text-muted); transition: all 0.3s; }
+  .toggle-card i { width: 24px; height: 24px; opacity: 0.5; transition: all 0.25s; }
+  .toggle-card span { font-size: 0.875rem; font-weight: 600; color: var(--text-muted); transition: all 0.25s; }
 
   .toggle-card.active {
-    background: rgba(var(--primary-rgb), 0.08);
+    background: rgba(var(--primary-rgb), 0.1);
     border-color: var(--primary);
   }
 
@@ -599,13 +688,13 @@
   .toggle-card.active span { color: white; }
 
   .highlight-card.active {
-    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.15) 0%, rgba(0,0,0,0.2) 100%);
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.15) 0%, rgba(0,0,0,0.3) 100%);
   }
 
   .gender-btn {
     flex: 1;
     height: 48px;
-    background: rgba(255,255,255,0.03);
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--glass-border);
     border-radius: 0.8rem;
     display: flex;
@@ -613,16 +702,17 @@
     justify-content: center;
     gap: 0.75rem;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: var(--text-muted);
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
+    user-select: none;
   }
 
   .gender-btn i { width: 18px; height: 18px; opacity: 0.6; }
 
   .gender-btn.active {
-    background: rgba(var(--primary-rgb), 0.1);
+    background: rgba(var(--primary-rgb), 0.12);
     border-color: var(--primary);
     color: white;
     box-shadow: 0 4px 15px var(--primary-glow);
@@ -636,48 +726,50 @@
     position: absolute;
     top: 1.5rem;
     right: 2rem;
-    background: rgba(var(--primary-rgb), 0.1);
+    background: rgba(var(--primary-rgb), 0.12);
     color: var(--primary);
-    padding: 0.4rem 0.8rem;
+    padding: 0.4rem 0.85rem;
     border-radius: 2rem;
     font-size: 0.65rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border: 1px solid rgba(var(--primary-rgb), 0.2);
+    border: 1px solid rgba(var(--primary-rgb), 0.3);
   }
 
-  .input-hint { font-size: 0.7rem; color: var(--text-muted); margin-top: -0.25rem; }
+  .input-hint { font-size: 0.725rem; color: var(--text-muted); margin-top: -0.15rem; }
 
   .footer-actions-glass {
     position: sticky;
     bottom: 2rem;
-    margin-top: 3rem;
-    background: rgba(10, 10, 10, 0.6);
-    backdrop-filter: blur(20px);
+    background: rgba(15, 20, 32, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--glass-border);
     border-radius: 1.25rem;
-    padding: 1.25rem 2rem;
+    padding: 1.1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
     z-index: 100;
-    animation: slideInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    margin-top: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 
   .entrance-fade-up {
-    animation: entranceFadeUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    animation: entranceFadeUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
   }
 
   @keyframes entranceFadeUp {
-    from { opacity: 0; transform: translateY(30px); }
+    from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes icon-pulse {
     0% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 1; }
     100% { transform: scale(1); opacity: 0.8; }
   }
 
@@ -754,7 +846,7 @@
     const btn = document.getElementById('saveProfileBtn');
     const originalHtml = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<i class="spin" data-lucide="refresh-cw"></i> Processing...';
+    btn.innerHTML = '<i class="spin" data-lucide="refresh-cw"></i> Saving...';
     if (window.lucide) lucide.createIcons();
 
     const selectedDays = Array.from(document.querySelectorAll('input[name="bizDays"]:checked')).map(i => i.value).join(',');
@@ -998,7 +1090,7 @@
       if (result.success && result.data.length > 0) {
         list.innerHTML = result.data.map(n => 
           '<div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; border-bottom:1px solid var(--glass-border);">' +
-            '<span style="font-weight:600; font-family:\'JetBrains Mono\'; color:white;">' + n.friendlyName + '</span>' +
+            '<span style="font-weight:600; font-family:\'JetBrains Mono\', monospace; color:white;">' + n.friendlyName + '</span>' +
             '<button class="action-btn-premium" style="padding:0.4rem 0.8rem; font-size:0.7rem;" onclick="purchaseNumber(\'' + n.phoneNumber + '\')">' +
               'Secure & Link' +
             '</button>' +
