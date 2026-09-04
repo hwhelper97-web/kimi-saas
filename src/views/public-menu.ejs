@@ -383,11 +383,10 @@
                                 </p>
                                 <div class="food-footer">
                                     <div class="food-price">
-                                        <%= business.currency || '$' %>
-                                            <%= item.price.toFixed(2) %>
-                                            <% if (isAppt && item.duration) { %>
-                                                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 400; margin-left: 0.5rem;">/ <%= item.duration %> mins</span>
-                                            <% } %>
+                                        <%= (typeof currencySymbol !== 'undefined' ? currencySymbol : '$') %><%= item.price.toFixed(2) %>
+                                        <% if (isAppt && item.duration) { %>
+                                            <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 400; margin-left: 0.5rem;">/ <%= item.duration %> mins</span>
+                                        <% } %>
                                     </div>
                                     <i data-lucide="<%= isAppt ? 'calendar' : 'plus-circle' %>"
                                         style="width: 24px; height: 24px; color: var(--border);"></i>

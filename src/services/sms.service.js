@@ -8,6 +8,8 @@ const client = (accountSid && authToken) ? twilio(accountSid, authToken) : null;
 
 module.exports.client = client;
 
+const { getCurrencySymbol } = require('../constants/currencies');
+
 /**
  * sendOrderSms
  * Sends a summary of the order to the customer.
@@ -19,8 +21,9 @@ exports.sendOrderSms = async (to, businessName, items, total, currency = 'USD') 
   }
 
   try {
+    const symbol = getCurrencySymbol(currency);
     const itemSummary = items.map(it => `• ${it.quantity}x ${it.name}`).join("\n");
-    const body = `✅ ORDER CONFIRMED\n${businessName}\n\nSummary:\n${itemSummary}\n\nTotal: $${Number(total).toFixed(2)}\n\nThank you! We're preparing your order now.`;
+    const body = `✅ ORDER CONFIRMED\n${businessName}\n\nSummary:\n${itemSummary}\n\nTotal: ${symbol}${Number(total).toFixed(2)}\n\nThank you! We're preparing your order now.`;
 
     const message = await client.messages.create({
       body,

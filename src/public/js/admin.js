@@ -935,9 +935,77 @@ async function renderBusinessInfo(content) {
         <div class="form-group">
           <label>Currency</label>
           <select id="bizCurrency" class="form-control">
-            <option value="USD" ${b.currency === 'USD' ? 'selected' : ''}>USD ($)</option>
-            <option value="EUR" ${b.currency === 'EUR' ? 'selected' : ''}>EUR (€)</option>
-            <option value="GBP" ${b.currency === 'GBP' ? 'selected' : ''}>GBP (£)</option>
+            <optgroup label="Major Global Currencies">
+              <option value="USD" ${b.currency === 'USD' ? 'selected' : ''}>USD ($) — US Dollar</option>
+              <option value="EUR" ${b.currency === 'EUR' ? 'selected' : ''}>EUR (€) — Euro</option>
+              <option value="GBP" ${b.currency === 'GBP' ? 'selected' : ''}>GBP (£) — British Pound Sterling</option>
+              <option value="CAD" ${b.currency === 'CAD' ? 'selected' : ''}>CAD (CA$) — Canadian Dollar</option>
+              <option value="AUD" ${b.currency === 'AUD' ? 'selected' : ''}>AUD (A$) — Australian Dollar</option>
+            </optgroup>
+            <optgroup label="Middle East & North Africa">
+              <option value="AED" ${b.currency === 'AED' ? 'selected' : ''}>AED (AED) — UAE Dirham</option>
+              <option value="SAR" ${b.currency === 'SAR' ? 'selected' : ''}>SAR (SAR) — Saudi Riyal</option>
+              <option value="QAR" ${b.currency === 'QAR' ? 'selected' : ''}>QAR (QAR) — Qatari Riyal</option>
+              <option value="KWD" ${b.currency === 'KWD' ? 'selected' : ''}>KWD (KWD) — Kuwaiti Dinar</option>
+              <option value="BHD" ${b.currency === 'BHD' ? 'selected' : ''}>BHD (BHD) — Bahraini Dinar</option>
+              <option value="OMR" ${b.currency === 'OMR' ? 'selected' : ''}>OMR (OMR) — Omani Rial</option>
+              <option value="JOD" ${b.currency === 'JOD' ? 'selected' : ''}>JOD (JOD) — Jordanian Dinar</option>
+              <option value="IQD" ${b.currency === 'IQD' ? 'selected' : ''}>IQD (IQD) — Iraqi Dinar</option>
+              <option value="LBP" ${b.currency === 'LBP' ? 'selected' : ''}>LBP (LBP) — Lebanese Pound</option>
+              <option value="EGP" ${b.currency === 'EGP' ? 'selected' : ''}>EGP (E£) — Egyptian Pound</option>
+              <option value="MAD" ${b.currency === 'MAD' ? 'selected' : ''}>MAD (MAD) — Moroccan Dirham</option>
+              <option value="DZD" ${b.currency === 'DZD' ? 'selected' : ''}>DZD (DZD) — Algerian Dinar</option>
+              <option value="TND" ${b.currency === 'TND' ? 'selected' : ''}>TND (TND) — Tunisian Dinar</option>
+              <option value="ILS" ${b.currency === 'ILS' ? 'selected' : ''}>ILS (₪) — Israeli New Shekel</option>
+            </optgroup>
+            <optgroup label="South Asia">
+              <option value="PKR" ${b.currency === 'PKR' ? 'selected' : ''}>PKR (Rs) — Pakistani Rupee</option>
+              <option value="INR" ${b.currency === 'INR' ? 'selected' : ''}>INR (₹) — Indian Rupee</option>
+              <option value="BDT" ${b.currency === 'BDT' ? 'selected' : ''}>BDT (৳) — Bangladeshi Taka</option>
+              <option value="LKR" ${b.currency === 'LKR' ? 'selected' : ''}>LKR (Rs) — Sri Lankan Rupee</option>
+              <option value="NPR" ${b.currency === 'NPR' ? 'selected' : ''}>NPR (Rs) — Nepalese Rupee</option>
+              <option value="AFN" ${b.currency === 'AFN' ? 'selected' : ''}>AFN (؋) — Afghan Afghani</option>
+              <option value="MVR" ${b.currency === 'MVR' ? 'selected' : ''}>MVR (Rf) — Maldivian Rufiyaa</option>
+            </optgroup>
+            <optgroup label="East & Southeast Asia">
+              <option value="SGD" ${b.currency === 'SGD' ? 'selected' : ''}>SGD (S$) — Singapore Dollar</option>
+              <option value="HKD" ${b.currency === 'HKD' ? 'selected' : ''}>HKD (HK$) — Hong Kong Dollar</option>
+              <option value="JPY" ${b.currency === 'JPY' ? 'selected' : ''}>JPY (¥) — Japanese Yen</option>
+              <option value="CNY" ${b.currency === 'CNY' ? 'selected' : ''}>CNY (¥) — Chinese Yuan</option>
+              <option value="KRW" ${b.currency === 'KRW' ? 'selected' : ''}>KRW (₩) — South Korean Won</option>
+              <option value="TWD" ${b.currency === 'TWD' ? 'selected' : ''}>TWD (NT$) — New Taiwan Dollar</option>
+              <option value="MYR" ${b.currency === 'MYR' ? 'selected' : ''}>MYR (RM) — Malaysian Ringgit</option>
+              <option value="THB" ${b.currency === 'THB' ? 'selected' : ''}>THB (฿) — Thai Baht</option>
+              <option value="IDR" ${b.currency === 'IDR' ? 'selected' : ''}>IDR (Rp) — Indonesian Rupiah</option>
+              <option value="PHP" ${b.currency === 'PHP' ? 'selected' : ''}>PHP (₱) — Philippine Peso</option>
+              <option value="VND" ${b.currency === 'VND' ? 'selected' : ''}>VND (₫) — Vietnamese Dong</option>
+            </optgroup>
+            <optgroup label="Americas">
+              <option value="MXN" ${b.currency === 'MXN' ? 'selected' : ''}>MXN (MX$) — Mexican Peso</option>
+              <option value="BRL" ${b.currency === 'BRL' ? 'selected' : ''}>BRL (R$) — Brazilian Real</option>
+              <option value="ARS" ${b.currency === 'ARS' ? 'selected' : ''}>ARS (AR$) — Argentine Peso</option>
+              <option value="CLP" ${b.currency === 'CLP' ? 'selected' : ''}>CLP (CL$) — Chilean Peso</option>
+              <option value="COP" ${b.currency === 'COP' ? 'selected' : ''}>COP (COL$) — Colombian Peso</option>
+              <option value="PEN" ${b.currency === 'PEN' ? 'selected' : ''}>PEN (S/) — Peruvian Sol</option>
+            </optgroup>
+            <optgroup label="Europe & Central Asia">
+              <option value="CHF" ${b.currency === 'CHF' ? 'selected' : ''}>CHF (CHF) — Swiss Franc</option>
+              <option value="SEK" ${b.currency === 'SEK' ? 'selected' : ''}>SEK (kr) — Swedish Krona</option>
+              <option value="NOK" ${b.currency === 'NOK' ? 'selected' : ''}>NOK (kr) — Norwegian Krone</option>
+              <option value="DKK" ${b.currency === 'DKK' ? 'selected' : ''}>DKK (kr) — Danish Krone</option>
+              <option value="PLN" ${b.currency === 'PLN' ? 'selected' : ''}>PLN (zł) — Polish Zloty</option>
+              <option value="CZK" ${b.currency === 'CZK' ? 'selected' : ''}>CZK (Kč) — Czech Koruna</option>
+              <option value="HUF" ${b.currency === 'HUF' ? 'selected' : ''}>HUF (Ft) — Hungarian Forint</option>
+              <option value="TRY" ${b.currency === 'TRY' ? 'selected' : ''}>TRY (₺) — Turkish Lira</option>
+              <option value="RUB" ${b.currency === 'RUB' ? 'selected' : ''}>RUB (₽) — Russian Ruble</option>
+            </optgroup>
+            <optgroup label="Africa & Oceania">
+              <option value="ZAR" ${b.currency === 'ZAR' ? 'selected' : ''}>ZAR (R) — South African Rand</option>
+              <option value="NGN" ${b.currency === 'NGN' ? 'selected' : ''}>NGN (₦) — Nigerian Naira</option>
+              <option value="KES" ${b.currency === 'KES' ? 'selected' : ''}>KES (KSh) — Kenyan Shilling</option>
+              <option value="GHS" ${b.currency === 'GHS' ? 'selected' : ''}>GHS (GH₵) — Ghanaian Cedi</option>
+              <option value="NZD" ${b.currency === 'NZD' ? 'selected' : ''}>NZD (NZ$) — New Zealand Dollar</option>
+            </optgroup>
           </select>
         </div>
         <div class="form-group">

@@ -84,10 +84,70 @@
       <div class="form-group-premium">
         <label><i data-lucide="coins"></i> Primary Currency</label>
         <select id="bizCurrency" class="form-control-premium">
-          <option value="USD" <%= business.currency === 'USD' ? 'selected' : '' %>>USD ($) — US Dollar</option>
-          <option value="EUR" <%= business.currency === 'EUR' ? 'selected' : '' %>>EUR (€) — Euro</option>
-          <option value="GBP" <%= business.currency === 'GBP' ? 'selected' : '' %>>GBP (£) — British Pound</option>
-          <option value="AED" <%= business.currency === 'AED' ? 'selected' : '' %>>AED (DH) — UAE Dirham</option>
+          <optgroup label="🌐 Major Global Currencies">
+            <option value="USD" <%= business.currency === 'USD' ? 'selected' : '' %>>USD ($) — US Dollar</option>
+            <option value="EUR" <%= business.currency === 'EUR' ? 'selected' : '' %>>EUR (€) — Euro</option>
+            <option value="GBP" <%= business.currency === 'GBP' ? 'selected' : '' %>>GBP (£) — British Pound Sterling</option>
+            <option value="CAD" <%= business.currency === 'CAD' ? 'selected' : '' %>>CAD (CA$) — Canadian Dollar</option>
+            <option value="AUD" <%= business.currency === 'AUD' ? 'selected' : '' %>>AUD (A$) — Australian Dollar</option>
+          </optgroup>
+          <optgroup label="🇦🇪 🇸🇦 🇪🇬 Middle East & North Africa">
+            <option value="AED" <%= business.currency === 'AED' ? 'selected' : '' %>>AED (AED) — UAE Dirham</option>
+            <option value="SAR" <%= business.currency === 'SAR' ? 'selected' : '' %>>SAR (SAR) — Saudi Riyal</option>
+            <option value="QAR" <%= business.currency === 'QAR' ? 'selected' : '' %>>QAR (QAR) — Qatari Riyal</option>
+            <option value="KWD" <%= business.currency === 'KWD' ? 'selected' : '' %>>KWD (KWD) — Kuwaiti Dinar</option>
+            <option value="BHD" <%= business.currency === 'BHD' ? 'selected' : '' %>>BHD (BHD) — Bahraini Dinar</option>
+            <option value="OMR" <%= business.currency === 'OMR' ? 'selected' : '' %>>OMR (OMR) — Omani Rial</option>
+            <option value="JOD" <%= business.currency === 'JOD' ? 'selected' : '' %>>JOD (JOD) — Jordanian Dinar</option>
+            <option value="EGP" <%= business.currency === 'EGP' ? 'selected' : '' %>>EGP (E£) — Egyptian Pound</option>
+            <option value="MAD" <%= business.currency === 'MAD' ? 'selected' : '' %>>MAD (MAD) — Moroccan Dirham</option>
+          </optgroup>
+          <optgroup label="🇵🇰 🇮🇳 🇧🇩 South Asia">
+            <option value="PKR" <%= business.currency === 'PKR' ? 'selected' : '' %>>PKR (Rs) — Pakistani Rupee</option>
+            <option value="INR" <%= business.currency === 'INR' ? 'selected' : '' %>>INR (₹) — Indian Rupee</option>
+            <option value="BDT" <%= business.currency === 'BDT' ? 'selected' : '' %>>BDT (৳) — Bangladeshi Taka</option>
+            <option value="LKR" <%= business.currency === 'LKR' ? 'selected' : '' %>>LKR (Rs) — Sri Lankan Rupee</option>
+            <option value="NPR" <%= business.currency === 'NPR' ? 'selected' : '' %>>NPR (Rs) — Nepalese Rupee</option>
+          </optgroup>
+          <optgroup label="🇸🇬 🇯🇵 🇨🇳 East & Southeast Asia">
+            <option value="SGD" <%= business.currency === 'SGD' ? 'selected' : '' %>>SGD (S$) — Singapore Dollar</option>
+            <option value="HKD" <%= business.currency === 'HKD' ? 'selected' : '' %>>HKD (HK$) — Hong Kong Dollar</option>
+            <option value="JPY" <%= business.currency === 'JPY' ? 'selected' : '' %>>JPY (¥) — Japanese Yen</option>
+            <option value="CNY" <%= business.currency === 'CNY' ? 'selected' : '' %>>CNY (¥) — Chinese Yuan</option>
+            <option value="KRW" <%= business.currency === 'KRW' ? 'selected' : '' %>>KRW (₩) — South Korean Won</option>
+            <option value="TWD" <%= business.currency === 'TWD' ? 'selected' : '' %>>TWD (NT$) — New Taiwan Dollar</option>
+            <option value="MYR" <%= business.currency === 'MYR' ? 'selected' : '' %>>MYR (RM) — Malaysian Ringgit</option>
+            <option value="THB" <%= business.currency === 'THB' ? 'selected' : '' %>>THB (฿) — Thai Baht</option>
+            <option value="IDR" <%= business.currency === 'IDR' ? 'selected' : '' %>>IDR (Rp) — Indonesian Rupiah</option>
+            <option value="PHP" <%= business.currency === 'PHP' ? 'selected' : '' %>>PHP (₱) — Philippine Peso</option>
+            <option value="VND" <%= business.currency === 'VND' ? 'selected' : '' %>>VND (₫) — Vietnamese Dong</option>
+          </optgroup>
+          <optgroup label="🇲🇽 🇧🇷 🇦🇷 Americas">
+            <option value="MXN" <%= business.currency === 'MXN' ? 'selected' : '' %>>MXN (MX$) — Mexican Peso</option>
+            <option value="BRL" <%= business.currency === 'BRL' ? 'selected' : '' %>>BRL (R$) — Brazilian Real</option>
+            <option value="ARS" <%= business.currency === 'ARS' ? 'selected' : '' %>>ARS (AR$) — Argentine Peso</option>
+            <option value="CLP" <%= business.currency === 'CLP' ? 'selected' : '' %>>CLP (CL$) — Chilean Peso</option>
+            <option value="COP" <%= business.currency === 'COP' ? 'selected' : '' %>>COP (COL$) — Colombian Peso</option>
+            <option value="PEN" <%= business.currency === 'PEN' ? 'selected' : '' %>>PEN (S/) — Peruvian Sol</option>
+          </optgroup>
+          <optgroup label="🇪🇺 Europe & Others">
+            <option value="CHF" <%= business.currency === 'CHF' ? 'selected' : '' %>>CHF (CHF) — Swiss Franc</option>
+            <option value="SEK" <%= business.currency === 'SEK' ? 'selected' : '' %>>SEK (kr) — Swedish Krona</option>
+            <option value="NOK" <%= business.currency === 'NOK' ? 'selected' : '' %>>NOK (kr) — Norwegian Krone</option>
+            <option value="DKK" <%= business.currency === 'DKK' ? 'selected' : '' %>>DKK (kr) — Danish Krone</option>
+            <option value="PLN" <%= business.currency === 'PLN' ? 'selected' : '' %>>PLN (zł) — Polish Zloty</option>
+            <option value="CZK" <%= business.currency === 'CZK' ? 'selected' : '' %>>CZK (Kč) — Czech Koruna</option>
+            <option value="HUF" <%= business.currency === 'HUF' ? 'selected' : '' %>>HUF (Ft) — Hungarian Forint</option>
+            <option value="TRY" <%= business.currency === 'TRY' ? 'selected' : '' %>>TRY (₺) — Turkish Lira</option>
+            <option value="RUB" <%= business.currency === 'RUB' ? 'selected' : '' %>>RUB (₽) — Russian Ruble</option>
+          </optgroup>
+          <optgroup label="🇿🇦 🇳🇬 🇳🇿 Africa & Oceania">
+            <option value="ZAR" <%= business.currency === 'ZAR' ? 'selected' : '' %>>ZAR (R) — South African Rand</option>
+            <option value="NGN" <%= business.currency === 'NGN' ? 'selected' : '' %>>NGN (₦) — Nigerian Naira</option>
+            <option value="KES" <%= business.currency === 'KES' ? 'selected' : '' %>>KES (KSh) — Kenyan Shilling</option>
+            <option value="GHS" <%= business.currency === 'GHS' ? 'selected' : '' %>>GHS (GH₵) — Ghanaian Cedi</option>
+            <option value="NZD" <%= business.currency === 'NZD' ? 'selected' : '' %>>NZD (NZ$) — New Zealand Dollar</option>
+          </optgroup>
         </select>
       </div>
 

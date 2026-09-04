@@ -6,6 +6,7 @@ const { getAIResponse } = require("../../services/openai");
 const { getElevenLabsAudio } = require("../../services/elevenlabs");
 const IntegrationManager = require("../integrations/core/IntegrationManager");
 const appointmentService = require("../../services/appointment.service");
+const { getCurrencyDetails, getCurrencySymbol } = require("../../constants/currencies");
 
 const normalizeBusinessType = (businessType = "") => {
   const type = (businessType || "").toLowerCase();
@@ -839,14 +840,17 @@ You are ${business.aiName || "Sarah"}, the professional receptionist for ${busin
         }
       }
       
+      const currencyInfo = getCurrencyDetails(business.currency || "USD");
+      const currSymbol = currencyInfo.symbol;
+
       const vData = {
         business_id: business.id,
         business_name: business.name,
         agent_name: business.aiName || "Sarah",
-        services: servicesList.map(s => `${s.name} ($${s.price})`).join(", "),
+        services: servicesList.map(s => `${s.name} (${currSymbol}${s.price})`).join(", "),
         availability: availString,
         staff_members: staffList.map(s => s.name).join(", "),
-        business_settings: `Hours: ${business.openTime}-${business.closeTime}, Timezone: ${business.timezone || 'UTC'}.`,
+        business_settings: `Hours: ${business.openTime}-${business.closeTime}, Timezone: ${business.timezone || 'UTC'}, Currency: ${currencyInfo.code} (${currencyInfo.name}, Symbol: ${currSymbol}). ALWAYS quote all prices in ${currencyInfo.name} (${currSymbol}).`,
         current_date: new Intl.DateTimeFormat('en-US', { 
           weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
           hour: '2-digit', minute: '2-digit', timeZone: business.timezone || 'UTC'
@@ -864,7 +868,7 @@ You are ${business.aiName || "Sarah"}, the professional receptionist for ${busin
           menuByCategoryLines.push(`* Category: ${cat.name} (Items: ${catItemNames})`);
           
           for (const item of cat.items) {
-            menuDetailsLines.push(`- ${item.name} (${cat.name}): Price: $${item.price}, Ingredients/Description: ${item.description || 'None'}`);
+            menuDetailsLines.push(`- ${item.name} (${cat.name}): Price: ${currSymbol}${item.price}, Ingredients/Description: ${item.description || 'None'}`);
           }
         }
       }

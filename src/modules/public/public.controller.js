@@ -1,4 +1,5 @@
 const prisma = require("../../config/prisma");
+const { getCurrencySymbol, formatPrice } = require("../../constants/currencies");
 
 /**
  * renderMobileMenu
@@ -54,10 +55,14 @@ exports.renderMobileMenu = async (req, res) => {
       }));
     }
 
+    const currencySymbol = getCurrencySymbol(business.currency || "USD");
+
     res.render("public-menu", {
       business,
       categories,
       isAppt,
+      currencySymbol,
+      formatPrice: (amt) => formatPrice(amt, business.currency || "USD"),
       layout: false
     });
   } catch (error) {
