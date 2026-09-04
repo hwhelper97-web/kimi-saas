@@ -163,8 +163,7 @@ async function purgeTenantById(tenantId) {
     prisma.staff.findMany({ where: { tenantId }, select: { id: true } }).then(res => res.map(r => r.id))
   ]);
 
-  // 2. Perform Cascaded Purge (Batched for stability)
-  // Batch 1: Communication & Support Data
+  // Step 1: Communication, Tickets, Support & Messages
   await prisma.$transaction([
     prisma.conversationMessage.deleteMany({ where: { conversationId: { in: convoIds } } }),
     prisma.ticketMessage.deleteMany({ where: { ticketId: { in: ticketIds } } }),
@@ -173,9 +172,17 @@ async function purgeTenantById(tenantId) {
     prisma.notification.deleteMany({ where: { tenantId } })
   ]);
 
-  // Batch 2: Commerce & Menus
+  // Step 2: Delete Conversations & Tickets explicitly BEFORE Customers & Users
+  await prisma.$transaction([
+    prisma.conversation.deleteMany({ where: { tenantId } }),
+    prisma.ticket.deleteMany({ where: { tenantId } })
+  ]);
+
+  // Step 3: Orders, Items & Menus
   await prisma.$transaction([
     prisma.orderItem.deleteMany({ where: { tenantId } }),
+    prisma.order.deleteMany({ where: { tenantId } }),
+    prisma.comboMeal.deleteMany({ where: { tenantId } }),
     prisma.menuVariant.deleteMany({ where: { tenantId } }),
     prisma.menuOption.deleteMany({ where: { tenantId } }),
     prisma.menuSize.deleteMany({ where: { tenantId } }),
@@ -185,31 +192,40 @@ async function purgeTenantById(tenantId) {
     prisma.menuItemAddon.deleteMany({ where: { menuItem: { tenantId } } }),
     prisma.menuItemModifierGroup.deleteMany({ where: { menuItem: { tenantId } } }),
     prisma.modifierOption.deleteMany({ where: { group: { tenantId } } }),
-    prisma.order.deleteMany({ where: { tenantId } }),
     prisma.menuItem.deleteMany({ where: { tenantId } }),
     prisma.menuCategory.deleteMany({ where: { tenantId } }),
+    prisma.menuOptionGroup.deleteMany({ where: { tenantId } }),
     prisma.modifierGroup.deleteMany({ where: { tenantId } })
   ]);
 
-  // Batch 3: Appointments & Staffing
-  const batch3 = [
+  // Step 4: Appointments, Services & Staffing
+  const batch4 = [
     prisma.serviceVariant.deleteMany({ where: { service: { tenantId } } }),
     prisma.serviceAddon.deleteMany({ where: { service: { tenantId } } }),
     prisma.serviceAvailability.deleteMany({ where: { service: { tenantId } } }),
     prisma.serviceAlias.deleteMany({ where: { service: { tenantId } } }),
     prisma.appointmentService.deleteMany({ where: { tenantId } }),
     prisma.serviceCategory.deleteMany({ where: { tenantId } }),
-    prisma.staff.deleteMany({ where: { tenantId } }),
     prisma.appointment.deleteMany({ where: { tenantId } }),
     prisma.blockedTime.deleteMany({ where: { tenantId } })
   ];
   if (staffIds.length > 0) {
-    batch3.unshift(prisma.staffService.deleteMany({ where: { staffId: { in: staffIds } } }));
+    batch4.unshift(prisma.staffService.deleteMany({ where: { staffId: { in: staffIds } } }));
   }
-  await prisma.$transaction(batch3);
+  await prisma.$transaction(batch4);
 
-  // Batch 4: Infrastructure & Final Purge
-  const batch4 = [
+  // Step 5: Staff & Calls & Routing Rules
+  await prisma.$transaction([
+    prisma.staff.deleteMany({ where: { tenantId } }),
+    prisma.call.deleteMany({ where: { tenantId } }),
+    prisma.callRoutingRule.deleteMany({ where: { tenantId } }),
+    prisma.callAnalytics.deleteMany({ where: { tenantId } }),
+    prisma.tenantPhoneNumber.deleteMany({ where: { tenantId } })
+  ]);
+
+  // Step 6: Customers, Integrations & Knowledge Base
+  await prisma.$transaction([
+    prisma.customer.deleteMany({ where: { tenantId } }),
     prisma.integrationLog.deleteMany({ where: { integration: { tenantId } } }),
     prisma.integrationCredential.deleteMany({ where: { integration: { tenantId } } }),
     prisma.integration.deleteMany({ where: { tenantId } }),
@@ -220,19 +236,19 @@ async function purgeTenantById(tenantId) {
     prisma.supportDepartment.deleteMany({ where: { tenantId } }),
     prisma.externalMapping.deleteMany({ where: { tenantId } }),
     prisma.mintRequest.deleteMany({ where: { tenantId } }),
-    prisma.demoSession.deleteMany({ where: { tenantId } }),
-    prisma.tenantPhoneNumber.deleteMany({ where: { tenantId } }),
-    prisma.callRoutingRule.deleteMany({ where: { tenantId } }),
-    prisma.callAnalytics.deleteMany({ where: { tenantId } }),
-    prisma.customer.deleteMany({ where: { tenantId } }),
+    prisma.demoSession.deleteMany({ where: { tenantId } })
+  ]);
+
+  // Step 7: Users, Businesses & Tenant final deletion
+  const batch7 = [
     prisma.business.deleteMany({ where: { tenantId } }),
     prisma.user.deleteMany({ where: { tenantId } }),
     prisma.tenant.delete({ where: { id: tenantId } })
   ];
   if (userIds.length > 0) {
-    batch4.unshift(prisma.employeeProfile.deleteMany({ where: { userId: { in: userIds } } }));
+    batch7.unshift(prisma.employeeProfile.deleteMany({ where: { userId: { in: userIds } } }));
   }
-  await prisma.$transaction(batch4);
+  await prisma.$transaction(batch7);
 }
 
 /* ======================================
