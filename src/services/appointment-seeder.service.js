@@ -188,13 +188,68 @@ const DEFAULT_STRUCTURES = {
       ]
     }
   ],
-  "Car Detailing": [
+
+  // 🚗 AUTO & AUTOMOTIVE SERVICES
+  "Auto Repair & Mechanic Shop": [
     {
-      name: "Auto Care",
+      name: "General Maintenance",
+      services: [
+        { name: "Full Synthetic Oil Change", duration: 45, price: 65 },
+        { name: "Brake Pad Inspection & Replacement", duration: 60, price: 150 },
+        { name: "Computerized Engine Diagnostics", duration: 45, price: 90 },
+        { name: "Battery Testing & Replacement", duration: 30, price: 120 }
+      ]
+    }
+  ],
+  "Car Wash & Auto Detailing": [
+    {
+      name: "Auto Detailing",
       services: [
         { name: "Full Interior Deep Clean", duration: 90, price: 120 },
         { name: "Exterior Polish & Hand Wash", duration: 60, price: 80 },
-        { name: "Ceramic Coating Application", duration: 180, price: 450 }
+        { name: "Ceramic Coating Application", duration: 180, price: 450 },
+        { name: "Headlight Restoration", duration: 45, price: 60 }
+      ]
+    }
+  ],
+  "Tire & Wheel Center": [
+    {
+      name: "Tire Services",
+      services: [
+        { name: "Computerized Wheel Alignment", duration: 45, price: 85 },
+        { name: "Tire Rotation & Balancing", duration: 30, price: 45 },
+        { name: "Puncture Repair & Patch", duration: 25, price: 25 },
+        { name: "Seasonal Tire Swap", duration: 45, price: 60 }
+      ]
+    }
+  ],
+  "Auto Body & Paint Shop": [
+    {
+      name: "Collision & Paint",
+      services: [
+        { name: "Paintless Dent Repair Inspection", duration: 30, price: 50 },
+        { name: "Bumper Scratch & Dent Repair", duration: 120, price: 250 },
+        { name: "Full Body Panel Paint Consultation", duration: 45, price: 100 }
+      ]
+    }
+  ],
+  "Auto Glass & Windshield Repair": [
+    {
+      name: "Glass Services",
+      services: [
+        { name: "Windshield Chip & Crack Repair", duration: 30, price: 60 },
+        { name: "Full Windshield Replacement Inspection", duration: 45, price: 220 },
+        { name: "Window Tinting (Full Car)", duration: 120, price: 180 }
+      ]
+    }
+  ],
+  "Mobile Mechanic Service": [
+    {
+      name: "On-Site Auto Care",
+      services: [
+        { name: "On-Site Vehicle Diagnostic Visit", duration: 45, price: 95 },
+        { name: "Mobile Battery Replacement", duration: 30, price: 130 },
+        { name: "Emergency Roadside Jumpstart", duration: 30, price: 65 }
       ]
     }
   ]
@@ -202,6 +257,13 @@ const DEFAULT_STRUCTURES = {
 
 // Map similar business types to existing structures
 const TYPE_MAPPING = {
+  "car detailing": "Car Wash & Auto Detailing",
+  "auto repair": "Auto Repair & Mechanic Shop",
+  "car mechanic": "Auto Repair & Mechanic Shop",
+  "tire center": "Tire & Wheel Center",
+  "auto body shop": "Auto Body & Paint Shop",
+  "auto glass": "Auto Glass & Windshield Repair",
+  "mobile mechanic": "Mobile Mechanic Service",
   "hair salon / barber": "Barber Shop",
   "beauty salon": "Salon",
   "makeup artist": "Salon",
