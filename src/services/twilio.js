@@ -112,40 +112,66 @@ async function purchaseAndConfigureNumber(phoneNumber, businessId = null) {
     tenantId = firstT ? firstT.id : "PLATFORM";
   }
 
-  // 3. Register or update number in PostgreSQL DB safely without unique businessId constraint error
+  // 3. Register or update number in PostgreSQL DB safely without unique constraint errors
   let dbRecord = null;
-  if (businessId) {
-    dbRecord = await prisma.tenantPhoneNumber.findFirst({
-      where: { businessId: businessId }
-    });
-  }
+  let numberRecord = await prisma.tenantPhoneNumber.findFirst({
+    where: { twilioPhoneNumber: purchased.phoneNumber }
+  });
 
-  if (!dbRecord) {
-    dbRecord = await prisma.tenantPhoneNumber.findFirst({
-      where: { twilioPhoneNumber: purchased.phoneNumber }
-    });
-  }
-
-  if (dbRecord) {
+  if (numberRecord) {
+    if (businessId) {
+      await prisma.tenantPhoneNumber.deleteMany({
+        where: {
+          businessId: businessId,
+          id: { not: numberRecord.id }
+        }
+      });
+    }
     dbRecord = await prisma.tenantPhoneNumber.update({
-      where: { id: dbRecord.id },
+      where: { id: numberRecord.id },
       data: {
-        twilioPhoneNumber: purchased.phoneNumber,
         twilioSid: purchased.sid,
         tenantId: tenantId,
-        businessId: businessId || dbRecord.businessId,
+        businessId: businessId || numberRecord.businessId,
         status: "ACTIVE",
         provider: "TWILIO"
       }
     });
+  } else if (businessId) {
+    let bizRecord = await prisma.tenantPhoneNumber.findFirst({
+      where: { businessId: businessId }
+    });
+
+    if (bizRecord) {
+      dbRecord = await prisma.tenantPhoneNumber.update({
+        where: { id: bizRecord.id },
+        data: {
+          twilioPhoneNumber: purchased.phoneNumber,
+          twilioSid: purchased.sid,
+          tenantId: tenantId,
+          status: "ACTIVE",
+          provider: "TWILIO"
+        }
+      });
+    } else {
+      dbRecord = await prisma.tenantPhoneNumber.create({
+        data: {
+          twilioPhoneNumber: purchased.phoneNumber,
+          twilioSid: purchased.sid,
+          tenantId: tenantId,
+          businessId: businessId,
+          status: "ACTIVE",
+          provider: "TWILIO"
+        }
+      });
+    }
   } else {
     dbRecord = await prisma.tenantPhoneNumber.create({
       data: {
         twilioPhoneNumber: purchased.phoneNumber,
         twilioSid: purchased.sid,
         tenantId: tenantId,
-        businessId: businessId || null,
-        status: businessId ? "ACTIVE" : "UNASSIGNED",
+        status: "UNASSIGNED",
         provider: "TWILIO"
       }
     });
@@ -191,22 +217,24 @@ async function linkExistingNumber(phoneNumber, businessId) {
     }
   }
 
-  // 2. Safely register or update in DB
-  let dbRecord = await prisma.tenantPhoneNumber.findFirst({
-    where: { businessId: biz.id }
+  // 2. Safely register or update in DB without twilioPhoneNumber or businessId unique constraint errors
+  let dbRecord = null;
+  let numberRecord = await prisma.tenantPhoneNumber.findFirst({
+    where: { twilioPhoneNumber: phoneNumber }
   });
 
-  if (!dbRecord) {
-    dbRecord = await prisma.tenantPhoneNumber.findFirst({
-      where: { twilioPhoneNumber: phoneNumber }
+  if (numberRecord) {
+    // Delete any placeholder 'PENDING' record for this business to avoid businessId unique collision
+    await prisma.tenantPhoneNumber.deleteMany({
+      where: {
+        businessId: biz.id,
+        id: { not: numberRecord.id }
+      }
     });
-  }
 
-  if (dbRecord) {
     dbRecord = await prisma.tenantPhoneNumber.update({
-      where: { id: dbRecord.id },
+      where: { id: numberRecord.id },
       data: {
-        twilioPhoneNumber: phoneNumber,
         businessId: biz.id,
         tenantId: biz.tenantId,
         status: "ACTIVE",
@@ -214,15 +242,31 @@ async function linkExistingNumber(phoneNumber, businessId) {
       }
     });
   } else {
-    dbRecord = await prisma.tenantPhoneNumber.create({
-      data: {
-        twilioPhoneNumber: phoneNumber,
-        businessId: biz.id,
-        tenantId: biz.tenantId,
-        status: "ACTIVE",
-        provider: "TWILIO"
-      }
+    let bizRecord = await prisma.tenantPhoneNumber.findFirst({
+      where: { businessId: biz.id }
     });
+
+    if (bizRecord) {
+      dbRecord = await prisma.tenantPhoneNumber.update({
+        where: { id: bizRecord.id },
+        data: {
+          twilioPhoneNumber: phoneNumber,
+          tenantId: biz.tenantId,
+          status: "ACTIVE",
+          provider: "TWILIO"
+        }
+      });
+    } else {
+      dbRecord = await prisma.tenantPhoneNumber.create({
+        data: {
+          twilioPhoneNumber: phoneNumber,
+          businessId: biz.id,
+          tenantId: biz.tenantId,
+          status: "ACTIVE",
+          provider: "TWILIO"
+        }
+      });
+    }
   }
 
   return dbRecord;

@@ -416,6 +416,24 @@
     </div>
   </div>
 
+  <!-- 💎 Premium Custom Confirmation Modal -->
+  <div id="confirmModal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(5, 8, 16, 0.8); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); align-items:center; justify-content:center; padding:1.5rem;">
+    <div class="glass-card entrance-fade-up" style="max-width:480px; width:100%; padding:2.25rem 2rem; border:1px solid rgba(0, 242, 255, 0.3); border-radius:1.5rem; background:linear-gradient(145deg, rgba(18, 24, 38, 0.96) 0%, rgba(10, 14, 26, 0.98) 100%); box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(0,242,255,0.15); text-align:center; position:relative;">
+      
+      <div id="confirmModalIconBox" style="width:64px; height:64px; border-radius:1.25rem; background:rgba(0, 242, 255, 0.1); border:1px solid rgba(0,242,255,0.25); color:#00f2ff; display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem auto;">
+        <i id="confirmModalIcon" data-lucide="shield-alert" style="width:32px; height:32px;"></i>
+      </div>
+
+      <h3 id="confirmModalTitle" style="color:#ffffff; font-size:1.3rem; font-weight:800; margin-bottom:0.5rem; letter-spacing:-0.01em;">Confirm Action</h3>
+      <div id="confirmModalText" style="color:var(--text-muted); font-size:0.9rem; line-height:1.5; margin-bottom:1.75rem;">Are you sure you want to proceed?</div>
+
+      <div style="display:flex; gap:1rem; justify-content:center;">
+        <button type="button" class="apex-btn-outline" onclick="closeConfirmModal()" style="flex:1; padding:0.8rem 1rem;">Cancel</button>
+        <button type="button" id="confirmModalBtn" class="apex-btn" style="flex:1; padding:0.8rem 1rem; background:linear-gradient(135deg, #00f2ff 0%, #0099ff 100%); color:#000000; font-weight:800; border:none; box-shadow:0 4px 15px rgba(0,242,255,0.3);">Confirm</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <style>
@@ -1134,62 +1152,112 @@
     }
   }
 
-  async function purchaseNumber(phoneNumber) {
-    if (!confirm(`Are you sure you want to purchase ${phoneNumber}? This will establish a secure AI bridge for your business.`)) return;
+  // --- Custom Confirm Modal Helper ---
+  function showConfirmModal({ title, text, icon = 'shield-alert', confirmText = 'Confirm', onConfirm }) {
+    const modal = document.getElementById('confirmModal');
+    if (!modal) return;
 
-    try {
-      const res = await fetch('/api/call/provision/purchase', {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + (localStorage.getItem("accessToken") || window.token)
-        },
-        body: JSON.stringify({ phoneNumber, businessId: getBusinessId() })
-      });
-      const result = await res.json();
-      
-      if (result.success) {
-        notify("Secure line successfully provisioned!", "Success");
-        if (document.getElementById('naxtonAiPhone')) document.getElementById('naxtonAiPhone').value = phoneNumber;
-        document.querySelectorAll('.naxtonAiPhoneDisplay').forEach(el => el.textContent = phoneNumber);
-        document.getElementById('numberList').style.display = 'none';
-        document.getElementById('provisionBox').style.display = 'none';
-        loadPhoneConfig();
-      } else {
-        notify(result.error || "Provisioning failed", "Error");
-      }
-    } catch (err) {
-      notify("Neural link interrupted", "Error");
+    document.getElementById('confirmModalTitle').textContent = title || 'Confirm Action';
+    document.getElementById('confirmModalText').innerHTML = text || 'Are you sure you want to proceed?';
+    
+    const iconEl = document.getElementById('confirmModalIcon');
+    if (iconEl) {
+      iconEl.setAttribute('data-lucide', icon);
+      if (window.lucide) lucide.createIcons();
     }
+
+    const btn = document.getElementById('confirmModalBtn');
+    if (btn) {
+      btn.textContent = confirmText;
+      btn.onclick = async function() {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="spin" data-lucide="refresh-cw"></i> Processing...';
+        if (window.lucide) lucide.createIcons();
+        try {
+          if (onConfirm) await onConfirm();
+        } finally {
+          btn.disabled = false;
+          closeConfirmModal();
+        }
+      };
+    }
+
+    modal.style.display = 'flex';
   }
 
-  async function linkNumber(phoneNumber) {
-    if (!confirm(`Are you sure you want to link ${phoneNumber} to this business?`)) return;
+  function closeConfirmModal() {
+    const modal = document.getElementById('confirmModal');
+    if (modal) modal.style.display = 'none';
+  }
 
-    try {
-      const res = await fetch('/api/call/provision/link', {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + (localStorage.getItem("accessToken") || window.token)
-        },
-        body: JSON.stringify({ phoneNumber, businessId: getBusinessId() })
-      });
-      const result = await res.json();
-      
-      if (result.success) {
-        notify("Phone number successfully linked to business!", "Success");
-        if (document.getElementById('naxtonAiPhone')) document.getElementById('naxtonAiPhone').value = phoneNumber;
-        document.querySelectorAll('.naxtonAiPhoneDisplay').forEach(el => el.textContent = phoneNumber);
-        document.getElementById('numberList').style.display = 'none';
-        document.getElementById('provisionBox').style.display = 'none';
-        loadPhoneConfig();
-      } else {
-        notify(result.error || "Linking failed", "Error");
+  function purchaseNumber(phoneNumber) {
+    showConfirmModal({
+      title: "Secure & Buy Twilio Line",
+      text: `Are you sure you want to purchase <strong style="color:#00f2ff; font-family:'JetBrains Mono', monospace;">${phoneNumber}</strong>?<br><span style="font-size:0.8rem; opacity:0.8; display:block; margin-top:0.4rem;">This will provision a dedicated 24/7 AI bridge for your business.</span>`,
+      icon: "shopping-bag",
+      confirmText: "Buy & Link Line",
+      onConfirm: async () => {
+        try {
+          const res = await fetch('/api/call/provision/purchase', {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + (localStorage.getItem("accessToken") || window.token)
+            },
+            body: JSON.stringify({ phoneNumber, businessId: getBusinessId() })
+          });
+          const result = await res.json();
+          
+          if (result.success) {
+            notify("Secure line successfully provisioned!", "Success");
+            if (document.getElementById('naxtonAiPhone')) document.getElementById('naxtonAiPhone').value = phoneNumber;
+            document.querySelectorAll('.naxtonAiPhoneDisplay').forEach(el => el.textContent = phoneNumber);
+            document.getElementById('numberList').style.display = 'none';
+            document.getElementById('provisionBox').style.display = 'none';
+            loadPhoneConfig();
+          } else {
+            notify(result.error || "Provisioning failed", "Error");
+          }
+        } catch (err) {
+          notify("Neural link interrupted", "Error");
+        }
       }
-    } catch (err) {
-      notify("Network error linking number", "Error");
-    }
+    });
+  }
+
+  function linkNumber(phoneNumber) {
+    showConfirmModal({
+      title: "Link Account Inventory Line",
+      text: `Are you sure you want to link <strong style="color:#00f2ff; font-family:'JetBrains Mono', monospace;">${phoneNumber}</strong> to this business?<br><span style="font-size:0.8rem; opacity:0.8; display:block; margin-top:0.4rem;">Incoming calls will route directly to your AI receptionist.</span>`,
+      icon: "link",
+      confirmText: "Link Line Now",
+      onConfirm: async () => {
+        try {
+          const res = await fetch('/api/call/provision/link', {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + (localStorage.getItem("accessToken") || window.token)
+            },
+            body: JSON.stringify({ phoneNumber, businessId: getBusinessId() })
+          });
+          const result = await res.json();
+          
+          if (result.success) {
+            notify("Phone number successfully linked to business!", "Success");
+            if (document.getElementById('naxtonAiPhone')) document.getElementById('naxtonAiPhone').value = phoneNumber;
+            document.querySelectorAll('.naxtonAiPhoneDisplay').forEach(el => el.textContent = phoneNumber);
+            document.getElementById('numberList').style.display = 'none';
+            document.getElementById('provisionBox').style.display = 'none';
+            loadPhoneConfig();
+          } else {
+            notify(result.error || "Linking failed", "Error");
+          }
+        } catch (err) {
+          notify("Network error linking number", "Error");
+        }
+      }
+    });
   }
 
   // --- UI Helpers ---
