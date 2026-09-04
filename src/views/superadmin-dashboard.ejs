@@ -1565,12 +1565,12 @@
         </div>
 
         <script>
-          // Toggle debug console
+          // Toggle debug console (Safely check e.key)
           document.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 'd' && (e.ctrlKey || e.metaKey)) {
+            if (e && e.key && typeof e.key === 'string' && e.key.toLowerCase() === 'd' && (e.ctrlKey || e.metaKey)) {
               e.preventDefault();
               const d = document.getElementById('dashboardDebug');
-              d.style.display = d.style.display === 'none' ? 'block' : 'none';
+              if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none';
             }
           });
         </script>
@@ -4521,7 +4521,8 @@
       if (!password) return showError("Superadmin password required");
       
       const btn = document.getElementById("finalDeleteBtn");
-      btn.disabled = true; btn.innerHTML = `PURGING ${selectedTenantIds.size} TENANTS...`;
+      btn.disabled = true; 
+      btn.innerHTML = `<i class="spin" data-lucide="refresh-cw"></i> PURGING ${selectedTenantIds.size} TENANT${selectedTenantIds.size > 1 ? 'S' : ''}...`;
 
       try {
         const tenantIdsArr = Array.from(selectedTenantIds);
@@ -4538,15 +4539,16 @@
           showSuccess(r.message || `Purged ${r.deletedCount} tenants!`);
           closeDeleteModal();
           clearTenantSelection();
-          loadTenants();
+          await loadTenants();
         } else {
-          showError(r.message);
+          showError(r.message || "Bulk purge failed");
         }
       } catch (e) {
-        showError("Network error during bulk delete");
+        showError("Network error during bulk delete: " + (e.message || e));
       } finally {
         btn.disabled = false;
         btn.innerHTML = "PURGE ACCOUNT";
+        closeDeleteModal();
       }
     }
 
@@ -4571,14 +4573,29 @@
       const password = document.getElementById("confirmAdminPassword").value;
       if (!password) return showError("Password required");
       const btn = document.getElementById("finalDeleteBtn");
-      btn.disabled = true; btn.innerHTML = "PURGING...";
+      btn.disabled = true; 
+      btn.innerHTML = `<i class="spin" data-lucide="refresh-cw"></i> PURGING TENANT...`;
       try {
-        const res = await fetch(`/api/superadmin/tenants/${id}`, { method: "DELETE", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token }, body: JSON.stringify({ adminPassword: password }) });
+        const res = await fetch(`/api/superadmin/tenants/${id}`, { 
+          method: "DELETE", 
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token }, 
+          body: JSON.stringify({ adminPassword: password }) 
+        });
         const r = await res.json();
-        if (r.success) { showSuccess("Purged!"); closeDeleteModal(); loadTenants(); }
-        else showError(r.message);
-      } catch (e) { showError("Network error"); }
-      finally { btn.disabled = false; btn.innerHTML = "PURGE ACCOUNT"; }
+        if (r.success) { 
+          showSuccess(r.message || "Tenant purged successfully!"); 
+          closeDeleteModal(); 
+          await loadTenants(); 
+        } else { 
+          showError(r.message || "Deletion failed"); 
+        }
+      } catch (e) { 
+        showError("Network error during deletion: " + (e.message || e)); 
+      } finally { 
+        btn.disabled = false; 
+        btn.innerHTML = "PURGE ACCOUNT"; 
+        closeDeleteModal();
+      }
     }
 
     // God-Mode: redirect to /admin impersonating this business
