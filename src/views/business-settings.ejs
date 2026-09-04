@@ -958,13 +958,13 @@
         headers: { 'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token) }
       });
       const result = await res.json();
+      let phoneVal = '';
       if (result.success && result.data && result.data.length > 0) {
         const cfg = result.data[0];
         currentPhoneConfigId = cfg.id;
         
         if (cfg.twilioPhoneNumber && cfg.twilioPhoneNumber !== 'PENDING') {
-          if (document.getElementById('naxtonAiPhone')) document.getElementById('naxtonAiPhone').value = cfg.twilioPhoneNumber;
-          document.querySelectorAll('.naxtonAiPhoneDisplay').forEach(el => el.textContent = cfg.twilioPhoneNumber);
+          phoneVal = cfg.twilioPhoneNumber;
         }
         if (cfg.businessPhoneNumber && document.getElementById('existingBizPhone')) {
           document.getElementById('existingBizPhone').value = cfg.businessPhoneNumber;
@@ -1000,6 +1000,12 @@
           }
         }
       }
+
+      const phoneInput = document.getElementById('naxtonAiPhone');
+      if (phoneInput) {
+        phoneInput.value = phoneVal || 'No Twilio AI Line Linked';
+      }
+      document.querySelectorAll('.naxtonAiPhoneDisplay').forEach(el => el.textContent = phoneVal || 'No Twilio AI Line');
     } catch (e) {
       console.error("Failed loading phone config:", e);
     }
@@ -1076,31 +1082,54 @@
     const list = document.getElementById('numberList');
     if (!list) return;
 
-    if (!areaCode || areaCode.length < 3) return notify("Please enter a 3-digit area code", "Warning");
-    
-    list.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);"><div class="spin" style="margin:0 auto 1rem;"></div>Searching...</div>';
+    list.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);"><div class="spin" style="margin:0 auto 1rem;"></div>Searching numbers...</div>';
     list.style.display = 'block';
 
     try {
-      const res = await fetch(`/api/call/provision/search?areaCode=${areaCode}`, {
+      const res = await fetch(`/api/call/provision/search?areaCode=${areaCode || ''}&businessId=${getBusinessId()}`, {
         headers: { 'Authorization': 'Bearer ' + (localStorage.getItem("accessToken") || window.token) }
       });
       const result = await res.json();
       
-      if (result.success && result.data.length > 0) {
-        list.innerHTML = result.data.map(n => 
-          '<div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; border-bottom:1px solid var(--glass-border);">' +
-            '<span style="font-weight:600; font-family:\'JetBrains Mono\', monospace; color:white;">' + n.friendlyName + '</span>' +
-            '<button class="action-btn-premium" style="padding:0.4rem 0.8rem; font-size:0.7rem;" onclick="purchaseNumber(\'' + n.phoneNumber + '\')">' +
-              'Secure & Link' +
+      let html = '';
+
+      // 1. Show existing inventory numbers if any exist
+      if (result.inventory && result.inventory.length > 0) {
+        html += '<div style="margin-bottom:1.5rem;"><h5 style="color:#00f2ff; font-size:0.8rem; text-transform:uppercase; font-weight:700; margin-bottom:0.75rem;">📦 Existing Account Inventory Numbers</h5>';
+        html += result.inventory.map(n => 
+          '<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:0.75rem; margin-bottom:0.5rem;">' +
+            '<div>' +
+              '<span style="font-weight:700; font-family:\'JetBrains Mono\', monospace; color:white;">' + n.phoneNumber + '</span>' +
+              (n.businessName ? ' <span style="font-size:0.7rem; color:var(--text-muted);">(' + n.businessName + ')</span>' : ' <span style="font-size:0.7rem; color:#00ff88;">(Available)</span>') +
+            '</div>' +
+            '<button class="action-btn-premium" style="padding:0.35rem 0.75rem; font-size:0.75rem; background:rgba(0,242,255,0.1); color:#00f2ff; border-color:rgba(0,242,255,0.3);" onclick="linkNumber(\'' + n.phoneNumber + '\')">' +
+              '<i data-lucide="link"></i> Link to Business' +
             '</button>' +
           '</div>'
         ).join('');
-      } else {
-        list.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">No matching identifiers found in this region.</div>';
+        html += '</div>';
       }
+
+      // 2. Show new search results
+      if (result.success && result.data && result.data.length > 0) {
+        html += '<div><h5 style="color:#fff; font-size:0.8rem; text-transform:uppercase; font-weight:700; margin-bottom:0.75rem;">🌐 Buy New US Twilio Number</h5>';
+        html += result.data.map(n => 
+          '<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; border-bottom:1px solid var(--glass-border);">' +
+            '<span style="font-weight:600; font-family:\'JetBrains Mono\', monospace; color:white;">' + n.friendlyName + '</span>' +
+            '<button class="action-btn-premium" style="padding:0.35rem 0.75rem; font-size:0.75rem;" onclick="purchaseNumber(\'' + n.phoneNumber + '\')">' +
+              'Secure & Buy' +
+            '</button>' +
+          '</div>'
+        ).join('');
+        html += '</div>';
+      } else if (!result.inventory || result.inventory.length === 0) {
+        html = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">No matching phone numbers found. Try another area code.</div>';
+      }
+
+      list.innerHTML = html;
+      if (window.lucide) lucide.createIcons();
     } catch (err) {
-      notify("Intelligence search failed", "Error");
+      notify("Number search failed", "Error");
       list.style.display = 'none';
     }
   }
@@ -1131,6 +1160,35 @@
       }
     } catch (err) {
       notify("Neural link interrupted", "Error");
+    }
+  }
+
+  async function linkNumber(phoneNumber) {
+    if (!confirm(`Are you sure you want to link ${phoneNumber} to this business?`)) return;
+
+    try {
+      const res = await fetch('/api/call/provision/link', {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + (localStorage.getItem("accessToken") || window.token)
+        },
+        body: JSON.stringify({ phoneNumber, businessId: getBusinessId() })
+      });
+      const result = await res.json();
+      
+      if (result.success) {
+        notify("Phone number successfully linked to business!", "Success");
+        if (document.getElementById('naxtonAiPhone')) document.getElementById('naxtonAiPhone').value = phoneNumber;
+        document.querySelectorAll('.naxtonAiPhoneDisplay').forEach(el => el.textContent = phoneNumber);
+        document.getElementById('numberList').style.display = 'none';
+        document.getElementById('provisionBox').style.display = 'none';
+        loadPhoneConfig();
+      } else {
+        notify(result.error || "Linking failed", "Error");
+      }
+    } catch (err) {
+      notify("Network error linking number", "Error");
     }
   }
 

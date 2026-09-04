@@ -4,11 +4,23 @@ const smsService = require("../../services/sms.service");
 exports.getConfigs = async (req, res) => {
   try {
     const { businessId } = req.query;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId || req.tenantId;
+    const isSuperAdmin = req.user?.role === "SUPERADMIN";
 
-    const whereClause = req.user.role === "SUPERADMIN" 
-      ? (businessId ? { businessId } : {}) 
-      : { tenantId, ...(businessId ? { businessId } : {}) };
+    let whereClause = {};
+    if (businessId) {
+      if (!isSuperAdmin && tenantId) {
+        const biz = await prisma.business.findFirst({
+          where: { id: businessId, tenantId }
+        });
+        if (!biz) {
+          return res.status(403).json({ success: false, error: "Access denied to business" });
+        }
+      }
+      whereClause = { businessId };
+    } else if (!isSuperAdmin && tenantId) {
+      whereClause = { tenantId };
+    }
 
     const configs = await prisma.tenantPhoneNumber.findMany({
       where: whereClause,
@@ -36,43 +48,45 @@ exports.saveConfig = async (req, res) => {
       businessHours 
     } = req.body;
 
-    const tenantId = req.user.tenantId;
-    const isSuperAdmin = req.user.role === "SUPERADMIN";
+    const tenantId = req.user?.tenantId || req.tenantId;
+    const isSuperAdmin = req.user?.role === "SUPERADMIN";
     const { id } = req.params;
 
-    let config;
+    let targetRecord = null;
+
     if (id) {
-      // 🛡️ Verify tenant ownership before updating
-      const existing = await prisma.tenantPhoneNumber.findFirst({
+      targetRecord = await prisma.tenantPhoneNumber.findFirst({
         where: { id, ...(isSuperAdmin ? {} : { tenantId }) }
       });
+    } else if (businessId) {
+      targetRecord = await prisma.tenantPhoneNumber.findFirst({
+        where: { businessId }
+      });
+    }
 
-      if (!existing) {
-        return res.status(404).json({ success: false, error: "Phone configuration not found or access denied" });
-      }
-
-      // Check if transfer number changed
-      let transferVerificationStatus = existing.transferVerificationStatus;
-      if (transferNumber && transferNumber !== existing.transferNumber) {
+    let config;
+    if (targetRecord) {
+      let transferVerificationStatus = targetRecord.transferVerificationStatus;
+      if (transferNumber && transferNumber !== targetRecord.transferNumber) {
         transferVerificationStatus = "PENDING";
       }
 
       const updateData = {
-        businessId: businessId || existing.businessId,
-        businessPhoneNumber: businessPhoneNumber !== undefined ? businessPhoneNumber : existing.businessPhoneNumber,
-        transferNumber: transferNumber !== undefined ? transferNumber : existing.transferNumber,
-        fallbackNumber: fallbackNumber !== undefined ? fallbackNumber : existing.fallbackNumber,
-        aiEnabled: aiEnabled !== undefined ? Boolean(aiEnabled) : existing.aiEnabled,
-        humanTransferEnabled: humanTransferEnabled !== undefined ? Boolean(humanTransferEnabled) : existing.humanTransferEnabled,
-        transferTimeout: transferTimeout ? parseInt(transferTimeout, 10) : existing.transferTimeout,
-        recordingEnabled: recordingEnabled !== undefined ? Boolean(recordingEnabled) : existing.recordingEnabled,
-        forwardingEnabled: forwardingEnabled !== undefined ? Boolean(forwardingEnabled) : existing.forwardingEnabled,
+        businessId: businessId || targetRecord.businessId,
+        businessPhoneNumber: businessPhoneNumber !== undefined ? businessPhoneNumber : targetRecord.businessPhoneNumber,
+        transferNumber: transferNumber !== undefined ? transferNumber : targetRecord.transferNumber,
+        fallbackNumber: fallbackNumber !== undefined ? fallbackNumber : targetRecord.fallbackNumber,
+        aiEnabled: aiEnabled !== undefined ? Boolean(aiEnabled) : targetRecord.aiEnabled,
+        humanTransferEnabled: humanTransferEnabled !== undefined ? Boolean(humanTransferEnabled) : targetRecord.humanTransferEnabled,
+        transferTimeout: transferTimeout ? parseInt(transferTimeout, 10) : targetRecord.transferTimeout,
+        recordingEnabled: recordingEnabled !== undefined ? Boolean(recordingEnabled) : targetRecord.recordingEnabled,
+        forwardingEnabled: forwardingEnabled !== undefined ? Boolean(forwardingEnabled) : targetRecord.forwardingEnabled,
         transferVerificationStatus,
         businessHours: typeof businessHours === 'object' ? JSON.stringify(businessHours) : businessHours
       };
 
       config = await prisma.tenantPhoneNumber.update({
-        where: { id: existing.id },
+        where: { id: targetRecord.id },
         data: updateData
       });
     } else {

@@ -796,10 +796,31 @@ exports.testVoice = (req, res) => res.sendStatus(200);
    =============================== */
 exports.searchNumbers = async (req, res) => {
   try {
-    const { areaCode, countryCode } = req.query;
+    const { areaCode, countryCode, businessId } = req.query;
     const twilioService = require("../../services/twilio");
-    const numbers = await twilioService.searchAvailableNumbers(areaCode || "212", countryCode || "US");
-    return res.json({ success: true, data: numbers });
+    
+    // 1. Get available numbers to buy from Twilio API
+    const newNumbers = await twilioService.searchAvailableNumbers(areaCode || "212", countryCode || "US");
+
+    // 2. Also fetch existing active numbers in DB inventory that are available or assigned to master/tenant
+    const existingNumbers = await prisma.tenantPhoneNumber.findMany({
+      where: {
+        twilioPhoneNumber: { not: "PENDING" }
+      },
+      include: { business: true }
+    });
+
+    return res.json({
+      success: true,
+      data: newNumbers,
+      inventory: existingNumbers.map(n => ({
+        id: n.id,
+        phoneNumber: n.twilioPhoneNumber,
+        businessId: n.businessId,
+        businessName: n.business ? n.business.name : null,
+        status: n.status
+      }))
+    });
   } catch (error) {
     console.error("[Call] searchNumbers error:", error);
     return res.status(500).json({ success: false, error: error.message });
@@ -817,10 +838,11 @@ exports.purchaseNumber = async (req, res) => {
     }
 
     const isSuperAdmin = req.user && req.user.role === "SUPERADMIN";
+    const tenantId = req.tenantId || (req.user ? req.user.tenantId : null);
 
     // 🛡️ Verify business belongs to requester's tenant before executing purchase
     const business = await prisma.business.findFirst({
-      where: { id: businessId, ...(isSuperAdmin ? {} : { tenantId: req.tenantId }) }
+      where: { id: businessId, ...(isSuperAdmin ? {} : { tenantId }) }
     });
 
     if (!business) {
@@ -833,6 +855,37 @@ exports.purchaseNumber = async (req, res) => {
     return res.json({ success: true, data: result, message: "Number successfully provisioned and linked to business." });
   } catch (error) {
     console.error("[Call] purchaseNumber error:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/* ===============================
+   PROVISIONING: LINK EXISTING NUMBER
+   =============================== */
+exports.linkExistingNumber = async (req, res) => {
+  try {
+    const { phoneNumber, businessId } = req.body;
+    if (!phoneNumber || !businessId) {
+      return res.status(400).json({ success: false, error: "Phone number and Business ID are required" });
+    }
+
+    const isSuperAdmin = req.user && req.user.role === "SUPERADMIN";
+    const tenantId = req.tenantId || (req.user ? req.user.tenantId : null);
+
+    const business = await prisma.business.findFirst({
+      where: { id: businessId, ...(isSuperAdmin ? {} : { tenantId }) }
+    });
+
+    if (!business) {
+      return res.status(404).json({ success: false, error: "Business not found or access denied" });
+    }
+
+    const twilioService = require("../../services/twilio");
+    const result = await twilioService.linkExistingNumber(phoneNumber, business.id);
+
+    return res.json({ success: true, data: result, message: "Existing number successfully linked to business." });
+  } catch (error) {
+    console.error("[Call] linkExistingNumber error:", error);
     return res.status(500).json({ success: false, error: error.message });
   }
 };

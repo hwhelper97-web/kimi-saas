@@ -93,44 +93,139 @@ async function purchaseAndConfigureNumber(phoneNumber, businessId = null) {
     statusCallbackMethod: 'POST'
   });
 
-  // 2. Find master tenant or target tenant
-  const masterTenant = await prisma.tenant.findFirst({
-    where: { name: { contains: "Platform Hub" } }
-  });
-  
-  let tenantId = masterTenant ? masterTenant.id : null;
+  // 2. Determine target tenantId
+  let tenantId = null;
   if (businessId) {
     const biz = await prisma.business.findUnique({ where: { id: businessId } });
     if (biz) tenantId = biz.tenantId;
   }
 
-  // Fallback to first tenant if still null
+  if (!tenantId) {
+    const masterTenant = await prisma.tenant.findFirst({
+      where: { name: { contains: "Platform Hub" } }
+    });
+    tenantId = masterTenant ? masterTenant.id : null;
+  }
+
   if (!tenantId) {
     const firstT = await prisma.tenant.findFirst();
     tenantId = firstT ? firstT.id : "PLATFORM";
   }
 
-  // 3. Register or update number in PostgreSQL DB
-  const dbRecord = await prisma.tenantPhoneNumber.upsert({
-    where: { twilioPhoneNumber: purchased.phoneNumber },
-    create: {
-      twilioPhoneNumber: purchased.phoneNumber,
-      twilioSid: purchased.sid,
-      tenantId: tenantId,
-      businessId: businessId || null,
-      status: businessId ? "ACTIVE" : "UNASSIGNED",
-      provider: "TWILIO"
-    },
-    update: {
-      twilioSid: purchased.sid,
-      tenantId: tenantId,
-      businessId: businessId || null,
-      status: businessId ? "ACTIVE" : "UNASSIGNED"
-    }
-  });
+  // 3. Register or update number in PostgreSQL DB safely without unique businessId constraint error
+  let dbRecord = null;
+  if (businessId) {
+    dbRecord = await prisma.tenantPhoneNumber.findFirst({
+      where: { businessId: businessId }
+    });
+  }
+
+  if (!dbRecord) {
+    dbRecord = await prisma.tenantPhoneNumber.findFirst({
+      where: { twilioPhoneNumber: purchased.phoneNumber }
+    });
+  }
+
+  if (dbRecord) {
+    dbRecord = await prisma.tenantPhoneNumber.update({
+      where: { id: dbRecord.id },
+      data: {
+        twilioPhoneNumber: purchased.phoneNumber,
+        twilioSid: purchased.sid,
+        tenantId: tenantId,
+        businessId: businessId || dbRecord.businessId,
+        status: "ACTIVE",
+        provider: "TWILIO"
+      }
+    });
+  } else {
+    dbRecord = await prisma.tenantPhoneNumber.create({
+      data: {
+        twilioPhoneNumber: purchased.phoneNumber,
+        twilioSid: purchased.sid,
+        tenantId: tenantId,
+        businessId: businessId || null,
+        status: businessId ? "ACTIVE" : "UNASSIGNED",
+        provider: "TWILIO"
+      }
+    });
+  }
 
   console.log(`[TWILIO] Purchased & Registered ${purchased.phoneNumber} -> DB ID: ${dbRecord.id}`);
   return { purchased, dbRecord };
+}
+
+/**
+ * linkExistingNumber
+ * Links an already purchased or existing Twilio number to a business and configures its webhooks.
+ */
+async function linkExistingNumber(phoneNumber, businessId) {
+  if (!phoneNumber || !businessId) throw new Error("Phone number and Business ID are required");
+
+  const biz = await prisma.business.findUnique({ where: { id: businessId } });
+  if (!biz) throw new Error("Business not found");
+
+  const baseUrl = getSystemBaseUrl();
+  const voiceWebhook = `${baseUrl}/api/call/incoming`;
+  const smsWebhook = `${baseUrl}/api/call/incoming`;
+  const statusWebhook = `${baseUrl}/api/call/status`;
+
+  // 1. If Twilio client initialized, update webhooks on Twilio side
+  if (client) {
+    try {
+      const incomingList = await client.incomingPhoneNumbers.list({ phoneNumber: phoneNumber, limit: 1 });
+      if (incomingList && incomingList.length > 0) {
+        const sid = incomingList[0].sid;
+        await client.incomingPhoneNumbers(sid).update({
+          voiceUrl: voiceWebhook,
+          voiceMethod: 'POST',
+          smsUrl: smsWebhook,
+          smsMethod: 'POST',
+          statusCallback: statusWebhook,
+          statusCallbackMethod: 'POST'
+        });
+        console.log(`[TWILIO] Webhooks updated for existing number ${phoneNumber}`);
+      }
+    } catch (err) {
+      console.warn(`[TWILIO_WARN] Could not update webhooks on Twilio for ${phoneNumber}:`, err.message);
+    }
+  }
+
+  // 2. Safely register or update in DB
+  let dbRecord = await prisma.tenantPhoneNumber.findFirst({
+    where: { businessId: biz.id }
+  });
+
+  if (!dbRecord) {
+    dbRecord = await prisma.tenantPhoneNumber.findFirst({
+      where: { twilioPhoneNumber: phoneNumber }
+    });
+  }
+
+  if (dbRecord) {
+    dbRecord = await prisma.tenantPhoneNumber.update({
+      where: { id: dbRecord.id },
+      data: {
+        twilioPhoneNumber: phoneNumber,
+        businessId: biz.id,
+        tenantId: biz.tenantId,
+        status: "ACTIVE",
+        provider: "TWILIO"
+      }
+    });
+  } else {
+    dbRecord = await prisma.tenantPhoneNumber.create({
+      data: {
+        twilioPhoneNumber: phoneNumber,
+        businessId: biz.id,
+        tenantId: biz.tenantId,
+        status: "ACTIVE",
+        provider: "TWILIO"
+      }
+    });
+  }
+
+  return dbRecord;
 }
 
 /**
@@ -231,6 +326,7 @@ module.exports = {
   startRecording,
   searchAvailableNumbers,
   purchaseAndConfigureNumber,
+  linkExistingNumber,
   syncAllTwilioWebhooks,
   transferCall,
   getSystemBaseUrl

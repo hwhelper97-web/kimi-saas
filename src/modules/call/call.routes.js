@@ -67,6 +67,14 @@ router.post(
   controller.purchaseNumber
 );
 
+router.post(
+  "/provision/link",
+  authMiddleware,
+  tenantMiddleware,
+  allowRoles(ROLES.OWNER, ROLES.SUPERADMIN),
+  controller.linkExistingNumber
+);
+
 // ⚠️  Keep /:id LAST — it is a wildcard and will greedily match any segment
 router.get(
   "/:id",
