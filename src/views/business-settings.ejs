@@ -99,12 +99,127 @@
       <div class="form-group-premium col-span-2">
         <label><i data-lucide="globe"></i> Timezone</label>
         <select id="bizTimezone" class="form-control-premium">
-          <option value="UTC" <%= (business.timezone === 'UTC' || !business.timezone) ? 'selected' : '' %>>UTC (Standard)</option>
-          <option value="America/Los_Angeles" <%= business.timezone === 'America/Los_Angeles' ? 'selected' : '' %>>America/Los_Angeles (California/Pacific)</option>
-          <option value="America/New_York" <%= business.timezone === 'America/New_York' ? 'selected' : '' %>>America/New_York (EST)</option>
-          <option value="Europe/London" <%= business.timezone === 'Europe/London' ? 'selected' : '' %>>Europe/London (GMT)</option>
-          <option value="Asia/Karachi" <%= business.timezone === 'Asia/Karachi' ? 'selected' : '' %>>Asia/Karachi (GMT+5)</option>
-          <option value="Asia/Dubai" <%= business.timezone === 'Asia/Dubai' ? 'selected' : '' %>>Asia/Dubai (GMT+4)</option>
+          <option value="UTC" <%= (business.timezone === 'UTC' || !business.timezone) ? 'selected' : '' %>>UTC — Coordinated Universal Time (GMT+0)</option>
+          
+          <optgroup label="🇺🇸 🇨🇦 North America">
+            <option value="America/New_York" <%= business.timezone === 'America/New_York' ? 'selected' : '' %>>America/New_York — US Eastern (New York, Miami, DC)</option>
+            <option value="America/Chicago" <%= business.timezone === 'America/Chicago' ? 'selected' : '' %>>America/Chicago — US Central (Chicago, Houston, Dallas)</option>
+            <option value="America/Denver" <%= business.timezone === 'America/Denver' ? 'selected' : '' %>>America/Denver — US Mountain (Denver, Salt Lake City)</option>
+            <option value="America/Phoenix" <%= business.timezone === 'America/Phoenix' ? 'selected' : '' %>>America/Phoenix — US Arizona (No DST)</option>
+            <option value="America/Los_Angeles" <%= business.timezone === 'America/Los_Angeles' ? 'selected' : '' %>>America/Los_Angeles — US Pacific (LA, SF, Seattle)</option>
+            <option value="America/Anchorage" <%= business.timezone === 'America/Anchorage' ? 'selected' : '' %>>America/Anchorage — Alaska Time</option>
+            <option value="Pacific/Honolulu" <%= business.timezone === 'Pacific/Honolulu' ? 'selected' : '' %>>Pacific/Honolulu — Hawaii Time</option>
+            <option value="America/Toronto" <%= business.timezone === 'America/Toronto' ? 'selected' : '' %>>America/Toronto — Canada Eastern (Toronto, Montreal)</option>
+            <option value="America/Vancouver" <%= business.timezone === 'America/Vancouver' ? 'selected' : '' %>>America/Vancouver — Canada Pacific (Vancouver)</option>
+            <option value="America/Edmonton" <%= business.timezone === 'America/Edmonton' ? 'selected' : '' %>>America/Edmonton — Canada Mountain (Calgary, Edmonton)</option>
+            <option value="America/Winnipeg" <%= business.timezone === 'America/Winnipeg' ? 'selected' : '' %>>America/Winnipeg — Canada Central (Winnipeg)</option>
+            <option value="America/Halifax" <%= business.timezone === 'America/Halifax' ? 'selected' : '' %>>America/Halifax — Canada Atlantic (Halifax)</option>
+            <option value="America/St_Johns" <%= business.timezone === 'America/St_Johns' ? 'selected' : '' %>>America/St_Johns — Canada Newfoundland</option>
+            <option value="America/Mexico_City" <%= business.timezone === 'America/Mexico_City' ? 'selected' : '' %>>America/Mexico_City — Mexico Central (Mexico City)</option>
+            <option value="America/Cancun" <%= business.timezone === 'America/Cancun' ? 'selected' : '' %>>America/Cancun — Mexico Eastern (Cancun)</option>
+            <option value="America/Tijuana" <%= business.timezone === 'America/Tijuana' ? 'selected' : '' %>>America/Tijuana — Mexico Pacific (Tijuana)</option>
+          </optgroup>
+
+          <optgroup label="🇲🇽 🇧🇷 🇦🇷 Central & South America">
+            <option value="America/Guatemala" <%= business.timezone === 'America/Guatemala' ? 'selected' : '' %>>America/Guatemala — Central America (Costa Rica, Guatemala)</option>
+            <option value="America/Panama" <%= business.timezone === 'America/Panama' ? 'selected' : '' %>>America/Panama — Panama (GMT-5)</option>
+            <option value="America/Bogota" <%= business.timezone === 'America/Bogota' ? 'selected' : '' %>>America/Bogota — Colombia (Bogota, Medellin)</option>
+            <option value="America/Lima" <%= business.timezone === 'America/Lima' ? 'selected' : '' %>>America/Lima — Peru (Lima)</option>
+            <option value="America/Caracas" <%= business.timezone === 'America/Caracas' ? 'selected' : '' %>>America/Caracas — Venezuela (Caracas)</option>
+            <option value="America/Santiago" <%= business.timezone === 'America/Santiago' ? 'selected' : '' %>>America/Santiago — Chile (Santiago)</option>
+            <option value="America/Buenos_Aires" <%= business.timezone === 'America/Buenos_Aires' ? 'selected' : '' %>>America/Buenos_Aires — Argentina (Buenos Aires)</option>
+            <option value="America/Sao_Paulo" <%= business.timezone === 'America/Sao_Paulo' ? 'selected' : '' %>>America/Sao_Paulo — Brazil (São Paulo, Rio de Janeiro)</option>
+            <option value="America/Montevideo" <%= business.timezone === 'America/Montevideo' ? 'selected' : '' %>>America/Montevideo — Uruguay (Montevideo)</option>
+            <option value="America/La_Paz" <%= business.timezone === 'America/La_Paz' ? 'selected' : '' %>>America/La_Paz — Bolivia (La Paz)</option>
+            <option value="America/San_Juan" <%= business.timezone === 'America/San_Juan' ? 'selected' : '' %>>America/San_Juan — Puerto Rico / Caribbean</option>
+            <option value="America/Jamaica" <%= business.timezone === 'America/Jamaica' ? 'selected' : '' %>>America/Jamaica — Jamaica (Kingston)</option>
+          </optgroup>
+
+          <optgroup label="🇬🇧 🇪🇺 Europe">
+            <option value="Europe/London" <%= business.timezone === 'Europe/London' ? 'selected' : '' %>>Europe/London — United Kingdom & Ireland (London, Dublin)</option>
+            <option value="Europe/Paris" <%= business.timezone === 'Europe/Paris' ? 'selected' : '' %>>Europe/Paris — France & Benelux (Paris, Brussels, Amsterdam)</option>
+            <option value="Europe/Berlin" <%= business.timezone === 'Europe/Berlin' ? 'selected' : '' %>>Europe/Berlin — Germany & Central Europe (Berlin, Frankfurt)</option>
+            <option value="Europe/Madrid" <%= business.timezone === 'Europe/Madrid' ? 'selected' : '' %>>Europe/Madrid — Spain (Madrid, Barcelona)</option>
+            <option value="Europe/Rome" <%= business.timezone === 'Europe/Rome' ? 'selected' : '' %>>Europe/Rome — Italy (Rome, Milan)</option>
+            <option value="Europe/Zurich" <%= business.timezone === 'Europe/Zurich' ? 'selected' : '' %>>Europe/Zurich — Switzerland (Zurich, Geneva)</option>
+            <option value="Europe/Vienna" <%= business.timezone === 'Europe/Vienna' ? 'selected' : '' %>>Europe/Vienna — Austria (Vienna)</option>
+            <option value="Europe/Stockholm" <%= business.timezone === 'Europe/Stockholm' ? 'selected' : '' %>>Europe/Stockholm — Sweden & Scandinavia (Stockholm, Oslo, Copenhagen)</option>
+            <option value="Europe/Helsinki" <%= business.timezone === 'Europe/Helsinki' ? 'selected' : '' %>>Europe/Helsinki — Finland & Baltics (Helsinki, Tallinn, Riga)</option>
+            <option value="Europe/Athens" <%= business.timezone === 'Europe/Athens' ? 'selected' : '' %>>Europe/Athens — Greece & SE Europe (Athens, Bucharest)</option>
+            <option value="Europe/Istanbul" <%= business.timezone === 'Europe/Istanbul' ? 'selected' : '' %>>Europe/Istanbul — Turkey (Istanbul) (GMT+3)</option>
+            <option value="Europe/Moscow" <%= business.timezone === 'Europe/Moscow' ? 'selected' : '' %>>Europe/Moscow — Russia (Moscow, St. Petersburg)</option>
+            <option value="Europe/Kyiv" <%= business.timezone === 'Europe/Kyiv' ? 'selected' : '' %>>Europe/Kyiv — Ukraine (Kyiv)</option>
+            <option value="Europe/Lisbon" <%= business.timezone === 'Europe/Lisbon' ? 'selected' : '' %>>Europe/Lisbon — Portugal (Lisbon)</option>
+            <option value="Europe/Warsaw" <%= business.timezone === 'Europe/Warsaw' ? 'selected' : '' %>>Europe/Warsaw — Poland (Warsaw)</option>
+            <option value="Europe/Prague" <%= business.timezone === 'Europe/Prague' ? 'selected' : '' %>>Europe/Prague — Czech Republic & Slovakia (Prague, Bratislava)</option>
+            <option value="Europe/Budapest" <%= business.timezone === 'Europe/Budapest' ? 'selected' : '' %>>Europe/Budapest — Hungary (Budapest)</option>
+          </optgroup>
+
+          <optgroup label="🇦🇪 🇸🇦 🇪🇬 Middle East & North Africa">
+            <option value="Asia/Dubai" <%= business.timezone === 'Asia/Dubai' ? 'selected' : '' %>>Asia/Dubai — UAE & Gulf (Dubai, Abu Dhabi) (GMT+4)</option>
+            <option value="Asia/Riyadh" <%= business.timezone === 'Asia/Riyadh' ? 'selected' : '' %>>Asia/Riyadh — Saudi Arabia (Riyadh, Jeddah) (GMT+3)</option>
+            <option value="Asia/Qatar" <%= business.timezone === 'Asia/Qatar' ? 'selected' : '' %>>Asia/Qatar — Qatar (Doha) (GMT+3)</option>
+            <option value="Asia/Kuwait" <%= business.timezone === 'Asia/Kuwait' ? 'selected' : '' %>>Asia/Kuwait — Kuwait (GMT+3)</option>
+            <option value="Asia/Bahrain" <%= business.timezone === 'Asia/Bahrain' ? 'selected' : '' %>>Asia/Bahrain — Bahrain (GMT+3)</option>
+            <option value="Asia/Muscat" <%= business.timezone === 'Asia/Muscat' ? 'selected' : '' %>>Asia/Muscat — Oman (Muscat) (GMT+4)</option>
+            <option value="Asia/Amman" <%= business.timezone === 'Asia/Amman' ? 'selected' : '' %>>Asia/Amman — Jordan (Amman) (GMT+3)</option>
+            <option value="Asia/Beirut" <%= business.timezone === 'Asia/Beirut' ? 'selected' : '' %>>Asia/Beirut — Lebanon (Beirut) (GMT+2 / GMT+3)</option>
+            <option value="Asia/Jerusalem" <%= business.timezone === 'Asia/Jerusalem' ? 'selected' : '' %>>Asia/Jerusalem — Israel (Jerusalem, Tel Aviv)</option>
+            <option value="Africa/Cairo" <%= business.timezone === 'Africa/Cairo' ? 'selected' : '' %>>Africa/Cairo — Egypt (Cairo) (GMT+2 / GMT+3)</option>
+            <option value="Africa/Casablanca" <%= business.timezone === 'Africa/Casablanca' ? 'selected' : '' %>>Africa/Casablanca — Morocco (Casablanca)</option>
+            <option value="Africa/Tunis" <%= business.timezone === 'Africa/Tunis' ? 'selected' : '' %>>Africa/Tunis — Tunisia (GMT+1)</option>
+            <option value="Africa/Algiers" <%= business.timezone === 'Africa/Algiers' ? 'selected' : '' %>>Africa/Algiers — Algeria (GMT+1)</option>
+          </optgroup>
+
+          <optgroup label="🇵🇰 🇮🇳 🇧🇩 South Asia">
+            <option value="Asia/Karachi" <%= business.timezone === 'Asia/Karachi' ? 'selected' : '' %>>Asia/Karachi — Pakistan (Karachi, Islamabad, Lahore) (GMT+5)</option>
+            <option value="Asia/Kolkata" <%= business.timezone === 'Asia/Kolkata' ? 'selected' : '' %>>Asia/Kolkata — India (New Delhi, Mumbai, Bengaluru) (GMT+5:30)</option>
+            <option value="Asia/Dhaka" <%= business.timezone === 'Asia/Dhaka' ? 'selected' : '' %>>Asia/Dhaka — Bangladesh (Dhaka) (GMT+6)</option>
+            <option value="Asia/Colombo" <%= business.timezone === 'Asia/Colombo' ? 'selected' : '' %>>Asia/Colombo — Sri Lanka (Colombo) (GMT+5:30)</option>
+            <option value="Asia/Kathmandu" <%= business.timezone === 'Asia/Kathmandu' ? 'selected' : '' %>>Asia/Kathmandu — Nepal (Kathmandu) (GMT+5:45)</option>
+            <option value="Asia/Kabul" <%= business.timezone === 'Asia/Kabul' ? 'selected' : '' %>>Asia/Kabul — Afghanistan (Kabul) (GMT+4:30)</option>
+          </optgroup>
+
+          <optgroup label="🇸🇬 🇯🇵 🇨🇳 East & Southeast Asia">
+            <option value="Asia/Singapore" <%= business.timezone === 'Asia/Singapore' ? 'selected' : '' %>>Asia/Singapore — Singapore (GMT+8)</option>
+            <option value="Asia/Hong_Kong" <%= business.timezone === 'Asia/Hong_Kong' ? 'selected' : '' %>>Asia/Hong_Kong — Hong Kong (GMT+8)</option>
+            <option value="Asia/Shanghai" <%= business.timezone === 'Asia/Shanghai' ? 'selected' : '' %>>Asia/Shanghai — China (Beijing, Shanghai) (GMT+8)</option>
+            <option value="Asia/Tokyo" <%= business.timezone === 'Asia/Tokyo' ? 'selected' : '' %>>Asia/Tokyo — Japan (Tokyo, Osaka) (GMT+9)</option>
+            <option value="Asia/Seoul" <%= business.timezone === 'Asia/Seoul' ? 'selected' : '' %>>Asia/Seoul — South Korea (Seoul) (GMT+9)</option>
+            <option value="Asia/Taipei" <%= business.timezone === 'Asia/Taipei' ? 'selected' : '' %>>Asia/Taipei — Taiwan (Taipei) (GMT+8)</option>
+            <option value="Asia/Bangkok" <%= business.timezone === 'Asia/Bangkok' ? 'selected' : '' %>>Asia/Bangkok — Thailand & Indochina (Bangkok, Hanoi, HCMC) (GMT+7)</option>
+            <option value="Asia/Kuala_Lumpur" <%= business.timezone === 'Asia/Kuala_Lumpur' ? 'selected' : '' %>>Asia/Kuala_Lumpur — Malaysia (Kuala Lumpur) (GMT+8)</option>
+            <option value="Asia/Manila" <%= business.timezone === 'Asia/Manila' ? 'selected' : '' %>>Asia/Manila — Philippines (Manila) (GMT+8)</option>
+            <option value="Asia/Jakarta" <%= business.timezone === 'Asia/Jakarta' ? 'selected' : '' %>>Asia/Jakarta — Indonesia West (Jakarta) (GMT+7)</option>
+            <option value="Asia/Makassar" <%= business.timezone === 'Asia/Makassar' ? 'selected' : '' %>>Asia/Makassar — Indonesia Central (Bali, Makassar) (GMT+8)</option>
+            <option value="Asia/Jayapura" <%= business.timezone === 'Asia/Jayapura' ? 'selected' : '' %>>Asia/Jayapura — Indonesia East (GMT+9)</option>
+            <option value="Asia/Yangon" <%= business.timezone === 'Asia/Yangon' ? 'selected' : '' %>>Asia/Yangon — Myanmar (Yangon) (GMT+6:30)</option>
+          </optgroup>
+
+          <optgroup label="🇿🇦 🇳🇬 🇰🇪 Sub-Saharan Africa">
+            <option value="Africa/Johannesburg" <%= business.timezone === 'Africa/Johannesburg' ? 'selected' : '' %>>Africa/Johannesburg — South Africa (Johannesburg, Cape Town) (GMT+2)</option>
+            <option value="Africa/Lagos" <%= business.timezone === 'Africa/Lagos' ? 'selected' : '' %>>Africa/Lagos — Nigeria (Lagos) (GMT+1)</option>
+            <option value="Africa/Nairobi" <%= business.timezone === 'Africa/Nairobi' ? 'selected' : '' %>>Africa/Nairobi — Kenya (Nairobi) (GMT+3)</option>
+            <option value="Africa/Accra" <%= business.timezone === 'Africa/Accra' ? 'selected' : '' %>>Africa/Accra — Ghana (Accra) (GMT+0)</option>
+            <option value="Africa/Addis_Ababa" <%= business.timezone === 'Africa/Addis_Ababa' ? 'selected' : '' %>>Africa/Addis_Ababa — Ethiopia (Addis Ababa) (GMT+3)</option>
+            <option value="Africa/Dar_es_Salaam" <%= business.timezone === 'Africa/Dar_es_Salaam' ? 'selected' : '' %>>Africa/Dar_es_Salaam — Tanzania (GMT+3)</option>
+            <option value="Africa/Luanda" <%= business.timezone === 'Africa/Luanda' ? 'selected' : '' %>>Africa/Luanda — Angola (GMT+1)</option>
+          </optgroup>
+
+          <optgroup label="🇦🇺 🇳🇿 🇵🇬 Oceania & Australia">
+            <option value="Australia/Sydney" <%= business.timezone === 'Australia/Sydney' ? 'selected' : '' %>>Australia/Sydney — Australia Eastern (Sydney, Melbourne, Canberra)</option>
+            <option value="Australia/Brisbane" <%= business.timezone === 'Australia/Brisbane' ? 'selected' : '' %>>Australia/Brisbane — Australia Queensland (No DST)</option>
+            <option value="Australia/Adelaide" <%= business.timezone === 'Australia/Adelaide' ? 'selected' : '' %>>Australia/Adelaide — Australia Central (Adelaide)</option>
+            <option value="Australia/Perth" <%= business.timezone === 'Australia/Perth' ? 'selected' : '' %>>Australia/Perth — Australia Western (Perth)</option>
+            <option value="Pacific/Auckland" <%= business.timezone === 'Pacific/Auckland' ? 'selected' : '' %>>Pacific/Auckland — New Zealand (Auckland, Wellington)</option>
+            <option value="Pacific/Fiji" <%= business.timezone === 'Pacific/Fiji' ? 'selected' : '' %>>Pacific/Fiji — Fiji</option>
+            <option value="Pacific/Guam" <%= business.timezone === 'Pacific/Guam' ? 'selected' : '' %>>Pacific/Guam — Guam (GMT+10)</option>
+          </optgroup>
+
+          <optgroup label="🇮🇸 🌊 Atlantic & Others">
+            <option value="Atlantic/Reykjavik" <%= business.timezone === 'Atlantic/Reykjavik' ? 'selected' : '' %>>Atlantic/Reykjavik — Iceland (Reykjavik) (GMT+0)</option>
+            <option value="Atlantic/Azores" <%= business.timezone === 'Atlantic/Azores' ? 'selected' : '' %>>Atlantic/Azores — Azores (GMT-1)</option>
+          </optgroup>
         </select>
       </div>
 

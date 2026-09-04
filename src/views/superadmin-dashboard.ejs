@@ -5607,7 +5607,15 @@
           { key: "supportEmail", label: "System Support Email", type: "email", placeholder: "support@naxton.ai" },
           { key: "supportPhone", label: "System Support Phone", type: "text", placeholder: "+1 (555) 000-0000" },
           { key: "address", label: "Office Address", type: "text", fullWidth: true },
-          { key: "timezone", label: "Default Timezone", type: "select", options: ["UTC", "America/New_York", "Europe/London", "Asia/Dubai", "Asia/Singapore"] },
+          { key: "timezone", label: "Default Timezone", type: "select", options: [
+            "UTC", "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "America/Toronto", "America/Vancouver", "America/Mexico_City", "America/Bogota", "America/Buenos_Aires", "America/Sao_Paulo",
+            "Europe/London", "Europe/Paris", "Europe/Berlin", "Europe/Madrid", "Europe/Rome", "Europe/Stockholm", "Europe/Helsinki", "Europe/Athens", "Europe/Istanbul", "Europe/Moscow",
+            "Asia/Dubai", "Asia/Riyadh", "Asia/Qatar", "Africa/Cairo", "Africa/Casablanca",
+            "Asia/Karachi", "Asia/Kolkata", "Asia/Dhaka", "Asia/Colombo", "Asia/Kathmandu", "Asia/Kabul",
+            "Asia/Singapore", "Asia/Hong_Kong", "Asia/Shanghai", "Asia/Tokyo", "Asia/Seoul", "Asia/Bangkok", "Asia/Kuala_Lumpur", "Asia/Manila", "Asia/Jakarta",
+            "Africa/Johannesburg", "Africa/Lagos", "Africa/Nairobi",
+            "Australia/Sydney", "Australia/Melbourne", "Australia/Brisbane", "Australia/Perth", "Pacific/Auckland", "Atlantic/Reykjavik"
+          ] },
           { key: "currency", label: "Platform Currency", type: "select", options: ["USD", "EUR", "GBP", "AED", "SAR"] },
           { key: "maintenanceMode", label: "Maintenance Mode", type: "boolean", description: "Restrict access to platform while performing updates." },
           { key: "environmentDisplay", label: "Show Environment Badge", type: "boolean", description: "Display PRODUCTION / STAGING tag in header." }
