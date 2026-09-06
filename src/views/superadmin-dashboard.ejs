@@ -5334,29 +5334,40 @@
         const res = await fetch("/api/superadmin/mint-requests", { headers: { Authorization: "Bearer " + token } });
         const r = await res.json();
         const container = document.getElementById("mintRequestList");
-        if (!r.success || !r.data.length) {
-          container.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-muted);">No pending requests.</td></tr>`;
+        if (!container) return;
+        
+        const pending = (r.data || []).filter(req => req.status === 'PENDING');
+        if (!r.success || !pending.length) {
+          container.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-muted);">No pending neural resource requests.</td></tr>`;
           return;
         }
-        container.innerHTML = r.data.map(req => `
+
+        container.innerHTML = pending.map(req => `
           <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 1rem;">${req.tenant?.name || 'Unknown'}</td>
-            <td style="padding: 1rem; font-weight: 700;">${req.amount} MINTS</td>
-            <td style="padding: 1rem;"><span class="status-badge-standard">${req.tier || 'CUSTOM'}</span></td>
-            <td style="padding: 1rem; font-size: 0.75rem; color: var(--text-muted);">${new Date(req.createdAt).toLocaleDateString()}</td>
+            <td style="padding: 1rem; color: white; font-weight: 700;">${req.tenant?.name || 'Unknown Tenant'}</td>
+            <td style="padding: 1rem; font-weight: 800; color: var(--primary); font-family: 'JetBrains Mono', monospace;">${req.amount.toLocaleString()} MINTS</td>
+            <td style="padding: 1rem;"><span class="status-badge-standard" style="text-transform: uppercase; font-weight: 800;">${(req.tier || 'CUSTOM').replace('_', ' ')}</span></td>
+            <td style="padding: 1rem; font-size: 0.75rem; color: var(--text-muted);">${new Date(req.createdAt).toLocaleDateString()} ${new Date(req.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
             <td style="padding: 1rem; text-align: right;">
               <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
-                <button class="action-btn" onclick="updateMintRequest('${req.id}', 'APPROVED')" style="background: #10b981; color: white; border: none;"><i data-lucide="check" style="width: 14px;"></i></button>
-                <button class="action-btn" onclick="updateMintRequest('${req.id}', 'REJECTED')" style="background: #ef4444; color: white; border: none;"><i data-lucide="x" style="width: 14px;"></i></button>
+                <button class="action-btn" onclick="updateMintRequest('${req.id}', 'APPROVED')" style="background: #10b981; color: white; border: none; padding: 0.4rem 0.85rem; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Authorize Package / Credits">
+                  <i data-lucide="check" style="width: 14px;"></i> Authorize
+                </button>
+                <button class="action-btn" onclick="updateMintRequest('${req.id}', 'REJECTED')" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.4rem 0.85rem; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Reject Request">
+                  <i data-lucide="x" style="width: 14px;"></i> Cancel
+                </button>
               </div>
             </td>
           </tr>
         `).join("");
-        lucide.createIcons();
-      } catch (e) {}
+        if (window.lucide) lucide.createIcons();
+      } catch (e) {
+        console.error("loadMintRequests error:", e);
+      }
     }
 
     async function updateMintRequest(id, status) {
+      if (status === 'APPROVED' && !confirm("Authorize this package update or credits injection?")) return;
       try {
         const res = await fetch(`/api/superadmin/mint-requests/${id}`, {
           method: "POST",
@@ -5364,9 +5375,18 @@
           body: JSON.stringify({ status })
         });
         const r = await res.json();
-        if (r.success) { showSuccess(r.message); loadMintRequests(); loadTenants(); }
-        else showError(r.message);
-      } catch (e) { showError("Failed to update request"); }
+        if (r.success) { 
+          if (typeof showSuccess === 'function') showSuccess(r.message || `Request ${status.toLowerCase()} successfully.`); 
+          loadMintRequests(); 
+          if (typeof loadTenants === 'function') loadTenants(); 
+          if (typeof loadAnalytics === 'function') loadAnalytics();
+        } else { 
+          if (typeof showError === 'function') showError(r.message || "Operation failed"); 
+        }
+      } catch (e) { 
+        console.error("updateMintRequest error:", e);
+        if (typeof showError === 'function') showError("Synchronization error."); 
+      }
     }
 
     function openTokenModal(id, name) {

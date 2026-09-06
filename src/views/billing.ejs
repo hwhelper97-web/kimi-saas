@@ -355,10 +355,69 @@
       </div>
     </div>
   </div>
+  <!-- Credits Top-Up Modal -->
+  <div id="creditsTopupModal" class="modal-overlay" style="position: fixed; inset: 0; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(12px); z-index: 9999; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+    <div class="modal-container" style="width: 90%; max-width: 520px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(24px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 24px; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), 0 0 30px rgba(245, 158, 11, 0.15);">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; color: #f59e0b;">
+            <i data-lucide="coins" style="width: 20px; height: 20px;"></i>
+          </div>
+          <div>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: white; margin: 0;">Top-Up Wallet Credits</h3>
+            <p style="font-size: 0.75rem; color: #64748b; margin: 0;">Select or specify credits for SMS & AI routing.</p>
+          </div>
+        </div>
+        <button onclick="closeCreditsModal()" style="background: transparent; border: none; color: #64748b; font-size: 1.75rem; cursor: pointer;">&times;</button>
+      </div>
+
+      <!-- Credit Packs -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+        <div class="credit-pack-card active" onclick="selectCreditPack(this, 500)" style="background: rgba(255,255,255,0.03); border: 2px solid #f59e0b; border-radius: 16px; padding: 1.25rem; cursor: pointer; transition: all 0.2s ease; text-align: center;">
+          <div style="font-size: 1.35rem; font-weight: 900; color: #f59e0b; font-family: 'JetBrains Mono', monospace;">500</div>
+          <div style="font-size: 0.75rem; color: #cbd5e1; font-weight: 700; margin-top: 0.25rem;">$25 USD</div>
+          <div style="font-size: 0.65rem; color: #64748b; margin-top: 0.25rem;">Starter Pack</div>
+        </div>
+
+        <div class="credit-pack-card" onclick="selectCreditPack(this, 1000)" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.25rem; cursor: pointer; transition: all 0.2s ease; text-align: center;">
+          <div style="font-size: 1.35rem; font-weight: 900; color: white; font-family: 'JetBrains Mono', monospace;">1,000</div>
+          <div style="font-size: 0.75rem; color: #cbd5e1; font-weight: 700; margin-top: 0.25rem;">$45 USD</div>
+          <div style="font-size: 0.65rem; color: #10b981; font-weight: 800; margin-top: 0.25rem;">Save 10%</div>
+        </div>
+
+        <div class="credit-pack-card" onclick="selectCreditPack(this, 2500)" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.25rem; cursor: pointer; transition: all 0.2s ease; text-align: center;">
+          <div style="font-size: 1.35rem; font-weight: 900; color: white; font-family: 'JetBrains Mono', monospace;">2,500</div>
+          <div style="font-size: 0.75rem; color: #cbd5e1; font-weight: 700; margin-top: 0.25rem;">$100 USD</div>
+          <div style="font-size: 0.65rem; color: #10b981; font-weight: 800; margin-top: 0.25rem;">Save 20%</div>
+        </div>
+
+        <div class="credit-pack-card" onclick="selectCreditPack(this, 5000)" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.25rem; cursor: pointer; transition: all 0.2s ease; text-align: center;">
+          <div style="font-size: 1.35rem; font-weight: 900; color: white; font-family: 'JetBrains Mono', monospace;">5,000</div>
+          <div style="font-size: 0.75rem; color: #cbd5e1; font-weight: 700; margin-top: 0.25rem;">$180 USD</div>
+          <div style="font-size: 0.65rem; color: #00f2ff; font-weight: 800; margin-top: 0.25rem;">Enterprise</div>
+        </div>
+      </div>
+
+      <!-- Custom Amount Input -->
+      <div style="margin-bottom: 1.75rem;">
+        <label style="font-size: 0.75rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 0.5rem;">Or Enter Custom Credit Amount</label>
+        <input type="number" id="customCreditAmount" class="form-control-premium" style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.75rem 1rem; color: white; font-family: 'JetBrains Mono', monospace; font-size: 1rem; outline: none;" placeholder="e.g. 1500" oninput="onCustomCreditInput(this.value)">
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <button class="apex-btn apex-btn-secondary" onclick="closeCreditsModal()">Cancel</button>
+        <button id="submitCreditsBtn" class="apex-btn" style="background: #f59e0b; color: #030712; border: none; font-weight: 800; padding: 0 1.5rem;" onclick="submitCreditPurchase()">
+          <i data-lucide="check-circle" style="width: 16px; margin-right: 6px;"></i> Request 500 Credits
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
   if (window.lucide) lucide.createIcons();
+
+  let selectedCreditsAmount = 500;
 
   async function upgradePlan(planId) {
     const plans = {
@@ -385,7 +444,7 @@
       });
       const r = await res.json();
       if (r.success) {
-        if (typeof notify === 'function') notify("Your upgrade request has been submitted for approval.", "Success");
+        if (typeof notify === 'function') notify("Your upgrade request has been submitted to SuperAdmin for authorization.", "Success");
       } else {
         if (typeof notify === 'function') notify(r.message || "Failed to submit request", "Error");
       }
@@ -395,7 +454,84 @@
   }
 
   function purchaseCredits() {
-    if (typeof notify === 'function') notify("Opening credits top-up modal...", "Info");
+    const modal = document.getElementById("creditsTopupModal");
+    if (modal) {
+      modal.style.display = "flex";
+      setTimeout(() => modal.style.opacity = "1", 10);
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+
+  function closeCreditsModal() {
+    const modal = document.getElementById("creditsTopupModal");
+    if (modal) {
+      modal.style.opacity = "0";
+      setTimeout(() => modal.style.display = "none", 300);
+    }
+  }
+
+  function selectCreditPack(el, amount) {
+    document.querySelectorAll('.credit-pack-card').forEach(c => {
+      c.style.borderColor = 'rgba(255,255,255,0.08)';
+      const valEl = c.querySelector('div:first-child');
+      if (valEl) valEl.style.color = 'white';
+    });
+
+    el.style.borderColor = '#f59e0b';
+    const valEl = el.querySelector('div:first-child');
+    if (valEl) valEl.style.color = '#f59e0b';
+
+    selectedCreditsAmount = amount;
+    const customInput = document.getElementById("customCreditAmount");
+    if (customInput) customInput.value = "";
+
+    const btn = document.getElementById("submitCreditsBtn");
+    if (btn) btn.innerHTML = `<i data-lucide="check-circle" style="width: 16px; margin-right: 6px;"></i> Request ${amount.toLocaleString()} Credits`;
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function onCustomCreditInput(val) {
+    const parsed = parseInt(val);
+    if (parsed && parsed > 0) {
+      selectedCreditsAmount = parsed;
+      document.querySelectorAll('.credit-pack-card').forEach(c => {
+        c.style.borderColor = 'rgba(255,255,255,0.08)';
+        const valEl = c.querySelector('div:first-child');
+        if (valEl) valEl.style.color = 'white';
+      });
+      const btn = document.getElementById("submitCreditsBtn");
+      if (btn) btn.innerHTML = `<i data-lucide="check-circle" style="width: 16px; margin-right: 6px;"></i> Request ${parsed.toLocaleString()} Credits`;
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+
+  async function submitCreditPurchase() {
+    if (!selectedCreditsAmount || selectedCreditsAmount <= 0) {
+      if (typeof notify === 'function') notify("Please enter a valid credit amount", "Error");
+      return;
+    }
+
+    if (typeof notify === 'function') notify(`Submitting order for ${selectedCreditsAmount.toLocaleString()} credits...`, "Billing");
+
+    try {
+      const res = await fetch("/api/billing/request-mints", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + (localStorage.getItem("accessToken") || window.token)
+        },
+        body: JSON.stringify({ amount: selectedCreditsAmount, tier: "CREDITS" })
+      });
+      const r = await res.json();
+      if (r.success) {
+        if (typeof notify === 'function') notify(`Credit top-up request for ${selectedCreditsAmount.toLocaleString()} credits submitted successfully!`, "Success");
+        closeCreditsModal();
+      } else {
+        if (typeof notify === 'function') notify(r.message || "Failed to process request", "Error");
+      }
+    } catch (e) {
+      if (typeof notify === 'function') notify("Network error during purchase.", "Error");
+    }
   }
 
   function contactSales() {

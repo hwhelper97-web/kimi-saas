@@ -1037,14 +1037,45 @@ exports.updateMintRequest = async (req, res) => {
     if (!request) return res.status(404).json({ success: false, message: "Request not found" });
 
     if (status === "APPROVED" && request.status !== "APPROVED") {
-      // Add tokens to tenant
-      await prisma.tenant.update({
-        where: { id: request.tenantId },
-        data: {
-          tokenBalance: { increment: request.amount },
-          totalTokensPurchased: { increment: request.amount }
-        }
-      });
+      const tierKey = (request.tier || "").toLowerCase();
+
+      if (tierKey === "nexa_core") {
+        await prisma.tenant.update({
+          where: { id: request.tenantId },
+          data: {
+            plan: "nexa_core",
+            monthlyLimit: request.amount || 300,
+            monthlyTokenLimit: 250000
+          }
+        });
+      } else if (tierKey === "nexa_flow") {
+        await prisma.tenant.update({
+          where: { id: request.tenantId },
+          data: {
+            plan: "nexa_flow",
+            monthlyLimit: request.amount || 1200,
+            monthlyTokenLimit: 1000000
+          }
+        });
+      } else if (tierKey === "nexa_prime") {
+        await prisma.tenant.update({
+          where: { id: request.tenantId },
+          data: {
+            plan: "nexa_prime",
+            monthlyLimit: request.amount || 5000,
+            monthlyTokenLimit: 5000000
+          }
+        });
+      } else {
+        // Credits or custom addition to wallet balance
+        await prisma.tenant.update({
+          where: { id: request.tenantId },
+          data: {
+            tokenBalance: { increment: request.amount },
+            totalTokensPurchased: { increment: request.amount }
+          }
+        });
+      }
     }
 
     await prisma.mintRequest.update({
@@ -1054,6 +1085,7 @@ exports.updateMintRequest = async (req, res) => {
 
     res.json({ success: true, message: `Request ${status.toLowerCase()} successfully.` });
   } catch (error) {
+    console.error("[UpdateMintRequest Error]:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
