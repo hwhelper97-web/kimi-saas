@@ -120,6 +120,7 @@ exports.generateAIResponse = async ({ conversationId, tenantId, businessId, cust
             }
           });
           return `I have successfully booked your ${args.serviceName} appointment for ${new Date(args.time).toLocaleString()}. Is there anything else I can help with?`;
+        }
       }
     }
 

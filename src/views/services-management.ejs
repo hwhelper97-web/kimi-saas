@@ -432,21 +432,24 @@
         }
         grid.innerHTML = result.data.map(s => `
           <div class="service-card" style="background: var(--bg-card); border-radius: 2rem; overflow: hidden; border: 1px solid var(--border); transition: all 0.35s ease; position: relative; box-shadow: var(--shadow-sm); display: flex; flex-direction: column;">
-            <div style="height: 240px; overflow: hidden; position: relative;">
+            <div style="height: 200px; overflow: hidden; position: relative; background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.15), rgba(15, 23, 42, 0.9)); display: flex; align-items: center; justify-content: center;">
               ${s.imageUrl ? `
-                <img src="${s.imageUrl}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/img/placeholder-service.jpg'" />
+                <img src="${s.imageUrl}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.2), rgba(0, 0, 0, 0.6));">
+                  <i data-lucide="sparkles" style="width: 48px; height: 48px; color: var(--primary); opacity: 0.4;"></i>
+                </div>
               ` : `
-                <div style="width: 100%; height: 100%; background: rgba(var(--primary-rgb), 0.05); display: flex; align-items: center; justify-content: center;">
-                  <i data-lucide="image" style="width: 48px; color: var(--primary); opacity: 0.15;"></i>
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.2), rgba(0, 0, 0, 0.6));">
+                  <i data-lucide="sparkles" style="width: 48px; height: 48px; color: var(--primary); opacity: 0.4;"></i>
                 </div>
               `}
               
               <div style="position: absolute; top: 1.25rem; left: 1.25rem; display: flex; gap: 0.75rem;">
-                <div style="background: rgba(var(--bg-card-rgb), 0.85); backdrop-filter: blur(12px); padding: 0.5rem 1rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 700; color: white; border: 1px solid rgba(255,255,255,0.1);">
+                <div style="background: rgba(8, 15, 25, 0.85); backdrop-filter: blur(12px); padding: 0.4rem 0.9rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 700; color: white; border: 1px solid rgba(255,255,255,0.15);">
                   ${s.duration} mins
                 </div>
                 ${s.isPopular ? `
-                  <div style="background: #facc15; color: black; padding: 0.5rem 1rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 800; box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3);">
+                  <div style="background: #facc15; color: black; padding: 0.4rem 0.9rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 800; box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3);">
                     Popular
                   </div>
                 ` : ''}

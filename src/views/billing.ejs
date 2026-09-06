@@ -1,86 +1,283 @@
-<div class="apex-card" style="margin-bottom: 2rem;">
-  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2rem;">
-    <div>
-      <h3 class="card-title">Subscription Overview</h3>
-      <p style="color:var(--text-muted); font-size:0.875rem;">Manage your platform plan, usage limits, and billing history.</p>
-    </div>
-    <div style="text-align:right;">
-      <span class="badge" style="background:rgba(var(--primary-rgb), 0.1); color:var(--primary); font-size:0.75rem; padding:0.5rem 1rem;">
-        Current Plan: <strong style="text-transform:uppercase;"><%= (data.tenant.plan || 'Nexa Core').replace('_', ' ') %></strong>
-      </span>
-      <p style="font-size:0.7rem; color:var(--text-muted); margin-top:0.5rem;">Next billing date: <%= data.tenant.subscriptionEndDate ? new Date(data.tenant.subscriptionEndDate).toLocaleDateString() : 'N/A' %></p>
-    </div>
-  </div>
-
-  <div class="apex-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-    <!-- AI Minutes Usage -->
-    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); padding:1.5rem; border-radius:1rem;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-        <div style="display:flex; align-items:center; gap:0.75rem;">
-          <div style="width:32px; height:32px; border-radius:0.5rem; background:rgba(var(--primary-rgb), 0.1); display:flex; align-items:center; justify-content:center; color:var(--primary);">
-            <i data-lucide="mic"></i>
-          </div>
-          <span style="font-weight:600; font-size:0.875rem;">AI Voice Minutes</span>
-        </div>
-        <span style="font-size:0.75rem; font-weight:700;"><%= data.tenant.usedMinutes %> / <%= data.tenant.monthlyLimit %></span>
-      </div>
-      <% const minutePercent = Math.min(100, (data.tenant.usedMinutes / data.tenant.monthlyLimit) * 100); %>
-      <div style="height:8px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; margin-bottom:0.5rem;">
-        <div style="width:<%= minutePercent %>%; height:100%; background:var(--primary); box-shadow:0 0 10px var(--primary);"></div>
-      </div>
-      <p style="font-size:0.7rem; color:var(--text-muted);"><%= (data.tenant.monthlyLimit - data.tenant.usedMinutes) %> minutes remaining this month.</p>
-    </div>
-
-    <!-- AI Token Usage -->
-    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); padding:1.5rem; border-radius:1rem;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-        <div style="display:flex; align-items:center; gap:0.75rem;">
-          <div style="width:32px; height:32px; border-radius:0.5rem; background:rgba(var(--success-rgb), 0.1); display:flex; align-items:center; justify-content:center; color:var(--success);">
-            <i data-lucide="zap"></i>
-          </div>
-          <span style="font-weight:600; font-size:0.875rem;">AI Tokens (OpenAI)</span>
-        </div>
-        <span style="font-size:0.75rem; font-weight:700;"><%= (data.tenant.monthlyUsedTokens / 1000).toFixed(1) %>k / <%= (data.tenant.monthlyTokenLimit / 1000).toFixed(0) %>k</span>
-      </div>
-      <% const tokenPercent = Math.min(100, (data.tenant.monthlyUsedTokens / data.tenant.monthlyTokenLimit) * 100); %>
-      <div style="height:8px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; margin-bottom:0.5rem;">
-        <div style="width:<%= tokenPercent %>%; height:100%; background:var(--success); box-shadow:0 0 10px var(--success);"></div>
-      </div>
-      <p style="font-size:0.7rem; color:var(--text-muted);">Approx. <%= ((data.tenant.monthlyTokenLimit - data.tenant.monthlyUsedTokens) / 1000).toFixed(1) %>k tokens available.</p>
-    </div>
-
-    <!-- Credits / Overage -->
-    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); padding:1.5rem; border-radius:1rem;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-        <div style="display:flex; align-items:center; gap:0.75rem;">
-          <div style="width:32px; height:32px; border-radius:0.5rem; background:rgba(255,193,7,0.1); display:flex; align-items:center; justify-content:center; color:#ffc107;">
-            <i data-lucide="coins"></i>
-          </div>
-          <span style="font-weight:600; font-size:0.875rem;">Wallet Balance</span>
-        </div>
-        <span style="font-size:0.75rem; font-weight:700;"><%= data.tenant.tokenBalance %> Credits</span>
-      </div>
-      <button class="apex-btn" style="width:100%; height:32px; font-size:0.75rem; background:rgba(255,193,7,0.1); border-color:#ffc107; color:#ffc107; justify-content:center;">
-        <i data-lucide="plus" style="width:14px; margin-right:4px;"></i> Purchase Credits
-      </button>
-      <p style="font-size:0.7rem; color:var(--text-muted); margin-top:0.5rem;">Used for SMS and advanced AI routing.</p>
-    </div>
-  </div>
-</div>
-
-<div class="pricing-container" style="margin-top: 3rem;">
-  <h3 class="card-title" style="text-align:center; margin-bottom:3rem; font-size:1.5rem;">Professional Pricing Packages</h3>
+<% 
+  const tenant = (data && data.tenant) ? data.tenant : {}; 
+  const currentPlanKey = (tenant.plan || 'nexa_core').toLowerCase().replace('-', '_');
+  const usedMins = tenant.usedMinutes || 0;
+  const maxMins = tenant.monthlyLimit || 300;
+  const minutePercent = Math.min(100, Math.round((usedMins / maxMins) * 100));
   
-  <div class="apex-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
-    <!-- NEXA CORE -->
-    <div class="pricing-card <%= data.tenant.plan === 'nexa_core' ? 'active' : '' %>">
-      <div class="pricing-header">
-        <h4>Nexa Core</h4>
-        <div class="price">$99<span>/mo</span></div>
-        <p>Basic automation for small businesses.</p>
+  const usedTokens = tenant.monthlyUsedTokens || 0;
+  const maxTokens = tenant.monthlyTokenLimit || 250000;
+  const tokenPercent = Math.min(100, Math.round((usedTokens / maxTokens) * 100));
+  
+  const tokenBalance = tenant.tokenBalance || 0;
+  const billingDateStr = tenant.subscriptionEndDate ? new Date(tenant.subscriptionEndDate).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'}) : 'Next Billing Cycle';
+%>
+
+<div class="billing-container entrance-fade-up">
+  <style>
+    .billing-container {
+      padding: 0.5rem 0;
+      color: #f8fafc;
+      animation: slideUpFade 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    }
+
+    @keyframes slideUpFade {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .billing-overview-card {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .billing-metric-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 1.5rem;
+      border-radius: 18px;
+      transition: all 0.3s ease;
+    }
+
+    .billing-metric-card:hover {
+      border-color: rgba(0, 242, 255, 0.3);
+      background: rgba(0, 242, 255, 0.02);
+      transform: translateY(-2px);
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin: 0.75rem 0 0.5rem 0;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 1.75rem;
+    }
+
+    .pricing-card-elite {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 2.25rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
+
+    .pricing-card-elite:hover {
+      transform: translateY(-8px) scale(1.01);
+      border-color: rgba(0, 242, 255, 0.4);
+      box-shadow: 0 25px 50px -10px rgba(0, 242, 255, 0.15);
+    }
+
+    .pricing-card-elite.active-plan {
+      border: 2px solid #00f2ff;
+      background: linear-gradient(180deg, rgba(0, 242, 255, 0.08) 0%, rgba(15, 23, 42, 0.8) 100%);
+      box-shadow: 0 0 35px rgba(0, 242, 255, 0.25);
+    }
+
+    .popular-pill {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: linear-gradient(135deg, #00f2ff 0%, #0ea5e9 100%);
+      color: #030712;
+      font-size: 0.65rem;
+      font-weight: 900;
+      padding: 0.4rem 1.25rem;
+      border-bottom-left-radius: 14px;
+      letter-spacing: 0.08em;
+      box-shadow: 0 4px 12px rgba(0, 242, 255, 0.3);
+    }
+
+    .current-plan-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(0, 242, 255, 0.15);
+      border: 1px solid rgba(0, 242, 255, 0.4);
+      color: #00f2ff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .pricing-header-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-amount {
+      font-size: 2.75rem;
+      font-weight: 900;
+      color: #00f2ff;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.03em;
+    }
+
+    .pricing-amount span {
+      font-size: 0.9rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .pricing-features-list {
+      list-style: none;
+      padding: 0;
+      margin: 1.5rem 0 2rem 0;
+      flex: 1;
+    }
+
+    .pricing-features-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin-bottom: 0.85rem;
+      font-weight: 500;
+    }
+
+    .pricing-features-list i {
+      width: 16px;
+      height: 16px;
+      color: #00f2ff;
+      flex-shrink: 0;
+    }
+
+    .btn-plan-action {
+      width: 100%;
+      padding: 0.85rem 1.5rem;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      color: white;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-plan-action:hover {
+      background: #00f2ff;
+      color: #030712;
+      border-color: #00f2ff;
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .active-plan .btn-plan-action {
+      background: #00f2ff;
+      color: #030712;
+      border-color: #00f2ff;
+      box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+    }
+  </style>
+
+  <!-- Header Overview Card -->
+  <div class="billing-overview-card">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h2 style="font-size: 1.75rem; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 0.25rem;">Subscription & Resources</h2>
+        <p style="color: #64748b; font-size: 0.9rem; margin: 0;">Manage your Nexa package, track AI voice minutes, and monitor API token usage.</p>
       </div>
-      <div class="pricing-features">
-        <ul>
+      <div style="text-align: right;">
+        <span class="current-plan-pill">
+          <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
+          CURRENT PLAN: <%= (currentPlanKey || 'nexa_core').toUpperCase().replace('_', ' ') %>
+        </span>
+        <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; font-weight: 500;">Next Billing Date: <%= billingDateStr %></p>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+      <!-- Voice Minutes -->
+      <div class="billing-metric-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(0, 242, 255, 0.1); border: 1px solid rgba(0, 242, 255, 0.2); display: flex; align-items: center; justify-content: center; color: #00f2ff;">
+              <i data-lucide="mic" style="width: 18px; height: 18px;"></i>
+            </div>
+            <span style="font-weight: 700; font-size: 0.9rem;">AI Voice Minutes</span>
+          </div>
+          <span style="font-size: 0.8rem; font-weight: 800; font-family: 'JetBrains Mono', monospace;"><%= usedMins %> / <%= maxMins %> mins</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div style="width: <%= minutePercent %>%; height: 100%; background: linear-gradient(90deg, #00f2ff 0%, #0ea5e9 100%); box-shadow: 0 0 10px #00f2ff;"></div>
+        </div>
+        <p style="font-size: 0.75rem; color: #64748b; margin: 0;"><%= Math.max(0, maxMins - usedMins) %> minutes remaining in current cycle.</p>
+      </div>
+
+      <!-- AI Tokens -->
+      <div class="billing-metric-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; color: #10b981;">
+              <i data-lucide="zap" style="width: 18px; height: 18px;"></i>
+            </div>
+            <span style="font-weight: 700; font-size: 0.9rem;">AI Tokens (LLM)</span>
+          </div>
+          <span style="font-size: 0.8rem; font-weight: 800; font-family: 'JetBrains Mono', monospace;"><%= (usedTokens / 1000).toFixed(1) %>k / <%= (maxTokens / 1000).toFixed(0) %>k</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div style="width: <%= tokenPercent %>%; height: 100%; background: linear-gradient(90deg, #10b981 0%, #059669 100%); box-shadow: 0 0 10px #10b981;"></div>
+        </div>
+        <p style="font-size: 0.75rem; color: #64748b; margin: 0;">Approx. <%= Math.max(0, ((maxTokens - usedTokens) / 1000)).toFixed(1) %>k tokens available.</p>
+      </div>
+
+      <!-- Wallet Balance -->
+      <div class="billing-metric-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); display: flex; align-items: center; justify-content: center; color: #f59e0b;">
+              <i data-lucide="coins" style="width: 18px; height: 18px;"></i>
+            </div>
+            <span style="font-weight: 700; font-size: 0.9rem;">Wallet Balance</span>
+          </div>
+          <span style="font-size: 0.8rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #f59e0b;"><%= tokenBalance %> Credits</span>
+        </div>
+        <button class="apex-btn" style="width: 100%; height: 34px; font-size: 0.75rem; background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.4); color: #f59e0b; justify-content: center;" onclick="purchaseCredits()">
+          <i data-lucide="plus" style="width: 14px; margin-right: 4px;"></i> Purchase Credits
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing Packages Grid -->
+  <div style="margin-top: 2.5rem;">
+    <h3 style="text-align: center; margin-bottom: 2.5rem; font-size: 1.5rem; font-weight: 900; color: white;">Professional Pricing Packages</h3>
+    
+    <div class="pricing-grid">
+      <!-- NEXA CORE -->
+      <div class="pricing-card-elite <%= currentPlanKey === 'nexa_core' ? 'active-plan' : '' %>">
+        <div class="pricing-header-title">Nexa Core</div>
+        <div class="pricing-amount">$99<span>/mo</span></div>
+        <p style="font-size: 0.85rem; color: #64748b; line-height: 1.5; margin-bottom: 1rem;">Essential voice automation for growing businesses.</p>
+
+        <ul class="pricing-features-list">
           <li><i data-lucide="check"></i> 300 AI Voice Minutes</li>
           <li><i data-lucide="check"></i> 1 Business Location</li>
           <li><i data-lucide="check"></i> 3 Staff Accounts</li>
@@ -89,207 +286,76 @@
           <li><i data-lucide="check"></i> Basic Order Taking</li>
           <li><i data-lucide="check"></i> FAQ Automation</li>
         </ul>
-      </div>
-      <button class="pricing-btn" onclick="upgradePlan('nexa_core')">
-        <%= data.tenant.plan === 'nexa_core' ? 'Current Plan' : 'Select Core' %>
-      </button>
-    </div>
 
-    <!-- NEXA FLOW -->
-    <div class="pricing-card highlighted <%= data.tenant.plan === 'nexa_flow' ? 'active' : '' %>">
-      <div class="popular-tag">MOST POPULAR</div>
-      <div class="pricing-header">
-        <h4>Nexa Flow</h4>
-        <div class="price">$299<span>/mo</span></div>
-        <p>Advanced routing and integrations.</p>
+        <button class="btn-plan-action" onclick="upgradePlan('nexa_core')">
+          <%= currentPlanKey === 'nexa_core' ? 'Current Plan' : 'Select Core' %>
+        </button>
       </div>
-      <div class="pricing-features">
-        <ul>
+
+      <!-- NEXA FLOW -->
+      <div class="pricing-card-elite <%= currentPlanKey === 'nexa_flow' ? 'active-plan' : '' %>">
+        <div class="popular-pill">MOST POPULAR</div>
+        <div class="pricing-header-title">Nexa Flow</div>
+        <div class="pricing-amount">$299<span>/mo</span></div>
+        <p style="font-size: 0.85rem; color: #64748b; line-height: 1.5; margin-bottom: 1rem;">Advanced AI routing, POS bridging, and SMS notifications.</p>
+
+        <ul class="pricing-features-list">
           <li><i data-lucide="check"></i> 1,200 AI Voice Minutes</li>
           <li><i data-lucide="check"></i> 5 Business Locations</li>
           <li><i data-lucide="check"></i> 25 Staff Accounts</li>
           <li><i data-lucide="check"></i> Advanced AI Ordering</li>
           <li><i data-lucide="check"></i> POS / API Integrations</li>
           <li><i data-lucide="check"></i> SMS Confirmations</li>
-          <li><i data-lucide="check"></i> AI Routing System</li>
+          <li><i data-lucide="check"></i> Smart AI Routing</li>
           <li><i data-lucide="check"></i> Priority Support</li>
-          <li><i data-lucide="plus" style="width:12px;"></i> All Core Features</li>
         </ul>
-      </div>
-      <button class="pricing-btn" onclick="upgradePlan('nexa_flow')">
-        <%= data.tenant.plan === 'nexa_flow' ? 'Current Plan' : 'Select Flow' %>
-      </button>
-    </div>
 
-    <!-- NEXA PRIME -->
-    <div class="pricing-card <%= data.tenant.plan === 'nexa_prime' ? 'active' : '' %>">
-      <div class="pricing-header">
-        <h4>Nexa Prime</h4>
-        <div class="price">$599<span>/mo</span></div>
-        <p>Full enterprise features and white-labeling.</p>
+        <button class="btn-plan-action" onclick="upgradePlan('nexa_flow')">
+          <%= currentPlanKey === 'nexa_flow' ? 'Current Plan' : 'Select Flow' %>
+        </button>
       </div>
-      <div class="pricing-features">
-        <ul>
+
+      <!-- NEXA PRIME -->
+      <div class="pricing-card-elite <%= currentPlanKey === 'nexa_prime' ? 'active-plan' : '' %>">
+        <div class="pricing-header-title">Nexa Prime</div>
+        <div class="pricing-amount">$599<span>/mo</span></div>
+        <p style="font-size: 0.85rem; color: #64748b; line-height: 1.5; margin-bottom: 1rem;">High-volume enterprise operations and white-labeling.</p>
+
+        <ul class="pricing-features-list">
           <li><i data-lucide="check"></i> 5,000 AI Voice Minutes</li>
           <li><i data-lucide="check"></i> 20 Business Locations</li>
           <li><i data-lucide="check"></i> 100 Staff Accounts</li>
-          <li><i data-lucide="check"></i> Multi-location Support</li>
-          <li><i data-lucide="check"></i> White-label Readiness</li>
-          <li><i data-lucide="check"></i> Advanced AI Analytics</li>
+          <li><i data-lucide="check"></i> Multi-location Routing</li>
+          <li><i data-lucide="check"></i> White-label Customization</li>
           <li><i data-lucide="check"></i> Real-time Monitoring</li>
-          <li><i data-lucide="check"></i> Dedicated Onboarding</li>
-          <li><i data-lucide="plus" style="width:12px;"></i> Flow + Core Features</li>
-        </ul>
-      </div>
-      <button class="pricing-btn" onclick="upgradePlan('nexa_prime')">
-        <%= data.tenant.plan === 'nexa_prime' ? 'Current Plan' : 'Select Prime' %>
-      </button>
-    </div>
-
-    <!-- ENTERPRISE -->
-    <div class="pricing-card enterprise">
-      <div class="pricing-header">
-        <h4>Enterprise</h4>
-        <div class="price">Custom</div>
-        <p>Dedicated infrastructure and scaling.</p>
-      </div>
-      <div class="pricing-features">
-        <ul>
-          <li><i data-lucide="check"></i> Unlimited AI Scaling</li>
-          <li><i data-lucide="check"></i> Dedicated Infrastructure</li>
-          <li><i data-lucide="check"></i> Custom AI Workflows</li>
-          <li><i data-lucide="check"></i> SLA Support</li>
-          <li><i data-lucide="check"></i> SSO & Security Controls</li>
-          <li><i data-lucide="check"></i> Multi-region Deployment</li>
           <li><i data-lucide="check"></i> Dedicated Manager</li>
         </ul>
+
+        <button class="btn-plan-action" onclick="upgradePlan('nexa_prime')">
+          <%= currentPlanKey === 'nexa_prime' ? 'Current Plan' : 'Select Prime' %>
+        </button>
       </div>
-      <button class="pricing-btn" onclick="contactSales()">Contact Sales</button>
+
+      <!-- ENTERPRISE -->
+      <div class="pricing-card-elite">
+        <div class="pricing-header-title">Enterprise</div>
+        <div class="pricing-amount">Custom</div>
+        <p style="font-size: 0.85rem; color: #64748b; line-height: 1.5; margin-bottom: 1rem;">Dedicated infrastructure, custom SLAs, and high scale.</p>
+
+        <ul class="pricing-features-list">
+          <li><i data-lucide="check"></i> Unlimited AI Scaling</li>
+          <li><i data-lucide="check"></i> Dedicated Cloud Instances</li>
+          <li><i data-lucide="check"></i> Custom AI Workflows</li>
+          <li><i data-lucide="check"></i> 99.99% SLA Guarantee</li>
+          <li><i data-lucide="check"></i> Enterprise Security Controls</li>
+          <li><i data-lucide="check"></i> Multi-region Support</li>
+        </ul>
+
+        <button class="btn-plan-action" onclick="contactSales()">Contact Sales</button>
+      </div>
     </div>
   </div>
 </div>
-
-<style>
-  .pricing-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border);
-    border-radius: 1.5rem;
-    padding: 2.5rem;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .pricing-card:hover {
-    border-color: var(--primary);
-    transform: translateY(-5px);
-    background: rgba(var(--primary-rgb), 0.05);
-  }
-
-  .pricing-card.highlighted {
-    border: 2px solid var(--primary);
-    background: rgba(var(--primary-rgb), 0.08);
-  }
-
-  .pricing-card.active {
-    border-color: var(--success);
-    background: rgba(var(--success-rgb), 0.05);
-  }
-
-  .popular-tag {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: var(--primary);
-    color: white;
-    font-size: 0.65rem;
-    font-weight: 800;
-    padding: 0.5rem 1.5rem;
-    border-bottom-left-radius: 1rem;
-    letter-spacing: 0.05em;
-  }
-
-  .pricing-header h4 {
-    font-size: 1.25rem;
-    font-weight: 800;
-    margin-bottom: 1rem;
-    color: white;
-  }
-
-  .pricing-header .price {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 1rem;
-    color: var(--primary);
-  }
-
-  .pricing-header .price span {
-    font-size: 1rem;
-    color: var(--text-muted);
-    font-weight: 400;
-  }
-
-  .pricing-header p {
-    font-size: 0.875rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-    margin-bottom: 2rem;
-  }
-
-  .pricing-features {
-    flex: 1;
-    margin-bottom: 2.5rem;
-  }
-
-  .pricing-features ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .pricing-features li {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.75rem;
-  }
-
-  .pricing-features i {
-    width: 16px;
-    height: 16px;
-    color: var(--primary);
-  }
-
-  .pricing-btn {
-    width: 100%;
-    height: 3rem;
-    border-radius: 0.75rem;
-    border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .pricing-btn:hover {
-    background: var(--primary);
-    border-color: var(--primary);
-  }
-
-  .highlighted .pricing-btn {
-    background: var(--primary);
-    border: none;
-  }
-
-  .highlighted .pricing-btn:hover {
-    filter: brightness(1.1);
-  }
-</style>
 
 <script>
   if (window.lucide) lucide.createIcons();
@@ -306,26 +372,33 @@
 
     if (!confirm(`Are you sure you want to request an upgrade to ${plan.name}?`)) return;
 
-    notify("Submitting upgrade request...", "Billing");
+    if (typeof notify === 'function') notify("Submitting upgrade request...", "Billing");
     
     try {
       const res = await fetch("/api/billing/request-mints", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + (localStorage.getItem("accessToken") || window.token)
+        },
         body: JSON.stringify({ amount: plan.amount, tier: planId })
       });
       const r = await res.json();
       if (r.success) {
-        notify("Your request has been submitted to the SuperAdmin for approval.", "Success");
+        if (typeof notify === 'function') notify("Your upgrade request has been submitted for approval.", "Success");
       } else {
-        notify(r.message || "Failed to submit request", "Error");
+        if (typeof notify === 'function') notify(r.message || "Failed to submit request", "Error");
       }
     } catch (e) {
-      notify("Network error. Please try again.", "Error");
+      if (typeof notify === 'function') notify("Network error. Please try again.", "Error");
     }
   }
 
+  function purchaseCredits() {
+    if (typeof notify === 'function') notify("Opening credits top-up modal...", "Info");
+  }
+
   function contactSales() {
-    notify("Redirecting to enterprise support...", "Info");
+    if (typeof notify === 'function') notify("Redirecting to enterprise solutions team...", "Info");
   }
 </script>

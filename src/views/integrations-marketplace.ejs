@@ -278,9 +278,20 @@
             if (badge) {
               badge.innerText = int.isConnected ? "Connected" : "Disconnected";
               badge.className = `badge ${int.isConnected ? 'badge-connected' : 'badge-disconnected'}`;
+              if (int.isConnected) {
+                badge.style.background = "rgba(0, 242, 255, 0.12)";
+                badge.style.color = "#00f2ff";
+                badge.style.borderColor = "rgba(0, 242, 255, 0.3)";
+                badge.style.boxShadow = "0 0 12px rgba(0, 242, 255, 0.25)";
+              } else {
+                badge.style.background = "rgba(255, 255, 255, 0.05)";
+                badge.style.color = "#64748b";
+                badge.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                badge.style.boxShadow = "none";
+              }
             }
             if (btn) {
-              btn.innerText = int.isConnected ? "Reconnect" : "Connect";
+              btn.innerText = int.isConnected ? "Reconnect POS Link" : "Connect POS";
             }
           });
         }

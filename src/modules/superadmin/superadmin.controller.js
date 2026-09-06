@@ -10,6 +10,30 @@ const generateSlug = (name) => {
 };
 
 /* ======================================
+   GET DISCORD SUPERADMIN AGENT STATUS & AUDIT LOGS
+====================================== */
+exports.getDiscordAgentStatus = async (req, res) => {
+  try {
+    const superadminAgent = require("../../services/superadmin-agent.service");
+    const discordBot = require("../../services/discord-bot.service");
+
+    res.json({
+      success: true,
+      agent: {
+        mode: process.env.DISCORD_AGENT_MODE || "development",
+        dryRun: superadminAgent.dryRun,
+        emergencyDisable: superadminAgent.emergencyDisable,
+        gatewayConnected: discordBot.isConnected,
+        allowedUserIdsCount: discordBot.allowedUserIds.length,
+        auditLogs: superadminAgent.getAuditLogs()
+      }
+    });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+};
+
+/* ======================================
    GET ALL TENANTS
 ====================================== */
 exports.getTenants = async (req, res) => {
@@ -250,6 +274,8 @@ async function purgeTenantById(tenantId) {
   }
   await prisma.$transaction(batch7);
 }
+
+exports.purgeTenantById = purgeTenantById;
 
 /* ======================================
    DELETE SINGLE TENANT (With Security)
@@ -1168,19 +1194,65 @@ exports.createIncident = async (req, res) => {
   }
 };
 
+exports.updateIncidentStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const updateData = { status };
+    if (status === "resolved") {
+      updateData.resolvedAt = new Date();
+    }
+    const incident = await prisma.incident.update({
+      where: { id },
+      data: updateData
+    });
+    res.json({ success: true, data: incident });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 /* ======================================
    QUEUE & WORKER MONITORING
 ====================================== */
+// In-memory queue state for interactive demo/admin control
+let queueStates = [
+  { id: "transcription", name: "Transcription Engine", active: 4, waiting: 0, failed: 1, processed: 1420, paused: false, throughput: "142 jobs/m" },
+  { id: "voice", name: "Voice Generation", active: 2, waiting: 1, failed: 0, processed: 850, paused: false, throughput: "98 jobs/m" },
+  { id: "order_sync", name: "Order Synchronization", active: 0, waiting: 0, failed: 4, processed: 12400, paused: false, throughput: "420 jobs/m" },
+  { id: "scraper", name: "Smart Scraper", active: 1, waiting: 2, failed: 0, processed: 310, paused: false, throughput: "34 jobs/m" }
+];
+
 exports.getQueueStats = async (req, res) => {
   try {
-    // High-fidelity mock of background worker state
-    const queues = [
-      { name: "Transcription Engine", active: 4, waiting: 0, failed: 1, processed: 1420 },
-      { name: "Voice Generation", active: 2, waiting: 1, failed: 0, processed: 850 },
-      { name: "Order Synchronization", active: 0, waiting: 0, failed: 4, processed: 12400 },
-      { name: "Smart Scraper", active: 1, waiting: 2, failed: 0, processed: 310 }
-    ];
-    res.json({ success: true, data: queues });
+    res.json({ success: true, data: queueStates });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.retryQueueJobs = async (req, res) => {
+  try {
+    const { queueId } = req.body;
+    const q = queueStates.find(item => item.id === queueId || item.name === queueId);
+    if (q) {
+      q.processed += q.failed;
+      q.failed = 0;
+    }
+    res.json({ success: true, message: `Retried failed jobs for ${queueId || 'all queues'}.`, data: queueStates });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.toggleQueuePause = async (req, res) => {
+  try {
+    const { queueId } = req.body;
+    const q = queueStates.find(item => item.id === queueId || item.name === queueId);
+    if (q) {
+      q.paused = !q.paused;
+    }
+    res.json({ success: true, message: `Queue ${queueId} ${q?.paused ? 'paused' : 'resumed'}.`, data: queueStates });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

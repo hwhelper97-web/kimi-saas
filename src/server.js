@@ -1,4 +1,12 @@
 require("dotenv").config();
+const fs = require("fs");
+const path = require("path");
+
+const agentEnvPath = path.join(__dirname, "../.env.discord-agent.local");
+if (fs.existsSync(agentEnvPath)) {
+  require("dotenv").config({ path: agentEnvPath, override: true });
+}
+
 const http = require("http");
 const WebSocket = require("ws");
 const { Server } = require("socket.io");
@@ -181,6 +189,14 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 [NAXTON-AI-V2] Realtime Server LIVE on port ${PORT}`);
   
+  // 🤖 Superadmin AI Agent Discord Bot Gateway Startup (Dev Mode)
+  try {
+    const discordBotService = require("./services/discord-bot.service");
+    discordBotService.start();
+  } catch (e) {
+    console.warn("[DISCORD_BOT_START_WARN]", e.message);
+  }
+
   // 🚀 Auto-sync all Twilio Phone Webhooks & Inventory asynchronously after startup
   setTimeout(() => {
     try {

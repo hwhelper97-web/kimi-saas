@@ -866,6 +866,12 @@ async function fetchDashboardOrders() {
 function initDashboardCharts(chartData, isOrder) {
   const revCtx = document.getElementById("revenueChart");
   if (revCtx && chartData.revenueChart) {
+    const ctx = revCtx.getContext("2d");
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(6, 182, 212, 0.35)');
+    gradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.12)');
+    gradient.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+
     revenueChartInstance = new Chart(revCtx, {
       type: 'line',
       data: {
@@ -873,18 +879,23 @@ function initDashboardCharts(chartData, isOrder) {
         datasets: [{
           label: isOrder ? 'Sales Revenue' : 'Projected Revenue',
           data: chartData.revenueChart.values,
-          borderColor: '#00bcd4',
+          borderColor: '#06b6d4',
+          borderWidth: 3,
+          pointBackgroundColor: '#06b6d4',
+          pointBorderColor: '#ffffff',
+          pointRadius: 4,
+          pointHoverRadius: 7,
           tension: 0.4,
           fill: true,
-          backgroundColor: 'rgba(0, 188, 212, 0.1)'
+          backgroundColor: gradient
         }]
       },
       options: { 
         maintainAspectRatio: false, 
         plugins: { legend: { display: false } },
         scales: {
-          y: { grid: { color: 'rgba(255,255,255,0.05)' } },
-          x: { grid: { display: false } }
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 10 } } },
+          x: { grid: { display: false }, ticks: { color: '#64748b', font: { family: 'Inter', size: 10 } } }
         }
       }
     });
@@ -892,6 +903,11 @@ function initDashboardCharts(chartData, isOrder) {
 
   const callsCtx = document.getElementById("callsChart");
   if (callsCtx && chartData.callsChart) {
+    const ctx = callsCtx.getContext("2d");
+    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+    gradient.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
+    gradient.addColorStop(1, 'rgba(99, 102, 241, 0.05)');
+
     callsChartInstance = new Chart(callsCtx, {
       type: 'bar',
       data: {
@@ -899,11 +915,20 @@ function initDashboardCharts(chartData, isOrder) {
         datasets: [{
           label: 'Calls',
           data: chartData.callsChart.values,
-          backgroundColor: '#00bcd4',
-          borderRadius: 4
+          backgroundColor: gradient,
+          borderColor: '#6366f1',
+          borderWidth: 1,
+          borderRadius: 8
         }]
       },
-      options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      options: { 
+        maintainAspectRatio: false, 
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 10 } } },
+          x: { grid: { display: false }, ticks: { color: '#64748b', font: { family: 'Inter', size: 10 } } }
+        }
+      }
     });
   }
 }

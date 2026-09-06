@@ -10,6 +10,14 @@ const { ROLES } = require("../../constants/roles");
    🧑‍💼 SUPERADMIN ROUTES
 ========================================= */
 
+// Get Discord Superadmin Agent Status & Audit Logs
+router.get(
+  "/discord-agent/status",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.getDiscordAgentStatus
+);
+
 // Get all tenants
 router.get(
   "/tenants",
@@ -232,11 +240,32 @@ router.post(
   controller.createIncident
 );
 
+router.patch(
+  "/incidents/:id",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.updateIncidentStatus
+);
+
 router.get(
   "/queues",
   authMiddleware,
   allowRoles(ROLES.SUPERADMIN),
   controller.getQueueStats
+);
+
+router.post(
+  "/queues/retry",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.retryQueueJobs
+);
+
+router.post(
+  "/queues/toggle-pause",
+  authMiddleware,
+  allowRoles(ROLES.SUPERADMIN),
+  controller.toggleQueuePause
 );
 
 // --- TELEPHONY INVENTORY ---

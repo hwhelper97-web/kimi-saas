@@ -55,14 +55,49 @@ async function loadKB() {
 function renderKB(articles) {
     const container = document.getElementById("kbArticles");
     if (!container) return;
+
+    if (!articles || articles.length === 0) {
+        articles = [
+            {
+                slug: "quickstart-voice-agent",
+                title: "AI Voice Agent Quickstart Guide",
+                content: "Learn how to configure your Twilio inbound lines, custom prompt directives, and live voice synthesis in under 5 minutes.",
+                category: "TELEPHONY"
+            },
+            {
+                slug: "pos-integration-setup",
+                title: "POS & Ecosystem Synchronization",
+                content: "Step-by-step instructions for connecting Toast, Square, and Clover POS integrations to enable real-time order injection.",
+                category: "INTEGRATION"
+            },
+            {
+                slug: "booking-calendar-rules",
+                title: "Smart Calendar & Slot Booking Protocols",
+                content: "Configure opening hours, staff availability matrix, buffer durations, and automatic SMS appointment confirmations.",
+                category: "CALENDAR"
+            },
+            {
+                slug: "billing-and-minute-allocations",
+                title: "Billing Tiers & Voice Minute Quotas",
+                content: "Understand how monthly voice minutes, token limits, and overage credits are calculated and renewed across your subscription.",
+                category: "BILLING"
+            }
+        ];
+    }
+
+    window._kbArticlesCache = articles;
+
     container.innerHTML = articles.map(a => `
         <div class="kb-card animate-entrance" onclick="viewArticle('${a.slug}')">
-            <div style="width: 3rem; height: 3rem; border-radius: 1rem; background: rgba(0, 242, 255, 0.1); display: flex; align-items: center; justify-content: center; color: var(--support-primary); margin-bottom: 1.5rem;">
-                <i data-lucide="file-text" style="width: 1.5rem;"></i>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <div style="width: 3rem; height: 3rem; border-radius: 1rem; background: rgba(0, 242, 255, 0.1); border: 1px solid rgba(0, 242, 255, 0.2); display: flex; align-items: center; justify-content: center; color: var(--support-primary);">
+                    <i data-lucide="${a.category === 'TELEPHONY' ? 'phone-call' : a.category === 'INTEGRATION' ? 'cpu' : a.category === 'CALENDAR' ? 'calendar' : 'file-text'}" style="width: 1.5rem;"></i>
+                </div>
+                <span style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--support-primary); background: rgba(0, 242, 255, 0.08); padding: 0.25rem 0.75rem; border-radius: 9999px; border: 1px solid rgba(0, 242, 255, 0.2);">${a.category || 'GUIDE'}</span>
             </div>
-            <h4 style="margin-bottom: 0.75rem; font-size: 1.25rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${a.title}</h4>
-            <p style="font-size: 0.9rem; color: var(--support-text-muted); line-height: 1.6;">${a.content.substring(0, 100)}...</p>
-            <div style="margin-top: 2rem; display: flex; align-items: center; gap: 0.5rem; color: var(--support-primary); font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">
+            <h4 style="margin-bottom: 0.75rem; font-size: 1.2rem; font-weight: 800; color: white;">${a.title}</h4>
+            <p style="font-size: 0.875rem; color: var(--support-text-muted); line-height: 1.6; margin-bottom: 1.5rem;">${a.content.substring(0, 110)}...</p>
+            <div style="margin-top: auto; display: flex; align-items: center; gap: 0.5rem; color: var(--support-primary); font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">
                 Analyze Protocol <i data-lucide="arrow-right" style="width: 14px;"></i>
             </div>
         </div>
@@ -89,21 +124,24 @@ function renderMyTickets(tickets) {
         const statusColors = {
             'open': '#00f2ff',
             'closed': '#64748b',
-            'pending': '#f59e0b'
+            'pending': '#f59e0b',
+            'resolved': '#10b981'
         };
-        const color = statusColors[t.status.toLowerCase()] || '#00f2ff';
+        const statusKey = (t.status || 'open').toLowerCase();
+        const color = statusColors[statusKey] || '#00f2ff';
+        const subject = t.subject || t.title || 'Support Ticket Inquiry';
         
         return `
-            <tr onclick="viewTicketDetails('${t.id}')">
-                <td><span style="font-family: monospace; color: var(--support-primary); font-weight: 800; opacity: 0.8;">#${t.id.substring(0, 8).toUpperCase()}</span></td>
-                <td style="font-weight: 700;">${t.subject}</td>
+            <tr onclick="viewTicketDetails('${t.id}')" style="cursor: pointer;">
+                <td><span style="font-family: 'JetBrains Mono', monospace; color: var(--support-primary); font-weight: 800; opacity: 0.9;">#${t.id.substring(0, 8).toUpperCase()}</span></td>
+                <td style="font-weight: 700; color: white;">${subject}</td>
                 <td>
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                         <div style="width: 8px; height: 8px; border-radius: 50%; background: ${color}; box-shadow: 0 0 10px ${color};"></div>
-                        <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: ${color};">${t.status}</span>
+                        <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: ${color};">${(t.status || 'OPEN').toUpperCase()}</span>
                     </div>
                 </td>
-                <td style="font-size: 0.85rem; color: var(--support-text-muted); font-weight: 600;">${new Date(t.updatedAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}</td>
+                <td style="font-size: 0.85rem; color: var(--support-text-muted); font-weight: 600;">${t.createdAt ? new Date(t.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'}) : 'N/A'}</td>
             </tr>
         `;
     }).join("");

@@ -84,3 +84,24 @@ exports.getCategories = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Delete Article
+exports.deleteArticle = async (req, res) => {
+  const { id } = req.params;
+  const isSuperAdmin = req.user.role === "SUPERADMIN";
+  const tenantId = isSuperAdmin ? undefined : req.tenantId;
+
+  try {
+    const existing = await prisma.knowledgeArticle.findFirst({
+      where: { id, ...(tenantId ? { tenantId } : {}) }
+    });
+    if (!existing) {
+      return res.status(404).json({ success: false, message: "Article not found" });
+    }
+    await prisma.knowledgeArticle.delete({ where: { id: existing.id } });
+    res.json({ success: true, message: "Article deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

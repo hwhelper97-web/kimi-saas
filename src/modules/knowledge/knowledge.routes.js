@@ -9,6 +9,7 @@ router.use(authMiddleware);
 router.use(tenantMiddleware);
 
 router.post("/articles", knowledgeController.upsertArticle);
+router.delete("/articles/:id", knowledgeController.deleteArticle);
 router.get("/articles/search", knowledgeController.searchArticles);
 router.get("/categories", knowledgeController.getCategories);
 

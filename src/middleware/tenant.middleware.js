@@ -4,7 +4,7 @@ const PUBLIC_ROUTES = [
   "/api/call/media-stream",
 ];
 
-const tenantMiddleware = (req, res, next) => {
+const tenantMiddleware = async (req, res, next) => {
   try {
     const url = req.originalUrl;
 
@@ -13,6 +13,15 @@ const tenantMiddleware = (req, res, next) => {
 
     if (!req.user || (!req.user.tenantId && req.user.role !== "SUPERADMIN")) {
       return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const bId = req.query?.businessId || req.params?.businessId || req.headers?.["x-business-id"];
+    if (req.user && req.user.role === "SUPERADMIN" && bId) {
+      const prisma = require("../config/prisma");
+      const b = await prisma.business.findUnique({ where: { id: bId } });
+      if (b && b.tenantId) {
+        req.tenantId = b.tenantId;
+      }
     }
 
     // 🛡️ Guard: Only set tenantId if not already established by authMiddleware/proxy
